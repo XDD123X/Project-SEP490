@@ -25,7 +25,9 @@ public partial class User
 
     public int? IsActive { get; set; }
 
-    public string? Token { get; set; } 
+    public string? Token { get; set; }
+
+    public DateTime? ResetTokenExpiresAt { get; set; }
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 
