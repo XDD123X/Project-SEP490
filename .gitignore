@@ -1,0 +1,7 @@
+# Bỏ qua thư mục bin
+bin/
+**/bin/
+
+# Bỏ qua thư mục obj
+obj/
+**/obj/
