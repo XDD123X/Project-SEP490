@@ -1,3 +1,6 @@
+.vs/
+
+
 # Bỏ qua thư mục bin
 bin/
 **/bin/
