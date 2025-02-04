@@ -75,7 +75,7 @@ namespace OTMSAPI.Controllers
             var resetToken = Guid.NewGuid().ToString();
 
             user.Token = resetToken;
-            //user.ResetTokenExpiresAt = DateTime.UtcNow.AddHours(1);
+            user.ResetTokenExpiresAt = DateTime.UtcNow.AddHours(1);
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
@@ -114,14 +114,14 @@ namespace OTMSAPI.Controllers
         {
             var user = _context.Users.FirstOrDefault(x => x.Token == resetRequest.Code);
 
-            if (user == null /*|| user.ResetTokenExpiresAt < DateTime.UtcNow*/)
+            if (user == null || user.ResetTokenExpiresAt < DateTime.UtcNow)
             {
                 return Unauthorized("Invalid or expired reset token.");
             }
 
             user.Password = resetRequest.NewPassword; 
             user.Token = null;
-           // user.ResetTokenExpiresAt = null;
+            user.ResetTokenExpiresAt = null;
             user.UpdatedAt = DateTime.UtcNow;
 
             _context.Users.Update(user);
