@@ -118,8 +118,18 @@ namespace OTMSAPI.Controllers
 
             string firstName = nameParts[^1];
             string lastName = nameParts[0];
+            List<string> existingEmails = _context.Users.Select(x => x.Email).ToList();
+            string rawEmail = $"{firstName}{lastName}@{domain}";
+            string newEmail = rawEmail;
+            int counter = 1;
 
-            return $"{firstName}{lastName}@{domain}";
+            while (existingEmails.Contains(newEmail))
+            {
+                newEmail = $"{firstName}{lastName}{counter}@{domain}";
+                counter++;
+            }
+
+            return newEmail;
         }
 
         private string RemoveVietnameseAccents(string text)
@@ -153,8 +163,8 @@ namespace OTMSAPI.Controllers
 
             worksheet.Cell(1, 1).Value = "Full Name";
             worksheet.Cell(1, 2).Value = "Email";
-            worksheet.Cell(1, 4).Value = "Role";
-            worksheet.Cell(1, 5).Value = "Password";
+            worksheet.Cell(1, 3).Value = "Role";
+            worksheet.Cell(1, 4).Value = "Password";
 
             for (int i = 0; i < users.Count; i++)
             {
