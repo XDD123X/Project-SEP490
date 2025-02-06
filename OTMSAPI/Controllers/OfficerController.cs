@@ -29,8 +29,9 @@ namespace OTMSAPI.Controllers
             var worksheet = workbook.Worksheets.Add("Users");
 
             worksheet.Cell(1, 1).Value = "Full Name";
-            worksheet.Cell(1, 2).Value = "Role";
-            worksheet.Cell(1, 3).Value = "User Types";
+            worksheet.Cell(1, 2).Value = "Email";
+            worksheet.Cell(1, 3).Value = "Role";
+            worksheet.Cell(1, 4).Value = "User Types";
 
             worksheet.Row(1).Style.Font.Bold = true;
             worksheet.Columns().AdjustToContents();
@@ -59,7 +60,7 @@ namespace OTMSAPI.Controllers
                 foreach (var row in rows)
                 {
                     var fullName = row.Cell(1).GetValue<string>();
-                    var email = GenerateEmail(fullName);
+                    var email = row.Cell(2).GetValue<string>();
                     var password = GenerateRandomPassword();
                     var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
                     var role = row.Cell(2).GetValue<string>();
@@ -101,59 +102,6 @@ namespace OTMSAPI.Controllers
         private string GenerateRandomPassword()
         {
             return Guid.NewGuid().ToString("N").Substring(0, 8);
-        }
-        private string GenerateEmail(string fullName)
-        {
-            string domain = "school.com";
-            if (string.IsNullOrWhiteSpace(fullName))
-                throw new ArgumentException("Full name cannot be empty.");
-            fullName = fullName.Trim().ToLower();
-            fullName = RemoveVietnameseAccents(fullName);
-            string[] nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            if (nameParts.Length == 1)
-            {
-                return $"{nameParts[0]}@{domain}";
-            }
-
-            string firstName = nameParts[^1];
-            string lastName = nameParts[0];
-            List<string> existingEmails = _context.Users.Select(x => x.Email).ToList();
-            string rawEmail = $"{firstName}{lastName}@{domain}";
-            string newEmail = rawEmail;
-            int counter = 1;
-
-            while (existingEmails.Contains(newEmail))
-            {
-                newEmail = $"{firstName}{lastName}{counter}@{domain}";
-                counter++;
-            }
-
-            return newEmail;
-        }
-
-        private string RemoveVietnameseAccents(string text)
-        {
-            string[][] vietnameseChars = new string[][]
-            {
-            new string[] { "a", "á", "à", "ả", "ã", "ạ", "ă", "ắ", "ằ", "ẳ", "ẵ", "ặ", "â", "ấ", "ầ", "ẩ", "ẫ", "ậ" },
-            new string[] { "o", "ó", "ò", "ỏ", "õ", "ọ", "ô", "ố", "ồ", "ổ", "ỗ", "ộ", "ơ", "ớ", "ờ", "ở", "ỡ", "ợ" },
-            new string[] { "e", "é", "è", "ẻ", "ẽ", "ẹ", "ê", "ế", "ề", "ể", "ễ", "ệ" },
-            new string[] { "u", "ú", "ù", "ủ", "ũ", "ụ", "ư", "ứ", "ừ", "ử", "ữ", "ự" },
-            new string[] { "i", "í", "ì", "ỉ", "ĩ", "ị" },
-            new string[] { "y", "ý", "ỳ", "ỷ", "ỹ", "ỵ" },
-            new string[] { "d", "đ" }
-            };
-
-            foreach (var group in vietnameseChars)
-            {
-                foreach (var letter in group[1..])
-                {
-                    text = text.Replace(letter, group[0]);
-                }
-            }
-
-            return text;
         }
         [HttpGet("export-data")]
         private byte[] GenerateUserExcel(List<UserAccountDto> users)
