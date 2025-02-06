@@ -33,7 +33,6 @@ namespace OTMSAPI.Controllers
             worksheet.Cell(1, 3).Value = "Role";
             worksheet.Cell(1, 4).Value = "User Types";
 
-            worksheet.Row(1).Style.Font.Bold = true;
             worksheet.Columns().AdjustToContents();
 
             using var stream = new MemoryStream();
@@ -49,14 +48,14 @@ namespace OTMSAPI.Controllers
                 return BadRequest("File không hợp lệ.");
 
             var users = new List<UserAccountDto>();
-
+            var duplicateUsers = new List<UserAccountDto>();
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
                 using var workbook = new XLWorkbook(stream);
                 var worksheet = workbook.Worksheet(1);
                 var rows = worksheet.RowsUsed().Skip(1);
-
+                List<string> existingEmails = _context.Users.Select(x => x.Email).ToList();
                 foreach (var row in rows)
                 {
                     var fullName = row.Cell(1).GetValue<string>();
@@ -67,30 +66,48 @@ namespace OTMSAPI.Controllers
                     var role_id = _context.Roles.FirstOrDefault(x => x.RoleName.Equals(role)).RoleId;
                     var user_types = row.Cell(4).GetValue<string>();
                     var user_types_id = _context.UserTypes.FirstOrDefault(x => x.UserTypeName.Equals(user_types)).UserTypeId;
-                    User user = new User
+                    
+                    if (existingEmails.Contains(email))
                     {
-                        UserId = GenerateUserId(),
-                        FullName = fullName,
-                        Email = email,
-                        RoleId = role_id,
-                        UserTypeId = user_types_id,
-                        Password = hashedPassword,
-                        CreatedAt = DateTime.Now,
-                        IsActive = 1,
-                        Status = "activated"
-                    };
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
-                    users.Add(new UserAccountDto
+                        duplicateUsers.Add(new UserAccountDto
+                        {
+                            FullName = fullName,
+                            Email = email,
+                            Role = role,
+                            Password = password,
+                            Type = user_types,
+                        });
+                    }
+                    else
                     {
-                        FullName = fullName,
-                        Email = email,
-                        Role = role,
-                        Password = password
-                    });
+                        existingEmails.Add(email);
+                        User user = new User
+                        {
+                            UserId = GenerateUserId(),
+                            FullName = fullName,
+                            Email = email,
+                            RoleId = role_id,
+                            UserTypeId = user_types_id,
+                            Password = hashedPassword,
+                            CreatedAt = DateTime.Now,
+                            IsActive = 1,
+                            Status = "activated"
+                        };
+                        _context.Users.Add(user);
+                        await _context.SaveChangesAsync();
+                        users.Add(new UserAccountDto
+                        {
+                            FullName = fullName,
+                            Email = email,
+                            Role = role,
+                            Password = password,
+                            Type = user_types,
+                        });
+                    }
+
                 }
             }
-            var fileBytes = GenerateUserExcel(users);
+            var fileBytes = GenerateUserExcel(users, duplicateUsers);
             return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "UserAccounts.xlsx");
         }
 
@@ -104,7 +121,7 @@ namespace OTMSAPI.Controllers
             return Guid.NewGuid().ToString("N").Substring(0, 8);
         }
         [HttpGet("export-data")]
-        private byte[] GenerateUserExcel(List<UserAccountDto> users)
+        private byte[] GenerateUserExcel(List<UserAccountDto> users, List<UserAccountDto> duplicateUsers)
         {
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("User Accounts");
@@ -113,6 +130,14 @@ namespace OTMSAPI.Controllers
             worksheet.Cell(1, 2).Value = "Email";
             worksheet.Cell(1, 3).Value = "Role";
             worksheet.Cell(1, 4).Value = "Password";
+            worksheet.Cell(1, 5).Value = "User Types";
+
+            worksheet.Cell(1, 7).Value = "Can't import student because Email already register in system";
+            worksheet.Cell(1, 8).Value = "Full Name";
+            worksheet.Cell(1, 9).Value = "Email";
+            worksheet.Cell(1, 10).Value = "Role";
+            worksheet.Cell(1, 11).Value = "Password";
+            worksheet.Cell(1, 12).Value = "User Types";
 
             for (int i = 0; i < users.Count; i++)
             {
@@ -121,8 +146,14 @@ namespace OTMSAPI.Controllers
                 worksheet.Cell(i + 2, 3).Value = users[i].Role;
                 worksheet.Cell(i + 2, 4).Value = users[i].Password;
             }
+            for (int i = 0; i< duplicateUsers.Count; i++)
+            {
+                worksheet.Cell(i + 2, 8).Value = users[i].FullName;
+                worksheet.Cell(i + 2, 9).Value = users[i].Email;
+                worksheet.Cell(i + 2, 10).Value = users[i].Role;
+                worksheet.Cell(i + 2, 11).Value = users[i].Password;
+            }
 
-            worksheet.Row(1).Style.Font.Bold = true;
             worksheet.Columns().AdjustToContents();
 
             using var stream = new MemoryStream();
