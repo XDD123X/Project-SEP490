@@ -132,7 +132,7 @@ namespace OTMSAPI.Controllers
             worksheet.Cell(1, 4).Value = "Password";
             worksheet.Cell(1, 5).Value = "User Types";
 
-            worksheet.Cell(1, 7).Value = "Can't import student because Email already register in system";
+            worksheet.Cell(1, 7).Value = "Can't import student because Email already register in system ->";
             worksheet.Cell(1, 8).Value = "Full Name";
             worksheet.Cell(1, 9).Value = "Email";
             worksheet.Cell(1, 10).Value = "Role";
@@ -145,13 +145,15 @@ namespace OTMSAPI.Controllers
                 worksheet.Cell(i + 2, 2).Value = users[i].Email;
                 worksheet.Cell(i + 2, 3).Value = users[i].Role;
                 worksheet.Cell(i + 2, 4).Value = users[i].Password;
+                worksheet.Cell(i + 2, 5).Value= users[i].Type;
             }
             for (int i = 0; i< duplicateUsers.Count; i++)
             {
-                worksheet.Cell(i + 2, 8).Value = users[i].FullName;
-                worksheet.Cell(i + 2, 9).Value = users[i].Email;
-                worksheet.Cell(i + 2, 10).Value = users[i].Role;
-                worksheet.Cell(i + 2, 11).Value = users[i].Password;
+                worksheet.Cell(i + 2, 8).Value = duplicateUsers[i].FullName;
+                worksheet.Cell(i + 2, 9).Value = duplicateUsers[i].Email;
+                worksheet.Cell(i + 2, 10).Value = duplicateUsers[i].Role;
+                worksheet.Cell(i + 2, 11).Value = duplicateUsers[i].Password;
+                worksheet.Cell(i + 2, 12).Value = duplicateUsers[i].Type;
             }
 
             worksheet.Columns().AdjustToContents();
