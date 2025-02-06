@@ -63,9 +63,9 @@ namespace OTMSAPI.Controllers
                     var email = row.Cell(2).GetValue<string>();
                     var password = GenerateRandomPassword();
                     var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-                    var role = row.Cell(2).GetValue<string>();
+                    var role = row.Cell(3).GetValue<string>();
                     var role_id = _context.Roles.FirstOrDefault(x => x.RoleName.Equals(role)).RoleId;
-                    var user_types = row.Cell(3).GetValue<string>();
+                    var user_types = row.Cell(4).GetValue<string>();
                     var user_types_id = _context.UserTypes.FirstOrDefault(x => x.UserTypeName.Equals(user_types)).UserTypeId;
                     User user = new User
                     {
