@@ -31,7 +31,7 @@ namespace OTMSAPI.Controllers
             worksheet.Cell(1, 1).Value = "Full Name";
             worksheet.Cell(1, 2).Value = "Email";
             worksheet.Cell(1, 3).Value = "Role";
-            worksheet.Cell(1, 4).Value = "User Types";
+            worksheet.Cell(1, 4).Value = "Phone Number";
 
             worksheet.Columns().AdjustToContents();
 
@@ -49,13 +49,14 @@ namespace OTMSAPI.Controllers
 
             var users = new List<UserAccountDto>();
             var duplicateUsers = new List<UserAccountDto>();
+            var listUser = new List<Account>();
+            List<string> existingEmails = _context.Accounts.Select(x => x.Email).ToList();
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
                 using var workbook = new XLWorkbook(stream);
                 var worksheet = workbook.Worksheet(1);
                 var rows = worksheet.RowsUsed().Skip(1);
-                List<string> existingEmails = _context.Users.Select(x => x.Email).ToList();
                 foreach (var row in rows)
                 {
                     var fullName = row.Cell(1).GetValue<string>();
@@ -63,10 +64,13 @@ namespace OTMSAPI.Controllers
                     var password = GenerateRandomPassword();
                     var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
                     var role = row.Cell(3).GetValue<string>();
-                    var role_id = _context.Roles.FirstOrDefault(x => x.RoleName.Equals(role)).RoleId;
-                    var user_types = row.Cell(4).GetValue<string>();
-                    var user_types_id = _context.UserTypes.FirstOrDefault(x => x.UserTypeName.Equals(user_types)).UserTypeId;
-                    
+                    var roleEntity = _context.Roles.FirstOrDefault(x => x.Name.Equals(role));
+                    if (roleEntity == null)
+                    {
+                        return BadRequest($"Vai trò '{role}' không tồn tại.");
+                    }
+                    var role_id = roleEntity.RoleId;
+                    var phone_number = row.Cell(4).GetValue<string>();
                     if (existingEmails.Contains(email))
                     {
                         duplicateUsers.Add(new UserAccountDto
@@ -74,89 +78,82 @@ namespace OTMSAPI.Controllers
                             FullName = fullName,
                             Email = email,
                             Role = role,
-                            Password = password,
-                            Type = user_types,
+                            PhoneNumber = phone_number,
                         });
                     }
                     else
                     {
                         existingEmails.Add(email);
-                        User user = new User
+                        Account account = new Account
                         {
-                            UserId = GenerateUserId(),
                             FullName = fullName,
                             Email = email,
                             RoleId = role_id,
-                            UserTypeId = user_types_id,
                             Password = hashedPassword,
+                            PhoneNumber = phone_number,
                             CreatedAt = DateTime.Now,
-                            IsActive = 1,
-                            Status = "activated"
+                            Status = "1"
                         };
-                        _context.Users.Add(user);
-                        await _context.SaveChangesAsync();
                         users.Add(new UserAccountDto
                         {
                             FullName = fullName,
                             Email = email,
                             Role = role,
                             Password = password,
-                            Type = user_types,
+                            PhoneNumber = phone_number,
                         });
+                        listUser.Add(account);
                     }
-
                 }
+            }
+            if (listUser.Count > 0)
+            {
+                _context.Accounts.AddRange(listUser);
+                await _context.SaveChangesAsync();
             }
             var fileBytes = GenerateUserExcel(users, duplicateUsers);
             return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "UserAccounts.xlsx");
         }
-
-        private Guid GenerateUserId()
-        {
-            return Guid.NewGuid();
-        }
-
         private string GenerateRandomPassword()
         {
             return Guid.NewGuid().ToString("N").Substring(0, 8);
         }
-        [HttpGet("export-data")]
         private byte[] GenerateUserExcel(List<UserAccountDto> users, List<UserAccountDto> duplicateUsers)
         {
             using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("User Accounts");
 
-            worksheet.Cell(1, 1).Value = "Full Name";
-            worksheet.Cell(1, 2).Value = "Email";
-            worksheet.Cell(1, 3).Value = "Role";
-            worksheet.Cell(1, 4).Value = "Password";
-            worksheet.Cell(1, 5).Value = "User Types";
-
-            worksheet.Cell(1, 7).Value = "Can't import student because Email already register in system ->";
-            worksheet.Cell(1, 8).Value = "Full Name";
-            worksheet.Cell(1, 9).Value = "Email";
-            worksheet.Cell(1, 10).Value = "Role";
-            worksheet.Cell(1, 11).Value = "Password";
-            worksheet.Cell(1, 12).Value = "User Types";
+            var importedSheet = workbook.Worksheets.Add("Imported Users");
+            importedSheet.Cell(1, 1).Value = "Full Name";
+            importedSheet.Cell(1, 2).Value = "Email";
+            importedSheet.Cell(1, 3).Value = "Role";
+            importedSheet.Cell(1, 4).Value = "Password";
+            importedSheet.Cell(1, 5).Value = "Phone Number";
 
             for (int i = 0; i < users.Count; i++)
             {
-                worksheet.Cell(i + 2, 1).Value = users[i].FullName;
-                worksheet.Cell(i + 2, 2).Value = users[i].Email;
-                worksheet.Cell(i + 2, 3).Value = users[i].Role;
-                worksheet.Cell(i + 2, 4).Value = users[i].Password;
-                worksheet.Cell(i + 2, 5).Value= users[i].Type;
-            }
-            for (int i = 0; i< duplicateUsers.Count; i++)
-            {
-                worksheet.Cell(i + 2, 8).Value = duplicateUsers[i].FullName;
-                worksheet.Cell(i + 2, 9).Value = duplicateUsers[i].Email;
-                worksheet.Cell(i + 2, 10).Value = duplicateUsers[i].Role;
-                worksheet.Cell(i + 2, 11).Value = duplicateUsers[i].Password;
-                worksheet.Cell(i + 2, 12).Value = duplicateUsers[i].Type;
+                importedSheet.Cell(i + 2, 1).Value = users[i].FullName;
+                importedSheet.Cell(i + 2, 2).Value = users[i].Email;
+                importedSheet.Cell(i + 2, 3).Value = users[i].Role;
+                importedSheet.Cell(i + 2, 4).Value = users[i].Password;
+                importedSheet.Cell(i + 2, 5).Value = users[i].PhoneNumber;
             }
 
-            worksheet.Columns().AdjustToContents();
+            var duplicateSheet = workbook.Worksheets.Add("Duplicate Users");
+            duplicateSheet.Cell(1, 1).Value = "Full Name";
+            duplicateSheet.Cell(1, 2).Value = "Email";
+            duplicateSheet.Cell(1, 3).Value = "Role";
+            duplicateSheet.Cell(1, 4).Value = "Phone Number";
+
+            for (int i = 0; i < duplicateUsers.Count; i++)
+            {
+                duplicateSheet.Cell(i + 2, 1).Value = duplicateUsers[i].FullName;
+                duplicateSheet.Cell(i + 2, 2).Value = duplicateUsers[i].Email;
+                duplicateSheet.Cell(i + 2, 3).Value = duplicateUsers[i].Role;
+                duplicateSheet.Cell(i + 2, 4).Value = duplicateUsers[i].PhoneNumber;
+            }
+
+            importedSheet.Columns().AdjustToContents();
+            duplicateSheet.Columns().AdjustToContents();
 
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);

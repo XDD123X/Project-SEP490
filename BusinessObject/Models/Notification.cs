@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace BusinessObject.Models;
 
-public partial class Course
+public partial class Notification
 {
-    public int CourseId { get; set; }
+    public int NotificationId { get; set; }
 
-    public string CourseName { get; set; } = null!;
+    public int AccountId { get; set; }
 
-    public string? Description { get; set; }
+    public string Title { get; set; } = null!;
+
+    public string Content { get; set; } = null!;
 
     public int CreatedBy { get; set; }
 
@@ -17,9 +19,7 @@ public partial class Course
 
     public DateTime? UpdatedAt { get; set; }
 
-    public int? Status { get; set; }
-
-    public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
+    public virtual Account Account { get; set; } = null!;
 
     public virtual Account CreatedByNavigation { get; set; } = null!;
 }
