@@ -233,7 +233,30 @@ namespace OTMSAPI.Controllers
                 _ => u => u.FullName 
             };
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var user = await _context.Accounts.FindAsync(id);
+            if (user == null) return NotFound("User not found");
 
+            return Ok(user);
+        }
+        [HttpPut("accounts-{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateProfile model)
+        {
+            var user = await _context.Accounts.FindAsync(id);
+            if (user == null) return NotFound("User not found");
+
+            user.FullName = model.FullName ?? user.FullName;
+            user.Email = model.Email ?? user.Email;
+            user.Status = model.Status ?? user.Status;
+            user.Role = model.Role ?? user.Role;
+            user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
+            user.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return Ok(user);
+        }
 
 
     }
