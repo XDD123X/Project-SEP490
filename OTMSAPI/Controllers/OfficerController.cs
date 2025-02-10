@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace OTMSAPI.Controllers
 {
@@ -159,6 +161,80 @@ namespace OTMSAPI.Controllers
             workbook.SaveAs(stream);
             return stream.ToArray();
         }
+        [HttpGet("accounts-list")]
+        public async Task<IActionResult> GetAccounts(
+          [FromQuery] int page = 1,
+          [FromQuery] int pageSize = 10,
+          [FromQuery] string? search = null,
+          [FromQuery] string? status = null,
+          [FromQuery] string? classCode = null,
+          [FromQuery] string? role = null,
+          [FromQuery] DateTime? date = null,
+          [FromQuery] string sortBy = "fullName",
+          [FromQuery] string sortOrder = "desc")
+        {
+            IQueryable<Account> query = _context.Accounts
+                .Include(a => a.Role)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(u => u.Status == status);
+            }
+
+            if (!string.IsNullOrEmpty(classCode))
+            {
+                query = query.Where(u => _context.ClassStudents
+                    .Where(cs => _context.Classes.Any(c => c.ClassId == cs.ClassId && c.ClassCode == classCode))
+                    .Select(cs => cs.StudentId)
+                    .Contains(u.AccountId));
+            }
+            if (!string.IsNullOrEmpty(role))
+            {
+                query = query.Where(u => u.Role.Name == role);
+            }
+
+            if (date.HasValue)
+            {
+                query = query.Where(u => u.CreatedAt == date.Value.Date);
+            }
+
+            query = sortOrder.ToLower() == "desc"
+                ? query.OrderByDescending(u => (dynamic)GetSortExpression(sortBy))
+                : query.OrderBy(u => (dynamic)GetSortExpression(sortBy));
+
+
+            var totalUsers = await query.CountAsync();
+            var users = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            return Ok(new
+            {
+                TotalUsers = totalUsers,
+                Page = page,
+                PageSize = pageSize,
+                Users = users
+            });
+        }
+
+        private static Expression<Func<Account, object>> GetSortExpression(string sortBy)
+        {
+            return sortBy.ToLower() switch
+            {
+                "fullname" => u => u.FullName,
+                "email" => u => u.Email,
+                "status" => u => u.Status,
+                "role" => u => u.Role.Name,
+                "date" => u => u.CreatedAt,
+                _ => u => u.FullName 
+            };
+        }
+
+
 
     }
 }
