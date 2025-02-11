@@ -5,11 +5,11 @@ namespace BusinessObject.Models;
 
 public partial class Session
 {
-    public int SessionId { get; set; }
+    public Guid SessionId { get; set; }
 
-    public int ClassId { get; set; }
+    public Guid ClassId { get; set; }
 
-    public int LecturerId { get; set; }
+    public Guid LecturerId { get; set; }
 
     public DateTime SessionDate { get; set; }
 

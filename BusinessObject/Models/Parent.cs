@@ -5,15 +5,15 @@ namespace BusinessObject.Models;
 
 public partial class Parent
 {
-    public int ParentId { get; set; }
+    public Guid ParentId { get; set; }
 
-    public int StudentId { get; set; }
+    public Guid StudentId { get; set; }
 
     public string FullName { get; set; } = null!;
 
-    public string PhoneNumber { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
 
-    public string Email { get; set; } = null!;
+    public string? Email { get; set; }
 
     public int? Status { get; set; }
 

@@ -94,7 +94,7 @@ namespace OTMSAPI.Controllers
                             Password = hashedPassword,
                             PhoneNumber = phone_number,
                             CreatedAt = DateTime.Now,
-                            Status = "1"
+                            Status = 1
                         };
                         users.Add(new UserAccountDto
                         {
@@ -184,7 +184,7 @@ namespace OTMSAPI.Controllers
 
             if (!string.IsNullOrEmpty(status))
             {
-                query = query.Where(u => u.Status == status);
+                query = query.Where(u => u.Status == int.Parse(status));
             }
 
             if (!string.IsNullOrEmpty(classCode))
@@ -249,9 +249,9 @@ namespace OTMSAPI.Controllers
 
             user.FullName = model.FullName ?? user.FullName;
             user.Email = model.Email ?? user.Email;
-            user.Status = model.Status ?? user.Status;
-            user.Role = model.Role ?? user.Role;
-            user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
+            //user.Status = model.Status ?? user.Status;
+            //user.Role = model.Role ?? user.Role;
+            //user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
             user.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();

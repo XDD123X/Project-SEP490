@@ -5,11 +5,11 @@ namespace BusinessObject.Models;
 
 public partial class WebcamRecord
 {
-    public int WebcamRecordId { get; set; }
+    public Guid WebcamRecordId { get; set; }
 
-    public int SessionId { get; set; }
+    public Guid SessionId { get; set; }
 
-    public int StudentId { get; set; }
+    public Guid StudentId { get; set; }
 
     public string? VideoUrl { get; set; }
 

@@ -5,7 +5,7 @@ namespace BusinessObject.Models;
 
 public partial class Account
 {
-    public int AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
     public string Email { get; set; } = null!;
 
@@ -13,7 +13,7 @@ public partial class Account
 
     public string FullName { get; set; } = null!;
 
-    public int RoleId { get; set; }
+    public Guid RoleId { get; set; }
 
     public bool? Fulltime { get; set; }
 
@@ -21,7 +21,7 @@ public partial class Account
 
     public string? ImgUrl { get; set; }
 
-    public string Status { get; set; } = null!;
+    public int Status { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -33,17 +33,17 @@ public partial class Account
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
-    public virtual ICollection<Notification> NotificationAccounts { get; set; } = new List<Notification>();
-
-    public virtual ICollection<Notification> NotificationCreatedByNavigations { get; set; } = new List<Notification>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
 
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public virtual Role Role { get; set; } = null!;
 
-    public virtual ICollection<SessionRecord> SessionRecords { get; set; } = new List<SessionRecord>();
-
     public virtual ICollection<Session> Sessions { get; set; } = new List<Session>();
+
+    public virtual ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
 
     public virtual ICollection<WebcamRecord> WebcamRecords { get; set; } = new List<WebcamRecord>();
 }

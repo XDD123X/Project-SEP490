@@ -5,7 +5,7 @@ namespace BusinessObject.Models;
 
 public partial class Class
 {
-    public int ClassId { get; set; }
+    public Guid ClassId { get; set; }
 
     public string ClassCode { get; set; } = null!;
 

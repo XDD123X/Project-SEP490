@@ -59,10 +59,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"], // Sử dụng ["Jwt:Issuer"]
-            ValidAudience = builder.Configuration["Jwt:Audience"], // Sử dụng ["Jwt:Audience"]
+            ValidIssuer = builder.Configuration["Jwt:Issuer"], 
+            ValidAudience = builder.Configuration["Jwt:Audience"], 
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])), // Sử dụng ["Jwt:Key"]
-            ClockSkew = TimeSpan.Zero // Không có độ trễ thời gian
+            ClockSkew = TimeSpan.Zero 
         };
     });
 
@@ -82,14 +82,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
-
-
-
-
-
-
-
-
 }
 
 app.UseHttpsRedirection();

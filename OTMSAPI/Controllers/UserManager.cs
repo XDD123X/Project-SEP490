@@ -9,6 +9,8 @@ using System.Linq;
 using System.Net.Mail;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using DocumentFormat.OpenXml.Office.Word;
 
 namespace OTMSAPI.Controllers
 {
@@ -18,11 +20,13 @@ namespace OTMSAPI.Controllers
     {
         private readonly OtmsContext _context;
         private readonly IConfiguration _configuration;
-
-        public UserManager(OtmsContext context, IConfiguration configuration)
+        private readonly IMemoryCache memoryCache;
+        private readonly TimeSpan tokenExpiry=TimeSpan.FromMinutes(15);
+        public UserManager(OtmsContext context, IConfiguration configuration,IMemoryCache  memoryCache)
         {
             _context = context;
             _configuration = configuration;
+            memoryCache = memoryCache;
         }
 
         [Authorize]
@@ -30,27 +34,24 @@ namespace OTMSAPI.Controllers
         [HttpPut("changeprofile")]
         public async Task<ActionResult> ChangeProfile([FromBody] UserUpdateProfile userUpdateProfile)
         {
-            string userId = User.FindFirst("userId")?.Value;
+            string AccountId = User.FindFirst("AccountId")?.Value;
 
-            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid userGuid))
-            {
-                return Unauthorized("Invalid or missing user ID.");
-            }
+       
 
             try
             {
-                var user = _context.Users.FirstOrDefault(x => x.UserId == userGuid);
+                Account account  = _context.Accounts.FirstOrDefault(x => x.AccountId == Guid.Parse(AccountId));
 
-                if (user == null)
+                if (account == null)
                 {
                     return NotFound("User not found.");
                 }
 
-                user.Email = userUpdateProfile.Email;
-                user.FullName = userUpdateProfile.FullName;
-                user.UpdatedAt = DateTime.UtcNow;
+                account.Email = userUpdateProfile.Email;
+                account.FullName = userUpdateProfile.FullName;
+                account.UpdatedAt = DateTime.UtcNow;
 
-                _context.Users.Update(user);
+                _context.Accounts.Update(account);
                 await _context.SaveChangesAsync();
 
                 return Ok("Profile updated successfully.");
@@ -62,22 +63,38 @@ namespace OTMSAPI.Controllers
         }
 
 
+        public string GenerateResetToken(string email)
+        {
+            string token = Guid.NewGuid().ToString();
+            memoryCache.Set(token, email, tokenExpiry);
+            return token;
+        }
+
+        public string? ValidateResetToken(string token)
+        {
+            if (memoryCache.TryGetValue(token, out string? email))
+            {
+                memoryCache.Remove(token); 
+                return email;
+            }
+            return null;
+        }
+
+
+
         [HttpPost("forgotpassword")]
         public async Task<ActionResult> ForgotPassword([FromBody] string email)
         {
-            User user = _context.Users.FirstOrDefault(x => x.Email == email);
+            Account user = _context.Accounts.FirstOrDefault(x => x.Email == email);
 
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
-            var resetToken = Guid.NewGuid().ToString();
+            var resetToken = GenerateResetToken(email);
 
-            user.Token = resetToken;
-            user.ResetTokenExpiresAt = DateTime.UtcNow.AddHours(1);
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+           
 
             var resetLink = $"{_configuration["AppSettings:ClientBaseUrl"]}/resetpassword?token={resetToken}";
 
@@ -112,24 +129,26 @@ namespace OTMSAPI.Controllers
         [HttpPost("resetpassword")]
         public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO resetRequest)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Token == resetRequest.Code);
-
-            if (user == null || user.ResetTokenExpiresAt < DateTime.UtcNow)
+            string? email = ValidateResetToken(resetRequest.Token);
+            if (email == null || email != resetRequest.Email)
             {
                 return Unauthorized("Invalid or expired reset token.");
             }
 
-            user.Password = resetRequest.NewPassword; 
-            user.Token = null;
-            user.ResetTokenExpiresAt = null;
-            user.UpdatedAt = DateTime.UtcNow;
+            Account account = _context.Accounts.FirstOrDefault(x => x.Email == resetRequest.Email);
+            if (account == null)
+            {
+                return NotFound("User not found.");
+            }
 
-            _context.Users.Update(user);
+            account.Password = BCrypt.Net.BCrypt.HashPassword(resetRequest.NewPassword);
+            account.UpdatedAt = DateTime.UtcNow;
+
+            _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
 
             return Ok("Password has been reset successfully.");
         }
-
 
 
 

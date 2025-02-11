@@ -7,11 +7,11 @@ public partial class Attendance
 {
     public int AttendanceId { get; set; }
 
-    public int SessionId { get; set; }
+    public Guid SessionId { get; set; }
 
-    public int StudentId { get; set; }
+    public Guid StudentId { get; set; }
 
-    public string Status { get; set; } = null!;
+    public int? Status { get; set; }
 
     public string? ImgUrl { get; set; }
 

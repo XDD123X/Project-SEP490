@@ -3,17 +3,13 @@ using System.Collections.Generic;
 
 namespace BusinessObject.Models;
 
-public partial class SessionRecord
+public partial class Permission
 {
-    public Guid RecordId { get; set; }
+    public Guid PermissionId { get; set; }
 
-    public Guid SessionId { get; set; }
-
-    public string? VideoUrl { get; set; }
+    public string Name { get; set; } = null!;
 
     public string? Description { get; set; }
-
-    public string? UploadedBy { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -21,5 +17,5 @@ public partial class SessionRecord
 
     public int? Status { get; set; }
 
-    public virtual Session Session { get; set; } = null!;
+    public virtual ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
 }

@@ -7,9 +7,9 @@ public partial class ClassStudent
 {
     public int ClassStudentId { get; set; }
 
-    public int ClassId { get; set; }
+    public Guid ClassId { get; set; }
 
-    public int StudentId { get; set; }
+    public Guid StudentId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
