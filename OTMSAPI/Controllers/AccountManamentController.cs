@@ -16,11 +16,11 @@ namespace OTMSAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OfficerController : ControllerBase
+    public class AccountManamentController : ControllerBase
     {
         private readonly OtmsContext _context;
 
-        public OfficerController(OtmsContext context)
+        public AccountManamentController(OtmsContext context)
         {
             _context = context;
         }
@@ -166,7 +166,7 @@ namespace OTMSAPI.Controllers
           [FromQuery] int page = 1,
           [FromQuery] int pageSize = 10,
           [FromQuery] string? search = null,
-          [FromQuery] string? status = null,
+          [FromQuery] int? status = null,
           [FromQuery] string? classCode = null,
           [FromQuery] string? role = null,
           [FromQuery] DateTime? date = null,
@@ -182,9 +182,9 @@ namespace OTMSAPI.Controllers
                 query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
             }
 
-            if (!string.IsNullOrEmpty(status))
+            if (status.HasValue)
             {
-                query = query.Where(u => u.Status == int.Parse(status));
+                query = query.Where(u => u.Status == status);
             }
 
             if (!string.IsNullOrEmpty(classCode))
@@ -242,22 +242,43 @@ namespace OTMSAPI.Controllers
             return Ok(user);
         }
         [HttpPut("accounts-{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateProfile model)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] AccountUpdate model)
         {
             var user = await _context.Accounts.FindAsync(id);
             if (user == null) return NotFound("User not found");
 
             user.FullName = model.FullName ?? user.FullName;
             user.Email = model.Email ?? user.Email;
-            //user.Status = model.Status ?? user.Status;
-            //user.Role = model.Role ?? user.Role;
-            //user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
+            user.RoleId = model.RoleId ?? user.RoleId;
+            user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
             user.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return Ok(user);
         }
+        [HttpPut("ban-accounts-{id}")]
+        public async Task<IActionResult> BanUser(int id)
+        {
+            var user = await _context.Accounts.FindAsync(id);
+            if (user == null) return NotFound("User not found");
 
+            user.Status = 0;
+            user.UpdatedAt = DateTime.Now;
 
+            await _context.SaveChangesAsync();
+            return Ok(user);
+        }
+        [HttpPut("activate-accounts-{id}")]
+        public async Task<IActionResult> ActivateUser(int id)
+        {
+            var user = await _context.Accounts.FindAsync(id);
+            if (user == null) return NotFound("User not found");
+
+            user.Status = 1;
+            user.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return Ok(user);
+        }
     }
 }
