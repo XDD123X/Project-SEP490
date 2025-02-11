@@ -187,26 +187,7 @@ namespace OTMSAPI.Controllers
         }
 
 
-        [HttpGet("schedule")]
-        public async Task<ActionResult> getschedule()
-        {
-            string[] classes = { "SAT1", "SAT2", "SAT3", "IELTS1", "IELTS2", "IELTS3" };
-            var classSessionCount = new Dictionary<string, int>();
-            foreach (var c in classes) classSessionCount[c] = 15;
-            string[] teachers = { "Phuong", "Nhung", "Giang", "Trang" };
-            var teacherOfClass = new Dictionary<string, string>
-        {
-            { "SAT1", "Nhung" },
-            { "SAT2", "Phuong" },
-            { "SAT3", "Nhung" },
-            { "IELTS1", "Giang" },
-            { "IELTS2", "Trang" },
-            { "IELTS3", "Giang" }
-        };
 
-            ScheduleSlotForPhongLinh.SolveSchedule(classes, classSessionCount, teachers, teacherOfClass, 8, 7, 4);
-            return Ok();
-        }
 
     }
 }

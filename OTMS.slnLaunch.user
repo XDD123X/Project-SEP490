@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "BusinessObject\\BusinessObject.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "OTMSAPI\\OTMSAPI.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "OTMS_DLA\\OTMS_DLA.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
