@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObject", "BusinessO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMSAPI", "OTMSAPI\OTMSAPI.csproj", "{F51CDE6C-D497-418B-AC01-E53F994CB239}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMS_DLA", "OTMS_DLA\OTMS_DLA.csproj", "{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F51CDE6C-D497-418B-AC01-E53F994CB239}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F51CDE6C-D497-418B-AC01-E53F994CB239}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F51CDE6C-D497-418B-AC01-E53F994CB239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using OTMS_DLA.Interface;
 
 namespace OTMSAPI.Controllers
 {
@@ -18,11 +19,11 @@ namespace OTMSAPI.Controllers
     [ApiController]
     public class AccountManamentController : ControllerBase
     {
-        private readonly OtmsContext _context;
+        private readonly IAccountRepository _accountRepository;
 
-        public AccountManamentController(OtmsContext context)
+        public AccountManamentController(IAccountRepository accountRepository)
         {
-            _context = context;
+            _accountRepository = accountRepository;
         }
         [HttpGet("export-template")]
         public IActionResult ExportUserTemplate()
@@ -48,169 +49,30 @@ namespace OTMSAPI.Controllers
         {
             if (file == null || file.Length == 0)
                 return BadRequest("File không hợp lệ.");
-
-            var users = new List<UserAccountDto>();
-            var duplicateUsers = new List<UserAccountDto>();
-            var listUser = new List<Account>();
-            List<string> existingEmails = _context.Accounts.Select(x => x.Email).ToList();
-            using (var stream = new MemoryStream())
+            try
             {
-                await file.CopyToAsync(stream);
-                using var workbook = new XLWorkbook(stream);
-                var worksheet = workbook.Worksheet(1);
-                var rows = worksheet.RowsUsed().Skip(1);
-                foreach (var row in rows)
-                {
-                    var fullName = row.Cell(1).GetValue<string>();
-                    var email = row.Cell(2).GetValue<string>();
-                    var password = GenerateRandomPassword();
-                    var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-                    var role = row.Cell(3).GetValue<string>();
-                    var roleEntity = _context.Roles.FirstOrDefault(x => x.Name.Equals(role));
-                    if (roleEntity == null)
-                    {
-                        return BadRequest($"Vai trò '{role}' không tồn tại.");
-                    }
-                    var role_id = roleEntity.RoleId;
-                    var phone_number = row.Cell(4).GetValue<string>();
-                    if (existingEmails.Contains(email))
-                    {
-                        duplicateUsers.Add(new UserAccountDto
-                        {
-                            FullName = fullName,
-                            Email = email,
-                            Role = role,
-                            PhoneNumber = phone_number,
-                        });
-                    }
-                    else
-                    {
-                        existingEmails.Add(email);
-                        Account account = new Account
-                        {
-                            FullName = fullName,
-                            Email = email,
-                            RoleId = role_id,
-                            Password = hashedPassword,
-                            PhoneNumber = phone_number,
-                            CreatedAt = DateTime.Now,
-                            Status = 1
-                        };
-                        users.Add(new UserAccountDto
-                        {
-                            FullName = fullName,
-                            Email = email,
-                            Role = role,
-                            Password = password,
-                            PhoneNumber = phone_number,
-                        });
-                        listUser.Add(account);
-                    }
-                }
+                var fileBytes = await _accountRepository.ImportUsersAsync(file);
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ImportResult.xlsx");
             }
-            if (listUser.Count > 0)
+            catch (Exception ex)
             {
-                _context.Accounts.AddRange(listUser);
-                await _context.SaveChangesAsync();
+                return BadRequest(new { message = ex.Message });
             }
-            var fileBytes = GenerateUserExcel(users, duplicateUsers);
-            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "UserAccounts.xlsx");
-        }
-        private string GenerateRandomPassword()
-        {
-            return Guid.NewGuid().ToString("N").Substring(0, 8);
-        }
-        private byte[] GenerateUserExcel(List<UserAccountDto> users, List<UserAccountDto> duplicateUsers)
-        {
-            using var workbook = new XLWorkbook();
-
-            var importedSheet = workbook.Worksheets.Add("Imported Users");
-            importedSheet.Cell(1, 1).Value = "Full Name";
-            importedSheet.Cell(1, 2).Value = "Email";
-            importedSheet.Cell(1, 3).Value = "Role";
-            importedSheet.Cell(1, 4).Value = "Password";
-            importedSheet.Cell(1, 5).Value = "Phone Number";
-
-            for (int i = 0; i < users.Count; i++)
-            {
-                importedSheet.Cell(i + 2, 1).Value = users[i].FullName;
-                importedSheet.Cell(i + 2, 2).Value = users[i].Email;
-                importedSheet.Cell(i + 2, 3).Value = users[i].Role;
-                importedSheet.Cell(i + 2, 4).Value = users[i].Password;
-                importedSheet.Cell(i + 2, 5).Value = users[i].PhoneNumber;
-            }
-
-            var duplicateSheet = workbook.Worksheets.Add("Duplicate Users");
-            duplicateSheet.Cell(1, 1).Value = "Full Name";
-            duplicateSheet.Cell(1, 2).Value = "Email";
-            duplicateSheet.Cell(1, 3).Value = "Role";
-            duplicateSheet.Cell(1, 4).Value = "Phone Number";
-
-            for (int i = 0; i < duplicateUsers.Count; i++)
-            {
-                duplicateSheet.Cell(i + 2, 1).Value = duplicateUsers[i].FullName;
-                duplicateSheet.Cell(i + 2, 2).Value = duplicateUsers[i].Email;
-                duplicateSheet.Cell(i + 2, 3).Value = duplicateUsers[i].Role;
-                duplicateSheet.Cell(i + 2, 4).Value = duplicateUsers[i].PhoneNumber;
-            }
-
-            importedSheet.Columns().AdjustToContents();
-            duplicateSheet.Columns().AdjustToContents();
-
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-            return stream.ToArray();
         }
         [HttpGet("accounts-list")]
         public async Task<IActionResult> GetAccounts(
-          [FromQuery] int page = 1,
-          [FromQuery] int pageSize = 10,
-          [FromQuery] string? search = null,
-          [FromQuery] int? status = null,
-          [FromQuery] string? classCode = null,
-          [FromQuery] string? role = null,
-          [FromQuery] DateTime? date = null,
-          [FromQuery] string sortBy = "fullName",
-          [FromQuery] string sortOrder = "desc")
+           [FromQuery] int page = 1,
+           [FromQuery] int pageSize = 10,
+           [FromQuery] string? search = null,
+           [FromQuery] int? status = null,
+           [FromQuery] string? classCode = null,
+           [FromQuery] string? role = null,
+           [FromQuery] DateTime? date = null,
+           [FromQuery] string sortBy = "fullName",
+           [FromQuery] string sortOrder = "desc")
         {
-            IQueryable<Account> query = _context.Accounts
-                .Include(a => a.Role)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-            }
-
-            if (status.HasValue)
-            {
-                query = query.Where(u => u.Status == status);
-            }
-
-            if (!string.IsNullOrEmpty(classCode))
-            {
-                query = query.Where(u => _context.ClassStudents
-                    .Where(cs => _context.Classes.Any(c => c.ClassId == cs.ClassId && c.ClassCode == classCode))
-                    .Select(cs => cs.StudentId)
-                    .Contains(u.AccountId));
-            }
-            if (!string.IsNullOrEmpty(role))
-            {
-                query = query.Where(u => u.Role.Name == role);
-            }
-
-            if (date.HasValue)
-            {
-                query = query.Where(u => u.CreatedAt == date.Value.Date);
-            }
-
-            query = sortOrder.ToLower() == "desc"
-                ? query.OrderByDescending(u => (dynamic)GetSortExpression(sortBy))
-                : query.OrderBy(u => (dynamic)GetSortExpression(sortBy));
-
-
-            var totalUsers = await query.CountAsync();
-            var users = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var users = await _accountRepository.GetAccountsAsync(page, pageSize, search, status, classCode, date, sortBy, sortOrder);
+            var totalUsers = await _accountRepository.GetTotalAccountsAsync(search, status, classCode, date);
 
             return Ok(new
             {
@@ -221,64 +83,26 @@ namespace OTMSAPI.Controllers
             });
         }
 
-        private static Expression<Func<Account, object>> GetSortExpression(string sortBy)
-        {
-            return sortBy.ToLower() switch
-            {
-                "fullname" => u => u.FullName,
-                "email" => u => u.Email,
-                "status" => u => u.Status,
-                "role" => u => u.Role.Name,
-                "date" => u => u.CreatedAt,
-                _ => u => u.FullName 
-            };
-        }
-        [HttpGet("{id}")]
+        [HttpGet("find-account{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _context.Accounts.FindAsync(id);
+            var user = await _accountRepository.GetByIdAsync(id);
             if (user == null) return NotFound("User not found");
-
             return Ok(user);
         }
-        [HttpPut("accounts-{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] AccountUpdate model)
-        {
-            var user = await _context.Accounts.FindAsync(id);
-            if (user == null) return NotFound("User not found");
 
-            user.FullName = model.FullName ?? user.FullName;
-            user.Email = model.Email ?? user.Email;
-            user.RoleId = model.RoleId ?? user.RoleId;
-            user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
-            user.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-            return Ok(user);
-        }
         [HttpPut("ban-accounts-{id}")]
         public async Task<IActionResult> BanUser(int id)
         {
-            var user = await _context.Accounts.FindAsync(id);
-            if (user == null) return NotFound("User not found");
-
-            user.Status = 0;
-            user.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-            return Ok(user);
+            bool result = await _accountRepository.BanAccountAsync(id);
+            return result ? Ok("User banned") : NotFound("User not found");
         }
+
         [HttpPut("activate-accounts-{id}")]
         public async Task<IActionResult> ActivateUser(int id)
         {
-            var user = await _context.Accounts.FindAsync(id);
-            if (user == null) return NotFound("User not found");
-
-            user.Status = 1;
-            user.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-            return Ok(user);
+            bool result = await _accountRepository.ActivateAccountAsync(id);
+            return result ? Ok("User activated") : NotFound("User not found");
         }
     }
 }
