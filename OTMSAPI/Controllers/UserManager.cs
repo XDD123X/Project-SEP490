@@ -26,7 +26,7 @@ namespace OTMSAPI.Controllers
         {
             _context = context;
             _configuration = configuration;
-            memoryCache = memoryCache;
+            this.memoryCache = memoryCache;
         }
 
         [Authorize]
@@ -62,6 +62,7 @@ namespace OTMSAPI.Controllers
             }
         }
 
+        [NonAction]
 
         public string GenerateResetToken(string email)
         {
@@ -69,6 +70,8 @@ namespace OTMSAPI.Controllers
             memoryCache.Set(token, email, tokenExpiry);
             return token;
         }
+
+        [NonAction]
 
         public string? ValidateResetToken(string token)
         {
