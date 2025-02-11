@@ -10,15 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 namespace OTMS_DLA.Interface
 {
-    public interface IAccountRepository
+    public interface IAccountRepository : IRepository<Account>
     {
+        Task<Account?> GetByEmailAsync(string email);
+        Task<bool> ExistsByEmailAsync(string email);
+        Task<List<string>> GetAllEmailsAsync();
+        Task AddMultipleAsync(List<Account> accounts);
+
         Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder);
-        Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date);
-        Task<Account?> GetByIdAsync(int id);
-        Task<Account> CreateAccountAsync(Account account);
-        Task<bool> UpdateAccountAsync(Account account);
-        Task<bool> BanAccountAsync(int id);
-        Task<bool> ActivateAccountAsync(int id);
-        Task<byte[]> ImportUsersAsync(IFormFile file);
+        Task<int> GetTotalAccountsAsync(string search, int? status, string? classCode, DateTime? date);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BusinessObject.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace OTMS_DLA.Interface
 {
 	public class Repository<T> : IRepository<T> where T : class
 	{
-		protected readonly DbContext _context;
+		protected readonly OtmsContext _context;
 		protected readonly DbSet<T> _dbSet;
 
-		public Repository(DbContext context)
+		public Repository(OtmsContext context)
 		{
 			_context = context;
 			_dbSet = context.Set<T>();

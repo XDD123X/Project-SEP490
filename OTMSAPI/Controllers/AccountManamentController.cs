@@ -12,6 +12,7 @@ using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using OTMS_DLA.Interface;
+using DocumentFormat.OpenXml.InkML;
 
 namespace OTMSAPI.Controllers
 {
@@ -20,10 +21,12 @@ namespace OTMSAPI.Controllers
     public class AccountManamentController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IRoleRepository _roleRepository;
 
-        public AccountManamentController(IAccountRepository accountRepository)
+        public AccountManamentController(IRoleRepository roleRepository, IAccountRepository accountRepository)
         {
             _accountRepository = accountRepository;
+            _roleRepository = roleRepository;
         }
         [HttpGet("export-template")]
         public IActionResult ExportUserTemplate()
@@ -48,16 +51,101 @@ namespace OTMSAPI.Controllers
         public async Task<IActionResult> ImportUsers(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest("File không hợp lệ.");
-            try
+                throw new ArgumentException("File is required");
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheet(1);
+            var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+            List<Account> newUsers = new List<Account>();
+            var existingEmails = await _accountRepository.GetAllEmailsAsync();
+            var successAccount = new List<UserAccountDto>();
+            var errorAccount = new List<UserAccountDto>();
+
+            foreach (var row in rows)
             {
-                var fileBytes = await _accountRepository.ImportUsersAsync(file);
-                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ImportResult.xlsx");
+                var email = row.Cell(1).GetValue<string>();
+                var fullName = row.Cell(2).GetValue<string>();
+                var roleName = row.Cell(3).GetValue<string>();
+                var phoneNumber = row.Cell(4).GetValue<string>();
+
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName) ||
+                    existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
+                {
+                    errorAccount.Add(new UserAccountDto { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
+                    continue;
+                }
+
+                var role = await _roleRepository.GetRoleByNameAsync(roleName);
+                if (role == null)
+                {
+                    errorAccount.Add(new UserAccountDto { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
+                    continue;
+                }
+                var pass = BCrypt.Net.BCrypt.HashPassword(GenerateRandomPassword());
+                var user = new Account
+                {
+                    Email = email,
+                    FullName = fullName,
+                    Password = pass,
+                    RoleId = (Guid)role,
+                    Status = 1,
+                    CreatedAt = DateTime.UtcNow
+                };
+                successAccount.Add(new UserAccountDto { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName, Password = pass });
+                newUsers.Add(user);
             }
-            catch (Exception ex)
+
+            await _accountRepository.AddMultipleAsync(newUsers);
+
+            var resultStream = new MemoryStream();
+            using (var resultWorkbook = new XLWorkbook())
             {
-                return BadRequest(new { message = ex.Message });
+                var resultWorksheet = resultWorkbook.Worksheets.Add("Imported Users");
+                var errorresultWorksheet = resultWorkbook.Worksheets.Add("Error Users");
+
+                resultWorksheet.Cell(1, 1).Value = "Email";
+                resultWorksheet.Cell(1, 2).Value = "Full Name";
+                resultWorksheet.Cell(1, 3).Value = "Password";
+                resultWorksheet.Cell(1, 4).Value = "Phone Number";
+
+                int rowNumber = 2;
+                foreach (var user in successAccount)
+                {
+                    resultWorksheet.Cell(rowNumber, 1).Value = user.Email;
+                    resultWorksheet.Cell(rowNumber, 2).Value = user.FullName;
+                    resultWorksheet.Cell(rowNumber, 3).Value = user.Password;
+                    resultWorksheet.Cell(rowNumber, 4).Value = "Imported Successfully";
+                    rowNumber++;
+                }
+
+                errorresultWorksheet.Cell(1, 1).Value = "Email";
+                errorresultWorksheet.Cell(1, 2).Value = "Full Name";
+                errorresultWorksheet.Cell(1, 3).Value = "Phone Number";
+                errorresultWorksheet.Cell(1, 4).Value = "Import Failed";
+
+                rowNumber = 2;
+                foreach (var user in errorAccount)
+                {
+                    errorresultWorksheet.Cell(rowNumber, 1).Value = user.Email;
+                    errorresultWorksheet.Cell(rowNumber, 2).Value = user.FullName;
+                    errorresultWorksheet.Cell(rowNumber, 3).Value = user.PhoneNumber;
+                    errorresultWorksheet.Cell(rowNumber, 4).Value = "Import Failed";
+                    rowNumber++;
+                }
+
+                resultWorkbook.SaveAs(resultStream);
             }
+
+            resultStream.Position = 0;
+            return File(resultStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ImportResult.xlsx");
+        }
+
+        private string GenerateRandomPassword()
+        {
+            return Guid.NewGuid().ToString("N").Substring(0, 8);
         }
         [HttpGet("accounts-list")]
         public async Task<IActionResult> GetAccounts(
@@ -84,7 +172,7 @@ namespace OTMSAPI.Controllers
         }
 
         [HttpGet("find-account{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if (user == null) return NotFound("User not found");
@@ -92,17 +180,37 @@ namespace OTMSAPI.Controllers
         }
 
         [HttpPut("ban-accounts-{id}")]
-        public async Task<IActionResult> BanUser(int id)
+        public async Task<IActionResult> BanUser(Guid id)
         {
-            bool result = await _accountRepository.BanAccountAsync(id);
-            return result ? Ok("User banned") : NotFound("User not found");
+            var user = await _accountRepository.GetByIdAsync(id);
+            if (user == null) return NotFound("User not found");
+            user.Status = 0;
+            try
+            {
+                await _accountRepository.UpdateAsync(user);
+                return Ok("User banned");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id);
+            }
         }
 
         [HttpPut("activate-accounts-{id}")]
-        public async Task<IActionResult> ActivateUser(int id)
+        public async Task<IActionResult> ActivateUser(Guid id)
         {
-            bool result = await _accountRepository.ActivateAccountAsync(id);
-            return result ? Ok("User activated") : NotFound("User not found");
+            var user = await _accountRepository.GetByIdAsync(id);
+            if (user == null) return NotFound("User not found");
+            user.Status = 1;
+            try
+            {
+                await _accountRepository.UpdateAsync(user);
+                return Ok("User banned");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id);
+            }
         }
     }
 }

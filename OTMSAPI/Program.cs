@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OTMS_DLA.Interface;
+using OTMS_DLA.Repository;
+using OTMSAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +16,8 @@ builder.Services.AddDbContext<OtmsContext>(options =>
 
 builder.Services.AddMemoryCache();
 
-
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -75,7 +79,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Student", policy => policy.RequireRole("Student"));
     options.AddPolicy("Administrator", policy => policy.RequireRole("Administrator"));
 });
-
+//loop
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
 
 var app = builder.Build();
 
