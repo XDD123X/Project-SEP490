@@ -21,8 +21,8 @@ namespace OTMSAPI.Controllers
         private readonly OtmsContext _context;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache memoryCache;
-        private readonly TimeSpan tokenExpiry=TimeSpan.FromMinutes(15);
-        public UserManager(OtmsContext context, IConfiguration configuration,IMemoryCache  memoryCache)
+        private readonly TimeSpan tokenExpiry = TimeSpan.FromMinutes(15);
+        public UserManager(OtmsContext context, IConfiguration configuration, IMemoryCache memoryCache)
         {
             _context = context;
             _configuration = configuration;
@@ -36,11 +36,11 @@ namespace OTMSAPI.Controllers
         {
             string AccountId = User.FindFirst("AccountId")?.Value;
 
-       
+
 
             try
             {
-                Account account  = _context.Accounts.FirstOrDefault(x => x.AccountId == Guid.Parse(AccountId));
+                Account account = _context.Accounts.FirstOrDefault(x => x.AccountId == Guid.Parse(AccountId));
 
                 if (account == null)
                 {
@@ -77,7 +77,7 @@ namespace OTMSAPI.Controllers
         {
             if (memoryCache.TryGetValue(token, out string? email))
             {
-                memoryCache.Remove(token); 
+                memoryCache.Remove(token);
                 return email;
             }
             return null;
@@ -97,7 +97,7 @@ namespace OTMSAPI.Controllers
 
             var resetToken = GenerateResetToken(email);
 
-           
+
 
             var resetLink = $"{_configuration["AppSettings:ClientBaseUrl"]}/resetpassword?token={resetToken}";
 
@@ -153,7 +153,37 @@ namespace OTMSAPI.Controllers
             return Ok("Password has been reset successfully.");
         }
 
+        [Authorize]
+        [HttpPost("changepassword")]
+        public async Task<ActionResult> changePassword(ChangePasswordDTO changePasswordDTO)
+        {
+            string AccountId = User.FindFirst("AccountId")?.Value;
 
+            if (AccountId == null)
+            {
+                return NotFound("No user is found");
+            }
+            else
+            {
+                Account account = _context.Accounts.FirstOrDefault(x => x.AccountId == Guid.Parse(AccountId));
+
+                if (account == null || !BCrypt.Net.BCrypt.Verify(changePasswordDTO.oldPassword, account.Password))
+                {
+                    return Unauthorized("Invalid account ID or password.");
+                }
+                else
+                {
+                    account.Password = BCrypt.Net.BCrypt.HashPassword(changePasswordDTO.newPassword);
+                    account.UpdatedAt = DateTime.UtcNow;
+
+                    _context.Accounts.Update(account);
+                    await _context.SaveChangesAsync();
+
+                    return Ok("Password has been changed successfully.");
+                }
+
+            }
+        }
 
 
     }
