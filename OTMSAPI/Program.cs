@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OTMS_DLA.DAO;
 using OTMS_DLA.Interface;
 using OTMS_DLA.Repository;
+using OTMSAPI.DAO;
 using OTMSAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,11 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+
+builder.Services.AddScoped<AccountDAO>();
+builder.Services.AddScoped<RoleDAO>();
+builder.Services.AddScoped<ScheduleDAO>();
+
 
 // Add services to the container.
 

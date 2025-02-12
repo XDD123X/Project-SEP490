@@ -1,7 +1,5 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OTMS_DLA.Interface;
 using OTMSAPI.SolveSchedule;
 
