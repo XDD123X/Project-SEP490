@@ -1,5 +1,6 @@
 ﻿using BusinessObject.DTOs;
 using BusinessObject.Models;
+using OTMS_DLA.DAO;
 using OTMS_DLA.Interface;
 using OTMSAPI.DAO;
 using System;
@@ -12,9 +13,9 @@ namespace OTMSAPI.Repositories
     {
         private readonly AccountDAO _accountDAO;
 
-        public AccountRepository(OtmsContext context) : base(context)
+        public AccountRepository(AccountDAO accountDAO) : base(accountDAO)
         {
-            _accountDAO = new AccountDAO(context);
+            _accountDAO = accountDAO;
         }
 
         public Task<Account?> GetByEmailAsync(string email) => _accountDAO.GetByEmailAsync(email);

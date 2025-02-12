@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
+using OTMS_DLA.DAO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +9,9 @@ using System.Threading.Tasks;
 
 namespace OTMSAPI.DAO
 {
-    public class AccountDAO
+    public class AccountDAO : GenericDAO<Account>
     {
-        private readonly OtmsContext _context;
-
-        public AccountDAO(OtmsContext context)
-        {
-            _context = context;
-        }
+        public AccountDAO(OtmsContext context) : base(context) { }
 
         public async Task<Account?> GetByEmailAsync(string email)
         {

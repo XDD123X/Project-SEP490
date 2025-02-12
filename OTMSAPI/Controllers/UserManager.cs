@@ -11,7 +11,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using DocumentFormat.OpenXml.Office.Word;
-using OTMSAPI.SolveSchedule;
+//using OTMSAPI.SolveSchedule;
 
 namespace OTMSAPI.Controllers
 {
