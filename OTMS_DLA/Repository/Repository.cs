@@ -8,10 +8,16 @@ namespace OTMS_DLA.Interface
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly GenericDAO<T> _dao;
+        private ScheduleDAO scheduleDAO;
 
         public Repository(GenericDAO<T> dao)
         {
             _dao = dao;
+        }
+
+        public Repository(ScheduleDAO scheduleDAO)
+        {
+            this.scheduleDAO = scheduleDAO;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync() => await _dao.GetAllAsync();
