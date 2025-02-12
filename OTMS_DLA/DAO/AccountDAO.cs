@@ -87,7 +87,7 @@ namespace OTMSAPI.DAO
         {
             if (accounts == null || !accounts.Any()) return;
 
-            await _context.Accounts.AddRangeAsync(accounts);
+            await _dbSet.AddRangeAsync(accounts);
             await _context.SaveChangesAsync();
         }
     }

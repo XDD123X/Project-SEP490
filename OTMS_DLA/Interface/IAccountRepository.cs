@@ -16,7 +16,6 @@ namespace OTMS_DLA.Interface
         Task<bool> ExistsByEmailAsync(string email);
         Task<List<string>> GetAllEmailsAsync();
         Task AddMultipleAsync(List<Account> accounts);
-
         Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder);
         Task<int> GetTotalAccountsAsync(string search, int? status, string? classCode, DateTime? date);
     }

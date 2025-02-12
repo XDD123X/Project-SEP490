@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +8,13 @@ using System.Threading.Tasks;
 
 namespace OTMS_DLA.DAO
 {
-    public class ClassDAO
+    public class ClassDAO : GenericDAO<Class>
     {
-        private readonly OtmsContext _context;
 
-        public ClassDAO(OtmsContext context)
+        public ClassDAO(OtmsContext context) : base(context) { }
+        public async Task<Class?> GetByClassCode(string classCode)
         {
-            _context = context;
+            return await _dbSet.FirstOrDefaultAsync(a => a.ClassCode.Equals(classCode));
         }
-
     }
 }

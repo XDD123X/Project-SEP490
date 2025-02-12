@@ -19,6 +19,8 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassStudentRepository, ClassStudentRepository>();
 
 // Add services to the container.
 
