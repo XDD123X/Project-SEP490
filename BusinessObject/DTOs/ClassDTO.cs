@@ -8,15 +8,13 @@ namespace BusinessObject.DTOs
 {
     public class ClassDTO
     {
-        public Guid ClassId { get; set; }
+        public string? ClassCode { get; set; } = null!;
 
-        public string ClassCode { get; set; } = null!;
+        public string? ClassName { get; set; } = null!;
 
-        public string ClassName { get; set; } = null!;
+        public string? CourseName { get; set; } = null!;
 
-        public int CourseId { get; set; }
-
-        public int TotalSession { get; set; }
+        public int? TotalSession { get; set; }
 
         public string? ClassUrl { get; set; }
 

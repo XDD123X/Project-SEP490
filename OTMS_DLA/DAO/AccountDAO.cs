@@ -12,6 +12,12 @@ namespace OTMSAPI.DAO
     public class AccountDAO : GenericDAO<Account>
     {
         public AccountDAO(OtmsContext context) : base(context) { }
+        public new async Task<Account?> GetByIdAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(a => a.Role)
+                .FirstOrDefaultAsync(a => a.AccountId == id);
+        }
 
         public async Task<Account?> GetByEmailAsync(string email)
         {
@@ -54,7 +60,7 @@ namespace OTMSAPI.DAO
             return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<int> GetTotalAccountsAsync(string search, int? status, string? classCode, DateTime? date)
+        public async Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date)
         {
             IQueryable<Account> query = _context.Accounts;
 

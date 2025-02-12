@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using OTMS_DLA.Interface;
 using DocumentFormat.OpenXml.InkML;
+using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OTMSAPI.Controllers
 {
@@ -20,11 +22,13 @@ namespace OTMSAPI.Controllers
     [ApiController]
     public class AccountManamentController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IRoleRepository _roleRepository;
 
-        public AccountManamentController(IRoleRepository roleRepository, IAccountRepository accountRepository)
+        public AccountManamentController(IRoleRepository roleRepository, IAccountRepository accountRepository, IMapper mapper)
         {
+            _mapper = mapper;
             _accountRepository = accountRepository;
             _roleRepository = roleRepository;
         }
@@ -61,8 +65,8 @@ namespace OTMSAPI.Controllers
 
             List<Account> newUsers = new List<Account>();
             var existingEmails = await _accountRepository.GetAllEmailsAsync();
-            var successAccount = new List<UserAccountDto>();
-            var errorAccount = new List<UserAccountDto>();
+            var successAccount = new List<UserAccountDTO>();
+            var errorAccount = new List<UserAccountDTO>();
 
             foreach (var row in rows)
             {
@@ -74,14 +78,14 @@ namespace OTMSAPI.Controllers
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName) ||
                     existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
                 {
-                    errorAccount.Add(new UserAccountDto { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
+                    errorAccount.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
                     continue;
                 }
 
                 var role = await _roleRepository.GetRoleByNameAsync(roleName);
                 if (role == null)
                 {
-                    errorAccount.Add(new UserAccountDto { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
+                    errorAccount.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
                     continue;
                 }
                 var pass = BCrypt.Net.BCrypt.HashPassword(GenerateRandomPassword());
@@ -94,7 +98,7 @@ namespace OTMSAPI.Controllers
                     Status = 1,
                     CreatedAt = DateTime.UtcNow
                 };
-                successAccount.Add(new UserAccountDto { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName, Password = pass });
+                successAccount.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName, Password = pass });
                 newUsers.Add(user);
             }
 
@@ -161,25 +165,65 @@ namespace OTMSAPI.Controllers
         {
             var users = await _accountRepository.GetAccountsAsync(page, pageSize, search, status, classCode, date, sortBy, sortOrder);
             var totalUsers = await _accountRepository.GetTotalAccountsAsync(search, status, classCode, date);
-
+            List<UserAccountDTO> accounts = _mapper.Map<List<UserAccountDTO>>(users);
             return Ok(new
             {
                 TotalUsers = totalUsers,
                 Page = page,
                 PageSize = pageSize,
-                Users = users
+                Users = accounts
             });
         }
 
-        [HttpGet("find-account{id}")]
+        [HttpGet("find-account/{id}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if (user == null) return NotFound("User not found");
-            return Ok(user);
+            UserAccountDTO u = _mapper.Map<UserAccountDTO>(user);
+            return Ok(u);
         }
-
-        [HttpPut("ban-accounts-{id}")]
+        [HttpPut("edit/{id}")]
+        public async Task<IActionResult> EditUser(Guid id, UserAccountDTO userDTO)
+        {
+            var u = await _accountRepository.GetByIdAsync(id);
+            if(u == null)
+            {
+                return NotFound();
+            }
+            if (userDTO.Role == null)
+            {
+                userDTO.Role = u.Role.Name;
+            }
+            var role = await _roleRepository.GetRoleByNameAsync(userDTO.Role);
+            if (role == null)
+            {
+                return BadRequest("Invalid role");
+            }
+            if (!string.IsNullOrEmpty(userDTO.FullName))
+            {
+                u.FullName = userDTO.FullName;
+            }if (!string.IsNullOrEmpty(userDTO.Email))
+            {
+                if(await _accountRepository.ExistsByEmailAsync(userDTO.Email)){
+                    return BadRequest("Email has been registered");
+                }
+                u.Email = userDTO.Email;
+            }if (!string.IsNullOrEmpty(userDTO.PhoneNumber))
+            {
+                u.PhoneNumber = userDTO.PhoneNumber;
+            }
+            try
+            {
+                await _accountRepository.UpdateAsync(u);
+                return Ok("Update success");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while edit account " + id);
+            }
+        }
+        [HttpPut("ban-accounts/{id}")]
         public async Task<IActionResult> BanUser(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
@@ -196,7 +240,7 @@ namespace OTMSAPI.Controllers
             }
         }
 
-        [HttpPut("activate-accounts-{id}")]
+        [HttpPut("activate-accounts/{id}")]
         public async Task<IActionResult> ActivateUser(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
@@ -205,7 +249,7 @@ namespace OTMSAPI.Controllers
             try
             {
                 await _accountRepository.UpdateAsync(user);
-                return Ok("User banned");
+                return Ok("User is activate");
             }
             catch (Exception ex)
             {

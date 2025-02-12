@@ -25,6 +25,8 @@ builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IClassStudentRepository, ClassStudentRepository>();
 
 builder.Services.AddScoped<AccountDAO>();
+builder.Services.AddScoped<ClassDAO>();
+builder.Services.AddScoped<ClassStudentDAO>();
 builder.Services.AddScoped<RoleDAO>();
 builder.Services.AddScoped<ScheduleDAO>();
 
@@ -37,6 +39,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddSwaggerGen(c =>
 {

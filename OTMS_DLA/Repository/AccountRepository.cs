@@ -27,9 +27,11 @@ namespace OTMSAPI.Repositories
         public Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder)
             => _accountDAO.GetAccountsAsync(page, pageSize, search, status, classCode, date, sortBy, sortOrder);
 
-        public Task<int> GetTotalAccountsAsync(string search, int? status, string? classCode, DateTime? date)
+        public Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date)
             => _accountDAO.GetTotalAccountsAsync(search, status, classCode, date);
 
         public Task AddMultipleAsync(List<Account> accounts) => _accountDAO.AddMultipleAsync(accounts);
+
+        public new Task<Account?> GetByIdAsync(Guid id) => _accountDAO.GetByIdAsync(id);
     }
 }

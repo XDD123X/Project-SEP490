@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.DTOs
 {
-    public class UserAccountDto
+    public class UserAccountDTO
     {
         public string? FullName { get; set; }
         public string? Email { get; set; }
