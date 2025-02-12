@@ -8,3 +8,4 @@ bin/
 # Bỏ qua thư mục obj
 obj/
 **/obj/
+/BusinessObject/appsettings.json
