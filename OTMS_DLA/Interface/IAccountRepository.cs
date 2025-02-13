@@ -1,5 +1,4 @@
-﻿using BusinessObject.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
@@ -8,7 +7,9 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-namespace OTMS_DLA.Interface
+using OTMS.BLL.Models;
+
+namespace OTMS.DAL.Interface
 {
     public interface IAccountRepository : IRepository<Account>
     {

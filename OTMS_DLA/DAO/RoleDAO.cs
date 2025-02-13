@@ -1,9 +1,9 @@
-﻿using BusinessObject.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.DAO
+namespace OTMS.DAL.DAO
 {
     public class RoleDAO : GenericDAO<Role>
     {

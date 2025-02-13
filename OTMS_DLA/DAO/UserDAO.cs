@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.Models;
 
-namespace OTMS_DLA.DAO
+namespace OTMS.DAL.DAO
 {
     public class UserDAO
     {

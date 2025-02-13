@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="13.0.1" />
         <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
         <PackageReference Include="ClosedXML" Version="0.104.2" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
@@ -29,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\BusinessObject\BusinessObject.csproj" />
+        <ProjectReference Include="..\BusinessObject\OTMS.BLL.csproj" />
     </ItemGroup>
 
 </Project>

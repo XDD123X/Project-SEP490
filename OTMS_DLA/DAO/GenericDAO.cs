@@ -1,11 +1,11 @@
-﻿using BusinessObject.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.DAO
+namespace OTMS.DAL.DAO
 {
     public class GenericDAO<T> where T : class
     {

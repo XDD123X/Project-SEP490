@@ -1,8 +1,8 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
+﻿using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.Interface
+namespace OTMS.DAL.Interface
 {
     public interface IUserRepository
     {

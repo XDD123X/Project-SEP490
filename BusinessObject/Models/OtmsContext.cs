@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace BusinessObject.Models;
+namespace OTMS.BLL.Models;
 
 public partial class OtmsContext : DbContext
 {

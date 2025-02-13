@@ -1,9 +1,9 @@
-﻿using BusinessObject.Models;
-using Microsoft.AspNetCore.Mvc;
-using OTMS_DLA.Interface;
-using OTMSAPI.SolveSchedule;
+﻿using Microsoft.AspNetCore.Mvc;
+using OTMS.API.SolveSchedule;
+using OTMS.BLL.Models;
+using OTMS.DAL.Interface;
 
-namespace OTMSAPI.Controllers
+namespace OTMS.API.Controllers
 {
 
     //dto
@@ -79,14 +79,14 @@ namespace OTMSAPI.Controllers
                 Guid[] classIds = classesFromDb.Select(c => c.ClassId).ToArray();
                 Guid[] teacherIds = lecturersFromDb.Select(l => l.AccountId).ToArray();
 
-                
+
                 // so buoi moi lop can và class id
                 var classSessionCount = classesFromDb.ToDictionary(
                     c => c.ClassId,
                     c => c.TotalSession
                 );
 
-                
+
                 var teacherOfClass = new Dictionary<Guid, Guid>();
                 foreach (var item in request.Assignments)
                 {
@@ -180,10 +180,10 @@ namespace OTMSAPI.Controllers
                     s.SessionId,
                     s.SessionDate,
                     s.Slot,
-                    ClassId = s.ClassId,
-                    ClassName = s.Class?.ClassName,  
-                    LecturerId = s.LecturerId,
-                    LecturerName = s.Lecturer?.FullName  
+                    s.ClassId,
+                    s.Class?.ClassName,
+                    s.LecturerId,
+                    LecturerName = s.Lecturer?.FullName
                 }).ToList();
 
                 return Ok(result);

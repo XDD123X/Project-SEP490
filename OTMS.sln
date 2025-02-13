@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObject", "BusinessObject\BusinessObject.csproj", "{88EF1E7D-D0EF-4407-8F23-4F3BA67C7DF0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMS.BLL", "BusinessObject\OTMS.BLL.csproj", "{88EF1E7D-D0EF-4407-8F23-4F3BA67C7DF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMSAPI", "OTMSAPI\OTMSAPI.csproj", "{F51CDE6C-D497-418B-AC01-E53F994CB239}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMS.API", "OTMSAPI\OTMS.API.csproj", "{F51CDE6C-D497-418B-AC01-E53F994CB239}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMS_DLA", "OTMS_DLA\OTMS_DLA.csproj", "{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTMS.DAL", "OTMS_DLA\OTMS.DAL.csproj", "{DE1C7ECA-C82F-4B13-BA35-63D7A0EC0539}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

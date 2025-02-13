@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObject.DTOs
+namespace OTMS.BLL.DTOs
 {
     public class LoginDTO
     {
@@ -12,8 +12,8 @@ namespace BusinessObject.DTOs
 
         public string Password { get; set; } = null!;
 
-        public bool RememberMe { get; set; } 
+        public bool RememberMe { get; set; }
 
-        
+
     }
 }

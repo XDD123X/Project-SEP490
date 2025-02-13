@@ -1,12 +1,12 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OTMS_DLA.Interface;
+using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
+using OTMS.DAL.Interface;
 using System;
 using System.Threading.Tasks;
 
-namespace OTMSAPI.Controllers
+namespace OTMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

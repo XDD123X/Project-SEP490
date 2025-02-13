@@ -1,11 +1,11 @@
-﻿using BusinessObject.Models;
+﻿using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.Interface
+namespace OTMS.DAL.Interface
 {
     public interface IScheduleRepository : IRepository<Session>
     {

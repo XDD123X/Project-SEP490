@@ -1,12 +1,12 @@
-﻿using BusinessObject.Models;
-using DocumentFormat.OpenXml.Presentation;
+﻿using DocumentFormat.OpenXml.Presentation;
+using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.DAO
+namespace OTMS.DAL.DAO
 {
     public class ClassStudentDAO : GenericDAO<ClassStudent>
     {

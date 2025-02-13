@@ -1,14 +1,13 @@
-﻿using BusinessObject.Models;
-using OTMS_DLA.DAO;
-using OTMS_DLA.Interface;
-using OTMSAPI.DAO;
+﻿using OTMS.BLL.Models;
+using OTMS.DAL.DAO;
+using OTMS.DAL.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.Repository
+namespace OTMS.DAL.Repository
 {
     public class ClassRepository : Repository<Class>, IClassRepository
     {

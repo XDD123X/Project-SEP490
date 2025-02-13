@@ -1,12 +1,12 @@
-﻿using BusinessObject.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.DAO
+namespace OTMS.DAL.DAO
 {
     public class ScheduleDAO : GenericDAO<Account>
     {
@@ -17,7 +17,7 @@ namespace OTMS_DLA.DAO
             // Thêm nhiều Session
             await _context.Sessions.AddRangeAsync(sessions);
             int changes = await _context.SaveChangesAsync();
-            return (changes > 0);
+            return changes > 0;
         }
 
         public async Task<List<Session>> GetAllSessionsAsync()

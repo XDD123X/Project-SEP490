@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObject.DTOs
+namespace OTMS.BLL.DTOs
 {
     public class ChangePasswordDTO
     {

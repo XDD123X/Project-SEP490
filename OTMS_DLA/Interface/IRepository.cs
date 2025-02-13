@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.Interface
+namespace OTMS.DAL.Interface
 {
     public interface IRepository<T> where T : class
     {

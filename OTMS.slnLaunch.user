@@ -3,15 +3,15 @@
     "Name": "New Profile",
     "Projects": [
       {
-        "Path": "BusinessObject\\BusinessObject.csproj",
+        "Path": "BusinessObject\\OTMS.BLL.csproj",
         "Action": "Start"
       },
       {
-        "Path": "OTMSAPI\\OTMSAPI.csproj",
+        "Path": "OTMSAPI\\OTMS.API.csproj",
         "Action": "Start"
       },
       {
-        "Path": "OTMS_DLA\\OTMS_DLA.csproj",
+        "Path": "OTMS_DLA\\OTMS.DAL.csproj",
         "Action": "Start"
       }
     ]

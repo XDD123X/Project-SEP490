@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
-using BusinessObject.DTOs;
-using BusinessObject.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OTMS_DLA.Interface;
-using OTMS_DLA.Repository;
-using OTMSAPI.Repositories;
+using OTMS.BLL.DTOs;
+using OTMS.DAL.Interface;
 
-namespace OTMSAPI.Controllers
+namespace OTMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -30,7 +27,7 @@ namespace OTMSAPI.Controllers
            [FromQuery] string sortBy = "classCode",
            [FromQuery] string sortOrder = "desc")
         {
-            var thisClass =  await _classRepository.GetAllClassesAsync(page, pageSize, search, sortBy, sortOrder);
+            var thisClass = await _classRepository.GetAllClassesAsync(page, pageSize, search, sortBy, sortOrder);
             var totalClass = await _classRepository.GetTotalClassesAsync(search);
             var thisClassDTO = _mapper.Map<List<ClassDTO>>(thisClass);
             return Ok(new

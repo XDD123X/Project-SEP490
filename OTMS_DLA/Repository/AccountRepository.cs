@@ -1,13 +1,11 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
-using OTMS_DLA.DAO;
-using OTMS_DLA.Interface;
-using OTMSAPI.DAO;
+﻿using OTMS.BLL.Models;
+using OTMS.DAL.DAO;
+using OTMS.DAL.Interface;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace OTMSAPI.Repositories
+namespace OTMS.DAL.Repository
 {
     public class AccountRepository : Repository<Account>, IAccountRepository
     {

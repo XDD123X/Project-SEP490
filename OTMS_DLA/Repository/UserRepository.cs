@@ -1,9 +1,9 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using OTMS_DLA.DAO;
-using OTMS_DLA.Interface;
+using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
+using OTMS.DAL.DAO;
+using OTMS.DAL.Interface;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.Repository
+namespace OTMS.DAL.Repository
 {
     public class UserRepository : IUserRepository
     {
@@ -45,7 +45,7 @@ namespace OTMS_DLA.Repository
                 new Claim("AccountId", account.AccountId.ToString())
             };
 
-            int expiryMinutes = rememberMe ? 60 * 24 * 7 : _configuration.GetValue<int>("Jwt:ExpiryInMinutes", 15);
+            int expiryMinutes = rememberMe ? 60 * 24 * 7 : _configuration.GetValue("Jwt:ExpiryInMinutes", 15);
             var expire = DateTime.UtcNow.AddMinutes(expiryMinutes);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

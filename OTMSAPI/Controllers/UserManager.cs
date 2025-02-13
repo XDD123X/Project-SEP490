@@ -1,6 +1,4 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +9,11 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using DocumentFormat.OpenXml.Office.Word;
+using OTMS.BLL.Models;
+using OTMS.BLL.DTOs;
 //using OTMSAPI.SolveSchedule;
 
-namespace OTMSAPI.Controllers
+namespace OTMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

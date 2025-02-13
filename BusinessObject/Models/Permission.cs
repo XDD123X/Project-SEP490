@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessObject.Models;
+namespace OTMS.BLL.Models;
 
 public partial class Permission
 {

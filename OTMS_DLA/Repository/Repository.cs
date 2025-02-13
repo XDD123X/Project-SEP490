@@ -1,9 +1,10 @@
-﻿using OTMS_DLA.DAO;
+﻿using OTMS.DAL.DAO;
+using OTMS.DAL.Interface;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace OTMS_DLA.Interface
+namespace OTMS.DAL.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {

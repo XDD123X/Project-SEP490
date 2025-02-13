@@ -1,6 +1,4 @@
-﻿using BusinessObject.DTOs;
-using BusinessObject.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,12 +9,14 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using OTMS_DLA.Interface;
 using DocumentFormat.OpenXml.InkML;
 using AutoMapper;
 using DocumentFormat.OpenXml.Spreadsheet;
+using OTMS.BLL.Models;
+using OTMS.BLL.DTOs;
+using OTMS.DAL.Interface;
 
-namespace OTMSAPI.Controllers
+namespace OTMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -187,7 +187,7 @@ namespace OTMSAPI.Controllers
         public async Task<IActionResult> EditUser(Guid id, UserAccountDTO userDTO)
         {
             var u = await _accountRepository.GetByIdAsync(id);
-            if(u == null)
+            if (u == null)
             {
                 return NotFound();
             }
@@ -203,13 +203,16 @@ namespace OTMSAPI.Controllers
             if (!string.IsNullOrEmpty(userDTO.FullName))
             {
                 u.FullName = userDTO.FullName;
-            }if (!string.IsNullOrEmpty(userDTO.Email))
+            }
+            if (!string.IsNullOrEmpty(userDTO.Email))
             {
-                if(await _accountRepository.ExistsByEmailAsync(userDTO.Email)){
+                if (await _accountRepository.ExistsByEmailAsync(userDTO.Email))
+                {
                     return BadRequest("Email has been registered");
                 }
                 u.Email = userDTO.Email;
-            }if (!string.IsNullOrEmpty(userDTO.PhoneNumber))
+            }
+            if (!string.IsNullOrEmpty(userDTO.PhoneNumber))
             {
                 u.PhoneNumber = userDTO.PhoneNumber;
             }
