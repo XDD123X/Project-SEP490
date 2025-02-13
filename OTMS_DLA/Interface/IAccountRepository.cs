@@ -20,5 +20,7 @@ namespace OTMS.DAL.Interface
         Task AddMultipleAsync(List<Account> accounts);
         Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder);
         Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date);
+
+        Task<Account> GetByLogin(string email, string password);
     }
 }

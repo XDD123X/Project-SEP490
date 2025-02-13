@@ -95,5 +95,14 @@ namespace OTMS.DAL.DAO
             await _dbSet.AddRangeAsync(accounts);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Account> GetByLogin(string email, string password)
+        {
+            var account = await _context.Accounts
+                .Where(a => a.Email == email && a.Password == password)
+                .Include(a => a.Role)
+                .FirstOrDefaultAsync();
+            return account;
+        }
     }
 }

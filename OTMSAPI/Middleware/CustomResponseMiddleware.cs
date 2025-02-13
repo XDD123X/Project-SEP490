@@ -13,7 +13,6 @@ namespace OTMS.API.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // Gọi middleware tiếp theo trong pipeline
             await _next(context);
 
             if (!context.Response.HasStarted)

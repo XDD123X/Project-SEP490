@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
+using OTMS.BLL.Services;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers.Auth
 {
@@ -10,67 +12,38 @@ namespace OTMS.API.Controllers.Auth
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly ITokenService _tokenService;
+        private readonly IPasswordService _passwordService;
 
-        public AuthController(IUserRepository userRepository)
+        public AuthController(IAccountRepository accountRepository, IPasswordService passwordService, ITokenService tokenService)
         {
-            _userRepository = userRepository;
+            _accountRepository = accountRepository;
+            _passwordService = passwordService;
+            _tokenService = tokenService;
         }
 
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginDTO loginDTO)
         {
-            try
+            Account account = await _accountRepository.GetByLogin(loginDTO.Email, _passwordService.HashPassword(loginDTO.Password));
+            if (account == null)
             {
-                Account user = await _userRepository.AuthenticateUser(loginDTO);
-                if (user == null)
-                {
-                    return NotFound("Invalid user credentials");
-                }
-
-                string accessToken = _userRepository.GenerateJwtToken(user, loginDTO.RememberMe);
-                string refreshToken = _userRepository.GenerateRefreshToken();
-
-                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(7)
-                });
-
-                return Ok(new { token = accessToken });
+                return NotFound("Invalid user credentials");
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+
+            string accessToken = _tokenService.GenerateAccessToken(account);
+
+            return Ok(new { token = accessToken });
+
         }
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken()
         {
-            if (!Request.Cookies.TryGetValue("refreshToken", out string refreshToken))
-            {
-                return Unauthorized("No refresh token found");
-            }
 
-            string newAccessToken = await _userRepository.RefreshAccessToken(refreshToken);
-            if (string.IsNullOrEmpty(newAccessToken))
-            {
-                return Unauthorized("Invalid refresh token");
-            }
 
-            string newRefreshToken = _userRepository.GenerateRefreshToken();
-            Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(7)
-            });
-
-            return Ok(new { token = newAccessToken });
+            return Ok(new { token = "" });
         }
 
         [HttpPost("logout")]

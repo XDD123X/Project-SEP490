@@ -31,5 +31,8 @@ namespace OTMS.DAL.Repository
         public Task AddMultipleAsync(List<Account> accounts) => _accountDAO.AddMultipleAsync(accounts);
 
         public new Task<Account?> GetByIdAsync(Guid id) => _accountDAO.GetByIdAsync(id);
+
+        public Task<Account> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
+
     }
 }
