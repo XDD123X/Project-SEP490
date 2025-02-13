@@ -13,17 +13,17 @@ using OTMS.BLL.Models;
 using OTMS.BLL.DTOs;
 //using OTMSAPI.SolveSchedule;
 
-namespace OTMS.API.Controllers
+namespace OTMS.API.Controllers.Auth
 {
-    [Route("api/[controller]")]
+    [Route("api/user/[controller]")]
     [ApiController]
-    public class UserManager : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly OtmsContext _context;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache memoryCache;
         private readonly TimeSpan tokenExpiry = TimeSpan.FromMinutes(15);
-        public UserManager(OtmsContext context, IConfiguration configuration, IMemoryCache memoryCache)
+        public UserController(OtmsContext context, IConfiguration configuration, IMemoryCache memoryCache)
         {
             _context = context;
             _configuration = configuration;

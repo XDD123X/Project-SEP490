@@ -18,15 +18,15 @@ using OTMS.DAL.Interface;
 
 namespace OTMS.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
-    public class AccountManamentController : ControllerBase
+    public class AccountController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IRoleRepository _roleRepository;
 
-        public AccountManamentController(IRoleRepository roleRepository, IAccountRepository accountRepository, IMapper mapper)
+        public AccountController(IRoleRepository roleRepository, IAccountRepository accountRepository, IMapper mapper)
         {
             _mapper = mapper;
             _accountRepository = accountRepository;

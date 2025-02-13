@@ -6,14 +6,14 @@ using OTMS.DAL.Interface;
 
 namespace OTMS.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
-    public class ClasManagersController : ControllerBase
+    public class ClassController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IClassRepository _classRepository;
         private readonly IClassStudentRepository _classStudentRepository;
-        public ClasManagersController(IClassRepository classRepository, IClassStudentRepository classStudentRepository, IMapper mapper)
+        public ClassController(IClassRepository classRepository, IClassStudentRepository classStudentRepository, IMapper mapper)
         {
             _classRepository = classRepository;
             _classStudentRepository = classStudentRepository;

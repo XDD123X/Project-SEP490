@@ -22,15 +22,15 @@ namespace OTMS.API.Controllers
         public Guid TeacherId { get; set; }
     }
 
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
-    public class ScheduleController : Controller
+    public class SessionController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly OtmsContext _context;
         private readonly IScheduleRepository _scheduleRepository;
 
-        public ScheduleController(IConfiguration configuration, OtmsContext context, IScheduleRepository scheduleRepository)
+        public SessionController(IConfiguration configuration, OtmsContext context, IScheduleRepository scheduleRepository)
         {
             _configuration = configuration;
             _context = context;

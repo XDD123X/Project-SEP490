@@ -22,4 +22,11 @@
 		<ProjectReference Include="..\OTMS_DLA\OTMS.DAL.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Controllers\Lecturer-Endpoint\" />
+	  <Folder Include="Controllers\System\" />
+	  <Folder Include="Controllers\Student-Endpoint\" />
+	  <Folder Include="Controllers\Officer-Endpoint\" />
+	</ItemGroup>
+
 </Project>
