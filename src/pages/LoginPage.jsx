@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/loginpage/LoginForm";
+import { LoginForm } from "@/components/login/LoginForm";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { Helmet } from "react-helmet-async";

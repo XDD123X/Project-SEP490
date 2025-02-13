@@ -10,14 +10,55 @@ import { useState } from "react";
 import { Spinner } from "../ui/spinner";
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState({});
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const handleLogin = async () => {
-    setIsLoading(true);
-    setError("Email or Password Is Not Correct. PLease Try Again");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,25}$/.test(formData.password)) {
+      //(?=.*[A-Z]) uppercase
+      //(?=.*\d) number
+      //(?=.*[\W_]) special char
+      //{6,25}$ length
+      newErrors.password = "Password must be 6-25 characters, At least 1 uppercase, 1 number, and 1 special character";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+      setIsLoading(true);
+      toast(formData.email);
+    } else {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -27,34 +68,30 @@ export function LoginForm() {
           <Spinner></Spinner>
         </div>
       )}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleLogin();
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Login</CardTitle>
             <CardDescription>Enter your email below to login to your account</CardDescription>
-            <CardDescription className='text-red-500'> {error} </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input id="email" name="email" type="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} className={errors.email ? "border-red-500" : ""} />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <Input id="password" name="password" type="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} className={errors.password ? "border-red-500" : ""} />
+                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
               </div>
 
               <div className="flex justify-between items-center w-full">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="rememberMe" checked={rememberMe} onCheckedChange={setRememberMe} />
+                  <Checkbox id="rememberMe" name="rememberMe" checked={formData.rememberMe} onCheckedChange={handleChange} />
                   <label htmlFor="rememberMe" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     Remember Me
                   </label>
@@ -70,7 +107,8 @@ export function LoginForm() {
               <Button type="submit" className="w-full">
                 Login
               </Button>
-              <Button variant="outline" className="w-full">
+
+              <Button type="button" variant="outline" className="w-full" onClick={() => toast.error("Oops! Function Under Development")}>
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
                   <path
                     fill="#FFC107"
