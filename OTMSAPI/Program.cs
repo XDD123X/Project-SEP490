@@ -16,7 +16,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<OtmsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+builder.Services.AddScoped<UserDAO>();
+
+// Đăng ký Interface với Repository
+
+
 builder.Services.AddMemoryCache();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
