@@ -1,0 +1,31 @@
+import { LoginForm } from "@/components/loginpage/LoginForm";
+import { Button } from "@/components/ui/button";
+import React from "react";
+import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
+
+export default function LoginPage() {
+  return (
+    <>
+      <Helmet>
+        <title>{GLOBAL_NAME} - Login</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 max-w-screen-2xl items-center">
+          <Link to="/" className="mr-6 flex items-center">
+            <span className="font-bold text-lg">{GLOBAL_NAME} </span>
+            <span className="ml-0 font-bold text-lg">.</span>
+          </Link>
+        </div>
+      </header>
+      <div className="flex w-full items-center justify-center p-6 md:p-10 mt-[10%]">
+        <div className="w-full max-w-sm">
+          <LoginForm />
+        </div>
+      </div>
+    </>
+  );
+}
