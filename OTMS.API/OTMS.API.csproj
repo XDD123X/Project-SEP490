@@ -18,8 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\BusinessObject\OTMS.BLL.csproj" />
-		<ProjectReference Include="..\OTMS_DLA\OTMS.DAL.csproj" />
+	  <ProjectReference Include="..\OTMS.DAL\OTMS.DAL.csproj" />
 	</ItemGroup>
 
 </Project>
