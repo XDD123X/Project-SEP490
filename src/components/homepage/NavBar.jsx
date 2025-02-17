@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useStore } from "@/services/StoreContext";
+import { useEffect, useState } from "react";
+import { Spinner } from "../ui/spinner";
 
 const FACEBOOK_URL = import.meta.env.VITE_SUPPORT_FACEBOOK;
 const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function Navbar() {
+  const { state } = useStore();
+  const { user, role } = state;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -19,9 +25,15 @@ export default function Navbar() {
               Contact
             </Button>
           </Link>
-          <Link to="/login">
-            <Button size="sm">Login</Button>
-          </Link>
+          {!user ? (
+            <Link to="/login">
+              <Button size="sm">Login</Button>
+            </Link>
+          ) : (
+            <Link to={`/${role}`}>
+              <Button size="sm">Welcome, {user.name}</Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

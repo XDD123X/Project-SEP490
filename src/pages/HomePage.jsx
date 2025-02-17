@@ -2,10 +2,32 @@ import Navbar from "@/components/homepage/NavBar";
 import Hero from "@/components/homepage/Hero";
 import Footer from "@/components/homepage/Footer";
 import { Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
+import { useStore } from "@/services/StoreContext";
+import { Spinner } from "@/components/ui/spinner";
 
 const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function Home() {
+  const { state } = useStore();
+  const { user } = state;
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (user) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <>
       <Helmet>

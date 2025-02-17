@@ -1,5 +1,5 @@
 #root {
-  font-family: Poppins, sans-serif;
+  font-family: Inter, sans-serif;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -14,4 +14,32 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.CollapsibleContent {
+	overflow: hidden;
+}
+.CollapsibleContent[data-state="open"] {
+	animation: slideDown 300ms ease-out;
+}
+.CollapsibleContent[data-state="closed"] {
+	animation: slideUp 300ms ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		height: 0;
+	}
+	to {
+		height: var(--radix-collapsible-content-height);
+	}
+}
+
+@keyframes slideUp {
+	from {
+		height: var(--radix-collapsible-content-height);
+	}
+	to {
+		height: 0;
+	}
 }

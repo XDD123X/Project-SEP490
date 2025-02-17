@@ -8,11 +8,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Spinner } from "../ui/spinner";
+import { useStore } from "@/services/StoreContext";
+import { authMe, login } from "@/services/authService";
+import { Eye, EyeOff } from "lucide-react";
+import { setAccessToken } from "@/services/axiosClient";
 export function LoginForm() {
+  const navigate = useNavigate();
+  const { dispatch } = useStore();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const [showPassword, setShowPassword] = useState(false);
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,6 +37,13 @@ export function LoginForm() {
     }));
   };
 
+  const handleChangeCheck = (checked) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      rememberMe: checked,
+    }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -38,25 +55,63 @@ export function LoginForm() {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,25}$/.test(formData.password)) {
+    } else if (!/^.{6,25}$/.test(formData.password)) {
       //(?=.*[A-Z]) uppercase
       //(?=.*\d) number
       //(?=.*[\W_]) special char
       //{6,25}$ length
-      newErrors.password = "Password must be 6-25 characters, At least 1 uppercase, 1 number, and 1 special character";
+      newErrors.password = "Password must be 6-25 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      setIsLoading(true);
-      toast(formData.email);
-    } else {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { email, password, rememberMe } = formData;
+      if (!email || !password) {
+        toast.error("Invalid email or password!");
+        setIsLoading(false);
+        return;
+      }
+
+      // Call login API
+      const response = await login(email, password, rememberMe);
+
+      if (response.status === 200 && response?.data) {
+        const userResponse = await authMe();
+        const user = {
+          uid: userResponse.data.accountId,
+          email: userResponse.data.email,
+          name: userResponse.data.fullName,
+          imgUrl: userResponse.data.imgUrl,
+        };
+
+        const role = userResponse.data.role.name;
+
+        dispatch({ type: "SET_USER", payload: { user, role } });
+        toast.success("Login successful!");
+        navigate(`/${role}`);
+      } else if (response.status === 404) {
+        toast.error("Email or Password Is Not Correct. Please Try Again!");
+        setErrors({ email: " ", password: " " });
+      } else if (response.status === 500) {
+        toast.error("Request Timeout. Please Try Again!");
+      } else {
+        throw new Error(response?.message || "Login failed!");
+      }
+    } catch (error) {
+      toast.error(error.message || "Login failed, please try again!");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -85,13 +140,19 @@ export function LoginForm() {
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input id="password" name="password" type="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} className={errors.password ? "border-red-500" : ""} />
+                <div className="relative">
+                  <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" value={formData.password} onChange={handleChange} className={errors.password ? "border-red-500 pr-10" : "pr-10"} />
+                  <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3" onClick={togglePasswordVisibility}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                  </Button>
+                </div>
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
               </div>
 
               <div className="flex justify-between items-center w-full">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="rememberMe" name="rememberMe" checked={formData.rememberMe} onCheckedChange={handleChange} />
+                  <Checkbox id="rememberMe" name="rememberMe" checked={formData.rememberMe} onCheckedChange={handleChangeCheck} />
                   <label htmlFor="rememberMe" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     Remember Me
                   </label>

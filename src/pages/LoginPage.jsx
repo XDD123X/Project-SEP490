@@ -1,12 +1,24 @@
 import { LoginForm } from "@/components/login/LoginForm";
 import { Button } from "@/components/ui/button";
-import React from "react";
+import { useStore } from "@/services/StoreContext";
+import React, { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const { state } = useStore()
+  const { user, role } = state;
+
+  useEffect(() => {
+    if (user) {
+      navigate(`/${role}`); // Điều hướng đến trang tương ứng với role của người dùng
+    }
+  }, [user, role, navigate]);
+
   return (
     <>
       <Helmet>
