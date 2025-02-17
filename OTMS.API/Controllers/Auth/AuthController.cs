@@ -57,7 +57,7 @@ namespace OTMS.API.Controllers.Auth
                 {
                     var refreshToken = _tokenService.GenerateRefreshToken();
                     await _refreshTokenRepository.AddAsync(refreshToken, account.AccountId);
-                    Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+                    Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
                     {
                         HttpOnly = true,
                         Secure = true,
@@ -87,10 +87,10 @@ namespace OTMS.API.Controllers.Auth
             }
         }
 
-        [HttpPost("refresh-token")]
+        [HttpGet("refresh-token")]
         public async Task<ActionResult> RefreshToken()
         {
-            if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken)) return Unauthorized();
+            if (!Request.Cookies.TryGetValue("refresh_token", out var refreshToken)) return Unauthorized();
 
             var refreshTokenObj = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
             if (refreshTokenObj == null || refreshTokenObj.ExpiresAt <= DateTime.UtcNow) return Unauthorized();
@@ -119,7 +119,7 @@ namespace OTMS.API.Controllers.Auth
             return Ok("Logged out successfully");
         }
 
-        [HttpPost("Me")]
+        [HttpGet("Me")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Me()
         {

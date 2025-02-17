@@ -35,7 +35,7 @@ CREATE TABLE Account (
     role_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Role(role_id),
     fulltime BIT NULL DEFAULT 1,
     phone_number NVARCHAR(15) NULL,
-    img_url NVARCHAR(500) DEFAULT 'https://dummyimage.com/400x600',
+    img_url NVARCHAR(500) DEFAULT 'https://ui.shadcn.com/avatars/shadcn.jpg',
 	status INT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE() ,
     updated_at DATETIME DEFAULT NULL
