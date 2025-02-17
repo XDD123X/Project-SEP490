@@ -29,12 +29,11 @@ namespace OTMS.BLL.Services
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
             var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-
             var claims = new[]
             {
-                new Claim("sub", account.AccountId.ToString()),
-                new Claim("email", account.Email),
-                new Claim("role", account.Role.Name.ToString())
+                new Claim("uid", account.AccountId.ToString()), // account ID
+                new Claim("ue", account.Email), // email
+                new Claim("ur", account.Role.Name) // role
             };
 
             var token = new JwtSecurityToken(
@@ -48,6 +47,8 @@ namespace OTMS.BLL.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+
+
         public string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
@@ -58,7 +59,7 @@ namespace OTMS.BLL.Services
             var refreshToken = Convert.ToBase64String(randomNumber);
             return refreshToken;
         }
-        public int? ValidateToken(string token)
+        public Guid? ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             try
@@ -78,13 +79,16 @@ namespace OTMS.BLL.Services
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
 
                 // Lấy AccountId từ claim
-                var accountIdClaim = principal.FindFirst("id");
+                var accountIdClaim = principal.FindFirst("uid");
+
+                Console.WriteLine("user id from token: ", accountIdClaim);
+
                 if (accountIdClaim == null)
                 {
                     return null;
                 }
 
-                return int.Parse(accountIdClaim.Value);
+                return Guid.Parse(accountIdClaim.Value);
             }
             catch
             {

@@ -20,7 +20,10 @@ namespace OTMS.DAL.DAO
 
         public async Task<Account?> GetByEmailAsync(string email)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
+            return await _context.Accounts
+                .Where(a => a.Email == email).
+                Include(a => a.Role)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> ExistsByEmailAsync(string email)

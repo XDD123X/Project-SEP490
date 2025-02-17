@@ -11,6 +11,6 @@ namespace OTMS.BLL.Services
     {
         string GenerateAccessToken(Account account);
         string GenerateRefreshToken();
-        int? ValidateToken(string token);
+        Guid? ValidateToken(string token);
     }
 }

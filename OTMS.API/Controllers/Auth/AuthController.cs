@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
@@ -28,39 +30,61 @@ namespace OTMS.API.Controllers.Auth
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginDTO loginDTO)
         {
-            Account account = await _accountRepository.GetByLogin(loginDTO.Email, _passwordService.HashPassword(loginDTO.Password));
-            if (account == null)
+            try
             {
-                return NotFound("Invalid user credentials");
-            }
-
-            var accessToken = _tokenService.GenerateAccessToken(account);
-            if (loginDTO.RememberMe == true)
-            {
-                var refreshToken = _tokenService.GenerateRefreshToken();
-                await _refreshTokenRepository.AddAsync(refreshToken, account.AccountId);
-                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+                // Validate input
+                if (string.IsNullOrEmpty(loginDTO.Email) || string.IsNullOrEmpty(loginDTO.Password))
                 {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(7)
+                    return BadRequest("Email and password cannot be empty.");
+                }
+
+                var hashedPassword = _passwordService.HashPassword(loginDTO.Password);
+                Account account = await _accountRepository.GetByLogin(loginDTO.Email, hashedPassword);
+
+                if (account == null)
+                {
+                    return NotFound("Incorrect email or password.");
+                }
+
+                if (account.Status == 0)
+                {
+                    return StatusCode(403, "Your account has been locked.");
+                }
+
+                var accessToken = _tokenService.GenerateAccessToken(account);
+
+                if (loginDTO.RememberMe)
+                {
+                    var refreshToken = _tokenService.GenerateRefreshToken();
+                    await _refreshTokenRepository.AddAsync(refreshToken, account.AccountId);
+                    Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddDays(7)
+                    });
+                }
+
+                return Ok(new
+                {
+                    accessToken = accessToken,
+                    user = new
+                    {
+                        uid = account.AccountId,
+                        email = account.Email,
+                        role = account.Role.Name,
+                    }
                 });
             }
-
-
-            return Ok(new
+            catch (TaskCanceledException)
             {
-                accessToken = accessToken,
-                user = new
-                {
-                    uid = account.AccountId,
-                    email = account.Email,
-                    role = account.Role.Name,
-                }
+                return StatusCode(408, "Login request timed out, please try again.");
             }
-            );
-
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Server error: {ex.Message}");
+            }
         }
 
         [HttpPost("refresh-token")]
@@ -94,6 +118,43 @@ namespace OTMS.API.Controllers.Auth
             Response.Cookies.Delete("refreshToken");
             return Ok("Logged out successfully");
         }
+
+        [HttpPost("Me")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> Me()
+        {
+            try
+            {
+                var email = User.FindFirst("ue")?.Value;
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Unauthorized("Email not found in token");
+
+                }
+
+                var user = await _accountRepository.GetByEmailAsync(email);
+                if (user == null) return NotFound("User Not Found");
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        private Guid? GetAccountIdFromJwt()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
+
+            var accountId = _tokenService.ValidateToken(token);
+            return accountId;
+        }
+
 
     }
 }
