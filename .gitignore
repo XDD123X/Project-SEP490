@@ -9,3 +9,5 @@ bin/
 obj/
 **/obj/
 /BusinessObject/appsettings.json
+/OTMS.API/appsettings.json
+/OTMS.DAL/appsettings.Development.json
