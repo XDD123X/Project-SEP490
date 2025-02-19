@@ -1,4 +1,6 @@
-﻿using DocumentFormat.OpenXml.Presentation;
+﻿using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
+using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Wordprocessing;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -33,6 +35,11 @@ namespace OTMS.DAL.DAO
                 await _context.SaveChangesAsync();
             }
             return;
+        }
+
+        public bool checkStuentInClass(Guid classId, Guid studentId)
+        {
+            return _dbSet.Any(sc => sc.ClassId == classId && sc.StudentId == studentId);
         }
     }
 }

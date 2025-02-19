@@ -13,10 +13,12 @@ namespace OTMS.API.Controllers
         private readonly IMapper _mapper;
         private readonly IClassRepository _classRepository;
         private readonly IClassStudentRepository _classStudentRepository;
-        public ClassController(IClassRepository classRepository, IClassStudentRepository classStudentRepository, IMapper mapper)
+        private readonly IAccountRepository _accountRepository;
+        public ClassController(IClassRepository classRepository, IClassStudentRepository classStudentRepository,IAccountRepository accountRepository, IMapper mapper)
         {
             _classRepository = classRepository;
             _classStudentRepository = classStudentRepository;
+            _accountRepository = accountRepository;
             _mapper = mapper;
         }
         [HttpGet("class-list")]
@@ -42,6 +44,14 @@ namespace OTMS.API.Controllers
         public async Task<IActionResult> GetClassById(Guid id)
         {
             var Class = await _classRepository.GetByIdAsync(id);
+            if (Class == null) return NotFound("Class not found");
+            ClassDTO u = _mapper.Map<ClassDTO>(Class);
+            return Ok(u);
+        }
+        [HttpGet("find-class-by-code")]
+        public async Task<IActionResult> GetClassByCode(string code)
+        {
+            var Class = await _classRepository.GetByClassCodeAsync(code);
             if (Class == null) return NotFound("Class not found");
             ClassDTO u = _mapper.Map<ClassDTO>(Class);
             return Ok(u);
@@ -76,8 +86,8 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id);
             }
         }
-        [HttpPut("disable-class/{id}")]
-        public async Task<IActionResult> BanClass(Guid id)
+        [HttpPut("diactivate-class/{id}")]
+        public async Task<IActionResult> DeActivateClass(Guid id)
         {
             var Class = await _classRepository.GetByIdAsync(id);
             if (Class == null) return NotFound("Class not found");
@@ -85,7 +95,7 @@ namespace OTMS.API.Controllers
             try
             {
                 await _classRepository.UpdateAsync(Class);
-                return Ok("Class is disable");
+                return Ok("Class is Deactivate");
             }
             catch (Exception ex)
             {
@@ -107,6 +117,32 @@ namespace OTMS.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id);
+            }
+        }
+
+        [HttpPut("asign-student-into-class/{id}")]
+        public async Task<IActionResult> AsignStudentIntoClass(Guid id, List<Guid> listStudentId)
+        {
+            var classObj = await _classRepository.GetByIdAsync(id);
+            if (classObj == null) return NotFound("Class not found");
+            var validStudentIds = new List<Guid>();
+            foreach (var studentid in listStudentId)
+            {
+                var student = await _accountRepository.GetByIdAsync(studentid);
+                if (student != null && !_classStudentRepository.checkStuentInClass(id, studentid))
+                {
+                    validStudentIds.Add(studentid);
+                }
+            }
+            if (validStudentIds.Count == 0) return BadRequest("No valid students to add");
+            try
+            {
+                await _classStudentRepository.addStudentIntoClass(id, validStudentIds);
+                return Ok("Add successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while adding students to class {id}: {ex.Message}");
             }
         }
     }

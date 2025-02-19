@@ -18,5 +18,7 @@ namespace OTMS.DAL.Repository
             _classStudentDAO = classStudentDAO;
         }
         public Task addStudentIntoClass(Guid classId, List<Guid> listStudentId) => _classStudentDAO.addStudentIntoClass(classId, listStudentId);
+
+        public bool checkStuentInClass(Guid classId, Guid studentId) => _classStudentDAO.checkStuentInClass(classId, studentId);
     }
 }

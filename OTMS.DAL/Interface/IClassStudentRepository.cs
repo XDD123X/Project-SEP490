@@ -9,6 +9,7 @@ namespace OTMS.DAL.Interface
 {
     public interface IClassStudentRepository : IRepository<ClassStudent>
     {
+        bool checkStuentInClass(Guid classId, Guid studentId);
         Task addStudentIntoClass(Guid classId, List<Guid> listStudentId);
     }
 }
