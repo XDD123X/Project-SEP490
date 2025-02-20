@@ -12,5 +12,7 @@ namespace OTMS.DAL.Interface
         Task<bool> AddScheduleAsync(List<Session> sessions);
 
         Task<List<Session>> GetAllSessionsAsync();
+        Task<List<Session>> GetByLecturerIdAsync(Guid id);
+        Task<List<Session>> GetByStudentIdAsync(Guid id);
     }
 }

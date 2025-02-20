@@ -29,5 +29,30 @@ namespace OTMS.DAL.DAO
                 .ThenBy(s => s.Slot)
                 .ToListAsync();
         }
+        public async Task<List<Session>> GetByLecturerIdAsync(Guid id)
+        {
+            return await _context.Sessions
+                .Where(s => s.LecturerId == id)
+                .Include(s => s.Class)
+                .Include(s => s.Lecturer)
+                .OrderBy(s => s.SessionDate)
+                .ThenBy(s => s.Slot)
+                .ToListAsync();
+        }
+        public async Task<List<Session>> GetByStudentIdAsync(Guid id)
+        {
+            List<Guid> classList = await _context.ClassStudents
+                .Where(cs => cs.StudentId.Equals(id))
+                .Select(cs => cs.ClassId)
+                .ToListAsync();
+
+            return await _context.Sessions
+                .Where(s => classList.Contains(s.ClassId))
+                .Include(s => s.Class)
+                .Include(s => s.Lecturer)
+                .OrderBy(s => s.SessionDate)
+                .ThenBy(s => s.Slot)
+                .ToListAsync();
+        }
     }
 }

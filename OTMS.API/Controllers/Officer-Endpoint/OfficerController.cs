@@ -1,5 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using OTMS.BLL.DTOs;
+using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
+using System.Globalization;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -7,5 +14,13 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     [ApiController]
     public class OfficerController : ControllerBase
     {
+        private readonly IMapper _mapper;
+        private readonly IScheduleRepository _scheduleRepository;
+
+        public OfficerController(IMapper mapper, IScheduleRepository scheduleRepository)
+        {
+            _mapper = mapper;
+            _scheduleRepository = scheduleRepository;
+        }
     }
 }

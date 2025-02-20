@@ -22,5 +22,9 @@ namespace OTMS.DAL.Repository
         public async Task<bool> AddScheduleAsync(List<Session> sessions) => await _scheduleDAO.AddScheduleAsync(sessions);
 
         public async Task<List<Session>> GetAllSessionsAsync() => await _scheduleDAO.GetAllSessionsAsync();
+
+        public async Task<List<Session>> GetByLecturerIdAsync(Guid id) => await _scheduleDAO.GetByLecturerIdAsync(id);
+
+        public async Task<List<Session>> GetByStudentIdAsync(Guid id) => await _scheduleDAO.GetByStudentIdAsync(id);
     }
 }

@@ -83,7 +83,7 @@ namespace OTMS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
             }
         }
         [HttpPut("diactivate-class/{id}")]
@@ -99,7 +99,7 @@ namespace OTMS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
             }
         }
 
@@ -116,7 +116,7 @@ namespace OTMS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id +": " +ex.Message);
             }
         }
 
