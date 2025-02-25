@@ -100,7 +100,7 @@ export function LoginForm() {
 
         dispatch({ type: "SET_USER", payload: { user, role } });
         toast.success("Login successful!");
-        navigate(`/${role}`);
+        navigate(`/Dashboard`);
       } else if (response.status === 404) {
         toast.error("Email or Password Is Not Correct. Please Try Again!");
         setErrors({ email: " ", password: " " });

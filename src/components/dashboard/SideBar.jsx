@@ -6,13 +6,13 @@ import { NavUser } from "./SideBarUser";
 import { SideBarMain } from "./SideBarMain";
 import { NavSecondary } from "./SideBarSecondary";
 import { Button } from "@/components/ui/button";
-import SideBarProfile from "./SideBarProfile";
 import { Link } from "react-router-dom";
+import { SidebarGeneral } from "@/components/dashboard/SidebarGeneral";
 
 export function SideBar(props) {
   const { data } = props;
   return (
-    <Sidebar collapsible="icon" variant='floating' {...props}>
+    <Sidebar collapsible="icon" variant="floating" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -31,8 +31,8 @@ export function SideBar(props) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* <SideBarProfile items={data.projects}/> */}
-        <SideBarMain items={data.navMain} />
+        {/* <SideBarProfile items={data.general}/> */}
+        <SidebarGeneral items={data.general} />
         <SideBarMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>

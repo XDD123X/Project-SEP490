@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 export function SideBarMain({ items }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>General</SidebarGroupLabel>
+      <SidebarGroupLabel>Function</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen className="group/collapsible">

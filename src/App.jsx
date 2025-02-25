@@ -5,24 +5,17 @@ import Home from "./pages/HomePage";
 import HomeLayout from "./components/layouts/HomeLayout";
 import { HelmetProvider } from "react-helmet-async";
 import LoginPage from "./pages/LoginPage";
-import Layout from "./components/layouts/Layout";
-import TestForm from "./pages/TestPage";
-import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import NotFound from "./pages/Errors/notfound";
 import { StoreProvider } from "./services/StoreContext";
-import StudentPrivateRoute from "./pages/private/StudentPrivateRoute";
-import LecturerPrivateRoute from "./pages/private/LecturerPrivateRoute";
-import OfficerPrivateRoute from "./pages/private/OfficerPrivateRoute";
-import AdminPrivateRoute from "./pages/private/AdminPrivateRoute";
-import LecturerDashboard from "./pages/dashboard/lecturer/LecturerDashboard";
-import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
-import OfficerDashboard from "./pages/dashboard/officer/OfficerDashboard";
 import Notfound from "./pages/Errors/notfound";
 import LogoutPage from "./pages/LogoutPage";
 import PrivateRoute from "./pages/private/PrivateRoute";
-import DemoPage from "./pages/dashboard/admin/DemoPage";
 import RefrestTokenTest from "./pages/test/RefrestTokenTest";
 import { Toaster } from "./components/ui/sonner";
+import DemoPage from "./pages/dashboard/DemoPage";
+import MainScreen from "./pages/dashboard/MainScreen";
+import Notification from "./pages/dashboard/Notification";
+import DashboardPage from "./pages/dashboard/admin/Dashboard";
 
 function App() {
   return (
@@ -44,25 +37,24 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/logout" element={<LogoutPage />} />
 
-                {/* auth route */}
+                {/* Auth route */}
                 <Route element={<PrivateRoute />}>
-                  {/* student route */}
-                  <Route element={<StudentPrivateRoute />}>
-                    <Route path="/Student" element={<StudentDashboard />} />
+                  <Route path="/Student" element={<MainScreen />}>
+                    <Route path="demo" element={<DemoPage />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="notification" element={<Notification />} />
                   </Route>
-                  {/* lecturer route */}
-                  <Route element={<LecturerPrivateRoute />}>
-                    <Route path="/Lecturer" element={<LecturerDashboard />} />
+                  <Route path="/Administrator" element={<MainScreen />}>
+                    <Route path="demo" element={<DemoPage />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="notification" element={<Notification />} />
                   </Route>
-                  {/* officer route */}
-                  <Route element={<OfficerPrivateRoute />}>
-                    <Route path="/Officer" element={<OfficerDashboard />} />
+                  <Route path="/Lucturer" element={<MainScreen />}>
+                    <Route path="demo" element={<DemoPage />} />
                   </Route>
-                  {/* admin route */}
-                  <Route element={<AdminPrivateRoute />}>
-                    <Route path="/Administrator" element={<AdminDashboard />}>
-                      <Route path="demo" element={<DemoPage />} />
-                    </Route>
+                  <Route path="/Officer" element={<MainScreen />}>
+                    <Route path="demo" element={<DemoPage />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
                   </Route>
                 </Route>
 
@@ -73,7 +65,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="top-right" expand={false} theme="light"/>
+            <Toaster richColors position="top-right" expand={false} theme="light" />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>

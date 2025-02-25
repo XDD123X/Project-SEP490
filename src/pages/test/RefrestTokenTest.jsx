@@ -9,9 +9,9 @@ export default function RefrestTokenTest() {
   const testApi = async () => {
     try {
       const res = await axiosClient.get("/auth/me"); // API yêu cầu xác thực
-      console.log(res);
+      console.log("response: ",res.data.accountId);
 
-      setResponseMessage(`Success: ${res.data.message}`);
+      setResponseMessage(`Success: ${res.data.accountId}`);
       toast.success("Request thành công!");
     } catch (error) {
       setResponseMessage(`Error: ${error.response?.data?.message || "Unknown error"}`);

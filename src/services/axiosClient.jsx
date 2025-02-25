@@ -66,11 +66,10 @@ export const getAccessToken = () => {
 
 // ✅ Hàm logout (xoá accessToken và điều hướng về login)
 export const handleLogout = () => {
-  //accessToken = null;
-  //Cookies.remove("refresh_token")
-  //Cookies.remove("access_token");
-  //sessionStorage.removeItem("user"); //
-  //window.location.href = "/login"; // Điều hướng về trang login
+  Cookies.remove("refresh_token")
+  Cookies.remove("access_token");
+  sessionStorage.removeItem("user"); //
+  window.location.href = "/login"; // Điều hướng về trang login
 };
 
 export default axiosClient;

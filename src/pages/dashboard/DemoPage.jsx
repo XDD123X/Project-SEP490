@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function DemoPage() {
   return (
-    <div>demo</div>
+    <div>DemoPage</div>
   )
 }

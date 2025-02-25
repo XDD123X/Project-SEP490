@@ -1,7 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { authMe } from "@/services/authService";
+import axiosClient from "@/services/axiosClient";
 import { useStore } from "@/services/StoreContext";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export function ProfileDropdown() {

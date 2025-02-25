@@ -2,26 +2,19 @@ import { SideBar } from "@/components/dashboard/SideBar";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, LifeBuoy, Map, PieChart, Send, Settings2, SquareTerminal } from "lucide-react";
-import { useState } from "react";
-import { Breadcrumb, BreadcrumbItem } from "react-bootstrap";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import { Bell, BookOpen, Bot, Frame, LayoutDashboard, LifeBuoy, Lock, PieChart, Send, Settings2, SquareTerminal, User } from "lucide-react";
+import React from "react";
 import { Outlet } from "react-router-dom";
 
+
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Playground",
       url: "demo",
       icon: SquareTerminal,
-      isActive: true,
       items: [
         {
           title: "History",
@@ -115,31 +108,31 @@ const data = {
       icon: Send,
     },
   ],
-  projects: [
+  general: [
     {
-      name: "Design Engineering",
-      url: "demo",
-      icon: Frame,
+      name: "Dashboard",
+      url: "dashboard",
+      icon: LayoutDashboard,
     },
     {
-      name: "Sales & Marketing",
-      url: "demo",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "demo",
-      icon: Map,
+      name: "Notification",
+      url: "notification",
+      icon: Bell,
     },
   ],
 };
 
-export default function AdminDashboard() {
+export default function MainScreen() {
   return (
     <SidebarProvider>
       <SideBar data={data} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+        {/* Header chỉ sticky trên mobile */}
+        <header
+          className="flex h-16 shrink-0 items-center gap-2 border-b px-4
+          light:bg-white dark:bg-black
+                      sticky top-0 z-50 md:relative"
+        >
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Search />
@@ -148,9 +141,12 @@ export default function AdminDashboard() {
             <ProfileDropdown />
           </div>
         </header>
+
+        {/* Nội dung chính */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-5">
-          {/* <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" /> */}
-          <Outlet />
+          <div className="p-5">
+            <Outlet />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
