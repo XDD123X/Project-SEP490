@@ -35,6 +35,7 @@ CREATE TABLE Account (
     role_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Role(role_id),
     fulltime BIT NULL DEFAULT 1,
     phone_number NVARCHAR(15) NULL,
+	dob DATE DEFAULT NULL,
     img_url NVARCHAR(500) DEFAULT 'https://ui.shadcn.com/avatars/shadcn.jpg',
 	status INT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE() ,
@@ -59,6 +60,7 @@ CREATE TABLE Class (
     class_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     class_code NVARCHAR(50) NOT NULL,
     class_name NVARCHAR(100) NOT NULL,
+	lecturer_id uniqueidentifier FOREIGN KEY REFERENCES Account(account_id),
     course_id INT NOT NULL FOREIGN KEY REFERENCES Course(course_id),
     total_session INT NOT NULL,
     start_date DATETIME NULL,
@@ -74,11 +76,11 @@ GO
 CREATE TABLE Session (
     session_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id),
-    lecturer_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    lecturer_id uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
     session_date DATETIME NOT NULL,
     slot INT NOT NULL,
     description NVARCHAR(255),
-    session_record DATE NULL,
+    session_record DATETIME NULL,
 	type INT DEFAULT 1,
     status INT DEFAULT 1,
     created_at DATETIME DEFAULT GETDATE(),
@@ -87,7 +89,7 @@ CREATE TABLE Session (
 GO
 
 -- 6. Tạo bảng SessionRecord
-CREATE TABLE SessionRecord (
+CREATE TABLE Record (
     record_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
     video_url NVARCHAR(500),
@@ -99,18 +101,8 @@ CREATE TABLE SessionRecord (
 );
 GO
 
--- 7. Tạo bảng WebcamRecord
-CREATE TABLE WebcamRecord (
-    webcam_record_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
-    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
-    video_url NVARCHAR(500),
-    created_at DATETIME DEFAULT GETDATE(),
-    status INT DEFAULT 1
-);
-GO
 
--- 8. Tạo bảng ClassStudent
+-- 7. Tạo bảng ClassStudent
 CREATE TABLE ClassStudent (
     class_student_id INT PRIMARY KEY IDENTITY(1,1),
     class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id),
@@ -121,7 +113,7 @@ CREATE TABLE ClassStudent (
 );
 GO
 
--- 9. Tạo bảng Attendance
+-- 8. Tạo bảng Attendance
 CREATE TABLE Attendance (
     attendance_id INT PRIMARY KEY IDENTITY(1,1),
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
@@ -134,46 +126,39 @@ CREATE TABLE Attendance (
 );
 GO
 
--- 10. Tạo bảng Parent
+-- 9. Tạo bảng Parent
 CREATE TABLE Parent (
     parent_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     full_name NVARCHAR(100) NOT NULL,
+	gender INT DEFAULT NULL,
     phone_number NVARCHAR(20) NULL,
     email NVARCHAR(100) NULL,
     status INT DEFAULT 1
 );
 GO
 
--- 11. Tạo bảng Notification
+-- 10. Tạo bảng Notification
 CREATE TABLE Notification (
     notification_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     title NVARCHAR(255) NOT NULL,
     content NVARCHAR(255) NOT NULL,
+	type INT DEFAULT 0,
     created_by uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL
 );
 GO
 
---  11.1 Tạo bảng Permission
-CREATE TABLE Permission (
-    permission_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    name NVARCHAR(100) NOT NULL UNIQUE,  -- Tên quyền (VD: 'manage_users', 'view_reports')
-    description NVARCHAR(255) NULL,      -- Mô tả quyền
-    created_at DATETIME DEFAULT GETDATE(),
-    updated_at DATETIME DEFAULT GETDATE(),
-    status INT DEFAULT 1                 -- 1: Hoạt động, 0: Không hoạt động
-);
-GO
-
--- 11.2 Tạo bảng User Permission
-CREATE TABLE UserPermission (
-    user_permission_id INT PRIMARY KEY IDENTITY(1,1),
+-- 11. Tạo bảng RefreshToken
+CREATE TABLE RefreshToken (
+    token_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     account_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
-    permission_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Permission(permission_id) ON DELETE CASCADE,
-    assigned_at DATETIME DEFAULT GETDATE(),
-    status INT DEFAULT 1                 -- 1: Đang có quyền, 0: Bị thu hồi
+    token NVARCHAR(500) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    revoked_at DATETIME NULL,  -- Thời điểm token bị thu hồi (nếu có)
+    status INT DEFAULT 1        -- 1: Hoạt động, 0: Bị thu hồi
 );
 GO
 
@@ -186,19 +171,53 @@ VALUES
 ('Officer', N'Quản lý lớp học và lịch học');
 GO
 
--- 12.1. Tạo bảng RefreshToken
-CREATE TABLE RefreshToken (
-    token_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    account_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
-    token NVARCHAR(500) NOT NULL UNIQUE,
-    expires_at DATETIME NOT NULL,
+-- 13. Tạo bảng ClassSetting
+CREATE TABLE GlobalSetting (
+    setting_id INT PRIMARY KEY IDENTITY(1,1),
+    session_per_week INT DEFAULT 2,  -- Số buổi học tối đa mỗi tuần
+    session_total INT NOT NULL DEFAULT 32, -- Tổng số buổi học mặc định
     created_at DATETIME DEFAULT GETDATE(),
-    revoked_at DATETIME NULL,  -- Thời điểm token bị thu hồi (nếu có)
-    status INT DEFAULT 1        -- 1: Hoạt động, 0: Bị thu hồi
+    updated_at DATETIME DEFAULT GETDATE()
 );
 GO
 
--- 13. Thêm dữ liệu mẫu cho Account
+-- 14. Tạo bảng SessionChangeRequest
+CREATE TABLE SessionChangeRequest (
+    request_change_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
+    lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
+    approved_date DATETIME NULL,
+    status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
+    created_at DATETIME DEFAULT GETDATE()
+);
+GO
+
+-- 15. Tạo bảng ProfileChangeRequest
+CREATE TABLE ProfileChangeRequest (
+    request_change_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    account_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
+    img_url_old NVARCHAR(500) NOT NULL,
+    img_url_new NVARCHAR(500) NOT NULL,
+    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
+    approved_date DATETIME NULL,
+    status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
+    created_at DATETIME DEFAULT GETDATE()
+);
+GO
+
+-- 16. Tạo bảng LecturerSchedule
+CREATE TABLE LecturerSchedule (
+    schedule_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
+    slot_available NVARCHAR(50) DEFAULT '1,2,3,4',  -- Mặc định giáo viên có tất cả các slot 1,2,3,4
+    weekday_available NVARCHAR(50) DEFAULT '2,3,4,5,6,7,8', -- Mặc định từ thứ 2 đến chủ nhật
+    updated_at DATETIME DEFAULT GETDATE()
+);
+GO
+
+
+-- 17. Thêm dữ liệu mẫu cho Account
 INSERT INTO Account ( email, password, full_name, role_id, status, created_at)
 VALUES 
 ( 'admin@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Nguyễn Văn Quân', (select role_id from Role where name = 'Administrator'), 1,  GETDATE()), --password: matkhau123
@@ -224,21 +243,21 @@ VALUES
 ( 'student15@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Lý Minh Ưu', (select role_id from Role where name = 'Student'), 1,  GETDATE()), --password: matkhau123
 ( 'student16@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Châu Văn Việt', (select role_id from Role where name = 'Student'), 1,  GETDATE()); --password: matkhau123
 
--- 14. Thêm dữ liệu mẫu cho Course
+-- 18. Thêm dữ liệu mẫu cho Course
 INSERT INTO Course (course_name, description, created_by, status, created_at)
 VALUES 
 (N'IELTS', N'Lớp học IELTS Tháng 2/25', (select account_id from account where email = 'admin@gmail.com'), 1, GETDATE()),
 (N'SAT', N'Lớp học SAT Tháng 2/25', (select account_id from account where email = 'admin@gmail.com'), 1, GETDATE());
 GO
 
--- 15. Thêm lớp IELTS02-25 và SAT02-25
+-- 19. Thêm lớp IELTS02-25 và SAT02-25
 INSERT INTO Class (class_code, class_name, course_id, total_session, start_date, end_date, status, created_at)
 VALUES 
 (N'IELTS02-25', N'Lớp IELTS Khai Giảng 02-25', 1, 15, GETDATE(), DATEADD(DAY, 60, GETDATE()), 0, GETDATE()),
 (N'SAT02-25', N'Lớp SAT Khai Giảng 02-25', 2, 15, GETDATE(), DATEADD(DAY, 60, GETDATE()), 0, GETDATE());
 GO
 
--- 15. Xếp học viên vào lớp IELTS01-25
+-- 20. Xếp học viên vào lớp IELTS01-25
 INSERT INTO ClassStudent (class_id, student_id, status, created_at)
 SELECT 
     (SELECT class_id FROM Class WHERE class_code = N'IELTS02-25'), account_id, 1, GETDATE()
@@ -250,7 +269,7 @@ FROM (
 WHERE row_num BETWEEN 1 AND 8;
 GO
 
--- 16. Xếp học viên vào lớp SAT01-25
+-- 21. Xếp học viên vào lớp SAT01-25
 INSERT INTO ClassStudent (class_id, student_id, status, created_at)
 SELECT 
     (SELECT class_id FROM Class WHERE class_code = N'SAT02-25'), account_id, 1, GETDATE()
@@ -262,25 +281,3 @@ FROM (
 WHERE row_num BETWEEN 9 AND 16;
 GO
 
--- 17. Thêm dữ liệu mẫu cho permission
-INSERT INTO Permission (name, description)
-VALUES 
-('officer:users', N'Quản lý người dùng'),
-('officer:classes', N'Quản lý lớp học'),
-('officer:courses', N'Quản lý khóa học'),
-('officer:sessions', N'Quản lý buổi học'),
-('officer:students', N'Quản lý học viên'),
-('officer:attendance', N'Quản lý học viên'),
-('view:reports', N'Xem báo cáo');
-GO
-
--- 18. Thêm dữ liệu mẫu cho UserPermission
-INSERT INTO UserPermission(account_id, permission_id)
-VALUES
-((select account_id from account where email = 'officer1@gmail.com'), (SELECT permission_id FROM Permission WHERE name = 'officer:classes')),
-((select account_id from account where email = 'officer1@gmail.com'), (SELECT permission_id FROM Permission WHERE name = 'officer:sessions')),
-((select account_id from account where email = 'officer1@gmail.com'), (SELECT permission_id FROM Permission WHERE name = 'officer:students')),
-((select account_id from account where email = 'officer2@gmail.com'), (SELECT permission_id FROM Permission WHERE name = 'officer:courses')),
-((select account_id from account where email = 'officer2@gmail.com'), (SELECT permission_id FROM Permission WHERE name = 'officer:attendance')),
-((select account_id from account where email = 'officer2@gmail.com'), (SELECT permission_id FROM Permission WHERE name = 'officer:users'));
-GO
