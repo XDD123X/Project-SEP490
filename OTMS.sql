@@ -172,7 +172,7 @@ VALUES
 GO
 
 -- 13. Tạo bảng ClassSetting
-CREATE TABLE GlobalSetting (
+CREATE TABLE ClassSetting (
     setting_id INT PRIMARY KEY IDENTITY(1,1),
     session_per_week INT DEFAULT 2,  -- Số buổi học tối đa mỗi tuần
     session_total INT NOT NULL DEFAULT 32, -- Tổng số buổi học mặc định
