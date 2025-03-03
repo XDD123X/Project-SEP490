@@ -16,6 +16,7 @@ import DemoPage from "./pages/dashboard/DemoPage";
 import MainScreen from "./pages/dashboard/MainScreen";
 import Notification from "./pages/dashboard/Notification";
 import DashboardPage from "./pages/dashboard/admin/Dashboard";
+import SchedulePage from "./pages/dashboard/SchedulePage";
 
 function App() {
   return (
@@ -43,18 +44,22 @@ function App() {
                     <Route path="demo" element={<DemoPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="notification" element={<Notification />} />
+                    <Route path="schedule" element={<SchedulePage />} />
                   </Route>
                   <Route path="/Administrator" element={<MainScreen />}>
                     <Route path="demo" element={<DemoPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="notification" element={<Notification />} />
                   </Route>
-                  <Route path="/Lucturer" element={<MainScreen />}>
-                    <Route path="demo" element={<DemoPage />} />
+                  <Route path="/Lecturer" element={<MainScreen />}>
+                  <Route path="demo" element={<DemoPage />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="notification" element={<Notification />} />
                   </Route>
                   <Route path="/Officer" element={<MainScreen />}>
-                    <Route path="demo" element={<DemoPage />} />
+                  <Route path="demo" element={<DemoPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="notification" element={<Notification />} />
                   </Route>
                 </Route>
 

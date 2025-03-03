@@ -12,6 +12,8 @@ export default function PrivateRoute() {
   useEffect(() => {
     if (user) {
       setIsLoading(false);
+    }else{
+      navigate("/login");
     }
   }, [user]);
 

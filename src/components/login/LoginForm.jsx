@@ -35,6 +35,7 @@ export function LoginForm() {
       ...prevData,
       [name]: value,
     }));
+    validateForm();
   };
 
   const handleChangeCheck = (checked) => {
@@ -75,7 +76,6 @@ export function LoginForm() {
     }
 
     setIsLoading(true);
-
     try {
       const { email, password, rememberMe } = formData;
       if (!email || !password) {
@@ -100,7 +100,7 @@ export function LoginForm() {
 
         dispatch({ type: "SET_USER", payload: { user, role } });
         toast.success("Login successful!");
-        navigate(`/Dashboard`);
+        navigate(`/${role.toLowerCase()}`);
       } else if (response.status === 404) {
         toast.error("Email or Password Is Not Correct. Please Try Again!");
         setErrors({ email: " ", password: " " });
@@ -119,8 +119,8 @@ export function LoginForm() {
   return (
     <div className="flex flex-col gap-6 relative">
       {isLoading && (
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-10">
-          <Spinner></Spinner>
+        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-40 flex items-center justify-center z-[99999]">
+          <Spinner />
         </div>
       )}
       <form onSubmit={handleSubmit}>

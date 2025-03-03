@@ -4,130 +4,253 @@ import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { Bell, BookOpen, Bot, Frame, LayoutDashboard, LifeBuoy, Lock, PieChart, Send, Settings2, SquareTerminal, User } from "lucide-react";
+import { Bell, BookOpen, Calendar, ClipboardList, FileText, LayoutDashboard, LifeBuoy, Lock, Settings2, User, Users } from "lucide-react";
 import React from "react";
 import { Outlet } from "react-router-dom";
+import { useStore } from "@/services/StoreContext";
 
-
-const data = {
-  navMain: [
-    {
-      title: "Playground",
-      url: "demo",
-      icon: SquareTerminal,
-      items: [
-        {
-          title: "History",
-          url: "demo",
-        },
-        {
-          title: "Starred",
-          url: "demo",
-        },
-        {
-          title: "Settings",
-          url: "demo",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "demo",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "demo",
-        },
-        {
-          title: "Explorer",
-          url: "demo",
-        },
-        {
-          title: "Quantum",
-          url: "demo",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "demo",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "demo",
-        },
-        {
-          title: "Get Started",
-          url: "demo",
-        },
-        {
-          title: "Tutorials",
-          url: "demo",
-        },
-        {
-          title: "Changelog",
-          url: "demo",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "demo",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "demo",
-        },
-        {
-          title: "Team",
-          url: "demo",
-        },
-        {
-          title: "Billing",
-          url: "demo",
-        },
-        {
-          title: "Limits",
-          url: "demo",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "demo",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "demo",
-      icon: Send,
-    },
-  ],
-  general: [
-    {
-      name: "Dashboard",
-      url: "dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Notification",
-      url: "notification",
-      icon: Bell,
-    },
-  ],
+const roleBasedData = {
+  student: {
+    navMain: [
+      {
+        title: "Class",
+        url: "class",
+        icon: BookOpen,
+        items: [
+          { title: "My Class", url: "my-class" },
+          { title: "Other Classes", url: "other-classes" }
+        ]
+      },
+      {
+        title: "Attendance",
+        url: "attendance",
+        icon: ClipboardList,
+        items: [
+          { title: "View Attendance", url: "view-attendance" },
+          { title: "Attendance Complain", url: "attendance-complain" }
+        ]
+      }
+    ],
+    navSecondary: [
+      { title: "Support", url: "support", icon: LifeBuoy },
+      { title: "Feedback", url: "feedback", icon: FileText }
+    ],
+    general: [
+      { title: "Notification", url: "notification", icon: Bell },
+      { title: "My Schedule", url: "schedule", icon: Calendar }
+    ]
+  },
+  administrator: {
+    navMain: [
+      {
+        title: "Account",
+        url: "account",
+        icon: User,
+        items: [
+          { title: "View Accounts", url: "view" },
+          { title: "Add New", url: "add" },
+          { title: "Other", url: "other" }
+        ]
+      },
+      {
+        title: "Settings",
+        url: "settings",
+        icon: Settings2,
+        items: [
+          { title: "Website Settings", url: "website" },
+          { title: "Class Settings", url: "class" }
+        ]
+      },
+      {
+        title: "Notification",
+        url: "notifications",
+        icon: Bell,
+        items: [
+          { title: "View Notifications", url: "view" },
+          { title: "Add New", url: "add" }
+        ]
+      },
+      {
+        title: "Report",
+        url: "reports",
+        icon: FileText,
+        items: [
+          { title: "View Reports", url: "view" },
+          { title: "Add New", url: "add" }
+        ]
+      }
+    ],
+    navSecondary: [
+      { title: "Documentation", url: "docs", icon: BookOpen },
+      { title: "System Health", url: "health", icon: LifeBuoy }
+    ],
+    general: [
+      { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
+      { title: "Notification", url: "notification", icon: Bell }
+    ]
+  },
+  lecturer: {
+    navMain: [
+      {
+        title: "Class",
+        url: "class",
+        icon: BookOpen,
+        items: [
+          { title: "My Class", url: "my-class" },
+          { title: "Other Classes", url: "other-classes" }
+        ]
+      },
+      {
+        title: "Attendance",
+        url: "attendance",
+        icon: ClipboardList,
+        items: [
+          { title: "View Attendance", url: "view" },
+          { title: "Take Attendance", url: "take" },
+          { title: "Other", url: "other" }
+        ]
+      },
+      {
+        title: "Schedule",
+        url: "schedule",
+        icon: Calendar,
+        items: [
+          { title: "My Schedule", url: "my-schedule" },
+          { title: "Change Request", url: "change-request" },
+          { title: "Other", url: "other" }
+        ]
+      },
+      {
+        title: "Report",
+        url: "reports",
+        icon: FileText,
+        items: [
+          { title: "View Reports", url: "view" },
+          { title: "Other", url: "other" }
+        ]
+      },
+      {
+        title: "Record",
+        url: "records",
+        icon: ClipboardList,
+        items: [
+          { title: "View Records", url: "view" },
+          { title: "Upload Records", url: "upload" }
+        ]
+      }
+    ],
+    navSecondary: [
+      { title: "Academic Support", url: "support", icon: LifeBuoy },
+      { title: "Collaboration", url: "collab", icon: Users }
+    ],
+    general: [
+      { title: "Notification", url: "notification", icon: Bell },
+      { title: "My Schedule", url: "my-schedule", icon: Calendar }
+    ]
+  },
+  officer: {
+    navMain: [
+      {
+        title: "Class",
+        url: "class",
+        icon: BookOpen,
+        items: [
+          { title: "View Class List", url: "view" },
+          { title: "Add New", url: "add" },
+          { title: "Other", url: "other" }
+        ]
+      },
+      {
+        title: "Schedule",
+        url: "schedule",
+        icon: Calendar,
+        items: [
+          { title: "View Session", url: "view" },
+          { title: "Add Session", url: "add" },
+          { title: "Auto Generate", url: "auto-generate" }
+        ]
+      },
+      {
+        title: "Lecturer",
+        url: "lecturers",
+        icon: User,
+        items: [
+          { title: "View Lecturer List", url: "view" }
+        ]
+      },
+      {
+        title: "Student",
+        url: "students",
+        icon: Users,
+        items: [
+          { title: "View Student List", url: "view" }
+        ]
+      },
+      {
+        title: "Course",
+        url: "courses",
+        icon: BookOpen,
+        items: [
+          { title: "View Courses", url: "view" }
+        ]
+      },
+      {
+        title: "Record",
+        url: "records",
+        icon: ClipboardList,
+        items: [
+          { title: "View Records", url: "view" },
+          { title: "Upload Records", url: "upload" }
+        ]
+      },
+      {
+        title: "Notification",
+        url: "notifications",
+        icon: Bell,
+        items: [
+          { title: "My Notifications", url: "my" },
+          { title: "Create New", url: "create" }
+        ]
+      },
+      {
+        title: "Report",
+        url: "reports",
+        icon: FileText,
+        items: [
+          { title: "View Reports", url: "view" },
+          { title: "Add New", url: "add" }
+        ]
+      },
+      {
+        title: "Request",
+        url: "requests",
+        icon: FileText,
+        items: [
+          { title: "Student Requests", url: "student" },
+          { title: "Lecturer Requests", url: "lecturer" }
+        ]
+      }
+    ],
+    navSecondary: [
+      { title: "Support", url: "support", icon: LifeBuoy },
+      { title: "Contact", url: "contact", icon: Users }
+    ],
+    general: [
+      { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
+      { title: "Notification", url: "notification", icon: Bell }
+    ]
+  }
 };
 
 export default function MainScreen() {
+  const { state } = useStore();
+  const { role } = state;
+  const data = roleBasedData[role.toLowerCase()] || roleBasedData.student;
+  console.log("role get from useStore", role);
   return (
     <SidebarProvider>
       <SideBar data={data} />
       <SidebarInset>
-        {/* Header chỉ sticky trên mobile */}
         <header
           className="flex h-16 shrink-0 items-center gap-2 border-b px-4
           light:bg-white dark:bg-black
@@ -142,7 +265,6 @@ export default function MainScreen() {
           </div>
         </header>
 
-        {/* Nội dung chính */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-5">
           <div className="p-5">
             <Outlet />
