@@ -52,12 +52,12 @@ function App() {
                     <Route path="notification" element={<Notification />} />
                   </Route>
                   <Route path="/Lecturer" element={<MainScreen />}>
-                  <Route path="demo" element={<DemoPage />} />
+                    <Route path="demo" element={<DemoPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="notification" element={<Notification />} />
                   </Route>
                   <Route path="/Officer" element={<MainScreen />}>
-                  <Route path="demo" element={<DemoPage />} />
+                    <Route path="demo" element={<DemoPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="notification" element={<Notification />} />
                   </Route>

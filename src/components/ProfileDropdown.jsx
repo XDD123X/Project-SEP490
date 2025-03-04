@@ -11,6 +11,9 @@ export function ProfileDropdown() {
   const { state } = useStore();
   const { user, role } = state;
 
+  console.log("user from storeContext", user);
+  console.log("role from storeContext", role);
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>

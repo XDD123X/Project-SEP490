@@ -141,7 +141,7 @@ export default function NotificationsPage() {
   const sortedData = notifications.sort((a, b) => b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));
 
   return (
-    <div className={`flex min-h-screen w-full flex-col ${theme === "dark" ? "dark" : ""}`}>
+    <div className={`flex min-h-screen w-full flex-col `}>
       <h1 className="text-3xl font-bold mb-6">Notifications</h1>
       <div className="flex justify-between items-center mb-4">
         <Button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>

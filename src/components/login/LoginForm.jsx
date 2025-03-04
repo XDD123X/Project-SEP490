@@ -35,7 +35,7 @@ export function LoginForm() {
       ...prevData,
       [name]: value,
     }));
-    validateForm();
+    // validateForm();
   };
 
   const handleChangeCheck = (checked) => {
@@ -77,16 +77,31 @@ export function LoginForm() {
 
     setIsLoading(true);
     try {
-      const { email, password, rememberMe } = formData;
+      const { email, password } = formData;
       if (!email || !password) {
         toast.error("Invalid email or password!");
         setIsLoading(false);
         return;
       }
 
-      // Call login API
-      const response = await login(email, password, rememberMe);
+      // Mockup Data Implementation
+      const mockupUser = {
+        uid: "bed50f5a-0b06-4a93-8a81-b1edc36d51ec",
+        email: email,
+        name: "Nguyễn Văn Anh",
+        imgUrl: "https://www.shareicon.net/data/512x512/2016/05/24/770137_man_512x512.png",
+      };
+      const mockupRole = "Student";
 
+      // Simulate API delay
+      await delay(1000);
+
+      dispatch({ type: "SET_USER", payload: { user: mockupUser, role: mockupRole } });
+      toast.success("Login successful!");
+      navigate(`/${mockupRole.toLowerCase()}`);
+
+      /* Original API call code (commented)
+      const response = await login(email, password, rememberMe);
       if (response.status === 200 && response?.data) {
         const userResponse = await authMe();
         const user = {
@@ -95,20 +110,13 @@ export function LoginForm() {
           name: userResponse.data.fullName,
           imgUrl: userResponse.data.imgUrl,
         };
-
         const role = userResponse.data.role.name;
-
         dispatch({ type: "SET_USER", payload: { user, role } });
         toast.success("Login successful!");
         navigate(`/${role.toLowerCase()}`);
-      } else if (response.status === 404) {
-        toast.error("Email or Password Is Not Correct. Please Try Again!");
-        setErrors({ email: " ", password: " " });
-      } else if (response.status === 500) {
-        toast.error("Request Timeout. Please Try Again!");
-      } else {
-        throw new Error(response?.message || "Login failed!");
       }
+      */
+
     } catch (error) {
       toast.error(error.message || "Login failed, please try again!");
     } finally {

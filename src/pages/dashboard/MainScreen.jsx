@@ -17,7 +17,7 @@ const roleBasedData = {
         url: "class",
         icon: BookOpen,
         items: [
-          { title: "My Class", url: "my-class" },
+          { title: "My Class", url: "demo" },
           { title: "Other Classes", url: "other-classes" }
         ]
       },
@@ -32,8 +32,8 @@ const roleBasedData = {
       }
     ],
     navSecondary: [
-      { title: "Support", url: "support", icon: LifeBuoy },
-      { title: "Feedback", url: "feedback", icon: FileText }
+      { title: "Support", url: "/support", icon: LifeBuoy },
+      { title: "Feedback", url: "/feedback", icon: FileText }
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
@@ -140,7 +140,7 @@ const roleBasedData = {
       }
     ],
     navSecondary: [
-      { title: "Academic Support", url: "support", icon: LifeBuoy },
+      { title: "Academic Support", url: "/support", icon: LifeBuoy },
       { title: "Collaboration", url: "collab", icon: Users }
     ],
     general: [
@@ -232,7 +232,7 @@ const roleBasedData = {
       }
     ],
     navSecondary: [
-      { title: "Support", url: "support", icon: LifeBuoy },
+      { title: "Support", url: "/support", icon: LifeBuoy },
       { title: "Contact", url: "contact", icon: Users }
     ],
     general: [
@@ -246,7 +246,6 @@ export default function MainScreen() {
   const { state } = useStore();
   const { role } = state;
   const data = roleBasedData[role.toLowerCase()] || roleBasedData.student;
-  console.log("role get from useStore", role);
   return (
     <SidebarProvider>
       <SideBar data={data} />
