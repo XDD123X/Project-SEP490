@@ -11,6 +11,8 @@ public partial class Class
 
     public string ClassName { get; set; } = null!;
 
+    public Guid? LecturerId { get; set; }
+
     public int CourseId { get; set; }
 
     public int TotalSession { get; set; }
@@ -30,6 +32,8 @@ public partial class Class
     public virtual ICollection<ClassStudent> ClassStudents { get; set; } = new List<ClassStudent>();
 
     public virtual Course Course { get; set; } = null!;
+
+    public virtual Account? Lecturer { get; set; }
 
     public virtual ICollection<Session> Sessions { get; set; } = new List<Session>();
 }

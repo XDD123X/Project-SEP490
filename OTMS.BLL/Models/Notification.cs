@@ -11,6 +11,8 @@ public partial class Notification
 
     public string Content { get; set; } = null!;
 
+    public int? Type { get; set; }
+
     public Guid CreatedBy { get; set; }
 
     public DateTime? CreatedAt { get; set; }

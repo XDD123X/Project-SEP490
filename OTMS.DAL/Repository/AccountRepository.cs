@@ -33,6 +33,6 @@ namespace OTMS.DAL.Repository
         public new Task<Account?> GetByIdAsync(Guid id) => _accountDAO.GetByIdAsync(id);
 
         public Task<Account> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
-
+        public Task<List<Account>> GetByStudentByClass(Guid classId) => _accountDAO.GetStudentByClass(classId);
     }
 }

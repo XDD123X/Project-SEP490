@@ -22,5 +22,6 @@ namespace OTMS.DAL.Interface
         Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date);
 
         Task<Account> GetByLogin(string email, string password);
+        public Task<List<Account>> GetByStudentByClass(Guid classId);
     }
 }

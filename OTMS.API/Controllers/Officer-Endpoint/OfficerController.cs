@@ -22,5 +22,15 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
         }
+        [HttpGet("all-schedule")]
+        public async Task<IActionResult> GetAllSchedule()
+        {
+            var allSchedule = await _scheduleRepository.GetAllAsync();
+            return Ok(new
+            {
+                allSchedule
+            });
+        }
+
     }
 }

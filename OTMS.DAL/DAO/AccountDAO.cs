@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -106,6 +107,15 @@ namespace OTMS.DAL.DAO
                 .Include(a => a.Role)
                 .FirstOrDefaultAsync();
             return account;
+        }
+
+        public async Task<List<Account>> GetStudentByClass(Guid classId)
+        {
+            var accounts = await _context.Accounts
+                .Where(a => a.ClassStudents
+                .Any(cs => cs.ClassId == classId))
+                .ToListAsync();
+            return accounts;
         }
     }
 }

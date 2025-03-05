@@ -9,7 +9,7 @@ public partial class Session
 
     public Guid ClassId { get; set; }
 
-    public Guid LecturerId { get; set; }
+    public Guid? LecturerId { get; set; }
 
     public DateTime SessionDate { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Session
 
     public string? Description { get; set; }
 
-    public DateOnly? SessionRecord { get; set; }
+    public DateTime? SessionRecord { get; set; }
 
     public int? Type { get; set; }
 
@@ -31,9 +31,9 @@ public partial class Session
 
     public virtual Class Class { get; set; } = null!;
 
-    public virtual Account Lecturer { get; set; } = null!;
+    public virtual Account? Lecturer { get; set; }
 
-    public virtual ICollection<SessionRecord> SessionRecords { get; set; } = new List<SessionRecord>();
+    public virtual ICollection<Record> Records { get; set; } = new List<Record>();
 
-    public virtual ICollection<WebcamRecord> WebcamRecords { get; set; } = new List<WebcamRecord>();
+    public virtual ICollection<SessionChangeRequest> SessionChangeRequests { get; set; } = new List<SessionChangeRequest>();
 }

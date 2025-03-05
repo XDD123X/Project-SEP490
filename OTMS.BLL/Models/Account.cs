@@ -19,6 +19,8 @@ public partial class Account
 
     public string? PhoneNumber { get; set; }
 
+    public DateOnly? Dob { get; set; }
+
     public string? ImgUrl { get; set; }
 
     public int Status { get; set; }
@@ -31,19 +33,27 @@ public partial class Account
 
     public virtual ICollection<ClassStudent> ClassStudents { get; set; } = new List<ClassStudent>();
 
+    public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
+
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+
+    public virtual ICollection<LecturerSchedule> LecturerSchedules { get; set; } = new List<LecturerSchedule>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
 
+    public virtual ICollection<ProfileChangeRequest> ProfileChangeRequestAccounts { get; set; } = new List<ProfileChangeRequest>();
+
+    public virtual ICollection<ProfileChangeRequest> ProfileChangeRequestApprovedByNavigations { get; set; } = new List<ProfileChangeRequest>();
+
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public virtual Role Role { get; set; } = null!;
 
+    public virtual ICollection<SessionChangeRequest> SessionChangeRequestApprovedByNavigations { get; set; } = new List<SessionChangeRequest>();
+
+    public virtual ICollection<SessionChangeRequest> SessionChangeRequestLecturers { get; set; } = new List<SessionChangeRequest>();
+
     public virtual ICollection<Session> Sessions { get; set; } = new List<Session>();
-
-    public virtual ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
-
-    public virtual ICollection<WebcamRecord> WebcamRecords { get; set; } = new List<WebcamRecord>();
 }

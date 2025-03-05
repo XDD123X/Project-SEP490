@@ -50,6 +50,7 @@ namespace OTMS.DAL.DAO
                 .Where(s => classList.Contains(s.ClassId))
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
+                .Include(s => s.Attendances)
                 .OrderBy(s => s.SessionDate)
                 .ThenBy(s => s.Slot)
                 .ToListAsync();
