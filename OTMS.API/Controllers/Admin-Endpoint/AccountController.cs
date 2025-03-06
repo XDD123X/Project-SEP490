@@ -14,6 +14,7 @@ using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
 using OTMS.DAL.DAO;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OTMS.API.Controllers
 {
@@ -56,6 +57,10 @@ namespace OTMS.API.Controllers
                 var fullName = row.Cell(2).GetValue<string>();
                 var roleName = row.Cell(3).GetValue<string>();
                 var phoneNumber = row.Cell(4).GetValue<string>();
+                var dob = row.Cell(5).GetValue< DateOnly?> ();
+                var fulltime = row.Cell(6).GetBoolean();
+                var imgUrl = row.Cell(7).GetValue<string>();
+                var status = row.Cell(8).GetValue<int>();
 
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName) ||
                     existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
@@ -77,7 +82,11 @@ namespace OTMS.API.Controllers
                     FullName = fullName,
                     Password = hashedPassword,
                     RoleId = (Guid)role,
-                    Status = 1,
+                    PhoneNumber = phoneNumber,
+                    Dob = dob,
+                    Fulltime = fulltime,
+                    ImgUrl = string.IsNullOrEmpty(imgUrl) ? "https://ui.shadcn.com/avatars/shadcn.jpg" : imgUrl,
+                    Status = status,
                     CreatedAt = DateTime.UtcNow
                 };
                 successAccounts.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName, Password = password });
@@ -131,10 +140,14 @@ namespace OTMS.API.Controllers
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("Users");
 
-            worksheet.Cell(1, 1).Value = "Full Name";
-            worksheet.Cell(1, 2).Value = "Email";
+            worksheet.Cell(1, 1).Value = "Email";
+            worksheet.Cell(1, 2).Value = "FullName";
             worksheet.Cell(1, 3).Value = "Role";
             worksheet.Cell(1, 4).Value = "Phone Number";
+            worksheet.Cell(1, 5).Value = "Day of birth";
+            worksheet.Cell(1, 6).Value = "Full Time";
+            worksheet.Cell(1, 7).Value = "Avatar";
+            worksheet.Cell(1, 8).Value = "status";
 
             worksheet.Columns().AdjustToContents();
 
