@@ -5,16 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
-using ClosedXML.Excel;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using DocumentFormat.OpenXml.InkML;
 using AutoMapper;
-using DocumentFormat.OpenXml.Spreadsheet;
-using OTMS.BLL.Models;
+using ClosedXML.Excel;
 using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using OTMS.DAL.DAO;
 
 namespace OTMS.API.Controllers
 {
@@ -25,12 +24,106 @@ namespace OTMS.API.Controllers
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(IRoleRepository roleRepository, IAccountRepository accountRepository, IMapper mapper)
+        public AccountController(IMapper mapper, IAccountRepository accountRepository, IRoleRepository roleRepository, IConfiguration configuration)
         {
             _mapper = mapper;
             _accountRepository = accountRepository;
             _roleRepository = roleRepository;
+            _configuration = configuration;
+        }
+
+        [HttpPost("import-users")]
+        public async Task<IActionResult> ImportUsers(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File is required");
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheet(1);
+            var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+            List<Account> newUsers = new List<Account>();
+            var existingEmails = await _accountRepository.GetAllEmailsAsync();
+            var successAccounts = new List<UserAccountDTO>();
+
+            foreach (var row in rows)
+            {
+                var email = row.Cell(1).GetValue<string>();
+                var fullName = row.Cell(2).GetValue<string>();
+                var roleName = row.Cell(3).GetValue<string>();
+                var phoneNumber = row.Cell(4).GetValue<string>();
+
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName) ||
+                    existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
+                {
+                    continue;
+                }
+
+                var role = await _roleRepository.GetRoleByNameAsync(roleName);
+                if (role == null)
+                {
+                    continue;
+                }
+
+                var password = GenerateRandomPassword();
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+                var user = new Account
+                {
+                    Email = email,
+                    FullName = fullName,
+                    Password = hashedPassword,
+                    RoleId = (Guid)role,
+                    Status = 1,
+                    CreatedAt = DateTime.UtcNow
+                };
+                successAccounts.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName, Password = password });
+                newUsers.Add(user);
+            }
+
+            await _accountRepository.AddMultipleAsync(newUsers);
+            foreach (var account in successAccounts)
+            {
+                await SendAccountEmail(account.Email, account.FullName, account.Password);
+            }
+
+            return Ok(new { Success = successAccounts.Count, Message = "Users imported successfully." });
+        }
+
+        private async Task SendAccountEmail(string email, string fullName, string password)
+        {
+            try
+            {
+                var smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
+                {
+                    Port = int.Parse(_configuration["EmailSettings:SmtpPort"]),
+                    Credentials = new NetworkCredential(_configuration["EmailSettings:Email"], _configuration["EmailSettings:Password"]),
+                    EnableSsl = true
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_configuration["EmailSettings:Email"]),
+                    Subject = "Your Account Information",
+                    Body = $"Hello {fullName},\n\nYour account has been created successfully.\nEmail: {email}\nPassword: {password}\n\nPlease change your password after logging in.",
+                    IsBodyHtml = false
+                };
+                mailMessage.To.Add(email);
+
+                await smtpClient.SendMailAsync(mailMessage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email to {email}: {ex.Message}");
+            }
+        }
+
+        private string GenerateRandomPassword()
+        {
+            return Guid.NewGuid().ToString("N").Substring(0, 8);
         }
         [HttpGet("export-template")]
         public IActionResult ExportUserTemplate()
@@ -50,106 +143,6 @@ namespace OTMS.API.Controllers
             stream.Position = 0;
 
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "UserTemplate.xlsx");
-        }
-        [HttpPost("import-users")]
-        public async Task<IActionResult> ImportUsers(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                throw new ArgumentException("File is required");
-
-            using var stream = new MemoryStream();
-            await file.CopyToAsync(stream);
-            using var workbook = new XLWorkbook(stream);
-            var worksheet = workbook.Worksheet(1);
-            var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
-
-            List<Account> newUsers = new List<Account>();
-            var existingEmails = await _accountRepository.GetAllEmailsAsync();
-            var successAccount = new List<UserAccountDTO>();
-            var errorAccount = new List<UserAccountDTO>();
-
-            foreach (var row in rows)
-            {
-                var email = row.Cell(1).GetValue<string>();
-                var fullName = row.Cell(2).GetValue<string>();
-                var roleName = row.Cell(3).GetValue<string>();
-                var phoneNumber = row.Cell(4).GetValue<string>();
-
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName) ||
-                    existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
-                {
-                    errorAccount.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
-                    continue;
-                }
-
-                var role = await _roleRepository.GetRoleByNameAsync(roleName);
-                if (role == null)
-                {
-                    errorAccount.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName });
-                    continue;
-                }
-                var pass = BCrypt.Net.BCrypt.HashPassword(GenerateRandomPassword());
-                var user = new Account
-                {
-                    Email = email,
-                    FullName = fullName,
-                    Password = pass,
-                    RoleId = (Guid)role,
-                    Status = 1,
-                    CreatedAt = DateTime.UtcNow
-                };
-                successAccount.Add(new UserAccountDTO { Email = email, FullName = fullName, PhoneNumber = phoneNumber, Role = roleName, Password = pass });
-                newUsers.Add(user);
-            }
-
-            await _accountRepository.AddMultipleAsync(newUsers);
-
-            var resultStream = new MemoryStream();
-            using (var resultWorkbook = new XLWorkbook())
-            {
-                var resultWorksheet = resultWorkbook.Worksheets.Add("Imported Users");
-                var errorresultWorksheet = resultWorkbook.Worksheets.Add("Error Users");
-
-                resultWorksheet.Cell(1, 1).Value = "Email";
-                resultWorksheet.Cell(1, 2).Value = "Full Name";
-                resultWorksheet.Cell(1, 3).Value = "Password";
-                resultWorksheet.Cell(1, 4).Value = "Phone Number";
-
-                int rowNumber = 2;
-                foreach (var user in successAccount)
-                {
-                    resultWorksheet.Cell(rowNumber, 1).Value = user.Email;
-                    resultWorksheet.Cell(rowNumber, 2).Value = user.FullName;
-                    resultWorksheet.Cell(rowNumber, 3).Value = user.Password;
-                    resultWorksheet.Cell(rowNumber, 4).Value = "Imported Successfully";
-                    rowNumber++;
-                }
-
-                errorresultWorksheet.Cell(1, 1).Value = "Email";
-                errorresultWorksheet.Cell(1, 2).Value = "Full Name";
-                errorresultWorksheet.Cell(1, 3).Value = "Phone Number";
-                errorresultWorksheet.Cell(1, 4).Value = "Import Failed";
-
-                rowNumber = 2;
-                foreach (var user in errorAccount)
-                {
-                    errorresultWorksheet.Cell(rowNumber, 1).Value = user.Email;
-                    errorresultWorksheet.Cell(rowNumber, 2).Value = user.FullName;
-                    errorresultWorksheet.Cell(rowNumber, 3).Value = user.PhoneNumber;
-                    errorresultWorksheet.Cell(rowNumber, 4).Value = "Import Failed";
-                    rowNumber++;
-                }
-
-                resultWorkbook.SaveAs(resultStream);
-            }
-
-            resultStream.Position = 0;
-            return File(resultStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ImportResult.xlsx");
-        }
-
-        private string GenerateRandomPassword()
-        {
-            return Guid.NewGuid().ToString("N").Substring(0, 8);
         }
         [HttpGet("accounts-list")]
         public async Task<IActionResult> GetAccounts(
