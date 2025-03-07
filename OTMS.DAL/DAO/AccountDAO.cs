@@ -117,5 +117,27 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
             return accounts;
         }
+      
+        
+        
+        ///
+
+        //public async Task<Account?> GetByIdAsync(Guid id)
+        //{
+        //    return await _context.Accounts.FindAsync(id);
+        //}
+
+        //public async Task<Account?> GetByEmailAsync(string email)
+        //{
+        //    return await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
+        //}
+
+        public async Task UpdateAsync(Account account)
+        {
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }
