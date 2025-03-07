@@ -50,6 +50,7 @@ namespace OTMS.API.Controllers
             List<Account> newUsers = new List<Account>();
             var existingEmails = await _accountRepository.GetAllEmailsAsync();
             var successAccounts = new List<UserAccountDTO>();
+            var failedAccounts = new List<(string Email, string Reason)>();
 
             foreach (var row in rows)
             {
@@ -57,20 +58,26 @@ namespace OTMS.API.Controllers
                 var fullName = row.Cell(2).GetValue<string>();
                 var roleName = row.Cell(3).GetValue<string>();
                 var phoneNumber = row.Cell(4).GetValue<string>();
-                var dob = row.Cell(5).GetValue< DateOnly?> ();
+                var dob = row.Cell(5).GetValue<DateOnly?>();
                 var fulltime = row.Cell(6).GetBoolean();
                 var imgUrl = row.Cell(7).GetValue<string>();
                 var status = row.Cell(8).GetValue<int>();
 
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName) ||
-                    existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(roleName))
                 {
+                    failedAccounts.Add((email, "Missing required fields"));
+                    continue;
+                }
+                if (existingEmails.Contains(email) || newUsers.Any(u => u.Email.Equals(email)))
+                {
+                    failedAccounts.Add((email, "Email already exists"));
                     continue;
                 }
 
                 var role = await _roleRepository.GetRoleByNameAsync(roleName);
                 if (role == null)
                 {
+                    failedAccounts.Add((email, "Invalid role"));
                     continue;
                 }
 
@@ -99,9 +106,106 @@ namespace OTMS.API.Controllers
                 await SendAccountEmail(account.Email, account.FullName, account.Password);
             }
 
-            return Ok(new { Success = successAccounts.Count, Message = "Users imported successfully." });
+            var excelFile = GenerateResultExcel(successAccounts, failedAccounts);
+            return File(excelFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ImportResults.xlsx");
         }
 
+        private byte[] GenerateResultExcel(List<UserAccountDTO> successAccounts, List<(string Email, string Reason)> failedAccounts)
+        {
+            using var workbook = new XLWorkbook();
+            var successSheet = workbook.Worksheets.Add("Success");
+            successSheet.Cell(1, 1).Value = "Email";
+            successSheet.Cell(1, 2).Value = "Full Name";
+            successSheet.Cell(1, 3).Value = "Phone Number";
+            successSheet.Cell(1, 4).Value = "Role";
+            successSheet.Cell(1, 5).Value = "Password";
+
+            for (int i = 0; i < successAccounts.Count; i++)
+            {
+                successSheet.Cell(i + 2, 1).Value = successAccounts[i].Email;
+                successSheet.Cell(i + 2, 2).Value = successAccounts[i].FullName;
+                successSheet.Cell(i + 2, 3).Value = successAccounts[i].PhoneNumber;
+                successSheet.Cell(i + 2, 4).Value = successAccounts[i].Role;
+                successSheet.Cell(i + 2, 5).Value = successAccounts[i].Password;
+            }
+
+            var failedSheet = workbook.Worksheets.Add("Failed");
+            failedSheet.Cell(1, 1).Value = "Email";
+            failedSheet.Cell(1, 2).Value = "Reason";
+
+            for (int i = 0; i < failedAccounts.Count; i++)
+            {
+                failedSheet.Cell(i + 2, 1).Value = failedAccounts[i].Email;
+                failedSheet.Cell(i + 2, 2).Value = failedAccounts[i].Reason;
+            }
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return stream.ToArray();
+        }
+        [HttpPost("SendEmailsFromExcel")]
+        public async Task<IActionResult> SendAccountEmailsFromExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Invalid file.");
+            }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                using var workbook = new XLWorkbook(stream);
+                var worksheet = workbook.Worksheet(1);
+                var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+                var smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
+                {
+                    Port = int.Parse(_configuration["EmailSettings:SmtpPort"]),
+                    Credentials = new NetworkCredential(_configuration["EmailSettings:Email"], _configuration["EmailSettings:Password"]),
+                    EnableSsl = true
+                };
+
+                foreach (var row in rows)
+                {
+                    var email = row.Cell(1).GetValue<string>();
+                    var fullName = row.Cell(2).GetValue<string>();
+                    var roleName = row.Cell(3).GetValue<string>();
+                    var phoneNumber = row.Cell(4).GetValue<string>();
+                    var password = row.Cell(5).GetValue<string>();
+
+                    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                    {
+                        continue;
+                    }
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(_configuration["EmailSettings:Email"]),
+                        Subject = "Your Account Information",
+                        Body = $"Hello {fullName},\n\nYour account has been created successfully.\nEmail: {email}\nPassword: {password}\n\nPlease change your password after logging in.",
+                        IsBodyHtml = false
+                    };
+                    mailMessage.To.Add(email);
+
+                    try
+                    {
+                        await smtpClient.SendMailAsync(mailMessage);
+                        Console.WriteLine($"Email sent to {email}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to send email to {email}: {ex.Message}");
+                    }
+                }
+
+                return Ok("Emails sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error processing file: {ex.Message}");
+            }
+        }
         private async Task SendAccountEmail(string email, string fullName, string password)
         {
             try
@@ -138,7 +242,7 @@ namespace OTMS.API.Controllers
         public IActionResult ExportUserTemplate()
         {
             using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Users");
+            var worksheet = workbook.Worksheets.Add("Account");
 
             worksheet.Cell(1, 1).Value = "Email";
             worksheet.Cell(1, 2).Value = "FullName";
