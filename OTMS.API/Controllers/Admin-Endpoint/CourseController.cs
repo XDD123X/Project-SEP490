@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers.Admin_Endpoint
 {
@@ -29,16 +31,58 @@ namespace OTMS.API.Controllers.Admin_Endpoint
                 TotalCourse = totalCourse,
                 Page = page,
                 PageSize = pageSize,
-                Course = courses
+                Courses = courses
             });
         }
-        [HttpGet("find-Course/{id}")]
+        [HttpGet("find-course/{id}")]
         public async Task<IActionResult> GetCourseById(Guid id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null) return NotFound("Course not found");
-            //CourseDTO u = _mapper.Map<CourseDTO>(Course);
             return Ok(course);
+        }
+        [HttpPost("create-course")]
+        public async Task<IActionResult> CreateCourse(CourseDTO course)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var newCourse = _mapper.Map<Course>(course);
+            newCourse.Status = 1;
+            try
+            {
+                await _courseRepository.AddAsync(newCourse);
+                var courseResponse = _mapper.Map<Course>(newCourse);
+                return CreatedAtAction(nameof(GetCourseById), new { id = newCourse.CourseId }, courseResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while creating class: {ex.Message}");
+            }
+        }
+
+        [HttpPut("edit/{id}")]
+        public async Task<IActionResult> EditCourse(Guid id, CourseDTO course)
+        {
+            var c = await _courseRepository.GetByIdAsync(id);
+            if (c == null)
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                await _courseRepository.UpdateAsync(c);
+                return Ok("Update success");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
+            }
         }
     }
 }

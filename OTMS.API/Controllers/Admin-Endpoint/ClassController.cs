@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
 
 namespace OTMS.API.Controllers
@@ -56,6 +57,33 @@ namespace OTMS.API.Controllers
             ClassDTO u = _mapper.Map<ClassDTO>(Class);
             return Ok(u);
         }
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateClass([FromBody] ClassDTO newClassDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var existingClass = await _classRepository.GetByClassCodeAsync(newClassDTO.ClassCode);
+            if (existingClass != null)
+            {
+                return Conflict("Class code already exists.");
+            }
+            var newClass = _mapper.Map<Class>(newClassDTO);
+            newClass.Status = 1;
+
+            try
+            {
+                await _classRepository.AddAsync(newClass);
+                var classResponse = _mapper.Map<ClassDTO>(newClass);
+                return CreatedAtAction(nameof(GetClassById), new { id = newClass.ClassId }, classResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while creating class: {ex.Message}");
+            }
+        }
+
         [HttpPut("edit/{id}")]
         public async Task<IActionResult> EditClass(Guid id, ClassDTO classDTO)
         {
@@ -64,17 +92,9 @@ namespace OTMS.API.Controllers
             {
                 return NotFound();
             }
-            if (!string.IsNullOrEmpty(classDTO.ClassName))
+            if (!ModelState.IsValid)
             {
-                c.ClassName = classDTO.ClassName;
-            }
-            if (!string.IsNullOrEmpty(classDTO.ClassUrl))
-            {
-                c.ClassUrl = classDTO.ClassUrl;
-            }
-            if (classDTO.TotalSession.HasValue)
-            {
-                c.TotalSession = (int)classDTO.TotalSession;
+                return BadRequest(ModelState);
             }
             try
             {
