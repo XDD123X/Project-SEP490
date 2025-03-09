@@ -47,7 +47,8 @@ builder.Services.AddScoped<IClassStudentRepository, ClassStudentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IScheduleSolverService, ScheduleSolverService>();
 //DI DAO
 builder.Services.AddScoped<AccountDAO>();
 builder.Services.AddScoped<ClassDAO>();
@@ -56,6 +57,7 @@ builder.Services.AddScoped<RoleDAO>();
 builder.Services.AddScoped<ScheduleDAO>();
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<RefreshTokenDAO>();
+builder.Services.AddScoped<SessionDAO>();
 
 //SignalR
 //builder.Services.AddSignalR();

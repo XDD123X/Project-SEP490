@@ -1,27 +1,55 @@
-﻿using OTMS.BLL.Models;
+﻿using OTMS.BLL.DTOs;
+using OTMS.BLL.Services;
+using OTMS.BLL.Models;
 using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OTMS.DAL.Repository
 {
     public class SessionRepository : Repository<Session>, ISessionRepository
     {
         private readonly SessionDAO _sessionDAO;
+        private readonly IScheduleSolverService _scheduleSolverService;
 
-        public SessionRepository(SessionDAO sessionDAO) : base(sessionDAO) {
-        
+        public SessionRepository(SessionDAO sessionDAO, IScheduleSolverService scheduleSolverService)
+            : base(sessionDAO)
+        {
             _sessionDAO = sessionDAO;
+            _scheduleSolverService = scheduleSolverService;
         }
 
-        public async Task<bool> AddSessionsAsync(List<Session> sessions)
-            => await _sessionDAO.AddSessionsAsync(sessions);
 
-        public async Task<List<Session>> GetSessionsByLecturerAsync(Guid lecturerId, DateTime fromDate, DateTime toDate)
-             => await _sessionDAO.GetSessionsByLecturerAsync(lecturerId, fromDate, toDate);
+
+        public async Task<List<Session>> GenerateAndSaveScheduleAsync(ClassScheduleRequest request)
+        {
+            var existingSessions = await _sessionDAO.GetSessionsByLecturerAsync(
+                request.LecturerId, request.StartDate, request.EndDate);
+
+            // Chuyển data sang DTO của BLL
+            var existingSessionInfos = existingSessions.Select(s => new SessionInfo
+            {
+                SessionDate = s.SessionDate,
+                Slot = s.Slot
+            }).ToList();
+
+            // Gọi BLL logic để xếp lịch
+            var scheduledItems = _scheduleSolverService.SolveSchedule(request, existingSessionInfos);
+
+            // Chuyển DTO về Session model để lưu DB
+            var newSessions = scheduledItems.Select(item => new Session
+            {
+                SessionId = Guid.NewGuid(),
+                ClassId = item.ClassId,
+                LecturerId = item.TeacherId,
+                SessionDate = item.ActualDate,
+                Slot = item.Slot,
+                Status = 1,
+                CreatedAt = DateTime.UtcNow
+            }).ToList();
+
+            await _sessionDAO.AddSessionsAsync(newSessions);
+
+            return newSessions;
+        }
     }
 }
