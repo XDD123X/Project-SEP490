@@ -117,20 +117,7 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
             return accounts;
         }
-      
-        
-        
-        ///
 
-        //public async Task<Account?> GetByIdAsync(Guid id)
-        //{
-        //    return await _context.Accounts.FindAsync(id);
-        //}
-
-        //public async Task<Account?> GetByEmailAsync(string email)
-        //{
-        //    return await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
-        //}
 
         public async Task UpdateAsync(Account account)
         {
@@ -138,6 +125,16 @@ namespace OTMS.DAL.DAO
             await _context.SaveChangesAsync();
         }
 
+
+        //
+
+        public async Task<List<Account>>getAllStudentAccount()
+        {
+            List<Account> accounts = await _context.Accounts
+                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757"))
+                .ToListAsync();
+            return accounts;
+        }
 
     }
 }
