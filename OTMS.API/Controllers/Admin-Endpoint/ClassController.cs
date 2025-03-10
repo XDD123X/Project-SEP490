@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OTMS.API.Controllers.Admin_Endpoint;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers
 {
@@ -32,13 +34,13 @@ namespace OTMS.API.Controllers
         {
             var thisClass = await _classRepository.GetAllClassesAsync(page, pageSize, search, sortBy, sortOrder);
             var totalClass = await _classRepository.GetTotalClassesAsync(search);
-            var thisClassDTO = _mapper.Map<List<ClassDTO>>(thisClass);
+            //var thisClassDTO = _mapper.Map<List<ClassDTO>>(thisClass);
             return Ok(new
             {
                 TotalClass = totalClass,
                 Page = page,
                 PageSize = pageSize,
-                Class = thisClassDTO
+                Class = thisClass
             });
         }
         [HttpGet("find-class/{id}")]
@@ -46,16 +48,16 @@ namespace OTMS.API.Controllers
         {
             var Class = await _classRepository.GetByIdAsync(id);
             if (Class == null) return NotFound("Class not found");
-            ClassDTO u = _mapper.Map<ClassDTO>(Class);
-            return Ok(u);
+            //ClassDTO u = _mapper.Map<ClassDTO>(Class);
+            return Ok(Class);
         }
         [HttpGet("find-class-by-code")]
         public async Task<IActionResult> GetClassByCode(string code)
         {
             var Class = await _classRepository.GetByClassCodeAsync(code);
             if (Class == null) return NotFound("Class not found");
-            ClassDTO u = _mapper.Map<ClassDTO>(Class);
-            return Ok(u);
+            //ClassDTO u = _mapper.Map<ClassDTO>(Class);
+            return Ok(Class);
         }
         [HttpPost("create")]
         public async Task<IActionResult> CreateClass([FromBody] ClassDTO newClassDTO)
@@ -71,6 +73,7 @@ namespace OTMS.API.Controllers
             }
             var newClass = _mapper.Map<Class>(newClassDTO);
             newClass.Status = 1;
+            newClass.CreatedAt = DateTime.Now;
 
             try
             {
@@ -98,6 +101,8 @@ namespace OTMS.API.Controllers
             }
             try
             {
+                _mapper.Map(classDTO, c);
+                c.UpdatedAt = DateTime.Now;
                 await _classRepository.UpdateAsync(c);
                 return Ok("Update success");
             }
@@ -140,7 +145,7 @@ namespace OTMS.API.Controllers
             }
         }
 
-        [HttpPut("asign-student-into-class/{id}")]
+        [HttpPost("asign-student-into-class/{id}")]
         public async Task<IActionResult> AsignStudentIntoClass(Guid id, List<Guid> listStudentId)
         {
             var classObj = await _classRepository.GetByIdAsync(id);
@@ -164,6 +169,50 @@ namespace OTMS.API.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while adding students to class {id}: {ex.Message}");
             }
+        }
+        [HttpDelete("remove-student-from-class/{id}")]
+        public async Task<IActionResult> RemoveStudentFromClass(Guid id, List<Guid> listStudentId)
+        {
+            var classObj = await _classRepository.GetByIdAsync(id);
+            if (classObj == null) return NotFound("Class not found");
+            var validStudentIds = new List<Guid>();
+            foreach (var studentid in listStudentId)
+            {
+                var student = await _accountRepository.GetByIdAsync(studentid);
+                if (student != null && _classStudentRepository.checkStuentInClass(id, studentid))
+                {
+                    validStudentIds.Add(studentid);
+                }
+            }
+            if (validStudentIds.Count == 0) return BadRequest("No valid students to remove");
+            try
+            {
+                await _classStudentRepository.removeStudentIntoClass(id, validStudentIds);
+                return Ok("Remove successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while adding students to class {id}: {ex.Message}");
+            }
+        }
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteClass(Guid id)
+        {
+            var c = await _classRepository.GetByIdAsync(id);
+            if (c == null)
+            {
+                return NotFound();
+            }
+            try
+            {
+                await _classRepository.DeleteAsync(id);
+                return Ok("Delete success");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
+            }
+
         }
     }
 }

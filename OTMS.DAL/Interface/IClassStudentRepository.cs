@@ -11,5 +11,6 @@ namespace OTMS.DAL.Interface
     {
         bool checkStuentInClass(Guid classId, Guid studentId);
         Task addStudentIntoClass(Guid classId, List<Guid> listStudentId);
+        Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds);
     }
 }

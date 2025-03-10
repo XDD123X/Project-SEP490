@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -41,5 +42,19 @@ namespace OTMS.DAL.DAO
         {
             return _dbSet.Any(sc => sc.ClassId == classId && sc.StudentId == studentId);
         }
+
+        public async Task RemoveStudentsFromClass(Guid classId, List<Guid> listStudentId)
+        {
+            var studentsToRemove = await _dbSet
+                .Where(cs => cs.ClassId == classId && listStudentId.Contains(cs.StudentId))
+                .ToListAsync();
+
+            if (studentsToRemove.Any()) 
+            {
+                _dbSet.RemoveRange(studentsToRemove);
+                await _context.SaveChangesAsync();
+            }
+        }
+
     }
 }

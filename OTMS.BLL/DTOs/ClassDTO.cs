@@ -8,13 +8,19 @@ namespace OTMS.BLL.DTOs
 {
     public class ClassDTO
     {
-        public string? ClassCode { get; set; } = null!;
+        public string ClassCode { get; set; } = null!;
 
-        public string? ClassName { get; set; } = null!;
+        public string ClassName { get; set; } = null!;
 
-        public string? CourseName { get; set; } = null!;
+        public Guid? LecturerId { get; set; }
 
-        public int? TotalSession { get; set; }
+        public int CourseId { get; set; }
+
+        public int TotalSession { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
 
         public string? ClassUrl { get; set; }
 

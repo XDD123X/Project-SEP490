@@ -40,15 +40,15 @@ namespace OTMS.API.Controllers.Admin_Endpoint
                 Courses = courses
             });
         }
-        [HttpGet("find-course/{id}")]
-        public async Task<IActionResult> GetCourseById(Guid id)
+        [HttpGet("find/{id}")]
+        public async Task<IActionResult> GetCourseById(int id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null) return NotFound("Course not found");
             return Ok(course);
         }
-        [HttpPost("create-course")]
-        public async Task<IActionResult> CreateCourse(CourseDTO course)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCourse(CourseDTO course, Guid UserId)
         {
             if (!ModelState.IsValid)
             {
@@ -56,6 +56,8 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             }
             var newCourse = _mapper.Map<Course>(course);
             newCourse.Status = 1;
+            newCourse.CreatedBy = UserId;
+            newCourse.CreatedAt = DateTime.Now;
             try
             {
                 await _courseRepository.AddAsync(newCourse);
@@ -69,12 +71,16 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
         [HttpPut("edit/{id}")]
-        public async Task<IActionResult> EditCourse(Guid id, CourseDTO course)
+        public async Task<IActionResult> EditCourse(int id, Guid userId, CourseDTO courseDTO)
         {
             var c = await _courseRepository.GetByIdAsync(id);
             if (c == null)
             {
                 return NotFound();
+            }
+            if (!c.CreatedBy.Equals(userId))
+            {
+                return BadRequest();
             }
             if (!ModelState.IsValid)
             {
@@ -82,13 +88,35 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             }
             try
             {
+                _mapper.Map(courseDTO, c);
+                c.UpdatedAt = DateTime.Now;
                 await _courseRepository.UpdateAsync(c);
                 return Ok("Update success");
             }
             catch (Exception ex)
             {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating course " + id + ": " + ex.Message);
+            }
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteCourse(int id)
+        {
+            var c = await _courseRepository.GetByIdAsync(id);
+            if (c == null)
+            {
+                return NotFound();
+            }
+            try
+            {
+                await _courseRepository.DeleteAsync(id);
+                return Ok("Delete success");
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
             }
+
         }
     }
 }

@@ -46,5 +46,25 @@ namespace OTMS.DAL.DAO
             int page = query.Count();
             return page;
         }
+        public async Task<Course?> GetCourseByIdAsync(int id)
+        {
+            var course = await _dbSet.FindAsync(id);
+            return course ?? throw new KeyNotFoundException($"Course with ID {id} not found.");
+        }
+
+        public async Task DeleteCourseAsync(int id)
+        {
+            Course? course = await _dbSet.FindAsync(id);
+            if (course != null)
+            {
+                _dbSet.Remove(course);
+                await _context.SaveChangesAsync();
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
     }
 }
