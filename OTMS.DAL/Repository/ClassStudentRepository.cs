@@ -22,6 +22,8 @@ namespace OTMS.DAL.Repository
 
         public bool checkStuentInClass(Guid classId, Guid studentId) => _classStudentDAO.checkStuentInClass(classId, studentId);
 
+        public Task<List<ClassStudent>> GetByClassIdAsync(Guid id) => _classStudentDAO.GetByClassIdAsync(id);
+
         public Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds) => _classStudentDAO.RemoveStudentsFromClass(id, validStudentIds);
     }
 }

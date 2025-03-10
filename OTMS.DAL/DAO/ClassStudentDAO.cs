@@ -55,6 +55,10 @@ namespace OTMS.DAL.DAO
                 await _context.SaveChangesAsync();
             }
         }
-
+        public async Task<List<ClassStudent>> GetByClassIdAsync(Guid id)
+        {
+            var students = await _dbSet.Where(sc => sc.ClassId == id).ToListAsync();
+            return students ?? new List<ClassStudent>();
+        }
     }
 }

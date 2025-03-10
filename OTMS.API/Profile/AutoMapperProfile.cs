@@ -19,7 +19,7 @@ namespace OTMS.API.Profile
            .ForMember(dest => dest.CourseId, opt => opt.Ignore());
 
 
-            CreateMap<Course, CourseDTO>()
+            CreateMap<Class, ClassDTO>()
                 .ReverseMap();
         }
     }

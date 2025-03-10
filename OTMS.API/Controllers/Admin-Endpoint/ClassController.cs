@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OTMS.API.Controllers.Admin_Endpoint;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
+using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
 using OTMS.DAL.Repository;
 
@@ -15,15 +16,19 @@ namespace OTMS.API.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IClassRepository _classRepository;
+        private readonly ICourseRepository _courseRepository;
         private readonly IClassStudentRepository _classStudentRepository;
         private readonly IAccountRepository _accountRepository;
-        public ClassController(IClassRepository classRepository, IClassStudentRepository classStudentRepository,IAccountRepository accountRepository, IMapper mapper)
+
+        public ClassController(IMapper mapper, IClassRepository classRepository, ICourseRepository courseRepository, IClassStudentRepository classStudentRepository, IAccountRepository accountRepository)
         {
+            _mapper = mapper;
             _classRepository = classRepository;
+            _courseRepository = courseRepository;
             _classStudentRepository = classStudentRepository;
             _accountRepository = accountRepository;
-            _mapper = mapper;
         }
+
         [HttpGet("class-list")]
         public async Task<IActionResult> GetClass(
            [FromQuery] int page = 1,
@@ -60,7 +65,7 @@ namespace OTMS.API.Controllers
             return Ok(Class);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateClass([FromBody] ClassDTO newClassDTO)
+        public async Task<IActionResult> CreateClass(ClassDTO newClassDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -74,12 +79,23 @@ namespace OTMS.API.Controllers
             var newClass = _mapper.Map<Class>(newClassDTO);
             newClass.Status = 1;
             newClass.CreatedAt = DateTime.Now;
-
+            if (newClassDTO.LecturerId != null)
+            {
+                var l = await _accountRepository.GetByIdAsync((Guid)newClassDTO.LecturerId);
+                if (l == null || !l.Role.Name.Equals("Lecturer"))
+                {
+                    return BadRequest("Please select correct lecturer");
+                }
+            }
+            if(await _courseRepository.GetByIdAsync(newClassDTO.CourseId) == null)
+            {
+                return BadRequest("Please select correct course");
+            }
             try
             {
                 await _classRepository.AddAsync(newClass);
-                var classResponse = _mapper.Map<ClassDTO>(newClass);
-                return CreatedAtAction(nameof(GetClassById), new { id = newClass.ClassId }, classResponse);
+
+                return Ok("create class successfull");
             }
             catch (Exception ex)
             {
@@ -99,6 +115,14 @@ namespace OTMS.API.Controllers
             {
                 return BadRequest(ModelState);
             }
+            if(classDTO.LecturerId != null)
+            {
+                var l = await _accountRepository.GetByIdAsync((Guid)classDTO.LecturerId);
+                if (l == null || !l.Role.Name.Equals("Lecturer"))
+                {
+                    return BadRequest("Please select correct lecturer");
+                }
+            }
             try
             {
                 _mapper.Map(classDTO, c);
@@ -108,7 +132,7 @@ namespace OTMS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while edit class " + id + ": " + ex.Message);
             }
         }
         [HttpPut("diactivate-class/{id}")]
@@ -144,7 +168,12 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id +": " +ex.Message);
             }
         }
-
+        [HttpGet("get-student-in-class/{id}")]
+        public async Task<IActionResult> GetStudentInClass(Guid id)
+        {
+            var  students = await _accountRepository.GetByStudentByClass(id);
+            return Ok(students);
+        }
         [HttpPost("asign-student-into-class/{id}")]
         public async Task<IActionResult> AsignStudentIntoClass(Guid id, List<Guid> listStudentId)
         {
@@ -198,21 +227,24 @@ namespace OTMS.API.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteClass(Guid id)
         {
-            var c = await _classRepository.GetByIdAsync(id);
-            if (c == null)
+            var existingClass = await _classRepository.GetByIdAsync(id);
+            if (existingClass == null)
             {
-                return NotFound();
+                return NotFound("Class not found.");
             }
-            try
+            var studentsInClass = await _classStudentRepository.GetByClassIdAsync(id);
+            if (studentsInClass.Any())
             {
-                await _classRepository.DeleteAsync(id);
-                return Ok("Delete success");
+                List<Guid> studentIds = new List<Guid>();
+                foreach (var student in studentsInClass) {
+                    studentIds.Add(student.StudentId);
+                } 
+                await _classStudentRepository.removeStudentIntoClass(id, studentIds);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
-            }
+            await _classRepository.DeleteAsync(id);
 
+            return Ok("Class deleted successfully.");
         }
+
     }
 }
