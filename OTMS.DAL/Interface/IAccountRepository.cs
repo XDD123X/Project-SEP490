@@ -29,6 +29,7 @@ namespace OTMS.DAL.Interface
 
 
         public Task<List<Account>> getAllStudentAccount();
+        public Task ImportParent(Parent parent);
 
     }
 }
