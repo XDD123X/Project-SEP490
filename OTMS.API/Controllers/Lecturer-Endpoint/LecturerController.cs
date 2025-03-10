@@ -36,13 +36,13 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             _attendanceRepository = attendanceRepository;
         }
 
-        [HttpGet("lecturer-schedule")]
+        [HttpGet("all-lecturer-schedule")]
         public async Task<IActionResult> GetLecturerSchedule(Guid lecturerId)
         {
             var lecturerSchedule = await _scheduleRepository.GetByLecturerIdAsync(lecturerId);
             if (lecturerSchedule == null)
                 return NotFound("Lecturer schedule not found.");
-            
+
             return Ok(new { lecturerSchedule });
         }
 
@@ -85,6 +85,24 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 return NotFound("No attendance records found for this session.");
 
             return Ok(new { attendanceList });
+        }
+        [HttpGet("lecturer-schedule")]
+        public async Task<IActionResult> GetStudentSchedule(Guid id, DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest("Start date must be before end date.");
+            }
+
+            var lecturerSchedule = await _scheduleRepository.GetByLecturerIdAndDateRangeAsync(id, startDate, endDate);
+
+            return Ok(new
+            {
+                StudentId = id,
+                StartDate = startDate,
+                EndDate = endDate,
+                Sessions = lecturerSchedule
+            });
         }
     }
 }
