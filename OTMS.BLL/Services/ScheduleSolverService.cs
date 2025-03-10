@@ -1,6 +1,5 @@
 ﻿using Google.OrTools.Sat;
 using OTMS.BLL.DTOs;
-using System.Linq;
 
 namespace OTMS.BLL.Services
 {
@@ -69,11 +68,6 @@ namespace OTMS.BLL.Services
                 if (preferredDays.Contains(date.DayOfWeek))
                     dates.Add(date);
             return dates;
-        }
-
-        public List<ScheduleItem> SolveScheduleForClass(ClassScheduleRequest request)
-        {
-            throw new NotImplementedException();
         }
     }
 }
