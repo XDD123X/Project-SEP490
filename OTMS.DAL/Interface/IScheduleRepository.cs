@@ -14,5 +14,7 @@ namespace OTMS.DAL.Interface
         Task<List<Session>> GetAllSessionsAsync();
         Task<List<Session>> GetByLecturerIdAsync(Guid id);
         Task<List<Session>> GetByStudentIdAsync(Guid id);
+        Task<List<Session>> GetByStudentIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate);
+        Task<List<Session>> GetByLecturerIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate);
     }
 }

@@ -25,6 +25,9 @@ namespace OTMS.DAL.Repository
 
         public async Task<List<Session>> GetByLecturerIdAsync(Guid id) => await _scheduleDAO.GetByLecturerIdAsync(id);
 
+        public async Task<List<Session>> GetByStudentIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate) => await _scheduleDAO.GetByStudentIdAndDateRangeAsync(id, startDate, endDate);
+
         public async Task<List<Session>> GetByStudentIdAsync(Guid id) => await _scheduleDAO.GetByStudentIdAsync(id);
+        public async Task<List<Session>> GetByLecturerIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate) => await _scheduleDAO.GetByLecturerIdAndDateRangeAsync(id, startDate, endDate);
     }
 }

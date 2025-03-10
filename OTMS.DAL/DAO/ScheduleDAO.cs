@@ -55,5 +55,25 @@ namespace OTMS.DAL.DAO
                 .ThenBy(s => s.Slot)
                 .ToListAsync();
         }
+
+        public async Task<List<Session>> GetByStudentIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate)
+        {
+            var classIds = await _context.ClassStudents
+                .Where(cs => cs.StudentId == id)
+                .Select(cs => cs.ClassId)
+                .ToListAsync();
+            if (!classIds.Any()) return new List<Session>();
+            return await _context.Sessions
+                .Where(s => classIds.Contains(s.ClassId) && s.SessionDate >= startDate && s.SessionDate <= endDate)
+                .OrderBy(s => s.SessionDate)
+                .ToListAsync();
+        }
+        public async Task<List<Session>> GetByLecturerIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate)
+        {
+            return await _context.Sessions
+                .Where(s => s.LecturerId.Equals(id) && s.SessionDate >= startDate && s.SessionDate <= endDate)
+                .OrderBy(s => s.SessionDate)
+                .ToListAsync();
+        }
     }
 }
