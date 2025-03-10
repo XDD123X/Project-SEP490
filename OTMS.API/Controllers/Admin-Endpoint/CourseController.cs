@@ -15,6 +15,12 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         private readonly IMapper _mapper;
         private readonly ICourseRepository _courseRepository;
 
+        public CourseController(IMapper mapper, ICourseRepository courseRepository)
+        {
+            _mapper = mapper;
+            _courseRepository = courseRepository;
+        }
+
         [HttpGet("course-list")]
         public async Task<IActionResult> GetCourse(
               [FromQuery] int page = 1,
