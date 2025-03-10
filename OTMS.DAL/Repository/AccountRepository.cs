@@ -34,16 +34,11 @@ namespace OTMS.DAL.Repository
 
         public Task<Account> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
         public Task<List<Account>> GetByStudentByClass(Guid classId) => _accountDAO.GetStudentByClass(classId);
-        ////
-        ///
-
-
-        //public Task<Account?> GetByIdAsync(Guid id) => _accountDAO.GetByIdAsync(id);
-        //public Task<Account?> GetByEmailAsync(string email) => _accountDAO.GetByEmailAsync(email);
+     
         public Task UpdateAsync(Account account) => _accountDAO.UpdateAsync(account);
 
-
-
+        public Task<List<Account>> getAllStudentAccount() =>_accountDAO.getAllStudentAccount();
+        public async Task ImportParent(Parent parent) => await _accountDAO.ImportParent(parent);
 
     }
 }

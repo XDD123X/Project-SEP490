@@ -25,16 +25,11 @@ namespace OTMS.DAL.Interface
         public Task<List<Account>> GetByStudentByClass(Guid classId);
 
 
-
-        ///////////////////////
-
-
-        //Task<Account?> GetByIdAsync(Guid id);
-        //Task<Account?> GetByEmailAsync(string email);
-        Task UpdateAsync(Account account);
+        public Task UpdateAsync(Account account);
 
 
-
+        public Task<List<Account>> getAllStudentAccount();
+        public Task ImportParent(Parent parent);
 
     }
 }

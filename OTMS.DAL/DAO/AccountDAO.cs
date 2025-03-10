@@ -117,26 +117,53 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
             return accounts;
         }
-      
-        
-        
-        ///
 
-        //public async Task<Account?> GetByIdAsync(Guid id)
-        //{
-        //    return await _context.Accounts.FindAsync(id);
-        //}
-
-        //public async Task<Account?> GetByEmailAsync(string email)
-        //{
-        //    return await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
-        //}
 
         public async Task UpdateAsync(Account account)
         {
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
         }
+
+
+        //
+
+        public async Task<List<Account>> getAllStudentAccount()
+        {
+            List<Account> accounts = await _context.Accounts
+                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757"))
+                .ToListAsync();
+            return accounts;
+        }
+
+
+        public async Task ImportParent(Parent parent)
+        {
+            try
+            {
+                using (OtmsContext context = new OtmsContext()) 
+                {
+                    Parent existingParent = await context.Parents.FindAsync(parent.StudentId);
+
+                    if (existingParent == null)
+                    {
+                        await context.Parents.AddAsync(parent);
+                    }
+                    else
+                    {
+                        context.Parents.Update(parent);
+                    }
+
+                    await context.SaveChangesAsync(); 
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error importing parent: {ex.Message}");
+                throw;
+            }
+        }
+
 
 
     }
