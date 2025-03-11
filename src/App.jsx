@@ -17,6 +17,11 @@ import MainScreen from "./pages/dashboard/MainScreen";
 import Notification from "./pages/dashboard/Notification";
 import DashboardPage from "./pages/dashboard/admin/Dashboard";
 import SchedulePage from "./pages/dashboard/SchedulePage";
+import ProfilePage from "./pages/profile/profilePage";
+import DemoContentPage from "./pages/DemoContentPage";
+import ProfileAccount from "./pages/profile/profile-account";
+import ProfileSchedule from "./pages/profile/profile-schedule";
+import ProfilePassword from "./pages/profile/profile-password";
 
 function App() {
   return (
@@ -40,26 +45,39 @@ function App() {
 
                 {/* Auth route */}
                 <Route element={<PrivateRoute />}>
-                  <Route path="/Student" element={<MainScreen />}>
-                    <Route path="demo" element={<DemoPage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="notification" element={<Notification />} />
-                    <Route path="schedule" element={<SchedulePage />} />
-                  </Route>
-                  <Route path="/Administrator" element={<MainScreen />}>
-                    <Route path="demo" element={<DemoPage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="notification" element={<Notification />} />
-                  </Route>
-                  <Route path="/Lecturer" element={<MainScreen />}>
-                    <Route path="demo" element={<DemoPage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="notification" element={<Notification />} />
-                  </Route>
-                  <Route path="/Officer" element={<MainScreen />}>
-                    <Route path="demo" element={<DemoPage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="notification" element={<Notification />} />
+                  <Route element={<MainScreen />} >
+
+                    <Route path="/profile" element={<ProfilePage />} >
+                      <Route path="" element={<ProfileAccount />} />
+                      <Route path="personal-schedule" element={<ProfileSchedule />} />
+                      <Route path="password" element={<ProfilePassword />} />
+                      </Route>
+
+                    <Route path="/Student">
+                      <Route path="" element={<Notification />} />
+                      <Route path="demo" element={<DemoPage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="notification" element={<Notification />} />
+                      <Route path="schedule" element={<SchedulePage />} />
+                    </Route>
+                    <Route path="/Administrator">
+                      <Route path="" element={<Notification />} />
+                      <Route path="demo" element={<DemoPage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="notification" element={<Notification />} />
+                    </Route>
+                    <Route path="/Lecturer">
+                      <Route path="" element={<Notification />} />
+                      <Route path="demo" element={<DemoPage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="notification" element={<Notification />} />
+                    </Route>
+                    <Route path="/Officer">
+                      <Route path="" element={<Notification />} />
+                      <Route path="demo" element={<DemoPage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="notification" element={<Notification />} />
+                    </Route>
                   </Route>
                 </Route>
 
