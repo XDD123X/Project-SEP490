@@ -9,6 +9,7 @@ namespace OTMS.DAL.Interface
 {
     public interface IClassSettingRepository : IRepository<ClassSetting>
     {
-
+        Task<ClassSetting?> GetByIdAsync(int id);
+        Task DeleteAsync(int id);
     }
 }

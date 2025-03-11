@@ -17,5 +17,11 @@ namespace OTMS.DAL.Repository
         {
             _classSettingDAO = classSettingDAO;
         }
+
+        public Task DeleteAsync(int id) => _classSettingDAO.DeleteClassSettingAsync(id);
+
+        public Task EditAsync(ClassSetting classSetting) => _classSettingDAO.UpdateAsync(classSetting);
+
+        public Task<ClassSetting?> GetByIdAsync(int id) => _classSettingDAO.GetClassSettingByIdAsync(id);
     }
 }
