@@ -1,4 +1,5 @@
-﻿using OTMS.BLL.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -44,9 +45,17 @@ namespace OTMS.DAL.DAO
                 }
             }
         }
-        public async Task<List<Attendance>> GetAttendancesBySession(Guid sessionId)
+        public async Task<List<Attendance>> GetAttendancesBySessionAsync(Guid sessionId)
         {
-            return await Task.Run(() => _dbSet.Where(a => a.SessionId == sessionId).ToList());
+            return await _dbSet
+                .Where(a => a.SessionId == sessionId)
+                .ToListAsync();
+        }
+        public async Task<List<Attendance>> GetByStudentAndClassAsync(Guid studentId, Guid classId)
+        {
+            return await _dbSet
+                .Where(a => a.StudentId == studentId && a.Session.ClassId == classId)
+                .ToListAsync();
         }
 
     }

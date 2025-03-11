@@ -20,7 +20,10 @@ namespace OTMS.DAL.Repository
         }
 
         public Task EditAttendance(Guid sessionId, List<AttendanceDTO> listStudent) => _attendanceDAO.EditAttendance(sessionId, listStudent);
-        public Task<List<Attendance>> GetBySessionAsync(Guid sessionId) => _attendanceDAO.GetAttendancesBySession(sessionId);
+        public Task<List<Attendance>> GetBySessionAsync(Guid sessionId) => _attendanceDAO.GetAttendancesBySessionAsync(sessionId);
+
+        public Task<List<Attendance>> GetByStudentAndClassAsync(Guid studentId, Guid classId) => _attendanceDAO.GetByStudentAndClassAsync(studentId, classId);
+
         public Task TakeListAttendance(Guid sessionId, List<AttendanceDTO> listStudent) => _attendanceDAO.TakeListAttendance(sessionId, listStudent);
     }
 }

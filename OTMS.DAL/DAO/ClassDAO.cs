@@ -49,5 +49,10 @@ namespace OTMS.DAL.DAO
                 query = query.Where(u => u.ClassName.Contains(search) || u.ClassCode.Contains(search));
             return await query.CountAsync();
         }
+
+        public async Task<List<Class>> getClassByLecturer(Guid lecturerId)
+        {
+            return await _dbSet.Where(c => c.LecturerId.Equals(lecturerId)).ToListAsync();
+        }
     }
 }
