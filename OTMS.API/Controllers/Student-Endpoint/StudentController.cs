@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
 
 namespace OTMS.API.Controllers.Student_Endpoint
@@ -11,11 +12,15 @@ namespace OTMS.API.Controllers.Student_Endpoint
     {
         private readonly IMapper _mapper;
         private readonly IScheduleRepository _scheduleRepository;
-        public StudentController(IMapper mapper, IScheduleRepository scheduleRepository)
+        private readonly IAttendanceRepository _attendanceRepository;
+
+        public StudentController(IMapper mapper, IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
+            _attendanceRepository = attendanceRepository;
         }
+
         [HttpGet("student-schedule")]
         public async Task<IActionResult> GetStudentSchedule(Guid id, DateTime startDate, DateTime endDate)
         {
@@ -34,6 +39,11 @@ namespace OTMS.API.Controllers.Student_Endpoint
                 Sessions = studentSchedule
             });
         }
-
+        [HttpGet("student-attendance")]
+        public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)
+        {
+            var attendance = _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
+            return Ok(attendance);
+        }
     }
 }

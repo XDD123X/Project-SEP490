@@ -64,6 +64,9 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
             if (!classIds.Any()) return new List<Session>();
             return await _context.Sessions
+                .Include(s => s.Class)
+                .Include(s => s.Lecturer)
+                .Include(s => s.Attendances)
                 .Where(s => classIds.Contains(s.ClassId) && s.SessionDate >= startDate && s.SessionDate <= endDate)
                 .OrderBy(s => s.SessionDate)
                 .ToListAsync();

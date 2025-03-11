@@ -11,6 +11,7 @@ namespace OTMS.DAL.Interface
     public interface IAttendanceRepository : IRepository<Attendance>
     {
         Task<List<Attendance>> GetBySessionAsync(Guid sessionId);
+        Task<List<Attendance>> GetByStudentAndClassAsync(Guid studentId, Guid classId);
         Task TakeListAttendance(Guid sessionId, List<AttendanceDTO> listStudent);
         Task EditAttendance(Guid sessionId, List<AttendanceDTO> listStudent);
 

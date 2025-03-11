@@ -13,6 +13,12 @@ namespace OTMS.API.Controllers.Admin_Endpoint
     public class ClassSettingController : ControllerBase
     {
         private readonly IClassSettingRepository _classSettingRepository;
+
+        public ClassSettingController(IClassSettingRepository classSettingRepository)
+        {
+            _classSettingRepository = classSettingRepository;
+        }
+
         [HttpPut("edit/{id}")]
         public async Task<IActionResult> EditClassSetting(int id, ClassSetting classSetting)
         {
