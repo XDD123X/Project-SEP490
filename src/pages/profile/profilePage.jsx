@@ -1,11 +1,33 @@
 import { Main } from '@/components/layouts/MainLayout'
 import SidebarNav from '@/components/profile/SidebarNav'
 import { Separator } from '@/components/ui/separator'
+import { useStore } from '@/services/StoreContext'
 import { Bell, Calendar, Check, Lock, Palette, PenTool, User } from 'lucide-react'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
 export default function ProfilePage() {
+    const { state } = useStore();
+    const { role, user } = state;
+
+    const sidebarNavItems = [
+        {
+            title: 'Profile',
+            icon: <User size={18} />,
+            href: '/profile',
+        },
+        role === 'Teacher' && {
+            title: 'Schedule',
+            icon: <Calendar size={18} />,
+            href: '/profile/schedule',
+        },
+        {
+            title: 'Password',
+            icon: <Lock size={18} />,
+            href: '/profile/password',
+        },
+    ].filter(Boolean);
+
     return (
         <>
 
@@ -32,20 +54,3 @@ export default function ProfilePage() {
     )
 }
 
-const sidebarNavItems = [
-    {
-        title: 'Profile',
-        icon: <User size={18} />,
-        href: '/profile',
-    },
-    {
-        title: 'Personal Schedule',
-        icon: <Calendar size={18} />,
-        href: '/profile/personal-schedule',
-    },
-    {
-        title: 'Password',
-        icon: <Lock size={18} />,
-        href: '/profile/password',
-    },
-]

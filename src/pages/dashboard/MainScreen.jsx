@@ -37,7 +37,7 @@ const roleBasedData = {
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "My Schedule", url: "schedule", icon: Calendar }
+      { title: "My Schedule", url: "my-schedule", icon: Calendar }
     ]
   },
   administrator: {
@@ -112,7 +112,7 @@ const roleBasedData = {
       },
       {
         title: "Schedule",
-        url: "schedule",
+        url: "my-schedule",
         icon: Calendar,
         items: [
           { title: "My Schedule", url: "my-schedule" },
@@ -162,7 +162,7 @@ const roleBasedData = {
       },
       {
         title: "Schedule",
-        url: "schedule",
+        url: "my-schedule",
         icon: Calendar,
         items: [
           { title: "View Session", url: "view" },
