@@ -45,6 +45,15 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
 
             return Ok(new { lecturerSchedule });
         }
+        [HttpGet("get-lecturer-class")]
+        public async Task<IActionResult> GetLecturerClass (Guid lecturerId)
+        {
+            var lecturerClass = await _classRepository.getClassByLecturer(lecturerId);
+            if (lecturerClass == null)
+                return NotFound("Lecturer class not found.");
+
+            return Ok(new { lecturerClass });
+        }
 
         [HttpPost("take-attendance")]
         public async Task<IActionResult> TakeAttendance(Guid sessionId, [FromBody] List<AttendanceDTO> students)

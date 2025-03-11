@@ -12,5 +12,6 @@ namespace OTMS.DAL.Interface
         Task<Class?> GetByClassCodeAsync(string classCode);
         Task<List<Class>> GetAllClassesAsync(int page, int pageSize, string? search, string sortBy, string sortOrder);
         Task<int> GetTotalClassesAsync(string? search);
+        Task<List<Class>> getClassByLecturer(Guid lecturerId);
     }
 }
