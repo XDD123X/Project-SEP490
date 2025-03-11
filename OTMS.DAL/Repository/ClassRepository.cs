@@ -24,6 +24,8 @@ namespace OTMS.DAL.Repository
 
         public Task<List<Class>> getClassByLecturer(Guid lecturerId) => _classDAO.getClassByLecturer(lecturerId);
 
+        public Task<List<Class>> getClassByStudent(Guid studentId) => _classDAO.GetClassesByStudentAsync(studentId);
+
         public Task<int> GetTotalClassesAsync(string? search) => _classDAO.GetTotalClassesAsync(search);
     }
 }

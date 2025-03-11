@@ -13,12 +13,13 @@ namespace OTMS.API.Controllers.Student_Endpoint
         private readonly IMapper _mapper;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IAttendanceRepository _attendanceRepository;
-
+        private readonly IClassRepository _classRepository;
         public StudentController(IMapper mapper, IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
             _attendanceRepository = attendanceRepository;
+            
         }
 
         [HttpGet("student-schedule")]
@@ -44,6 +45,12 @@ namespace OTMS.API.Controllers.Student_Endpoint
         {
             var attendance = _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
             return Ok(attendance);
+        }
+        [HttpGet("student-class")]
+        public async Task<IActionResult> GetStudentClass(Guid studentId)
+        {
+            var c = _classRepository.getClassByStudent(studentId);
+            return Ok(c);
         }
     }
 }
