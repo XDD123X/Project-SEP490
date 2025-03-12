@@ -43,13 +43,13 @@ namespace OTMS.API.Controllers.Student_Endpoint
         [HttpGet("student-attendance")]
         public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)
         {
-            var attendance = _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
+            var attendance = await _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
             return Ok(attendance);
         }
         [HttpGet("student-class")]
         public async Task<IActionResult> GetStudentClass(Guid studentId)
         {
-            var c = _classRepository.getClassByStudent(studentId);
+            var c = await _classRepository.getClassByStudent(studentId);
             return Ok(c);
         }
     }
