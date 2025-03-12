@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.VariantTypes;
+using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
@@ -25,5 +26,7 @@ namespace OTMS.DAL.Repository
         public Task<List<ClassStudent>> GetByClassIdAsync(Guid id) => _classStudentDAO.GetByClassIdAsync(id);
 
         public Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds) => _classStudentDAO.RemoveStudentsFromClass(id, validStudentIds);
+        public async Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId) => await _classStudentDAO.GetListOfClassStudentEnrolled(studentId);
+
     }
 }

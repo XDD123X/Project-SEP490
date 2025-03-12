@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OTMS.DAL.Repository
 {
-    internal class AttendanceRepository : Repository<Attendance>, IAttendanceRepository
+    public class AttendanceRepository : Repository<Attendance>, IAttendanceRepository
     {
         private readonly AttendanceDAO _attendanceDAO;
 
