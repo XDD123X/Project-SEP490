@@ -8,7 +8,7 @@
 # emotion_counts = defaultdict(int)
 # total_emotions = 0
 #
-# video_path = r"C:\Users\nqt00\OneDrive\Desktop\6348820465203.mp4"
+# video_path = r"C:\Users\nqt00\OneDrive\Desktop\6396588663822.mp4"
 # cap = cv2.VideoCapture(video_path)
 #
 # total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -66,8 +66,8 @@
 # else:
 #     print("Không có dữ liệu cảm xúc để thống kê.")
 #
-#
-#
+
+
 
 
 import cv2
@@ -81,7 +81,7 @@ emotion_counts = defaultdict(int)
 total_emotions = 0
 
 #video_path = r"C:\Users\nqt00\OneDrive\Desktop\Recording 2025-02-18 201906.mp4"
-video_path =r"C:\Users\nqt00\OneDrive\Desktop\6348820465203.mp4"
+video_path =r"C:\Users\nqt00\OneDrive\Desktop\6396588663822.mp4"
 
 cap = cv2.VideoCapture(video_path)
 
@@ -91,7 +91,7 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 if fps == 0:
     fps = 30
 
-frame_interval = int(fps * 5)
+frame_interval = int(fps * 2)
 
 if frame_interval == 0:
     frame_interval = 1
