@@ -1,4 +1,5 @@
-﻿using OTMS.BLL.Models;
+﻿using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,9 @@ namespace OTMS.DAL.Interface
         Task addStudentIntoClass(Guid classId, List<Guid> listStudentId);
         Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds);
         Task<List<ClassStudent>> GetByClassIdAsync(Guid id);
+
+
+        public  Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId);
+
     }
 }

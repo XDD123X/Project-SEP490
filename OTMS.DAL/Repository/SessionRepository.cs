@@ -23,7 +23,7 @@ namespace OTMS.DAL.Repository
         public async Task<List<Session>> GenerateAndSaveScheduleAsync(ClassScheduleRequest request)
         {
             var existingSessions = await _sessionDAO.GetSessionsByLecturerAsync(
-                request.LecturerId, request.StartDate, request.EndDate);
+                request.LecturerId, request.StartDate, request.EndDate.Value);
 
             // Chuyển data sang DTO của BLL
             var existingSessionInfos = existingSessions.Select(s => new SessionInfo
