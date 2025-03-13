@@ -7,6 +7,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="appsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="appsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
 		<PackageReference Include="ClosedXML" Version="0.104.2" />

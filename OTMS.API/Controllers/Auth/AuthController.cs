@@ -135,7 +135,16 @@ namespace OTMS.API.Controllers.Auth
                 var user = await _accountRepository.GetByEmailAsync(email);
                 if (user == null) return NotFound("User Not Found");
 
-                return Ok(user);
+                return Ok(new
+                {   
+                    AccountId = user.AccountId,
+                    Email = user.Email,
+                    Fullname = user.FullName,
+                    Phone = user.PhoneNumber,
+                    Dob = user.Dob,
+                    ImgUrl = user.ImgUrl,
+                    Role = user.Role.Name,
+                });
             }
             catch (Exception ex)
             {
