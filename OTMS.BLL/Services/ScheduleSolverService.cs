@@ -11,7 +11,7 @@ namespace OTMS.BLL.Services
                 .Select(s => (s.SessionDate.Date, s.Slot))
                 .ToHashSet();
 
-            var availableDates = GetAvailableDates(request.StartDate, request.EndDate, request.PreferredDays);
+            var availableDates = GetAvailableDates(request.StartDate, request.EndDate.Value, request.PreferredDays);
 
             var model = new CpModel();
             var x = new Dictionary<(DateTime date, int slot), BoolVar>();
