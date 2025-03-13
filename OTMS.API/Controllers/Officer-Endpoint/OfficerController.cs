@@ -19,26 +19,23 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IMapper _mapper;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IAccountRepository _accountRepository;
-
-
+        private readonly ISessionRepository _sessionRepository;
         private readonly IServiceScopeFactory _scopeFactory;
 
-       
-
-
-        public OfficerController(IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, IServiceScopeFactory scopeFactory)
+        public OfficerController(IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
             _accountRepository = accountRepository;
+            _sessionRepository = sessionRepository;
             _scopeFactory = scopeFactory;
-
         }
+
         [HttpGet("all-schedule")]
         public async Task<IActionResult> GetAllSchedule()
         {
-            var allSchedule = await _scheduleRepository.GetAllAsync();
-            return Ok(new { allSchedule });
+            var allSchedule = await _scheduleRepository.GetAllSessionsAsync();
+            return Ok(allSchedule);
         }
 
         [HttpGet("get-all-student-account-to-import-parent")]

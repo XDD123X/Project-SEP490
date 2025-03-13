@@ -261,27 +261,10 @@ namespace OTMS.API.Controllers
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "UserTemplate.xlsx");
         }
         [HttpGet("accounts-list")]
-        public async Task<IActionResult> GetAccounts(
-           [FromQuery] int page = 1,
-           [FromQuery] int pageSize = 10,
-           [FromQuery] string? search = null,
-           [FromQuery] int? status = null,
-           [FromQuery] string? classCode = null,
-           [FromQuery] string? role = null,
-           [FromQuery] DateTime? date = null,
-           [FromQuery] string sortBy = "fullName",
-           [FromQuery] string sortOrder = "desc")
+        public async Task<IActionResult> GetAccounts()
         {
-            var users = await _accountRepository.GetAccountsAsync(page, pageSize, search, status, classCode, date, sortBy, sortOrder);
-            var totalUsers = await _accountRepository.GetTotalAccountsAsync(search, status, classCode, date);
-            List<UserAccountDTO> accounts = _mapper.Map<List<UserAccountDTO>>(users);
-            return Ok(new
-            {
-                TotalUsers = totalUsers,
-                Page = page,
-                PageSize = pageSize,
-                Users = accounts
-            });
+            var users = await _accountRepository.GetAllAsync();
+            return Ok(users);
         }
 
         [HttpGet("find-account/{id}")]

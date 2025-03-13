@@ -14,42 +14,35 @@ namespace OTMS.API.Controllers.Student_Endpoint
         private readonly IMapper _mapper;
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly IClassRepository _classRepository;
         private readonly IClassStudentRepository _classStudentRepository;
-
-        public StudentController(IMapper mapper, IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository, IClassStudentRepository classStudentRepository)
+        public StudentController(IMapper mapper, IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository,IClassRepository classRepository,  IClassStudentRepository classStudentRepository)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
             _attendanceRepository = attendanceRepository;
+            _classRepository = classRepository;
             _classStudentRepository = classStudentRepository;
         }
 
         [HttpGet("student-schedule")]
-        public async Task<IActionResult> GetStudentSchedule(Guid id, DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> GetStudentSchedule(Guid id)
         {
-            if (startDate > endDate)
-            {
-                return BadRequest("Start date must be before end date.");
-            }
-
-            var studentSchedule = await _scheduleRepository.GetByStudentIdAndDateRangeAsync(id, startDate, endDate);
-
-            return Ok(new
-            {   
-                StudentId = id,
-                StartDate = startDate,
-                EndDate = endDate,
-                Sessions = studentSchedule
-            });
+            var studentSchedule = await _scheduleRepository.GetByStudentIdAsync(id);
+            return Ok(studentSchedule);
         }
         [HttpGet("student-attendance")]
         public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)
         {
-            var attendance = _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
+            var attendance = await _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
             return Ok(attendance);
         }
-
-
+        [HttpGet("student-class")]
+        public async Task<IActionResult> GetStudentClass(Guid studentId)
+        {
+            var c = await _classRepository.getClassByStudent(studentId);
+            return Ok(c);
+        }
 
         [HttpGet("student-enrolled-classes")]
         public async Task<IActionResult> GetStudentEnrolledClasses(Guid studentId)
@@ -63,8 +56,6 @@ namespace OTMS.API.Controllers.Student_Endpoint
 
             return Ok(enrolledClasses);
         }
-
-
 
     }
 }
