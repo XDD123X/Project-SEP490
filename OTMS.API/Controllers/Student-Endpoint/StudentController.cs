@@ -15,11 +15,13 @@ namespace OTMS.API.Controllers.Student_Endpoint
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly IClassRepository _classRepository;
-        public StudentController(IMapper mapper, IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository)
+        private readonly IClassStudentRepository _classStudentRepository;
+        public StudentController(IMapper mapper, IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository,IClassRepository classRepository,  IClassStudentRepository classStudentRepository)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
             _attendanceRepository = attendanceRepository;
+            _classRepository = classRepository;
             _classStudentRepository = classStudentRepository;
         }
 
