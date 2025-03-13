@@ -1,930 +1,607 @@
 import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, CreditCard, Download, Edit, Eye, FileUp, MoreHorizontal, Plus, Search, Trash2, User } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 
-// UI Components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
-// Icons
-import { ArrowUpDown, CalendarIcon, Download, MoreHorizontal, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
-
-// TanStack Table
-import { flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-
-// Excel library
-import * as XLSX from "xlsx";
-
-// Schema and Data
-const accounts = [
+// Mock data for demonstration
+const mockUsers = [
   {
-    id: "1",
+    id: 1,
     email: "john.doe@example.com",
     fullName: "John Doe",
     role: "Admin",
     fullTime: true,
-    phone: "123-456-7890",
-    dob: new Date("1985-05-15"),
-    avatar: "/placeholder.svg?height=40&width=40",
+    phone: "+1 (555) 123-4567",
+    dob: "1985-06-15",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
     status: "Active",
-    createdAt: new Date("2023-01-10"),
-    updatedAt: new Date("2023-01-10"),
+    createdAt: "2023-01-15T08:30:00Z",
+    updatedAt: "2023-05-20T14:45:00Z",
   },
   {
-    id: "2",
+    id: 2,
     email: "jane.smith@example.com",
     fullName: "Jane Smith",
     role: "Manager",
     fullTime: true,
-    phone: "234-567-8901",
-    dob: new Date("1990-08-22"),
-    avatar: "/placeholder.svg?height=40&width=40",
+    phone: "+1 (555) 987-6543",
+    dob: "1990-03-22",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
     status: "Active",
-    createdAt: new Date("2023-02-15"),
-    updatedAt: new Date("2023-03-20"),
+    createdAt: "2023-02-10T10:15:00Z",
+    updatedAt: "2023-06-05T09:30:00Z",
   },
   {
-    id: "3",
-    email: "bob.johnson@example.com",
-    fullName: "Bob Johnson",
-    role: "User",
+    id: 3,
+    email: "robert.johnson@example.com",
+    fullName: "Robert Johnson",
+    role: "Developer",
     fullTime: false,
-    phone: "345-678-9012",
-    dob: new Date("1988-11-30"),
-    avatar: "/placeholder.svg?height=40&width=40",
+    phone: "+1 (555) 456-7890",
+    dob: "1992-11-08",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
     status: "Inactive",
-    createdAt: new Date("2023-03-05"),
-    updatedAt: new Date("2023-04-10"),
+    createdAt: "2023-03-05T14:20:00Z",
+    updatedAt: "2023-04-18T11:10:00Z",
   },
   {
-    id: "4",
-    email: "alice.williams@example.com",
-    fullName: "Alice Williams",
-    role: "User",
+    id: 4,
+    email: "emily.wilson@example.com",
+    fullName: "Emily Wilson",
+    role: "Designer",
     fullTime: true,
-    phone: "456-789-0123",
-    dob: new Date("1992-02-18"),
-    avatar: "/placeholder.svg?height=40&width=40",
+    phone: "+1 (555) 234-5678",
+    dob: "1988-09-17",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
     status: "Active",
-    createdAt: new Date("2023-04-20"),
-    updatedAt: new Date("2023-04-20"),
+    createdAt: "2023-02-28T09:45:00Z",
+    updatedAt: "2023-05-12T16:30:00Z",
   },
   {
-    id: "5",
-    email: "charlie.brown@example.com",
-    fullName: "Charlie Brown",
-    role: "Manager",
+    id: 5,
+    email: "michael.brown@example.com",
+    fullName: "Michael Brown",
+    role: "Developer",
     fullTime: false,
-    phone: "567-890-1234",
-    dob: new Date("1986-07-08"),
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Pending",
-    createdAt: new Date("2023-05-12"),
-    updatedAt: new Date("2023-06-01"),
+    phone: "+1 (555) 876-5432",
+    dob: "1991-07-30",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
+    status: "Active",
+    createdAt: "2023-01-20T11:25:00Z",
+    updatedAt: "2023-06-10T13:15:00Z",
   },
   {
-    id: "6",
+    id: 6,
+    email: "sarah.davis@example.com",
+    fullName: "Sarah Davis",
+    role: "HR Manager",
+    fullTime: true,
+    phone: "+1 (555) 345-6789",
+    dob: "1986-04-12",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
+    status: "Active",
+    createdAt: "2023-03-15T08:50:00Z",
+    updatedAt: "2023-05-25T10:20:00Z",
+  },
+  {
+    id: 7,
     email: "david.miller@example.com",
     fullName: "David Miller",
-    role: "User",
+    role: "QA Engineer",
     fullTime: true,
-    phone: "678-901-2345",
-    dob: new Date("1991-03-25"),
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Active",
-    createdAt: new Date("2023-06-15"),
-    updatedAt: new Date("2023-06-15"),
-  },
-  {
-    id: "7",
-    email: "emma.wilson@example.com",
-    fullName: "Emma Wilson",
-    role: "Manager",
-    fullTime: true,
-    phone: "789-012-3456",
-    dob: new Date("1989-12-10"),
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Active",
-    createdAt: new Date("2023-07-01"),
-    updatedAt: new Date("2023-07-20"),
-  },
-  {
-    id: "8",
-    email: "frank.thomas@example.com",
-    fullName: "Frank Thomas",
-    role: "User",
-    fullTime: false,
-    phone: "890-123-4567",
-    dob: new Date("1987-09-05"),
-    avatar: "/placeholder.svg?height=40&width=40",
+    phone: "+1 (555) 654-3210",
+    dob: "1993-12-05",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
     status: "Inactive",
-    createdAt: new Date("2023-08-10"),
-    updatedAt: new Date("2023-09-15"),
+    createdAt: "2023-02-05T13:40:00Z",
+    updatedAt: "2023-04-30T15:55:00Z",
   },
   {
-    id: "9",
-    email: "grace.lee@example.com",
-    fullName: "Grace Lee",
-    role: "Admin",
+    id: 8,
+    email: "jennifer.taylor@example.com",
+    fullName: "Jennifer Taylor",
+    role: "Product Manager",
     fullTime: true,
-    phone: "901-234-5678",
-    dob: new Date("1993-06-30"),
-    avatar: "/placeholder.svg?height=40&width=40",
+    phone: "+1 (555) 789-0123",
+    dob: "1987-08-25",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
     status: "Active",
-    createdAt: new Date("2023-09-20"),
-    updatedAt: new Date("2023-09-20"),
+    createdAt: "2023-01-30T09:10:00Z",
+    updatedAt: "2023-06-15T11:45:00Z",
   },
   {
-    id: "10",
-    email: "henry.garcia@example.com",
-    fullName: "Henry Garcia",
-    role: "User",
+    id: 9,
+    email: "thomas.anderson@example.com",
+    fullName: "Thomas Anderson",
+    role: "Developer",
     fullTime: false,
-    phone: "012-345-6789",
-    dob: new Date("1990-01-15"),
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Pending",
-    createdAt: new Date("2023-10-05"),
-    updatedAt: new Date("2023-10-25"),
+    phone: "+1 (555) 321-0987",
+    dob: "1994-02-18",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
+    status: "Active",
+    createdAt: "2023-03-10T10:30:00Z",
+    updatedAt: "2023-05-05T14:20:00Z",
+  },
+  {
+    id: 10,
+    email: "lisa.white@example.com",
+    fullName: "Lisa White",
+    role: "Designer",
+    fullTime: true,
+    phone: "+1 (555) 567-8901",
+    dob: "1989-10-10",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
+    status: "Active",
+    createdAt: "2023-02-20T15:15:00Z",
+    updatedAt: "2023-04-25T12:35:00Z",
+  },
+  {
+    id: 11,
+    email: "james.wilson@example.com",
+    fullName: "James Wilson",
+    role: "Sales Manager",
+    fullTime: true,
+    phone: "+1 (555) 890-1234",
+    dob: "1984-05-28",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
+    status: "Active",
+    createdAt: "2023-01-25T12:50:00Z",
+    updatedAt: "2023-06-20T09:25:00Z",
+  },
+  {
+    id: 12,
+    email: "olivia.martin@example.com",
+    fullName: "Olivia Martin",
+    role: "Marketing Specialist",
+    fullTime: false,
+    phone: "+1 (555) 432-1098",
+    dob: "1995-01-15",
+    avatar: "https://ui.shadcn.com/avatars/shadcn.jpg",
+    status: "Inactive",
+    createdAt: "2023-03-20T11:05:00Z",
+    updatedAt: "2023-05-15T16:40:00Z",
   },
 ];
 
-// Confirm Dialog Component
-function ConfirmDialog({ open, onOpenChange, onConfirm, title, description }) {
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent onEscapeKeyDown={() => onOpenChange(false)}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
-            }}
-            className="bg-destructive text-destructive-foreground"
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-// Add Account Dialog Component
-function AddAccountDialog({ open, onOpenChange, onAdd }) {
-  const [formData, setFormData] = useState({
-    email: "",
-    fullName: "",
-    role: "User",
-    fullTime: false,
-    phone: "",
-    dob: new Date(),
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Active",
+export default function AccountManagement() {
+  const [users, setUsers] = useState(mockUsers);
+  const [filteredUsers, setFilteredUsers] = useState(mockUsers);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("id");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [visibleColumns, setVisibleColumns] = useState({
+    email: true,
+    fullName: true,
+    role: true,
+    fullTime: true,
+    phone: true,
+    dob: true,
+    avatar: true,
+    status: true,
+    createdAt: false,
+    updatedAt: false,
   });
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const newAccount = {
-      ...formData,
-      id: `account-${Date.now()}`,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    onAdd(newAccount);
-    onOpenChange(false); // Explicitly close the dialog
-
-    // Reset form
-    setFormData({
-      email: "",
-      fullName: "",
-      role: "User",
-      fullTime: false,
-      phone: "",
-      dob: new Date(),
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "Active",
-    });
-  };
-
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
-      <DialogContent className="sm:max-w-[500px]" onInteractOutside={() => onOpenChange(false)}>
-        <DialogHeader>
-          <DialogTitle>Add New Account</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="flex items-center justify-center mb-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={formData.avatar} alt="Avatar" />
-                <AvatarFallback>{formData.fullName ? formData.fullName.charAt(0) : "A"}</AvatarFallback>
-              </Avatar>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={(e) => handleChange("email", e.target.value)} required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" value={formData.fullName} onChange={(e) => handleChange("fullName", e.target.value)} required />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Admin">Admin</SelectItem>
-                    <SelectItem value="Manager">Manager</SelectItem>
-                    <SelectItem value="User">User</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Inactive">Inactive</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dob">Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.dob && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.dob ? format(formData.dob, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={formData.dob} onSelect={(date) => handleChange("dob", date || new Date())} initialFocus />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox id="fullTime" checked={formData.fullTime} onCheckedChange={(checked) => handleChange("fullTime", !!checked)} />
-              <Label htmlFor="fullTime">Full Time Employee</Label>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="avatar">Avatar</Label>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={formData.avatar} alt="Avatar" />
-                  <AvatarFallback>{formData.fullName ? formData.fullName.charAt(0) : "A"}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          handleChange("avatar", event.target?.result);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">Upload a profile picture</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Add Account</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// Edit Account Dialog Component
-function EditAccountDialog({ account, open, onOpenChange, onUpdate }) {
-  const [formData, setFormData] = useState(account);
-
+  // Filter and sort users when search term or sort parameters change
   useEffect(() => {
-    setFormData(account);
-  }, [account]);
+    let result = [...users];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    // Apply search filter
+    if (searchTerm) {
+      result = result.filter(
+        (user) => user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase()) || user.role.toLowerCase().includes(searchTerm.toLowerCase()) || user.phone.includes(searchTerm)
+      );
+    }
 
-    const updatedAccount = {
-      ...formData,
-      updatedAt: new Date(),
-    };
+    // Apply sorting
+    result.sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
 
-    onUpdate(updatedAccount);
-    onOpenChange(false); // Explicitly close the dialog
-  };
+      if (typeof aValue === "string") {
+        return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      } else {
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
+    });
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFilteredUsers(result);
+    setCurrentPage(1); // Reset to first page when filtering
+  }, [users, searchTerm, sortColumn, sortDirection]);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
-      <DialogContent className="sm:max-w-[600px]" onInteractOutside={() => onOpenChange(false)}>
-        <DialogHeader>
-          <DialogTitle>Edit Account</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="flex items-center justify-center mb-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={formData.avatar} alt="Avatar" />
-                <AvatarFallback>{formData.fullName.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={(e) => handleChange("email", e.target.value)} required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" value={formData.fullName} onChange={(e) => handleChange("fullName", e.target.value)} required />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Admin">Admin</SelectItem>
-                    <SelectItem value="Manager">Manager</SelectItem>
-                    <SelectItem value="User">User</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Inactive">Inactive</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dob">Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !formData.dob && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.dob ? format(formData.dob, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={formData.dob} onSelect={(date) => handleChange("dob", date || new Date())} initialFocus />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox id="fullTime" checked={formData.fullTime} onCheckedChange={(checked) => handleChange("fullTime", !!checked)} />
-              <Label htmlFor="fullTime">Full Time Employee</Label>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="avatar">Avatar</Label>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={formData.avatar} alt="Avatar" />
-                  <AvatarFallback>{formData.fullName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          handleChange("avatar", event.target?.result);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">Upload a new profile picture</p>
-                </div>
-              </div>
-            </div>
-
-            <Separator className="my-2" />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="createdAt">Created At</Label>
-                <Input id="createdAt" value={format(formData.createdAt, "PPP p")} disabled />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="updatedAt">Updated At</Label>
-                <Input id="updatedAt" value={format(formData.updatedAt, "PPP p")} disabled />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Update Account</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// Data Table Component
-function DataTable({ columns, data, onUpdate, onDelete }) {
-  const [sorting, setSorting] = useState([]);
-  const [editingAccount, setEditingAccount] = useState(null);
-  const [deletingAccountId, setDeletingAccountId] = useState(null);
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
-
-  const handleEdit = (account) => {
-    setEditingAccount(account);
-    setIsUpdateDialogOpen(true);
-  };
-
-  const handleDelete = (id) => {
-    setDeletingAccountId(id);
-    setIsRemoveDialogOpen(true);
-  };
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-    meta: {
-      onEdit: handleEdit,
-      onDelete: handleDelete,
-    },
-  });
-
-  const confirmDelete = () => {
-    if (deletingAccountId) {
-      onDelete(deletingAccountId);
-      setDeletingAccountId(null);
-      setIsRemoveDialogOpen(false);
+  // Handle column sort
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
     }
   };
 
-  const handleUpdateAccount = (updatedAccount) => {
-    onUpdate(updatedAccount);
-    setIsUpdateDialogOpen(false);
-    setEditingAccount(null);
+  // Handle search input change
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Toggle column visibility
+  const toggleColumnVisibility = (column) => {
+    setVisibleColumns({
+      ...visibleColumns,
+      [column]: !visibleColumns[column],
+    });
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + rowsPerPage);
+
+  // Handle edit user
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  // Handle delete user
+  const handleDeleteUser = (user) => {
+    setSelectedUser(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Confirm delete user
+  const confirmDeleteUser = () => {
+    if (selectedUser) {
+      setUsers(users.filter((user) => user.id !== selectedUser.id));
+      setIsDeleteModalOpen(false);
+      setSelectedUser(null);
+    }
+  };
+
+  // Export to Excel (mock function)
+  const exportToExcel = () => {
+    alert("Export to Excel functionality would be implemented here");
+    // In a real implementation, you would use a library like xlsx
+    // to convert the data and trigger a download
+  };
+
+  // Import from Excel (mock function)
+  const importFromExcel = () => {
+    alert("Import from Excel functionality would be implemented here");
+    // In a real implementation, you would use a file input and a library
+    // to parse the Excel file
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    try {
+      return format(new Date(dateString), "MMM dd, yyyy");
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  // Format datetime for display
+  const formatDateTime = (dateString) => {
+    try {
+      return format(new Date(dateString), "MMM dd, yyyy HH:mm");
+    } catch (error) {
+      return dateString;
+    }
   };
 
   return (
-    <div>
-      <div className="rounded-md border">
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Account Management</h1>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Account
+          </Button>
+          <Button variant="outline" onClick={exportToExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Button variant="outline" onClick={importFromExcel}>
+            <FileUp className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input type="search" placeholder="Search accounts..." className="pl-8" value={searchTerm} onChange={handleSearch} />
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline">
+              <Eye className="mr-2 h-4 w-4" />
+              View Columns
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56">
+            <div className="space-y-2">
+              <h4 className="font-medium">Toggle Columns</h4>
+              <div className="grid gap-2">
+                {Object.keys(visibleColumns).map((column) => (
+                  <div key={column} className="flex items-center space-x-2">
+                    <Checkbox id={`column-${column}`} checked={visibleColumns[column]} onCheckedChange={() => toggleColumnVisibility(column)} />
+                    <Label htmlFor={`column-${column}`} className="capitalize">
+                      {column === "dob" ? "Date of Birth" : column === "fullTime" ? "Full Time" : column === "createdAt" ? "Created At" : column === "updatedAt" ? "Updated At" : column}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="border rounded-md">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow>
+              <TableHead className="w-10">#</TableHead>
+
+              {visibleColumns.avatar && <TableHead>Avatar</TableHead>}
+              {visibleColumns.fullName && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("fullName")}>
+                  Full Name
+                  {sortColumn === "fullName" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.email && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("email")}>
+                  Email
+                  {sortColumn === "email" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.role && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("role")}>
+                  Role
+                  {sortColumn === "role" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.fullTime && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("fullTime")}>
+                  Full Time
+                  {sortColumn === "fullTime" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.phone && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("phone")}>
+                  Phone
+                  {sortColumn === "phone" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.dob && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("dob")}>
+                  Date of Birth
+                  {sortColumn === "dob" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.status && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("status")}>
+                  Status
+                  {sortColumn === "status" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.createdAt && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("createdAt")}>
+                  Created At
+                  {sortColumn === "createdAt" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              {visibleColumns.updatedAt && (
+                <TableHead className="cursor-pointer" onClick={() => handleSort("updatedAt")}>
+                  Updated At
+                  {sortColumn === "updatedAt" && (sortDirection === "asc" ? <ChevronUp className="inline ml-1 h-4 w-4" /> : <ChevronDown className="inline ml-1 h-4 w-4" />)}
+                </TableHead>
+              )}
+              <TableHead className="w-16">Actions</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
+            {paginatedUsers.length > 0 ? (
+              paginatedUsers.map((user, index) => (
+                <TableRow key={user.id}>
+                  <TableCell className="">{index + 1}</TableCell>
+                  {visibleColumns.avatar && (
+                    <TableCell>
+                      <img src={user.avatar || "/placeholder.svg"} alt={`${user.fullName}'s avatar`} width={40} height={40} className="rounded-full" />
+                    </TableCell>
+                  )}
+                  {visibleColumns.fullName && <TableCell className="font-medium">{user.fullName}</TableCell>}
+                  {visibleColumns.email && <TableCell>{user.email}</TableCell>}
+                  {visibleColumns.role && <TableCell>{user.role}</TableCell>}
+                  {visibleColumns.fullTime && <TableCell>{user.fullTime ? "Yes" : "No"}</TableCell>}
+                  {visibleColumns.phone && <TableCell>{user.phone}</TableCell>}
+                  {visibleColumns.dob && <TableCell>{formatDate(user.dob)}</TableCell>}
+                  {visibleColumns.status && (
+                    <TableCell>
+                      <Badge variant={user.status === "Active" ? "success" : "destructive"}>{user.status}</Badge>
+                    </TableCell>
+                  )}
+                  {visibleColumns.createdAt && <TableCell>{formatDateTime(user.createdAt)}</TableCell>}
+                  {visibleColumns.updatedAt && <TableCell>{formatDateTime(user.updatedAt)}</TableCell>}
+                  <TableCell className="flex flex-row gap-2">
+                    <Button variant="outline" size="icon" onClick={() => handleEditUser(user)}>
+                      <Edit />
+                    </Button>
+                    <Button variant="destructive" size="icon" onClick={() => handleDeleteUser(user)}>
+                      <Trash2 />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                <TableCell colSpan={Object.values(visibleColumns).filter(Boolean).length + 1} className="text-center py-6">
+                  No accounts found
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between space-x-2 py-4">
+
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
-          <select
-            className="h-8 w-[70px] rounded-md border border-input bg-background px-2"
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
-          >
-            {[5, 10, 20, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                {pageSize}
-              </option>
-            ))}
-          </select>
+          <p className="text-sm text-muted-foreground">
+            Showing {startIndex + 1}-{Math.min(startIndex + rowsPerPage, filteredUsers.length)} of {filteredUsers.length} accounts
+          </p>
+          <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Rows" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5 rows</SelectItem>
+              <SelectItem value="10">10 rows</SelectItem>
+              <SelectItem value="20">15 rows</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex-1 text-sm text-muted-foreground text-center">
-          Showing {table.getRowModel().rows.length} of {data.length} account(s)
-        </div>
-        <div className="space-x-2">
-          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+            First
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
             Previous
           </Button>
           <span className="text-sm">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            Page {currentPage} of {totalPages || 1}
           </span>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0}>
             Next
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages || totalPages === 0}>
+            Last
+          </Button>
         </div>
       </div>
 
-      {editingAccount && (
-        <EditAccountDialog
-          account={editingAccount}
-          open={isUpdateDialogOpen}
-          onOpenChange={(open) => {
-            setIsUpdateDialogOpen(open);
-            if (!open) {
-              setTimeout(() => {
-                setEditingAccount(null);
-              }, 100);
-            }
-          }}
-          onUpdate={handleUpdateAccount}
-        />
-      )}
-
-      <ConfirmDialog
-        open={isRemoveDialogOpen}
-        onOpenChange={(open) => {
-          setIsRemoveDialogOpen(open);
-          if (!open) {
-            setTimeout(() => {
-              setDeletingAccountId(null);
-            }, 100);
-          }
-        }}
-        onConfirm={confirmDelete}
-        title="Delete Account"
-        description="Are you sure you want to delete this account? This action cannot be undone."
-      />
-    </div>
-  );
-}
-
-// Main Account Management Component
-export default function AccountManagementPage() {
-  const [data, setData] = useState(accounts);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-  const filteredData = data.filter((account) => {
-    if (!searchQuery) return true;
-
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      account.email.toLowerCase().includes(searchLower) ||
-      account.fullName.toLowerCase().includes(searchLower) ||
-      account.role.toLowerCase().includes(searchLower) ||
-      account.phone.toLowerCase().includes(searchLower) ||
-      account.status.toLowerCase().includes(searchLower)
-    );
-  });
-
-  const handleAddAccount = (newAccount) => {
-    setData([...data, newAccount]);
-    setIsAddDialogOpen(false);
-  };
-
-  const handleUpdateAccount = (updatedAccount) => {
-    setData(data.map((account) => (account.id === updatedAccount.id ? updatedAccount : account)));
-  };
-
-  const handleDeleteAccount = (id) => {
-    setData(data.filter((account) => account.id !== id));
-  };
-
-  const handleImportExcel = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const workbook = XLSX.read(event.target?.result, { type: "binary" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const importedData = XLSX.utils.sheet_to_json(worksheet);
-
-        // Transform imported data to match Account schema
-        const transformedData = importedData.map((item, index) => ({
-          id: `imported-${Date.now()}-${index}`,
-          email: item.email || "",
-          fullName: item.fullName || "",
-          role: item.role || "User",
-          fullTime: Boolean(item.fullTime),
-          phone: item.phone || "",
-          dob: item.dob ? new Date(item.dob) : new Date(),
-          avatar: item.avatar || "/placeholder.svg?height=40&width=40",
-          status: item.status || "Active",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }));
-
-        setData([...data, ...transformedData]);
-      } catch (error) {
-        console.error("Error importing Excel file:", error);
-        alert("Error importing Excel file. Please check the format.");
-      }
-    };
-    reader.readAsBinaryString(file);
-
-    // Reset the input
-    e.target.value = "";
-  };
-
-  const handleExportExcel = () => {
-    const exportData = data.map(({ id, avatar, ...rest }) => ({
-      ...rest,
-      fullTime: rest.fullTime ? "Yes" : "No",
-      dob: rest.dob.toLocaleDateString(),
-      createdAt: rest.createdAt.toLocaleDateString(),
-      updatedAt: rest.updatedAt.toLocaleDateString(),
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Accounts");
-    XLSX.writeFile(workbook, "accounts.xlsx");
-  };
-
-  // Column definitions
-  const columns = [
-    {
-      id: "avatar",
-      header: "",
-      cell: ({ row }) => {
-        const account = row.original;
-        return (
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={account.avatar} alt={account.fullName} />
-            <AvatarFallback>{account.fullName.charAt(0)}</AvatarFallback>
-          </Avatar>
-        );
-      },
-    },
-    {
-      accessorKey: "email",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Email
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => <div className="font-medium">{row.getValue("email")}</div>,
-    },
-    {
-      accessorKey: "fullName",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Full Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-    },
-    {
-      accessorKey: "role",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Role
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-    },
-    {
-      accessorKey: "fullTime",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Full Time
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => <Checkbox checked={row.getValue("fullTime")} disabled />,
-    },
-    {
-      accessorKey: "phone",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Phone
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-    },
-    {
-      accessorKey: "dob",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Date of Birth
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        const date = row.getValue("dob");
-        return <div>{date.toLocaleDateString()}</div>;
-      },
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Status
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        const status = row.getValue("status");
-        return <Badge variant={status === "Active" ? "default" : "secondary"}>{status}</Badge>;
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row, table }) => {
-        const account = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  const { onEdit } = table.options.meta;
-                  onEdit?.(account);
-                }}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  const { onDelete } = table.options.meta;
-                  onDelete?.(account.id);
-                }}
-                className="text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
-
-  return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-6">Account Management</h1>
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search accounts..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8" />
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button onClick={() => setIsAddDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Account
-            </Button>
-            <div className="relative">
-              <Button variant="outline">
-                <Upload className="mr-2 h-4 w-4" />
-                Import
-                <Input type="file" accept=".xlsx, .xls" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleImportExcel} />
-              </Button>
+      {/* Add Account Modal */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Account</DialogTitle>
+            <DialogDescription>Create a new user account with the form below.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-name" className="text-right">
+                Name
+              </Label>
+              <Input id="new-name" className="col-span-3" />
             </div>
-            <Button variant="outline" onClick={handleExportExcel}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-email" className="text-right">
+                Email
+              </Label>
+              <Input id="new-email" type="email" className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-role" className="text-right">
+                Role
+              </Label>
+              <Input id="new-role" className="col-span-3" />
+            </div>
+            {/* Additional fields would be added here */}
           </div>
-        </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setIsAddModalOpen(false)}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <DataTable columns={columns} data={filteredData} onUpdate={handleUpdateAccount} onDelete={handleDeleteAccount} />
+      {/* Edit Account Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Account</DialogTitle>
+            <DialogDescription>Update the user account information.</DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-name" className="text-right">
+                  Name
+                </Label>
+                <Input id="edit-name" defaultValue={selectedUser.fullName} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-email" className="text-right">
+                  Email
+                </Label>
+                <Input id="edit-email" type="email" defaultValue={selectedUser.email} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-role" className="text-right">
+                  Role
+                </Label>
+                <Input id="edit-role" defaultValue={selectedUser.role} className="col-span-3" />
+              </div>
+              {/* Additional fields would be added here */}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setIsEditModalOpen(false)}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <AddAccountDialog
-          open={isAddDialogOpen}
-          onOpenChange={(open) => {
-            setIsAddDialogOpen(open);
-          }}
-          onAdd={handleAddAccount}
-        />
-      </div>
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this account? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="py-4">
+              <p>
+                <strong>Name:</strong> {selectedUser.fullName}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteUser}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
