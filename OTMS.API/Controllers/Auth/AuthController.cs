@@ -152,17 +152,67 @@ namespace OTMS.API.Controllers.Auth
             }
         }
 
-        private Guid? GetAccountIdFromJwt()
+        [HttpPut("profile")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> UpdateProfile(UpdateProfileDTO updateProfileDTO)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            if (string.IsNullOrEmpty(token))
+            try
             {
-                return null;
-            }
+                var email = User.FindFirst("ue")?.Value;
+                if (string.IsNullOrEmpty(email)) return Unauthorized("Email not found in token");
 
-            var accountId = _tokenService.ValidateToken(token);
-            return accountId;
+                var user = await _accountRepository.GetByEmailAsync(email);
+                if (user == null) return NotFound("User not found");
+
+                user.FullName = updateProfileDTO.FullName;
+                user.PhoneNumber = updateProfileDTO.Phone;
+                user.Dob = updateProfileDTO.Dob;
+
+                await _accountRepository.UpdateAsync(user);
+
+                return Ok("Profile updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
+        [HttpPost("change-password")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
+        {
+            try
+            {
+                var email = User.FindFirst("ue")?.Value;
+                if (string.IsNullOrEmpty(email)) return Unauthorized("Email not found in token");
+
+                var user = await _accountRepository.GetByEmailAsync(email);
+                if (user == null) return NotFound("User not found");
+
+                string oldhashed = user.Password;
+
+                if (  _passwordService.HashPassword(changePasswordDTO.OldPassword) != oldhashed)
+                {
+                    return BadRequest("Old password is incorrect");
+                }
+
+                if (changePasswordDTO.NewPassword != changePasswordDTO.ReNewPassword)
+                {
+                    return BadRequest("New passwords do not match");
+                }
+
+                user.Password = _passwordService.HashPassword(changePasswordDTO.NewPassword);
+                await _accountRepository.UpdateAsync(user);
+
+                return Ok("Password changed successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
 
     }

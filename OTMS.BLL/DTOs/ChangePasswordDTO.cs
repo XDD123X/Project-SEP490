@@ -8,9 +8,9 @@ namespace OTMS.BLL.DTOs
 {
     public class ChangePasswordDTO
     {
-        public string oldPassword { get; set; }
-        public string newPassword { get; set; }
-
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string ReNewPassword { get; set; }
 
     }
 }
