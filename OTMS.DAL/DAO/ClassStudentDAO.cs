@@ -82,7 +82,25 @@ namespace OTMS.DAL.DAO
             return enrolledClasses;
         }
 
+        //cho luồng lập lịch
+        public async Task<List<Guid>> GetOtherClassesOfStudentsAsync(List<Guid> studentIds)
+        {
+            return await _context.ClassStudents
+                .Where(cs => studentIds.Contains(cs.StudentId))
+                .Select(cs => cs.ClassId)
+                .Distinct()
+                .ToListAsync();
+        }
 
+
+        public async Task<List<Guid>> GetStudentInClassAsync(Guid classId)
+        {
+            return await _context.ClassStudents
+                .Where (cs => cs.ClassId == classId)
+                .Select(cs => cs.StudentId)
+                .ToListAsync();
+
+        }
 
 
     }

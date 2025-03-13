@@ -35,7 +35,7 @@ namespace OTMS.API.Controllers.Student_Endpoint
             var studentSchedule = await _scheduleRepository.GetByStudentIdAndDateRangeAsync(id, startDate, endDate);
 
             return Ok(new
-            {
+            {   
                 StudentId = id,
                 StartDate = startDate,
                 EndDate = endDate,
