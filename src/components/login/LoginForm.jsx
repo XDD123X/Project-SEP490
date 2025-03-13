@@ -84,38 +84,31 @@ export function LoginForm() {
         return;
       }
 
-      // Mockup Data Implementation
-      const mockupUser = {
-        uid: "bed50f5a-0b06-4a93-8a81-b1edc36d51ec",
-        email: email,
-        name: "Nguyễn Văn Anh",
-        imgUrl: "https://www.shareicon.net/data/512x512/2016/05/24/770137_man_512x512.png",
-      };
-      const mockupRole = "Student";
 
-      // Simulate API delay
-      await delay(1000);
-
-      dispatch({ type: "SET_USER", payload: { user: mockupUser, role: mockupRole } });
-      toast.success("Login successful!");
-      navigate(`/${mockupRole.toLowerCase()}`);
-
-      /* Original API call code (commented)
-      const response = await login(email, password, rememberMe);
+      // Original API call code (commented)
+      const response = await login(formData.email, formData.password, formData.rememberMe);
+     
       if (response.status === 200 && response?.data) {
         const userResponse = await authMe();
+        console.log('userResponse: ',userResponse);
+        
         const user = {
           uid: userResponse.data.accountId,
           email: userResponse.data.email,
-          name: userResponse.data.fullName,
+          name: userResponse.data.fullname,
+          phone: userResponse.data.phone,
+          dob: userResponse.data.dob,
           imgUrl: userResponse.data.imgUrl,
+          role: userResponse.data.role
         };
-        const role = userResponse.data.role.name;
+        const role = userResponse.data.role;
         dispatch({ type: "SET_USER", payload: { user, role } });
         toast.success("Login successful!");
         navigate(`/${role.toLowerCase()}`);
+      }else{
+        toast.error("Email or Password Is Not Correct.");
       }
-      */
+      
 
     } catch (error) {
       toast.error(error.message || "Login failed, please try again!");

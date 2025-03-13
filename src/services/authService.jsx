@@ -59,3 +59,56 @@ export const getUser = () => {
   const user = sessionStorage.getItem("user");
   return user ? JSON.parse(user) : null;
 };
+
+export const updateProfile = async (fullName, phone, dob) => {
+  try {
+    const response = await axiosClient.put("/auth/profile", {
+      fullName,
+      phone,
+      dob,
+    });
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Update Profile Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data || "Update Profile Failed!",
+    };
+  }
+};
+
+export const changePassword = async (oldPassword, newPassword, reNewPassword) => {
+  try {
+    const response = await axiosClient.post("/auth/change-password", {
+      oldPassword,
+      newPassword,
+      reNewPassword,
+    });
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Change Password Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data || "Change Password Failed!",
+    };
+  }
+};
+
+export const updateAvatar = async (file) => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  return axiosClient.post("/auth/update-avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};

@@ -155,9 +155,8 @@ const roleBasedData = {
         url: "class",
         icon: BookOpen,
         items: [
-          { title: "View Class List", url: "view" },
-          { title: "Add New", url: "add" },
-          { title: "Other", url: "other" }
+          { title: "View Class", url: "/officer/class/" },
+          { title: "Add Student", url: "/officer/class/add-student" }
         ]
       },
       {
@@ -165,25 +164,16 @@ const roleBasedData = {
         url: "my-schedule",
         icon: Calendar,
         items: [
-          { title: "View Session", url: "view" },
-          { title: "Add Session", url: "add" },
-          { title: "Auto Generate", url: "auto-generate" }
+          { title: "View Session", url: "/officer/session" },
+          { title: "Add Session", url: "/officer/session/add" }
         ]
       },
       {
-        title: "Lecturer",
-        url: "lecturers",
+        title: "Account",
+        url: "accounts",
         icon: User,
         items: [
-          { title: "View Lecturer List", url: "view" }
-        ]
-      },
-      {
-        title: "Student",
-        url: "students",
-        icon: Users,
-        items: [
-          { title: "View Student List", url: "view" }
+          { title: "List", url: "/officer/account" },
         ]
       },
       {

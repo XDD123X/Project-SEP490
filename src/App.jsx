@@ -24,6 +24,9 @@ import ProfileSchedule from "./pages/profile/profile-schedule";
 import ProfilePassword from "./pages/profile/profile-password";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ClassPage from "./pages/class-page/class-page";
+import ProfileAvatar from "./pages/profile/profile-avatar";
+import SessionAddPage from "./pages/session-page/session-add";
+import AccountManagementPage from "./pages/officer/account/account-management";
 
 function App() {
   return (
@@ -44,7 +47,7 @@ function App() {
                 />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/logout" element={<LogoutPage />} />
-                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
                 {/* Auth route */}
                 <Route element={<PrivateRoute />}>
@@ -54,6 +57,7 @@ function App() {
                       <Route path="" element={<ProfileAccount />} />
                       <Route path="personal-schedule" element={<ProfileSchedule />} />
                       <Route path="password" element={<ProfilePassword />} />
+                      <Route path="avatar" element={<ProfileAvatar />} />
                     </Route>
 
                     <Route path="/notification" element={<Notification />} />
@@ -62,25 +66,22 @@ function App() {
 
                     {/* Dashboard by Role */}
                     <Route path="/Student">
-
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="notification" element={<Notification />} />
                     </Route>
                     <Route path="/Administrator">
-
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="notification" element={<Notification />} />
                     </Route>
                     <Route path="/Lecturer">
-
                       <Route path="demo" element={<DemoPage />} />
-                      <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="notification" element={<Notification />} />
                     </Route>
                     <Route path="/Officer">
-
+                      <Route path="session/add" element={<SessionAddPage />} />
+                      <Route path="account" element={<AccountManagementPage />} />
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="notification" element={<Notification />} />
@@ -95,7 +96,6 @@ function App() {
                     </Route>
                   </Route>
                 </Route>
-
 
                 <Route path="*" element={<Notfound />} />
                 <Route path="/404" element={<NotFound />} />

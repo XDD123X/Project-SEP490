@@ -6,7 +6,7 @@ export default function ProfileAccount() {
   return (
     <ContentSection
       title='Profile'
-      desc='This is how others will see you on the site.'
+      desc='Account Informations.'
     >
       <ProfileForm />
     </ContentSection>

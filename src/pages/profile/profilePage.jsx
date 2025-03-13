@@ -2,7 +2,7 @@ import { Main } from '@/components/layouts/MainLayout'
 import SidebarNav from '@/components/profile/SidebarNav'
 import { Separator } from '@/components/ui/separator'
 import { useStore } from '@/services/StoreContext'
-import { Bell, Calendar, Check, Lock, Palette, PenTool, User } from 'lucide-react'
+import { Bell, Calendar, Check, Image, Lock, Palette, PenTool, User } from 'lucide-react'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
@@ -20,6 +20,11 @@ export default function ProfilePage() {
             title: 'Schedule',
             icon: <Calendar size={18} />,
             href: '/profile/schedule',
+        },
+        {
+            title: 'Avatar',
+            icon: <Image size={18} />,
+            href: '/profile/avatar',
         },
         {
             title: 'Password',
