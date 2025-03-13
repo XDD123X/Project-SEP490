@@ -30,5 +30,16 @@ namespace OTMS.DAL.DAO
             return true;
         }
 
+        public async Task<List<Session>> GetSessionsByClassIdsAsync(List<Guid> classIds, DateTime fromDate, DateTime toDate)
+        {
+            return await _context.Sessions
+                .Where(s => classIds.Contains(s.ClassId)
+                            && s.SessionDate.Date >= fromDate.Date
+                            && s.SessionDate.Date <= toDate.Date)
+                .ToListAsync();
+        }
+
+
+
     }
 }
