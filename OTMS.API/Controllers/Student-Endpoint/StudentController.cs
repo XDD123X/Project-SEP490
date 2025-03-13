@@ -23,22 +23,11 @@ namespace OTMS.API.Controllers.Student_Endpoint
         }
 
         [HttpGet("student-schedule")]
-        public async Task<IActionResult> GetStudentSchedule(Guid id, DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> GetStudentSchedule(Guid id)
         {
-            if (startDate > endDate)
-            {
-                return BadRequest("Start date must be before end date.");
-            }
+            var studentSchedule = await _scheduleRepository.GetByStudentIdAsync(id);
 
-            var studentSchedule = await _scheduleRepository.GetByStudentIdAndDateRangeAsync(id, startDate, endDate);
-
-            return Ok(new
-            {
-                StudentId = id,
-                StartDate = startDate,
-                EndDate = endDate,
-                Sessions = studentSchedule
-            });
+            return Ok(studentSchedule);
         }
         [HttpGet("student-attendance")]
         public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)

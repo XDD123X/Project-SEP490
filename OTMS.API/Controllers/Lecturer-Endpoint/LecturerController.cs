@@ -95,23 +95,5 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
 
             return Ok(new { attendanceList });
         }
-        [HttpGet("lecturer-schedule")]
-        public async Task<IActionResult> GetStudentSchedule(Guid id, DateTime startDate, DateTime endDate)
-        {
-            if (startDate > endDate)
-            {
-                return BadRequest("Start date must be before end date.");
-            }
-
-            var lecturerSchedule = await _scheduleRepository.GetByLecturerIdAndDateRangeAsync(id, startDate, endDate);
-
-            return Ok(new
-            {
-                StudentId = id,
-                StartDate = startDate,
-                EndDate = endDate,
-                Sessions = lecturerSchedule
-            });
-        }
     }
 }

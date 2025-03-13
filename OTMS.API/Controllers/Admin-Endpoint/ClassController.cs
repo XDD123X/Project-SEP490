@@ -30,30 +30,16 @@ namespace OTMS.API.Controllers
         }
 
         [HttpGet("class-list")]
-        public async Task<IActionResult> GetClass(
-           [FromQuery] int page = 1,
-           [FromQuery] int pageSize = 10,
-           [FromQuery] string? search = null,
-           [FromQuery] string sortBy = "classCode",
-           [FromQuery] string sortOrder = "desc")
+        public async Task<IActionResult> GetClass()
         {
-            var thisClass = await _classRepository.GetAllClassesAsync(page, pageSize, search, sortBy, sortOrder);
-            var totalClass = await _classRepository.GetTotalClassesAsync(search);
-            //var thisClassDTO = _mapper.Map<List<ClassDTO>>(thisClass);
-            return Ok(new
-            {
-                TotalClass = totalClass,
-                Page = page,
-                PageSize = pageSize,
-                Class = thisClass
-            });
+            var classList = await _classRepository.GetAllAsync();
+            return Ok(classList);
         }
         [HttpGet("find-class/{id}")]
         public async Task<IActionResult> GetClassById(Guid id)
         {
             var Class = await _classRepository.GetByIdAsync(id);
             if (Class == null) return NotFound("Class not found");
-            //ClassDTO u = _mapper.Map<ClassDTO>(Class);
             return Ok(Class);
         }
         [HttpGet("find-class-by-code")]
@@ -61,7 +47,6 @@ namespace OTMS.API.Controllers
         {
             var Class = await _classRepository.GetByClassCodeAsync(code);
             if (Class == null) return NotFound("Class not found");
-            //ClassDTO u = _mapper.Map<ClassDTO>(Class);
             return Ok(Class);
         }
         [HttpPost("create")]

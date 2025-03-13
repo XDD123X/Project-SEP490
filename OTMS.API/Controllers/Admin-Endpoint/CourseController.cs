@@ -22,23 +22,11 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
         [HttpGet("course-list")]
-        public async Task<IActionResult> GetCourse(
-              [FromQuery] int page = 1,
-              [FromQuery] int pageSize = 10,
-              [FromQuery] string? search = null,
-              [FromQuery] string sortBy = "CourseName",
-              [FromQuery] string sortOrder = "desc")
+        public async Task<IActionResult> GetCourse()
         {
-            var courses = await _courseRepository.GetAllCourseAsync(page, pageSize, search, sortBy, sortOrder);
-            var totalCourse = await _courseRepository.GetTotalCourseAsync(search);
+            var courses = await _courseRepository.GetAllAsync();
             //var thisCourseDTO = _mapper.Map<List<CourseDTO>>(thisCourse);
-            return Ok(new
-            {
-                TotalCourse = totalCourse,
-                Page = page,
-                PageSize = pageSize,
-                Courses = courses
-            });
+            return Ok(courses);
         }
         [HttpGet("find/{id}")]
         public async Task<IActionResult> GetCourseById(int id)
