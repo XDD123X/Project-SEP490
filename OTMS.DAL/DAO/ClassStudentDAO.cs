@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -60,5 +61,47 @@ namespace OTMS.DAL.DAO
             var students = await _dbSet.Where(sc => sc.ClassId == id).ToListAsync();
             return students ?? new List<ClassStudent>();
         }
+
+        public async Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId)
+        {
+            var enrolledClasses = await (from cs in _dbSet
+                                         join c in _context.Classes on cs.ClassId equals c.ClassId
+                                         join co in _context.Courses on c.CourseId equals co.CourseId
+                                         where cs.StudentId == studentId
+                                         select new ClassStudentEnrollmentDTO
+                                         {
+                                             ClassId = c.ClassId,
+                                             ClassCode = c.ClassCode,
+                                             ClassName = c.ClassName,
+                                             CourseName = co.CourseName,
+                                             StartDate = c.StartDate ?? DateTime.MinValue, 
+                                             EndDate = c.EndDate ?? DateTime.MinValue,     
+                                             Status = c.Status.ToString()
+                                         }).ToListAsync();
+
+            return enrolledClasses;
+        }
+
+        //cho luồng lập lịch
+        public async Task<List<Guid>> GetOtherClassesOfStudentsAsync(List<Guid> studentIds)
+        {
+            return await _context.ClassStudents
+                .Where(cs => studentIds.Contains(cs.StudentId))
+                .Select(cs => cs.ClassId)
+                .Distinct()
+                .ToListAsync();
+        }
+
+
+        public async Task<List<Guid>> GetStudentInClassAsync(Guid classId)
+        {
+            return await _context.ClassStudents
+                .Where (cs => cs.ClassId == classId)
+                .Select(cs => cs.StudentId)
+                .ToListAsync();
+
+        }
+
+
     }
 }

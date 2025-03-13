@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers.Student_Endpoint
 {
@@ -19,14 +20,13 @@ namespace OTMS.API.Controllers.Student_Endpoint
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
             _attendanceRepository = attendanceRepository;
-            
+            _classStudentRepository = classStudentRepository;
         }
 
         [HttpGet("student-schedule")]
         public async Task<IActionResult> GetStudentSchedule(Guid id)
         {
             var studentSchedule = await _scheduleRepository.GetByStudentIdAsync(id);
-
             return Ok(studentSchedule);
         }
         [HttpGet("student-attendance")]
@@ -41,5 +41,19 @@ namespace OTMS.API.Controllers.Student_Endpoint
             var c = await _classRepository.getClassByStudent(studentId);
             return Ok(c);
         }
+
+        [HttpGet("student-enrolled-classes")]
+        public async Task<IActionResult> GetStudentEnrolledClasses(Guid studentId)
+        {
+            var enrolledClasses = await _classStudentRepository.GetListOfClassStudentEnrolled(studentId);
+
+            if (enrolledClasses == null || !enrolledClasses.Any())
+            {
+                return NotFound("Student is not enrolled in any classes.");
+            }
+
+            return Ok(enrolledClasses);
+        }
+
     }
 }

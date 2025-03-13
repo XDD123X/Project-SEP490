@@ -329,27 +329,5 @@ namespace OTMS.API.Controllers.Auth
             return Ok("Password has been reset successfully.");
         }
 
-        [Authorize]
-        [HttpPost("changepassword")]
-        public async Task<ActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
-        {
-            string accountId = User.FindFirst("AccountId")?.Value;
-            if (accountId == null)
-            {
-                return NotFound("No user found.");
-            }
-
-            var account = await _accountRepository.GetByIdAsync(Guid.Parse(accountId));
-            if (account == null || !BCrypt.Net.BCrypt.Verify(changePasswordDTO.oldPassword, account.Password))
-            {
-                return Unauthorized("Invalid account ID or password.");
-            }
-
-            account.Password = BCrypt.Net.BCrypt.HashPassword(changePasswordDTO.newPassword);
-            account.UpdatedAt = DateTime.UtcNow;
-
-            await _accountRepository.UpdateAsync(account);
-            return Ok("Password has been changed successfully.");
-        }
     }
 }
