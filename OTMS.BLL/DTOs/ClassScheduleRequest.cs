@@ -11,9 +11,12 @@ namespace OTMS.BLL.DTOs
         public Guid ClassId { get; set; }
         public Guid LecturerId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+
+        // Optional parameters
+        public DateTime? EndDate { get; set; }
         public int TotalSessions { get; set; }
-        public int SlotsPerDay { get; set; } 
-        public List<DayOfWeek> PreferredDays { get; set; } 
+        public int SlotsPerDay { get; set; }
+
+        public List<DayOfWeek>? PreferredDays { get; set; }
     }
 }
