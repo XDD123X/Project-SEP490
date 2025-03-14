@@ -8,6 +8,9 @@ bin/
 # Bỏ qua thư mục obj
 obj/
 **/obj/
-/BusinessObject/appsettings.json
 /OTMS.API/appsettings.json
 /OTMS.DAL/appsettings.Development.json
+/OTMS.BLL/appsettings.json
+
+
+*.csproj.user
