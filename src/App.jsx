@@ -18,15 +18,15 @@ import Notification from "./pages/dashboard/Notification";
 import DashboardPage from "./pages/dashboard/admin/Dashboard";
 import SchedulePage from "./pages/dashboard/SchedulePage";
 import ProfilePage from "./pages/profile/profilePage";
-import DemoContentPage from "./pages/DemoContentPage";
 import ProfileAccount from "./pages/profile/profile-account";
 import ProfileSchedule from "./pages/profile/profile-schedule";
 import ProfilePassword from "./pages/profile/profile-password";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ClassPage from "./pages/class-page/class-page";
 import ProfileAvatar from "./pages/profile/profile-avatar";
-import SessionAddPage from "./pages/session-page/session-add";
 import AccountManagementPage from "./pages/officer/account/account-management";
+import SessionViewPage from "./pages/session-page/session-view";
+import SessionGeneratePage from "./pages/session-page/session-generate";
 
 function App() {
   return (
@@ -80,7 +80,10 @@ function App() {
                       <Route path="notification" element={<Notification />} />
                     </Route>
                     <Route path="/Officer">
-                      <Route path="session/add" element={<SessionAddPage />} />
+
+                      <Route path="session" element={<SessionViewPage />} />
+                      <Route path="session/generate" element={<SessionGeneratePage />} />
+
                       <Route path="account" element={<AccountManagementPage />} />
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="dashboard" element={<DashboardPage />} />

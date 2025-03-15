@@ -165,7 +165,7 @@ const roleBasedData = {
         icon: Calendar,
         items: [
           { title: "View Session", url: "/officer/session" },
-          { title: "Add Session", url: "/officer/session/add" }
+          { title: "Generate Session", url: "/officer/session/generate" }
         ]
       },
       {
