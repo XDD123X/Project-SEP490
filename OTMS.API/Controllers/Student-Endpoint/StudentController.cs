@@ -30,7 +30,8 @@ namespace OTMS.API.Controllers.Student_Endpoint
         public async Task<IActionResult> GetStudentSchedule(Guid id)
         {
             var studentSchedule = await _scheduleRepository.GetByStudentIdAsync(id);
-            return Ok(studentSchedule);
+            var response = _mapper.Map<List<SessionDTO>>(studentSchedule);
+            return Ok(response);
         }
         [HttpGet("student-attendance")]
         public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)

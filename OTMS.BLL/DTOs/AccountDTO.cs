@@ -23,6 +23,7 @@ namespace OTMS.BLL.DTOs
         public DateOnly? Dob { get; set; }
 
         public string? ImgUrl { get; set; }
+        public string? MeetUrl { get; set; }
 
         public int Status { get; set; }
 

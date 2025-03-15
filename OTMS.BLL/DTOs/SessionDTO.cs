@@ -35,6 +35,7 @@ namespace OTMS.BLL.DTOs
 
         public virtual AccountDTO? Lecturer { get; set; }
 
+        public virtual ICollection<AttendanceDTO> Attendances { get; set; } = new List<AttendanceDTO>();
         public virtual ICollection<Record> Records { get; set; } = new List<Record>();
 
     }

@@ -10,6 +10,7 @@ namespace OTMS.BLL.DTOs
 {
     public class ClassDTO
     {
+        public Guid? ClassId { get; set; } = null!;
         public string ClassCode { get; set; } = null!;
 
         public string ClassName { get; set; } = null!;
