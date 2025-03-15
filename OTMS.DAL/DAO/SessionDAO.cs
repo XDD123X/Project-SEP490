@@ -48,7 +48,17 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
         }
 
-        public async Task<bool> UpdateSessionAsync(Session updatedSession)
+        public async Task<List<Session>> GetSessionByStudentId(Guid studentId)
+        {   
+
+            var classList = await _context.Classes
+                .Include(c => c.ClassStudents)
+                .ThenInclude(c => c.StudentId == studentId)
+                .ToListAsync();
+            return null;
+        }
+
+        public async Task<bool> UpdateSessionAsync(SessionUpdateModel updatedSession)
         {
             var existingSession = await _context.Sessions.FindAsync(updatedSession.SessionId);
             if (existingSession == null)

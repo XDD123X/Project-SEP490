@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -92,6 +93,32 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             {
                 return BadRequest("Invalid session data.");
             }
+
+            var session = await _sessionRepository.GetByIdAsync(update.SessionId);
+            if (session == null)
+            {
+                return NotFound("Session not found.");
+            }
+
+            var date = update.SessionDate;
+            var slot = update.Slot;
+            //Valid Date Lecturer
+
+            //Valid Date Student
+
+            // Cập nhật dữ liệu
+            session.ClassId = update.ClassId;
+            session.LecturerId = update.LecturerId;
+            session.SessionDate = update.SessionDate;
+            session.Slot = update.Slot;
+            session.Description = update.Description;
+            session.SessionRecord = update.SessionRecord;
+            session.Type = update.Type;
+            session.Status = update.Status;
+
+            await _sessionRepository.UpdateAsync(session);
+
+            return Ok(new { message = "Session updated successfully", session });
         }
 
     }

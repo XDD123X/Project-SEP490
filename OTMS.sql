@@ -37,6 +37,7 @@ CREATE TABLE Account (
     phone_number NVARCHAR(15) NULL DEFAULT '0123456789',
 	dob DATE NULL DEFAULT '01/01/2000',
     img_url NVARCHAR(500) DEFAULT 'https://ui.shadcn.com/avatars/shadcn.jpg',
+	meet_url NVARCHAR(500) DEFAULT 'https://example.com/meet/euf-nwbu-cet',
 	status INT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE() ,
     updated_at DATETIME DEFAULT NULL

@@ -155,9 +155,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpGet("Classes")]
         public async Task<IActionResult> GetClassList()
         {
-            var classes = await _classRepository.GetAllAsync();
+            var classes = await _classRepository.GetClassList();
             if(classes == null) return NotFound();
-            return Ok(classes);
+
+            var response = _mapper.Map<List<ClassDTO>>(classes);
+
+            return Ok(response);
         }
 
         [HttpGet("ClassSetting")]
