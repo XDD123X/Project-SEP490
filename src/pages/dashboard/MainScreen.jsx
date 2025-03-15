@@ -17,8 +17,7 @@ const roleBasedData = {
         url: "class",
         icon: BookOpen,
         items: [
-          { title: "My Class", url: "demo" },
-          { title: "Other Classes", url: "other-classes" }
+          { title: "My Class", url: "/student/my-class" }
         ]
       },
       {
@@ -37,7 +36,7 @@ const roleBasedData = {
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "My Schedule", url: "my-schedule", icon: Calendar }
+      { title: "My Schedule", url: "Student/my-schedule", icon: Calendar }
     ]
   },
   administrator: {
@@ -115,7 +114,7 @@ const roleBasedData = {
         url: "my-schedule",
         icon: Calendar,
         items: [
-          { title: "My Schedule", url: "my-schedule" },
+          { title: "My Schedule", url: "lecturer/my-schedule" },
           { title: "Change Request", url: "change-request" },
           { title: "Other", url: "other" }
         ]
@@ -145,7 +144,7 @@ const roleBasedData = {
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "My Schedule", url: "my-schedule", icon: Calendar }
+      { title: "My Schedule", url: "lecturer/my-schedule", icon: Calendar }
     ]
   },
   officer: {
@@ -255,7 +254,7 @@ export default function MainScreen() {
         </header>
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-5">
-          <div className="p-5">
+          <div className="p-2">
             <Outlet />
           </div>
         </div>

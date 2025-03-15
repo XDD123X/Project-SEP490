@@ -24,9 +24,12 @@ import ProfilePassword from "./pages/profile/profile-password";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ClassPage from "./pages/class-page/class-page";
 import ProfileAvatar from "./pages/profile/profile-avatar";
-import AccountManagementPage from "./pages/officer/account/account-management";
-import SessionViewPage from "./pages/session-page/session-view";
-import SessionGeneratePage from "./pages/session-page/session-generate";
+import AccountManagementPage from "./pages/dashboard/officer/account/account-management";
+import SessionViewPage from "./pages/dashboard/officer/session-page/session-view";
+import SessionGeneratePage from "./pages/dashboard/officer/session-page/session-generate";
+import LecturerSchedulePage from "./pages/dashboard/lecturer/LecturerSchedulePage";
+import StudentSchedulePage from "./pages/dashboard/student/StudentSchedulePage";
+import StudentClassPage from "./pages/dashboard/student/class-student-page";
 
 function App() {
   return (
@@ -61,14 +64,14 @@ function App() {
                     </Route>
 
                     <Route path="/notification" element={<Notification />} />
-                    <Route path="/my-schedule" element={<SchedulePage />} />
-                    <Route path="/my-class" element={<ClassPage />} />
 
                     {/* Dashboard by Role */}
                     <Route path="/Student">
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="notification" element={<Notification />} />
+                      <Route path="my-schedule" element={<StudentSchedulePage />} />
+                      <Route path="my-class" element={<StudentClassPage />} />
                     </Route>
                     <Route path="/Administrator">
                       <Route path="demo" element={<DemoPage />} />
@@ -78,6 +81,7 @@ function App() {
                     <Route path="/Lecturer">
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="notification" element={<Notification />} />
+                      <Route path="my-schedule" element={<LecturerSchedulePage />} />
                     </Route>
                     <Route path="/Officer">
 
@@ -90,13 +94,6 @@ function App() {
                       <Route path="notification" element={<Notification />} />
                     </Route>
 
-                    {/* Tách riêng Schedule Page */}
-                    <Route path="/schedule">
-                      <Route path="student" element={<SchedulePage role="student" />} />
-                      <Route path="teacher" element={<SchedulePage role="teacher" />} />
-                      <Route path="officer" element={<SchedulePage role="officer" />} />
-                      <Route path="admin" element={<SchedulePage role="admin" />} />
-                    </Route>
                   </Route>
                 </Route>
 

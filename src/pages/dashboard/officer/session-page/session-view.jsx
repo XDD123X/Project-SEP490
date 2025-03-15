@@ -21,6 +21,11 @@ const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sat
 
 // Slot options
 const slotOptions = [1, 2, 3, 4];
+const statusOptions = [
+  { id: 1, name: "Not yet" },
+  { id: 2, name: "Finished" },
+  { id: 3, name: "Cancelled" },
+];
 
 export default function SessionViewPage() {
   const [sessions, setSessions] = useState([]);
@@ -36,6 +41,15 @@ export default function SessionViewPage() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
 
+  //errors
+  const [errors, setErrors] = useState({
+    classId: false,
+    lecturerId: false,
+    date: false,
+    slot: false,
+    status: false,
+  });
+
   // Add state for pagination in the SessionsPage component
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -50,17 +64,26 @@ export default function SessionViewPage() {
         const lecturerList = await getLecturerList();
 
         if (isMounted) {
-          const sortedSessions = [...sessionList.data].sort((a, b) => new Date(b.sessionDate) - new Date(a.sessionDate));
+          // Kiểm tra nếu API trả về null hoặc undefined
+          const sessions = sessionList?.data || [];
+          const classes = classList?.data || [];
+          const lecturers = lecturerList?.data || [];
+
+          // Sắp xếp sessions nếu có dữ liệu
+          const sortedSessions = sessions.length > 0 ? [...sessions].sort((a, b) => new Date(b.sessionDate) - new Date(a.sessionDate)) : [];
+
           setSessions(sortedSessions);
 
-          const classCodes = ["All", ...classList.data.map((cls) => cls.classCode)];
-          setClassList(classList.data);
+          // Tạo danh sách classCodes (bao gồm "All" nếu có dữ liệu)
+          const classCodes = classes.length > 0 ? ["All", ...classes.map((cls) => cls.classCode)] : ["All"];
+
+          setClassList(classes);
           setClasses(classCodes);
-          setLecturers(lecturerList.data);
+          setLecturers(lecturers);
         }
       } catch (error) {
-        toast.error(`Failed to load sessions: ${error.message}`);
-        console.error("Failed to load sessions", error);
+        toast.error(`Failed to load data: ${error.message}`);
+        console.error("Failed to load data", error);
       }
     };
 
@@ -83,11 +106,13 @@ export default function SessionViewPage() {
 
   // New session form state
   const [newSession, setNewSession] = useState({
-    className: "IELTS1",
-    lecturerName: "",
-    date: "",
-    day: "Monday",
+    classId: "",
+    lecturerId: "",
+    sessionDate: "",
     slot: 1,
+    description: "",
+    sessionRecord: null,
+    status: 1,
   });
 
   // Filter sessions based on selected class and search term
@@ -182,19 +207,23 @@ export default function SessionViewPage() {
 
   // Handle adding a new session
   const handleAddSession = () => {
-    const id = sessions.length > 0 ? Math.max(...sessions.map((s) => s.id)) + 1 : 1;
-    const newSessionWithId = { ...newSession, id };
-    setSessions([...sessions, newSessionWithId]);
+    if (!newSession.classId || !newSession.lecturerId || !newSession.sessionDate || !newSession.slot || !newSession.status) {
+      toast.error("Please fill out all required fields.");
+      return;
+    }
+    console.log(newSession);
     setIsAddDialogOpen(false);
 
     // Reset form
-    setNewSession({
-      className: "IELTS1",
-      lecturerName: "",
-      date: "",
-      day: "Monday",
-      slot: 1,
-    });
+    // setNewSession({
+    //   classId: "",
+    //   lecturerId: "",
+    //   sessionDate: new Date(),
+    //   slot: 0,
+    //   description: "",
+    //   sessionRecord: new Date(),
+    //   status: 0,
+    // });
   };
 
   //handle view detail session
@@ -204,7 +233,7 @@ export default function SessionViewPage() {
   const handleEditSession = () => {
     const updatedSessions = sessions.map((session) => (session.sessionId === currentSession.sessionId ? currentSession : session));
     console.log(updatedSessions);
-    
+
     // setIsEditDialogOpen(false);
   };
 
@@ -264,6 +293,7 @@ export default function SessionViewPage() {
           </div>
         </div>
 
+        {/* add new dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="whitespace-nowrap">
@@ -280,13 +310,17 @@ export default function SessionViewPage() {
                 <Label htmlFor="className" className="text-right">
                   Class
                 </Label>
-                <Select value={newSession.className} onValueChange={(value) => handleNewSessionChange("className", value)}>
+                <Select value={newSession.classId} onValueChange={(value) => handleNewSessionChange("classId", value)} required>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select Class" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="IELTS1">IELTS1</SelectItem>
-                    <SelectItem value="IELTS2">IELTS2</SelectItem>
+                    {classList.map((item) => (
+                      <SelectItem key={item.classId} value={item.classId}>
+                        {" "}
+                        {item.classCode}{" "}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -294,36 +328,42 @@ export default function SessionViewPage() {
                 <Label htmlFor="lecturerName" className="text-right">
                   Lecturer
                 </Label>
-                <Input id="lecturerName" value={newSession.lecturerName} onChange={(e) => handleNewSessionChange("lecturerName", e.target.value)} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">
-                  Date
-                </Label>
-                <Input id="date" type="date" value={newSession.date} onChange={(e) => handleNewSessionChange("date", e.target.value)} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="day" className="text-right">
-                  Day
-                </Label>
-                <Select value={newSession.day} onValueChange={(value) => handleNewSessionChange("day", value)}>
+                <Select value={newSession.lecturerId} onValueChange={(value) => handleNewSessionChange("lecturerId", value)} required>
                   <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Day" />
+                    <SelectValue placeholder="Select Lecturer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {daysOfWeek.map((day) => (
-                      <SelectItem key={day} value={day}>
-                        {day}
+                    {lecturers.map((lecturer) => (
+                      <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
+                        {lecturer.fullName}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="date" className="text-right">
+                  Date
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={newSession.date}
+                  onChange={(e) => {
+                    // Lấy giá trị từ input, tạo một đối tượng Date và chuyển đổi thành ISO string
+                    const date = new Date(e.target.value);
+                    handleNewSessionChange("sessionDate", date.toISOString()); // Chuyển thành "2025-05-13T00:00:00"
+                  }}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="slot" className="text-right">
                   Slot
                 </Label>
-                <Select value={newSession.slot.toString()} onValueChange={(value) => handleNewSessionChange("slot", Number.parseInt(value))}>
+                <Select value={newSession.slot !== undefined ? newSession.slot.toString() : ""} onValueChange={(value) => handleNewSessionChange("slot", Number.parseInt(value))} required>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select Slot" />
                   </SelectTrigger>
@@ -335,6 +375,33 @@ export default function SessionViewPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="slot" className="text-right">
+                  Status
+                </Label>
+                <Select
+                  value={newSession.status?.toString() || "1"} // Đảm bảo mặc định là "1"
+                  onValueChange={(value) => handleNewSessionChange("status", Number.parseInt(value))}
+                  required
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status.id} value={status.id.toString()}>
+                        {status.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="slot" className="text-right">
+                  Description
+                </Label>
+                <Textarea className="col-span-3" value={newSession.description || ""} onChange={(e) => handleNewSessionChange("description", e.target.value)} />
               </div>
             </div>
             <DialogFooter>
@@ -423,7 +490,7 @@ export default function SessionViewPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-6">
+                <TableCell colSpan={9} className="text-center py-6">
                   No sessions found
                 </TableCell>
               </TableRow>
@@ -433,6 +500,7 @@ export default function SessionViewPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+        {/* Rows per page (Align Left) */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Rows per page:</span>
           <Select
@@ -455,8 +523,12 @@ export default function SessionViewPage() {
           <span className="text-sm text-muted-foreground">
             Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredSessions.length)} of {filteredSessions.length}
           </span>
+        </div>
+
+        {/* Pagination (Align Right) */}
+        <div className="flex items-center gap-2">
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="flex">
               <PaginationItem>
                 <PaginationPrevious onClick={() => paginate(currentPage - 1)} className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
               </PaginationItem>
