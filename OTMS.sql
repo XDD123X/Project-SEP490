@@ -181,6 +181,9 @@ CREATE TABLE ClassSetting (
 );
 GO
 
+INSERT INTO ClassSetting (session_per_week, session_total)  
+VALUES (4, 18);
+
 -- 14. Tạo bảng SessionChangeRequest
 CREATE TABLE SessionChangeRequest (
     request_change_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),

@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,45 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
         }
 
+        public async Task<List<Session>> GetSessionList()
+        {
+            return await _context.Sessions
+                .Include(s => s.Lecturer)
+                .Include(s => s.Class)
+                .ToListAsync();
+        }
 
+        public async Task<bool> UpdateSessionAsync(Session updatedSession)
+        {
+            var existingSession = await _context.Sessions.FindAsync(updatedSession.SessionId);
+            if (existingSession == null)
+                return false;
+
+            // Cập nhật dữ liệu
+            existingSession.ClassId = updatedSession.ClassId;
+            existingSession.LecturerId = updatedSession.LecturerId;
+            existingSession.SessionDate = updatedSession.SessionDate;
+            existingSession.Slot = updatedSession.Slot;
+            existingSession.Description = updatedSession.Description;
+            existingSession.SessionRecord = updatedSession.SessionRecord;
+            existingSession.Type = updatedSession.Type;
+            existingSession.Status = updatedSession.Status;
+
+            _context.Sessions.Update(existingSession);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteSessionAsync(Guid sessionId)
+        {
+            var session = await _context.Sessions.FindAsync(sessionId);
+            if (session == null)
+                return false;
+
+            _context.Sessions.Remove(session);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using OTMS.API.Controllers.Admin_Endpoint;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
+using OTMS.DAL.DAO;
 using System.Data;
 using System.Security.Principal;
 
@@ -19,8 +20,11 @@ namespace OTMS.API.Profile
            .ForMember(dest => dest.CourseId, opt => opt.Ignore());
 
 
-            CreateMap<Class, ClassDTO>()
-                .ReverseMap();
+            CreateMap<Class, ClassDTO>().ReverseMap();
+            CreateMap<Account, AccountDTO>().ReverseMap();
+            CreateMap<Role, RoleDTO>().ReverseMap();
+            CreateMap<Class, ClassDTO>().ReverseMap();
+            CreateMap<Session, SessionDTO>().ReverseMap();
         }
     }
 }
