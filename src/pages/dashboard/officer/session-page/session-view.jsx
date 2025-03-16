@@ -16,8 +16,6 @@ import { getLecturerList } from "@/services/accountService";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-// Days of the week
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 // Slot options
 const slotOptions = [1, 2, 3, 4];
@@ -538,7 +536,7 @@ export default function SessionViewPage() {
                 if (number === 1 || number === totalPages || (number >= currentPage - 1 && number <= currentPage + 1)) {
                   return (
                     <PaginationItem key={number}>
-                      <PaginationLink onClick={() => paginate(number)} isActive={currentPage === number}>
+                      <PaginationLink className="cursor-pointer" onClick={() => paginate(number)} isActive={currentPage === number}>
                         {number}
                       </PaginationLink>
                     </PaginationItem>
@@ -669,6 +667,114 @@ export default function SessionViewPage() {
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Description</Label>
                 <Textarea className="col-span-3" value={currentSession.description || ""} onChange={(e) => handleEditSessionChange("description", e.target.value)} />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditSession}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Diaglog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Session Detail</DialogTitle>
+            <DialogDescription>All Detail Information Of Session Below.</DialogDescription>
+          </DialogHeader>
+          {currentSession && (
+            <div className="grid gap-4 py-4">
+              {/* Class (Disabled) */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Class</Label>
+                <Input value={currentSession.class.classCode} className="col-span-3" readOnly />
+              </div>
+
+              {/* Lecturer (Dropdown Select) */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Lecturer</Label>
+                <Input value={currentSession.lecturer.fullName} className="col-span-3" readOnly />
+              </div>
+
+              {/* Date */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Date</Label>
+                <Input value={currentSession.sessionDate ? currentSession.sessionDate.split("T")[0] : ""} className="col-span-3" readOnly />
+              </div>
+
+              {/* Slot (Dropdown Select) */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Slot</Label>
+                <Input value={currentSession.slot.toString()} className="col-span-3" readOnly />
+                {/* <Select value={currentSession.slot.toString()} onValueChange={(value) => handleEditSessionChange("slot", Number(value))}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select Slot" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {slotOptions.map((slot) => (
+                      <SelectItem key={slot} value={slot.toString()}>
+                        {slot}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select> */}
+              </div>
+
+              {/* Session Record */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Session Record</Label>
+                <div className="col-span-3 flex items-center gap-2">
+                  {currentSession.sessionRecord ? (
+                    <>
+                      <Badge variant="success">Recorded</Badge>
+                      <span className="text-gray-500 text-sm">({format(new Date(currentSession.sessionRecord), "dd/MM/yyyy HH:mm")})</span>
+                    </>
+                  ) : (
+                    <Badge variant="outline">Not yet</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Status (Dropdown Select) */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Status</Label>
+                <Input
+                  value={currentSession.status === 1 ? "Not Yet" : currentSession.status === 2 ? "Finished" : "Cancelled"}
+                  className={cn(
+                    "col-span-3",
+                    currentSession.status === 1 && "font-bold bg-zinc-200 text-zinc-500",
+                    currentSession.status === 2 && "font-bold bg-green-200 text-green-700",
+                    currentSession.status === 3 && "font-bold bg-red-200 text-red-700"
+                  )}
+                  readOnly
+                />
+                {/* <Select value={currentSession.status.toString()} onValueChange={(value) => handleEditSessionChange("status", Number(value))}>
+                  <SelectTrigger
+                    className={cn(
+                      "col-span-3",
+                      currentSession.status === 1 && "font-bold bg-zinc-200 text-zinc-500",
+                      currentSession.status === 2 && "font-bold bg-green-200 text-green-700",
+                      currentSession.status === 3 && "font-bold bg-red-200 text-red-700"
+                    )}
+                  >
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Not yet</SelectItem>
+                    <SelectItem value="2">Finished</SelectItem>
+                    <SelectItem value="3">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select> */}
+              </div>
+
+              {/* Description (Textarea) */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Description</Label>
+                <Textarea className="col-span-3" value={currentSession.description || ""}  readOnly/>
               </div>
             </div>
           )}

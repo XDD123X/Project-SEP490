@@ -95,7 +95,7 @@ export default function StudentClassPage() {
                 Detail
               </Button>
               <Button className="flex-1" onClick={() => window.open(classItem.classUrl, "_blank")}>
-                Online Class
+                Online Meeting
               </Button>
             </CardFooter>
           </Card>
@@ -112,10 +112,11 @@ export default function StudentClassPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <h3 className="font-semibold mb-2">Class Information</h3>
+                <h3 className="font-semibold mb-4 text-lg uppercase">Class Information</h3>
                 <ul className="space-y-2">
                   <li>
-                    <span className="font-medium">Status:</span> {selectedClass.status}
+                    <span className="font-medium">Status:</span>{" "}
+                    <Badge variant={selectedClass.status === 0 ? "default" : selectedClass.status === 1 ? "success" : "destructive"}>{selectedClass.status === 0 ? "Upcoming" : selectedClass.status === 1 ? "Studying" : "Finished"}</Badge>
                   </li>
                   <li>
                     <span className="font-medium">Lecturer:</span> {selectedClass.lecture?.fullName || "No Lecturer Assigned"}
@@ -132,8 +133,17 @@ export default function StudentClassPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">Course Information</h3>
-                <p>{selectedClass.courseInformation}</p>
+                <h3 className="font-semibold mb-4 text-lg uppercase">Course Information</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <span className="font-medium">Course:</span>
+                    <span className="ml-1">{selectedClass.course.courseName}</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">Detail:</span>
+                    <span className="ml-1">{selectedClass.course.description}</span>
+                  </li>
+                </ul>
               </div>
             </div>
             <div className="w-full mt-4">

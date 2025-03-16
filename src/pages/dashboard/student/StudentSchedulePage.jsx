@@ -15,7 +15,8 @@ import { useStore } from "@/services/StoreContext";
 import ClassCard from "@/components/session-card";
 
 export default function StudentSchedulePage() {
-  const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date()));
+  const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,24 +48,32 @@ export default function StudentSchedulePage() {
 
   // Time slots definition
   const timeSlots = [
-    { id: 1, time: "9:00 - 10:00" },
-    { id: 2, time: "10:00 - 11:00" },
-    { id: 3, time: "14:00 - 15:00" },
-    { id: 4, time: "16:00 - 17:00" },
+    { id: 1, time: "9:00 - 10:30" },
+    { id: 2, time: "11:00 - 12:30" },
+    { id: 3, time: "14:00 - 15:30" },
+    { id: 4, time: "16:00 - 17:30" },
   ];
 
   // Weekdays for the selected week
   const weekDays = eachDayOfInterval({
-    start: selectedWeek,
-    end: endOfWeek(selectedWeek),
+    start: startOfWeek(selectedWeek, { weekStartsOn: 1 }),
+    end: endOfWeek(selectedWeek, { weekStartsOn: 1 }),
   });
 
   const goToPreviousWeek = () => {
-    setSelectedWeek((prev) => addWeeks(prev, -1));
+    setSelectedWeek((prev) => {
+      const newWeek = addWeeks(prev, -1);
+      setSelectedDate(newWeek); // Đặt selectedDate là ngày đầu tuần mới
+      return newWeek;
+    });
   };
-
+  
   const goToNextWeek = () => {
-    setSelectedWeek((prev) => addWeeks(prev, 1));
+    setSelectedWeek((prev) => {
+      const newWeek = addWeeks(prev, 1);
+      setSelectedDate(newWeek); // Đặt selectedDate là ngày đầu tuần mới
+      return newWeek;
+    });
   };
 
   const getSessionForDayAndSlot = (day, slotId) => {
@@ -72,28 +81,41 @@ export default function StudentSchedulePage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 pt-0">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Class Schedule</h1>
+        <h1 className="text-2xl font-bold">My Schedule</h1>
       </div>
 
       <div className="mb-6">
         <div className="hidden md:flex items-center justify-between mb-4">
-          <Button onClick={goToPreviousWeek} variant="outline" size="icon">
+          <Button onClick={goToPreviousWeek} variant="outline" className="w-28 flex justify-center">
             <ChevronLeft className="h-4 w-4" />
+            Previous
           </Button>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline">
-                From {format(selectedWeek, "d")} To {format(endOfWeek(selectedWeek), "d/MM/yyyy")}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              <Button variant="outline" className="w-64 flex justify-between items-center px-4">
+                <span className="mx-auto">{format(selectedDate, "d/MM/yyyy")}</span>
+                <CalendarIcon className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              <Calendar mode="single" selected={selectedWeek} onSelect={(date) => date && setSelectedWeek(startOfWeek(date))} initialFocus />
+              <Calendar
+                mode="single"
+                selected={selectedDate} // Giữ ngày hiển thị trên nút
+                onSelect={(date) => {
+                  if (date) {
+                    setSelectedDate(date); // Cập nhật ngày hiển thị trên nút
+                    setSelectedWeek(startOfWeek(date, { weekStartsOn: 1 })); // Cập nhật tuần
+                  }
+                }}
+                weekStartsOn={1} // Bắt đầu tuần từ thứ 2
+                initialFocus
+              />
             </PopoverContent>
           </Popover>
-          <Button onClick={goToNextWeek} variant="outline" size="icon">
+          <Button onClick={goToNextWeek} variant="outline" className="w-28 flex justify-center">
+            Next
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -145,14 +167,16 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
+    <div className="overflow-hidden rounded-xl border">
+      <table className="w-full border-collapse table-fixed">
         <thead>
-          <tr>
-            <th className=" p-2 border dark:border-gray-700 bg-muted"></th>
+          <tr className="dark:bg-secondary">
+            <th className=" p-2 border dark:border-gray-700 "></th>
             {weekDays.map((day) => (
-              <th key={day.toISOString()} className="p-2 border dark:border-gray-700 bg-muted text-center">
-                {format(day, "EEE")} <br /> {format(day, "d/M")}
+              <th key={day.toISOString()} className="p-2 border dark:border-gray-700 text-center text-sm font-normal">
+                {format(day, "EEEE")}
+                <br />
+                <span>({format(day, "d/M")})</span>
               </th>
             ))}
           </tr>
@@ -160,28 +184,14 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
         <tbody>
           {timeSlots.map((slot) => (
             <tr key={slot.id}>
-              <td className="p-2 border dark:border-gray-700 font-medium text-center whitespace-nowrap">
-                Slot {slot.id} <br /> ({slot.time}){" "}
+              <td className="p-0 border font-normal text-sm text-center whitespace-nowrap">
+                Slot {slot.id} <br /> ({slot.time})
               </td>
               {weekDays.map((day) => {
                 const session = getSessionForDayAndSlot(day, slot.id);
                 return (
-                  <td key={`${day.toISOString()}-${slot.id}`} className="p-2 border dark:border-red-700" style={{ width: "auto" }}>
-                    {session ? (
-                      // <Card className="cursor-pointer hover:bg-muted/50 transition-colors w-15 h-30 flex flex-col" onClick={() => onSessionClick(session)}>
-                      //   <CardContent className="p-3 flex flex-col justify-between flex-grow">
-                      //     <div className="flex flex-col gap-1">
-                      //       <div className="font-medium truncate">{session.class.classCode}</div> <div className="text-sm text-muted-foreground truncate">Lecturer: {session.lecturer.fullName}</div>
-                      //     </div>
-                      //     <Badge variant={session.status === 1 ? "default" : session.status === 3 ? "destructive" : "outline"} className="w-fit mt-1">
-                      //       {session.status === 1 ? "Not Yet" : session.status === 2 ? "Finished" : session.status === 3 ? "Cancelled" : "Unknown"}
-                      //     </Badge>
-                      //   </CardContent>
-                      // </Card>
-                      <ClassCard session={session} style={{ width: "100%" }} />
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">-</div>
-                    )}
+                  <td key={`${day.toISOString()}-${slot.id}`} className="p-1 border max-w-xs">
+                    {session ? <ClassCard session={session} style={{ width: "100%" }} /> : <div className="h-full flex items-center justify-center text-muted-foreground">-</div>}
                   </td>
                 );
               })}
