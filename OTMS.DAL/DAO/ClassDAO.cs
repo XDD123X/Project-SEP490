@@ -71,6 +71,8 @@ namespace OTMS.DAL.DAO
         {   
 
             return await _context.Classes
+                .Include( c => c.Course)
+                .Include (c => c.Lecturer)
                 .Include(c => c.ClassStudents)
                 .ThenInclude( cs => cs.Student)
                 .ToListAsync();
