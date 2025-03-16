@@ -39,10 +39,14 @@ export function LoginForm() {
   };
 
   const handleChangeCheck = (checked) => {
+    console.log(checked);
+    
     setFormData((prevData) => ({
       ...prevData,
       rememberMe: checked,
     }));
+    console.log(formData);
+    
   };
 
   const validateForm = () => {
@@ -70,7 +74,9 @@ export function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(formData);
+    return;
+    
     if (!validateForm()) {
       return;
     }
@@ -143,13 +149,20 @@ export function LoginForm() {
                 </div>
                 <div className="relative">
                   <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" value={formData.password} onChange={handleChange} className={errors.password ? "border-red-500 pr-10" : "pr-10"} />
-                  <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3" onClick={togglePasswordVisibility}>
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-md text-muted-foreground" onClick={togglePasswordVisibility}>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                   </Button>
                 </div>
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                <div className="flex items-center space-x-2 mt-2">
+                  <Checkbox id="rememberMe" name="rememberMe" checked={formData.rememberMe} onCheckedChange={handleChangeCheck} />
+                  <label htmlFor="rememberMe" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Remember Me
+                  </label>
+                </div>
               </div>
+
               <Button type="submit" className="w-full">
                 Login
               </Button>

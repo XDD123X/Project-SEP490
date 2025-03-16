@@ -150,12 +150,13 @@ const roleBasedData = {
   officer: {
     navMain: [
       {
-        title: "Class",
+        title: "Class Management",
         url: "class",
         icon: BookOpen,
         items: [
-          { title: "View Class", url: "/officer/class/" },
-          { title: "Add Student", url: "/officer/class/add-student" }
+          { title: "Class List", url: "/officer/class/" },
+          { title: "Create Class", url: "/officer/class/add-new" },
+          { title: "Class Student", url: "/officer/class/add-student" }
         ]
       },
       {
@@ -221,8 +222,8 @@ const roleBasedData = {
       }
     ],
     navSecondary: [
-      { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Contact", url: "contact", icon: Users }
+      // { title: "Support", url: "/support", icon: LifeBuoy },
+      // { title: "Contact", url: "contact", icon: Users }
     ],
     general: [
       { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },

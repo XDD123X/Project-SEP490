@@ -56,7 +56,7 @@ axiosClient.interceptors.response.use(
 
 // ✅ Hàm lưu accessToken vào cookie
 export const setAccessToken = (token) => {
-  Cookies.set("access_token", token, { expires: 1 / 40 });
+  Cookies.set("access_token", token, { expires: 1 });
 };
 
 // ✅ Hàm lấy accessToken từ cookie
@@ -66,9 +66,8 @@ export const getAccessToken = () => {
 
 // ✅ Hàm logout (xoá accessToken và điều hướng về login)
 export const handleLogout = () => {
-  Cookies.remove("refresh_token")
+  Cookies.remove("refresh_token");
   Cookies.remove("access_token");
-  sessionStorage.removeItem("user"); //
   window.location.href = "/login"; // Điều hướng về trang login
 };
 

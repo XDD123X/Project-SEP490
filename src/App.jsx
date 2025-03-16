@@ -30,6 +30,10 @@ import SessionGeneratePage from "./pages/dashboard/officer/session-page/session-
 import LecturerSchedulePage from "./pages/dashboard/lecturer/LecturerSchedulePage";
 import StudentSchedulePage from "./pages/dashboard/student/StudentSchedulePage";
 import StudentClassPage from "./pages/dashboard/student/class-student-page";
+import ClassViewPage from "./pages/dashboard/officer/classroom/class-view-page";
+import ClassAddNewPage from "./pages/dashboard/officer/classroom/class-add-page";
+import ClassAddStudentPage from "./pages/dashboard/officer/classroom/class-add-student-page";
+import ClassDetailPage from "./pages/dashboard/officer/classroom/class-detail-page";
 
 function App() {
   return (
@@ -84,16 +88,19 @@ function App() {
                       <Route path="my-schedule" element={<LecturerSchedulePage />} />
                     </Route>
                     <Route path="/Officer">
-
                       <Route path="session" element={<SessionViewPage />} />
                       <Route path="session/generate" element={<SessionGeneratePage />} />
+
+                      <Route path="class" element={<ClassViewPage />} />
+                      <Route path="class/add-new" element={<ClassAddNewPage />} />
+                      <Route path="class/add-student" element={<ClassAddStudentPage />} />
+                      <Route path="class/detail" element={<ClassDetailPage />} />
 
                       <Route path="account" element={<AccountManagementPage />} />
                       <Route path="demo" element={<DemoPage />} />
                       <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="notification" element={<Notification />} />
                     </Route>
-
                   </Route>
                 </Route>
 

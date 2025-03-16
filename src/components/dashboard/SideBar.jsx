@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SidebarGeneral } from "@/components/dashboard/SidebarGeneral";
 
+const firstName = import.meta.env.VITE_GLOBAL_NAME;
+const secondName = import.meta.env.VITE_GLOBAL_NAME_SECOND;
+
 export function SideBar(props) {
   const { data } = props;
   return (
@@ -22,8 +25,8 @@ export function SideBar(props) {
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Phong Linh</span>
-                  <span className="truncate text-xs">Class</span>
+                  <span className="truncate font-semibold"> {firstName} </span>
+                  <span className="truncate text-xs"> {secondName}</span>
                 </div>
               </Link>
             </SidebarMenuButton>

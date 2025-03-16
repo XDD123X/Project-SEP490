@@ -7,30 +7,44 @@ export const login = async (email, password, rememberMe) => {
     // Gửi yêu cầu login
     const response = await axiosClient.post("/auth/login", { email, password, rememberMe });
 
-    setAccessToken(response.data.accessToken); // Lưu accessToken vào RAM
-
-    // Trả về toàn bộ response để có thể kiểm tra status ở các nơi khác
     return {
-      status: response.status, // Trả về status HTTP
-      data: response.data, // Trả về data từ API
+      status: response.status,
+      data: response.data,
     };
   } catch (error) {
-    console.error("Login failed:", error);
+    if (error.response) {
+      if (error.response.status === 404) {
+        return {
+          status: 404,
+          data: "Invalid Email Or Password. Please Try Again.",
+        };
+      } else if (error.response.status >= 500) {
+        return {
+          status: error.response.status,
+          data: "Server error! Please try again later.",
+        };
+      } else {
+        return {
+          status: error.response.status,
+          data: error.response.data?.message || "Login failed!",
+        };
+      }
+    }
 
-    // Nếu có lỗi xảy ra, trả về status và message lỗi để kiểm tra sau
     return {
-      status: error.response?.status || 500, // Nếu có lỗi phản hồi từ server, lấy status
-      message: error.message || "Login failed!", // Lấy thông báo lỗi
+      status: 500,
+      data: "Network error! Please check your connection.",
     };
   }
 };
 
 // 🔒 Gửi yêu cầu logout
 export const logout = async () => {
-  const user = getUser();
-  const uid = user.uid;
+  const user = Cookies.get("user");
+  const jsonUser = JSON.parse(user)
+  const uid = jsonUser.uid;
   try {
-    await axiosClient.post("/auth/logout", { uid }); // API sẽ xóa refreshToken trên server
+    await axiosClient.post("/auth/logout", { uid });
     handleLogout();
   } catch (error) {
     console.error("Logout failed:", error);
@@ -53,11 +67,6 @@ export const authMe = async () => {
       message: error.message || "Get User Failed!",
     };
   }
-};
-
-export const getUser = () => {
-  const user = sessionStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
 };
 
 export const updateProfile = async (fullName, phone, dob) => {

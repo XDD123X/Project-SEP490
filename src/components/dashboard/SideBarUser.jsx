@@ -24,7 +24,7 @@ export function NavUser() {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-sidebar-accent">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user?.imgUrl ?? "https://ui.shadcn.com/avatars/default.jpg"} alt={user?.name ?? "N/A"} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
