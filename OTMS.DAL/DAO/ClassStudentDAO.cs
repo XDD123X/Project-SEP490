@@ -60,7 +60,7 @@ namespace OTMS.DAL.DAO
         public async Task<List<ClassStudent>> GetByClassIdAsync(Guid id)
         {
             var students = await _dbSet.Where(sc => sc.ClassId == id).ToListAsync();
-            return students ?? new List<ClassStudent>();
+            return students;
         }
 
         public async Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId)

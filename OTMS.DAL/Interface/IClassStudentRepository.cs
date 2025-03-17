@@ -18,6 +18,5 @@ namespace OTMS.DAL.Interface
 
 
         public  Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId);
-
     }
 }

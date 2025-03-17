@@ -24,7 +24,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         [HttpGet("course-list")]
         public async Task<IActionResult> GetCourse()
         {
-            var courses = await _courseRepository.GetAllAsync();
+            var courses = await _courseRepository.GetAllActiveCourseAsync();
             //var thisCourseDTO = _mapper.Map<List<CourseDTO>>(thisCourse);
             return Ok(courses);
         }
@@ -97,7 +97,8 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             }
             try
             {
-                await _courseRepository.DeleteAsync(id);
+                c.Status = 0;
+                await _courseRepository.UpdateAsync(c);
                 return Ok("Delete success");
             }
             catch (Exception ex)
