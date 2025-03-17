@@ -164,7 +164,12 @@ namespace OTMS.DAL.DAO
             }
         }
 
-
-
+        public async Task<List<Account>> getAllStudentAndLecturerAccount()
+        {
+            List<Account> accounts = await _context.Accounts
+                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757")|| a.RoleId == new Guid("6C04E924-ED9D-495E-8122-5FAD06C48FC8"))
+                .ToListAsync();
+            return accounts;
+        }
     }
 }
