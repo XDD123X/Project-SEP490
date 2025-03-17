@@ -31,5 +31,7 @@ namespace OTMS.DAL.Repository
         public Task<int> GetTotalClassesAsync(string? search) => _classDAO.GetTotalClassesAsync(search);
 
         public Task<List<Class>> GetClassList() => _classDAO.GetClassList();
+
+        public Task<bool> checkCouresHasAnyClass(int id) => _classDAO.checkCouresHasAnyClass(id);
     }
 }

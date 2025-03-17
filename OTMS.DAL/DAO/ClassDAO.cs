@@ -82,5 +82,10 @@ namespace OTMS.DAL.DAO
                 .ThenInclude( cs => cs.Student)
                 .ToListAsync();
         }
+
+        public async Task<bool> checkCouresHasAnyClass(int id)
+        {
+            return await _dbSet.AnyAsync(c => c.CourseId == id);
+        }
     }
 }

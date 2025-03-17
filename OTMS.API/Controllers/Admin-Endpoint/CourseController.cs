@@ -14,11 +14,13 @@ namespace OTMS.API.Controllers.Admin_Endpoint
     {
         private readonly IMapper _mapper;
         private readonly ICourseRepository _courseRepository;
+        private readonly IClassRepository _classRepository;
 
-        public CourseController(IMapper mapper, ICourseRepository courseRepository)
+        public CourseController(IMapper mapper, ICourseRepository courseRepository, IClassRepository classRepository)
         {
             _mapper = mapper;
             _courseRepository = courseRepository;
+            _classRepository = classRepository;
         }
 
         [HttpGet("course-list")]
@@ -90,22 +92,28 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            var c = await _courseRepository.GetByIdAsync(id);
-            if (c == null)
+            var course = await _courseRepository.GetByIdAsync(id);
+            if (course == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Course not found" });
             }
+            bool hasClasses = await _classRepository.checkCouresHasAnyClass(id);
+            if (hasClasses)
+            {
+                return BadRequest(new { message = "Cannot delete course because there are existing classes linked to it." });
+            }
+
             try
             {
-                c.Status = 0;
-                await _courseRepository.UpdateAsync(c);
-                return Ok("Delete success");
+                course.Status = 0;
+                await _courseRepository.UpdateAsync(course);
+                return Ok(new { message = "Course deleted successfully" });
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id + ": " + ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { message = $"An error occurred while deleting course {id}: {ex.Message}" });
             }
-
         }
     }
 }
