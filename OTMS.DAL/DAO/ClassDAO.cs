@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.VariantTypes;
-using Microsoft.EntityFrameworkCore;
-using OTMS.BLL.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -60,10 +58,6 @@ namespace OTMS.DAL.DAO
         {
             return await _dbSet
                 .Where(c => c.ClassStudents.Any(cs => cs.StudentId == studentId))
-                .Include(c => c.Course)
-                .Include(c => c.Lecturer)
-                .Include(c => c.ClassStudents)
-                .ThenInclude(cs => cs.Student)
                 .ToListAsync();
         }
 

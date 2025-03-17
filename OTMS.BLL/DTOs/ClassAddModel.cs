@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OTMS.BLL.DTOs
 {
-    public class ClassDTO
+    public class ClassAddModel
     {
         public string ClassCode { get; set; } = null!;
 
@@ -20,10 +20,10 @@ namespace OTMS.BLL.DTOs
 
         public DateTime? StartDate { get; set; }
 
-        public DateTime? EndDate { get; set; }
+        public DateTime? EndDate { get; set; } = null;
 
-        public string? ClassUrl { get; set; }
+        public string? ClassUrl { get; set; } = null;
 
-        public int? Status { get; set; }
+        public int? Status { get; set; } = 0;
     }
 }

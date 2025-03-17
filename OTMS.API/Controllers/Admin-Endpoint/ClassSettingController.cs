@@ -75,15 +75,6 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(c);
 
         }
-
-        [HttpGet("current")]
-        public async Task<IActionResult> GetClassSettingCurrent()
-        {
-            var c = await _classSettingRepository.GetAllAsync();
-            return Ok(c.Last());
-
-        }
-
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteClassSetting(int id)
         {

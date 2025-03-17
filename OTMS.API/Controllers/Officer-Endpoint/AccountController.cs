@@ -17,9 +17,9 @@ using OTMS.DAL.DAO;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Security.Claims;
 
-namespace OTMS.API.Controllers
+namespace OTMS.API.Officer
 {
-    [Route("api/admin/[controller]")]
+    [Route("api/officer/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -39,6 +39,7 @@ namespace OTMS.API.Controllers
             _classRepository = classRepository;
             _configuration = configuration;
         }
+
         [HttpPost("import-users")]
         public async Task<IActionResult> ImportUsers(IFormFile file)
         {
@@ -77,14 +78,12 @@ namespace OTMS.API.Controllers
                     failedAccounts.Add((email, "Email already exists"));
                     continue;
                 }
-
-                var role = await _roleRepository.GetRoleByNameAsync(roleName);
-                if (role == null)
+                if ((roleName != "Student" && roleName != "Lecturer"))
                 {
                     failedAccounts.Add((email, "Invalid role"));
                     continue;
                 }
-
+                var role = await _roleRepository.GetRoleByNameAsync(roleName);
                 var password = GenerateRandomPassword();
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
                 var user = new Account
@@ -267,7 +266,7 @@ namespace OTMS.API.Controllers
         [HttpGet("accounts-list")]
         public async Task<IActionResult> GetAccounts()
         {
-            var users = await _accountRepository.GetAllAsync();
+            var users = await _accountRepository.GetAllLecturerAndStudentAccountAsync();
             return Ok(users);
         }
 
@@ -276,6 +275,10 @@ namespace OTMS.API.Controllers
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if (user == null) return NotFound("User not found");
+            if (!user.Role.Name.Equals("Student")|| !user.Role.Name.Equals("Lecturer"))
+            {
+                return BadRequest("Invalid permision");
+            }
             UserAccountDTO u = _mapper.Map<UserAccountDTO>(user);
             return Ok(u);
         }
@@ -287,15 +290,19 @@ namespace OTMS.API.Controllers
             {
                 return NotFound();
             }
+            if (!u.Role.Name.Equals("Student") || !u.Role.Name.Equals("Lecturer"))
+            {
+                return BadRequest("Invalid permision");
+            }
             if (userDTO.Role == null)
             {
                 userDTO.Role = u.Role.Name;
             }
-            var role = await _roleRepository.GetRoleByNameAsync(userDTO.Role);
-            if (role == null)
+            if ((userDTO.Role.Equals("Student") && userDTO.Role.Equals("Lecturer")))
             {
                 return BadRequest("Invalid role");
             }
+            var role = await _roleRepository.GetRoleByNameAsync(userDTO.Role);
             if (!string.IsNullOrEmpty(userDTO.FullName))
             {
                 u.FullName = userDTO.FullName;
@@ -322,12 +329,16 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while edit account " + id);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Officer")]
         [HttpPut("ban-accounts/{id}")]
         public async Task<IActionResult> BanUser(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if (user == null) return NotFound("Account not found");
+            if (!user.Role.Name.Equals("Student") || !user.Role.Name.Equals("Lecturer"))
+            {
+                return BadRequest("Invalid permision");
+            }
             var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             if (currentUserId.Equals(id))
             {
@@ -351,12 +362,16 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Officer")]
         [HttpPut("activate-accounts/{id}")]
         public async Task<IActionResult> ActivateUser(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if (user == null) return NotFound("Account not found");
+            if (!user.Role.Name.Equals("Student") || !user.Role.Name.Equals("Lecturer"))
+            {
+                return BadRequest("Invalid permision");
+            }
             user.Status = 1;
             try
             {
