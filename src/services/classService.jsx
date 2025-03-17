@@ -64,3 +64,21 @@ export const GetClassListByStudentId = async (studentId) => {
     };
   }
 };
+
+export const AddClass = async (classItem) => {
+  try {
+    const response = await axiosClient.post(`/admin/Class/create`, classItem);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Request failed!",
+    };
+  }
+};

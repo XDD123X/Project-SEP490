@@ -16,7 +16,7 @@ const axiosClient = axios.create({
 
 // ✅ Request Interceptor: Tự động gắn accessToken vào header
 axiosClient.interceptors.request.use(
-  (config) => {
+  (config) =>  {
     const token = getAccessToken(); // Lấy accessToken từ cookie
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -56,7 +56,7 @@ axiosClient.interceptors.response.use(
 
 // ✅ Hàm lưu accessToken vào cookie
 export const setAccessToken = (token) => {
-  Cookies.set("access_token", token, { expires: 1 });
+  Cookies.set("access_token", token, { expires: 1, path: "/" }); 
 };
 
 // ✅ Hàm lấy accessToken từ cookie
@@ -66,8 +66,10 @@ export const getAccessToken = () => {
 
 // ✅ Hàm logout (xoá accessToken và điều hướng về login)
 export const handleLogout = () => {
-  Cookies.remove("refresh_token");
-  Cookies.remove("access_token");
+  Cookies.remove("access_token", { path: "/" });
+  Cookies.remove("refresh_token", { path: "/" });
+  Cookies.remove("user", { path: "/" });
+  Cookies.remove("role", { path: "/" });
   window.location.href = "/login"; // Điều hướng về trang login
 };
 

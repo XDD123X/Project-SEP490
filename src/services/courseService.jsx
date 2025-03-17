@@ -1,9 +1,9 @@
 import axiosClient from "./axiosClient";
 
-// 🔑 Gửi yêu cầu đăng nhập
-export const getCurrentSetting = async () => {
+
+export const getAllCourse = async () => {
   try {
-    const response = await axiosClient.get("ClassSetting/current");
+    const response = await axiosClient.get("/Course/course-list");
 
     return {
       status: response.status,
@@ -12,9 +12,15 @@ export const getCurrentSetting = async () => {
   } catch (error) {
     console.error("Request failed:", error);
 
+    if (error.response?.status === 404) {
+      return null;
+    }
+
     return {
       status: error.response?.status || 500,
       message: error.message || "Request failed!",
     };
   }
 };
+
+

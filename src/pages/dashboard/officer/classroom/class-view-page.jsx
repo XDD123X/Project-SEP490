@@ -393,8 +393,8 @@ export default function ClassViewPage() {
 
                   <TableCell>{classItem.lecturer?.fullName ?? "-"}</TableCell>
                   <TableCell>{classItem.totalSession}</TableCell>
-                  <TableCell>{format(new Date(classItem.startDate), "dd/MM/yyyy")}</TableCell>
-                  <TableCell>{format(new Date(classItem.endDate), "dd/MM/yyyy")}</TableCell>
+                  <TableCell>{classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "-"}</TableCell>
+                  <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "-"}</TableCell>
                   <TableCell>{classItem.classUrl ? <Link2 className="text-green-500 w-5" /> : <Link2Off className="text-red-500 w-5" />}</TableCell>
                   <TableCell>
                     <Badge variant={classItem.status === 0 ? "outline" : classItem.status === 1 ? "info" : "success"}>{classItem.status === 0 ? "Upcoming" : classItem.status === 1 ? "Studying" : "Finished"}</Badge>
