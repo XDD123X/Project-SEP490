@@ -67,5 +67,11 @@ namespace OTMS.DAL.Repository
 
             return newSessions;
         }
+
+        public Task<List<Session>> GetSessionList() => _sessionDAO.GetSessionList();
+
+        public Task<bool> UpdateSession(SessionUpdateModel session) => _sessionDAO.UpdateSessionAsync(session);
+
+        public Task DeleteSessionAsync(Guid sessionId) => _sessionDAO.DeleteSessionAsync(sessionId);
     }
 }

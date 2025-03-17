@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
 using OTMS.DAL.Repository;
@@ -29,7 +30,8 @@ namespace OTMS.API.Controllers.Student_Endpoint
         public async Task<IActionResult> GetStudentSchedule(Guid id)
         {
             var studentSchedule = await _scheduleRepository.GetByStudentIdAsync(id);
-            return Ok(studentSchedule);
+            var response = _mapper.Map<List<SessionDTO>>(studentSchedule);
+            return Ok(response);
         }
         [HttpGet("student-attendance")]
         public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)
@@ -41,7 +43,8 @@ namespace OTMS.API.Controllers.Student_Endpoint
         public async Task<IActionResult> GetStudentClass(Guid studentId)
         {
             var c = await _classRepository.getClassByStudent(studentId);
-            return Ok(c);
+            var response = _mapper.Map<List<ClassDTO>>(c);
+            return Ok(response);
         }
 
         [HttpGet("student-enrolled-classes")]

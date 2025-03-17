@@ -164,6 +164,53 @@ namespace OTMS.DAL.DAO
             }
         }
 
+        public async Task<List<Account>> GetStudentList()
+        {
+            try
+            {
+                var role = await _context.Roles.Where(r => r.Name == "Student").FirstOrDefaultAsync();
+                var students = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                if (students == null) return null;
+                return students;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<Account>> GetLecturerList()
+        {
+            try
+            {
+                var role = await _context.Roles.Where(r => r.Name == "Lecturer").FirstOrDefaultAsync();
+                var lecturers = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                if (lecturers == null) return null;
+                return lecturers;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<Account>> GetOfficerList()
+        {
+            try
+            {
+                var role = await _context.Roles.Where(r => r.Name == "Officer").FirstOrDefaultAsync();
+                var officers = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                if (officers == null) return null;
+                return officers;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
 
 
     }

@@ -15,5 +15,6 @@ namespace OTMS.DAL.Interface
         Task<List<Class>> getClassByLecturer(Guid lecturerId);
         Task<List<Class>> getClassByStudent(Guid studentId);
         Task<bool> checkLeturerInAnyClass(Guid id);
+        Task<List<Class>> GetClassList();
     }
 }
