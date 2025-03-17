@@ -67,6 +67,11 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
         }
 
+        public async Task<bool> CheckLeturerInAnyClass(Guid id)
+        {
+            return await _dbSet.AnyAsync(c => c.LecturerId.Equals(id));
+        }
+
         public async Task<List<Class>> GetClassList()
         {   
 
@@ -77,10 +82,5 @@ namespace OTMS.DAL.DAO
                 .ThenInclude( cs => cs.Student)
                 .ToListAsync();
         }
-
-
-
-
-
     }
 }

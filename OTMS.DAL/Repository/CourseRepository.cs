@@ -20,7 +20,7 @@ namespace OTMS.DAL.Repository
 
         public Task DeleteAsync(int id) => _courseDAO.DeleteCourseAsync(id);
 
-        public Task<List<Course>> GetAllCourseAsync(int page, int pageSize, string? search, string sortBy, string sortOrder) => _courseDAO.GetAllCourseAsync(page, pageSize, search, sortBy, sortOrder);
+        public Task<List<Course>> GetAllActiveCourseAsync() => _courseDAO.GetAllActiveCourseAsync();
 
         public Task<Course?> GetByIdAsync(int id) => _courseDAO.GetCourseByIdAsync(id);
 

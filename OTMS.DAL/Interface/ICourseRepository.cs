@@ -12,7 +12,7 @@ namespace OTMS.DAL.Interface
     {
         Task<Course?> GetByIdAsync(int id);
         Task DeleteAsync(int id);
-        Task<List<Course>> GetAllCourseAsync(int page, int pageSize, string? search, string sortBy, string sortOrder);
+        Task<List<Course>> GetAllActiveCourseAsync();
         Task<int> GetTotalCourseAsync(string? search);
     }
 }
