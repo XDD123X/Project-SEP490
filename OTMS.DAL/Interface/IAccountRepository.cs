@@ -25,6 +25,11 @@ namespace OTMS.DAL.Interface
         public Task UpdateAsync(Account account);
         public Task<List<Account>> getAllStudentAccount();
         public Task ImportParent(Parent parent);
+
+        public Task<List<Account>> GetStudentList();
+        public Task<List<Account>> GetLecturerList();
+        public Task<List<Account>> GetOfficerList();
+
         Task<List<Account>> GetAllLecturerAndStudentAccountAsync();
     }
 }

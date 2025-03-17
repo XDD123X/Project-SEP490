@@ -40,6 +40,11 @@ namespace OTMS.DAL.Repository
         public Task<List<Account>> getAllStudentAccount() =>_accountDAO.getAllStudentAccount();
         public async Task ImportParent(Parent parent) => await _accountDAO.ImportParent(parent);
 
+        public Task<List<Account>> GetStudentList() => _accountDAO.GetStudentList();
+
+        public Task<List<Account>> GetLecturerList() => _accountDAO.GetLecturerList();
+
+        public Task<List<Account>> GetOfficerList() => _accountDAO.GetOfficerList();
         public async Task<List<Account>> GetAllLecturerAndStudentAccountAsync() => await _accountDAO.getAllStudentAndLecturerAccount();
     }
 }
