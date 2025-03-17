@@ -11,6 +11,7 @@ namespace OTMS.DAL.Interface
     public interface IClassStudentRepository : IRepository<ClassStudent>
     {
         bool checkStuentInClass(Guid classId, Guid studentId);
+        Task<bool> checkStudentAnyInClass(Guid studentId);
         Task addStudentIntoClass(Guid classId, List<Guid> listStudentId);
         Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds);
         Task<List<ClassStudent>> GetByClassIdAsync(Guid id);

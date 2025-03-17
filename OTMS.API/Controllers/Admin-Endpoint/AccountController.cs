@@ -15,6 +15,7 @@ using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
 using OTMS.DAL.DAO;
 using DocumentFormat.OpenXml.Spreadsheet;
+using System.Security.Claims;
 
 namespace OTMS.API.Controllers
 {
@@ -25,13 +26,16 @@ namespace OTMS.API.Controllers
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IClassStudentRepository _classStudentRepository;
+        private readonly IClassRepository _classRepository;
         private readonly IConfiguration _configuration;
 
-        public AccountController(IMapper mapper, IAccountRepository accountRepository, IRoleRepository roleRepository, IConfiguration configuration)
+        public AccountController(IMapper mapper, IAccountRepository accountRepository, IRoleRepository roleRepository, IClassStudentRepository classStudentRepository, IConfiguration configuration)
         {
             _mapper = mapper;
             _accountRepository = accountRepository;
             _roleRepository = roleRepository;
+            _classStudentRepository = classStudentRepository;
             _configuration = configuration;
         }
 
@@ -92,7 +96,7 @@ namespace OTMS.API.Controllers
                     PhoneNumber = phoneNumber,
                     Dob = dob,
                     Fulltime = fulltime,
-                    ImgUrl = string.IsNullOrEmpty(imgUrl) ? "https://ui.shadcn.com/avatars/shadcn.jpg" : imgUrl,
+                    ImgUrl = imgUrl,
                     Status = status,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -318,33 +322,46 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while edit account " + id);
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("ban-accounts/{id}")]
         public async Task<IActionResult> BanUser(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
-            if (user == null) return NotFound("User not found");
+            if (user == null) return NotFound("Account not found");
+            var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentUserId.Equals(id))
+            {
+                return BadRequest("You can't ban your account");
+            }
+            bool isStudentInClass = await _classStudentRepository.checkStudentAnyInClass(id);
+            bool isLecturerInCourse = await _classRepository.checkLeturerInAnyClass(id);
+
+            if (isStudentInClass || isLecturerInCourse)
+            {
+                return BadRequest("You cannot delete this account because it is still associated with classes.");
+            }
             user.Status = 0;
             try
             {
                 await _accountRepository.UpdateAsync(user);
-                return Ok("User banned");
+                return Ok("Account banned");
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while ban account " + id);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("activate-accounts/{id}")]
         public async Task<IActionResult> ActivateUser(Guid id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
-            if (user == null) return NotFound("User not found");
+            if (user == null) return NotFound("Account not found");
             user.Status = 1;
             try
             {
                 await _accountRepository.UpdateAsync(user);
-                return Ok("User is activate");
+                return Ok("Account is activate");
             }
             catch (Exception ex)
             {

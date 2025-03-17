@@ -60,5 +60,10 @@ namespace OTMS.DAL.DAO
                 .Where(c => c.ClassStudents.Any(cs => cs.StudentId == studentId))
                 .ToListAsync();
         }
+
+        public async Task<bool> CheckLeturerInAnyClass(Guid id)
+        {
+            return await _dbSet.AnyAsync(c => c.LecturerId.Equals(id));
+        }
     }
 }
