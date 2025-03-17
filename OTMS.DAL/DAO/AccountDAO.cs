@@ -141,7 +141,7 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                using (OtmsContext context = new OtmsContext()) 
+                using (OtmsContext context = new OtmsContext())
                 {
                     Parent existingParent = await context.Parents.FindAsync(parent.StudentId);
 
@@ -154,7 +154,7 @@ namespace OTMS.DAL.DAO
                         context.Parents.Update(parent);
                     }
 
-                    await context.SaveChangesAsync(); 
+                    await context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -164,12 +164,75 @@ namespace OTMS.DAL.DAO
             }
         }
 
+        public async Task<List<Account>> GetStudentList()
+        {
+            try
+            {
+                var role = await _context.Roles.Where(r => r.Name == "Student").FirstOrDefaultAsync();
+                var students = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                if (students == null) return null;
+                return students;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<Account>> GetLecturerList()
+        {
+            try
+            {
+                var role = await _context.Roles.Where(r => r.Name == "Lecturer").FirstOrDefaultAsync();
+                var lecturers = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                if (lecturers == null) return null;
+                return lecturers;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<Account>> GetOfficerList()
+        {
+            try
+            {
+                var role = await _context.Roles.Where(r => r.Name == "Officer").FirstOrDefaultAsync();
+                var officers = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                if (officers == null) return null;
+                return officers;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
         public async Task<List<Account>> getAllStudentAndLecturerAccount()
         {
-            List<Account> accounts = await _context.Accounts
-                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757")|| a.RoleId == new Guid("6C04E924-ED9D-495E-8122-5FAD06C48FC8"))
-                .ToListAsync();
-            return accounts;
+            try
+            {
+                var roles = await _context.Roles
+                    .Where(r => r.Name == "Student" || r.Name == "Lecturer")
+                    .ToListAsync();
+
+                var roleIds = roles.Select(r => r.RoleId).ToList();
+
+                var accounts = await _context.Accounts
+                    .Where(a => roleIds.Contains(a.RoleId))
+                    .ToListAsync();
+                return accounts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+
         }
     }
 }
