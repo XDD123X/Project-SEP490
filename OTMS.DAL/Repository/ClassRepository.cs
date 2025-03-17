@@ -18,6 +18,8 @@ namespace OTMS.DAL.Repository
             _classDAO = classDAO;
         }
 
+        public Task<bool> checkLeturerInAnyClass(Guid id) => _classDAO.CheckLeturerInAnyClass(id);
+
         public async Task<List<Class>> GetAllClassesAsync(int page, int pageSize, string? search, string sortBy, string sortOrder) => await _classDAO.GetAllClassesAsync(page, pageSize, search, sortBy, sortOrder);
 
         public Task<Class?> GetByClassCodeAsync(string classCode) => _classDAO.GetByClassCode(classCode);
@@ -27,7 +29,5 @@ namespace OTMS.DAL.Repository
         public Task<List<Class>> getClassByStudent(Guid studentId) => _classDAO.GetClassesByStudentAsync(studentId);
 
         public Task<int> GetTotalClassesAsync(string? search) => _classDAO.GetTotalClassesAsync(search);
-
-        public Task<List<Class>> GetClassList() => _classDAO.GetClassList();
     }
 }

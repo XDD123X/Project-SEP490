@@ -45,5 +45,6 @@ namespace OTMS.DAL.Repository
         public Task<List<Account>> GetLecturerList() => _accountDAO.GetLecturerList();
 
         public Task<List<Account>> GetOfficerList() => _accountDAO.GetOfficerList();
+        public async Task<List<Account>> GetAllLecturerAndStudentAccountAsync() => await _accountDAO.getAllStudentAndLecturerAccount();
     }
 }

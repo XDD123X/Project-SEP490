@@ -1,6 +1,4 @@
-﻿using OTMS.API.Controllers.Admin_Endpoint;
-using OTMS.BLL.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +8,6 @@ namespace OTMS.BLL.DTOs
 {
     public class ClassDTO
     {
-        public Guid? ClassId { get; set; } = null!;
         public string ClassCode { get; set; } = null!;
 
         public string ClassName { get; set; } = null!;
@@ -28,8 +25,5 @@ namespace OTMS.BLL.DTOs
         public string? ClassUrl { get; set; }
 
         public int? Status { get; set; }
-        public virtual ICollection<ClassStudentDTO> ClassStudents { get; set; } = new List<ClassStudentDTO>();
-        public virtual CourseDTO Course { get; set; } = null!;
-        public virtual AccountDTO? Lecturer { get; set; }
     }
 }

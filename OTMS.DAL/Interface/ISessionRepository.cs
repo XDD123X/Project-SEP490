@@ -11,10 +11,6 @@ namespace OTMS.DAL.Interface
     public interface ISessionRepository : IRepository<Session>
     {
         Task<List<Session>> GenerateAndSaveScheduleAsync(ClassScheduleRequest request);
-        Task<List<Session>> GetSessionList();
-        
-        Task<bool> UpdateSession(SessionUpdateModel session);
-        Task DeleteSessionAsync(Guid sessionId);
 
     }
 }

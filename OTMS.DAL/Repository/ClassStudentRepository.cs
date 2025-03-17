@@ -22,6 +22,7 @@ namespace OTMS.DAL.Repository
         public Task addStudentIntoClass(Guid classId, List<Guid> listStudentId) => _classStudentDAO.addStudentIntoClass(classId, listStudentId);
 
         public bool checkStuentInClass(Guid classId, Guid studentId) => _classStudentDAO.checkStuentInClass(classId, studentId);
+        public Task<bool> checkStudentAnyInClass(Guid studentId) => _classStudentDAO.CheckStudentInAnyClass(studentId);
 
         public Task<List<ClassStudent>> GetByClassIdAsync(Guid id) => _classStudentDAO.GetByClassIdAsync(id);
 

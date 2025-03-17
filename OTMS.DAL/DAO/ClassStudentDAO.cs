@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
 using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.DTOs;
@@ -59,7 +60,7 @@ namespace OTMS.DAL.DAO
         public async Task<List<ClassStudent>> GetByClassIdAsync(Guid id)
         {
             var students = await _dbSet.Where(sc => sc.ClassId == id).ToListAsync();
-            return students ?? new List<ClassStudent>();
+            return students;
         }
 
         public async Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId)
@@ -102,6 +103,9 @@ namespace OTMS.DAL.DAO
 
         }
 
-
+        public async Task<bool> CheckStudentInAnyClass(Guid studentId)
+        {
+            return await _dbSet.AnyAsync(sc => sc.StudentId.Equals(studentId));
+        }
     }
 }

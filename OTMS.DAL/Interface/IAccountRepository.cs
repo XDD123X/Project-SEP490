@@ -20,14 +20,9 @@ namespace OTMS.DAL.Interface
         Task AddMultipleAsync(List<Account> accounts);
         Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder);
         Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date);
-
         Task<Account> GetByLogin(string email, string password);
         public Task<List<Account>> GetByStudentByClass(Guid classId);
-
-
         public Task UpdateAsync(Account account);
-
-
         public Task<List<Account>> getAllStudentAccount();
         public Task ImportParent(Parent parent);
 
@@ -35,5 +30,6 @@ namespace OTMS.DAL.Interface
         public Task<List<Account>> GetLecturerList();
         public Task<List<Account>> GetOfficerList();
 
+        Task<List<Account>> GetAllLecturerAndStudentAccountAsync();
     }
 }

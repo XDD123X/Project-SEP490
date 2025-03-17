@@ -132,9 +132,14 @@ namespace OTMS.API.Controllers
         {
             var Class = await _classRepository.GetByIdAsync(id);
             if (Class == null) return NotFound("Class not found");
-            Class.Status = 0;
+            var studentsInClass = await _classStudentRepository.GetByClassIdAsync(id);
+            if (studentsInClass.Count != 0)
+            {
+                BadRequest("You cannot delete this class because it is still student in that class");
+            }
             try
             {
+                Class.Status = 0;
                 await _classRepository.UpdateAsync(Class);
                 return Ok("Class is Deactivate");
             }
@@ -216,6 +221,7 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while adding students to class {id}: {ex.Message}");
             }
         }
+<<<<<<< HEAD
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteClass(Guid id)
         {
@@ -235,9 +241,29 @@ namespace OTMS.API.Controllers
                 await _classStudentRepository.removeStudentIntoClass(id, studentIds);
             }
             await _classRepository.DeleteAsync(id);
+=======
+        //[HttpDelete("delete/{id}")]
+        //public async Task<IActionResult> DeleteClass(Guid id)
+        //{
+        //    var existingClass = await _classRepository.GetByIdAsync(id);
+        //    if (existingClass == null)
+        //    {
+        //        return NotFound("Class not found.");
+        //    }
+        //    var studentsInClass = await _classStudentRepository.GetByClassIdAsync(id);
+        //    if (studentsInClass.Any())
+        //    {
+        //        List<Guid> studentIds = new List<Guid>();
+        //        foreach (var student in studentsInClass) {
+        //            studentIds.Add(student.StudentId);
+        //        } 
+        //        await _classStudentRepository.removeStudentIntoClass(id, studentIds);
+        //    }
+        //    await _classRepository.DeleteAsync(id);
+>>>>>>> 958660f0d36c88f5ec2af1fc123548fe120e7800
 
-            return Ok("Class deleted successfully.");
-        }
+        //    return Ok("Class deleted successfully.");
+        //}
 
     }
 }
