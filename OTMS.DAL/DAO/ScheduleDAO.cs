@@ -46,21 +46,7 @@ namespace OTMS.DAL.DAO
                 .Select(cs => cs.ClassId)
                 .ToListAsync();
 
-            //return await _context.Sessions
-            //    .Where(s => classList.Contains(s.ClassId))
-            //    .Include(s => s.Class)
-            //    .Include(s => s.Lecturer)
-            //    .Include(s => s.Attendances)
-            //    .OrderBy(s => s.SessionDate)
-            //    .ThenBy(s => s.Slot)
-            //    .ToListAsync();
-
-            var classes = await _context.ClassStudents
-                                    .Where(s => s.StudentId == id)
-                                    .Include(s => s.Class)
-                                    .ToListAsync();
-
-            var sessions = await _context.Sessions
+            return await _context.Sessions
                 .Where(s => classList.Contains(s.ClassId))
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
@@ -68,9 +54,6 @@ namespace OTMS.DAL.DAO
                 .OrderBy(s => s.SessionDate)
                 .ThenBy(s => s.Slot)
                 .ToListAsync();
-
-            return sessions;
-
         }
 
         public async Task<List<Session>> GetByStudentIdAndDateRangeAsync(Guid id, DateTime startDate, DateTime endDate)
