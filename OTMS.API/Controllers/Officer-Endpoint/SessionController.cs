@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -10,10 +12,16 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     public class SessionController : ControllerBase
     {
         private readonly ISessionRepository _sessionRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IClassRepository _classRepository;
+        private readonly IMapper _mapper;
 
-        public SessionController(ISessionRepository sessionRepository)
+        public SessionController(ISessionRepository sessionRepository, IAccountRepository accountRepository, IClassRepository classRepository, IMapper mapper)
         {
             _sessionRepository = sessionRepository;
+            _accountRepository = accountRepository;
+            _classRepository = classRepository;
+            _mapper = mapper;
         }
 
         [HttpPost("generate-schedule")]
@@ -35,6 +43,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             try
             {
                 var sessions = await _sessionRepository.GenerateAndSaveScheduleAsync(request);
+                var lecturer = await _accountRepository.GetByIdAsync(request.LecturerId);
+                var classInfor = await _classRepository.GetByIdAsync(request.ClassId);
+
+                var lecturerMap = _mapper.Map<AccountDTO>(lecturer);
+                var classMap = _mapper.Map<ClassDTO>(classInfor);
+
 
                 return Ok(new
                 {
@@ -43,8 +57,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                     Data = sessions.Select(s => new
                     {
                         s.SessionId,
-                        s.ClassId,
-                        s.LecturerId,
+                        Class = classMap,
+                        Lecturer = lecturerMap,
                         s.SessionDate,
                         s.Slot,
                         s.Status
@@ -60,5 +74,52 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 });
             }
         }
+
+        [HttpGet("All")]
+        public async Task<IActionResult> GetAllSession()
+        {
+            var sessions = await _sessionRepository.GetSessionList();
+            if (sessions == null || !sessions.Any())
+                return NotFound();
+
+            var response = _mapper.Map<List<SessionDTO>>(sessions);
+            return Ok(response);
+        }
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateSession(SessionUpdateModel update)
+        {
+            if (update == null || update.SessionId == Guid.Empty)
+            {
+                return BadRequest("Invalid session data.");
+            }
+
+            var session = await _sessionRepository.GetByIdAsync(update.SessionId);
+            if (session == null)
+            {
+                return NotFound("Session not found.");
+            }
+
+            var date = update.SessionDate;
+            var slot = update.Slot;
+            //Valid Date Lecturer
+
+            //Valid Date Student
+
+            // Cập nhật dữ liệu
+            session.ClassId = update.ClassId;
+            session.LecturerId = update.LecturerId;
+            session.SessionDate = update.SessionDate;
+            session.Slot = update.Slot;
+            session.Description = update.Description;
+            session.SessionRecord = update.SessionRecord;
+            session.Type = update.Type;
+            session.Status = update.Status;
+
+            await _sessionRepository.UpdateAsync(session);
+
+            return Ok(new { message = "Session updated successfully", session });
+        }
+
     }
 }

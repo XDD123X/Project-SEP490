@@ -20,15 +20,19 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ISessionRepository _sessionRepository;
+        private readonly IClassRepository _classRepository;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IClassSettingRepository _classSettingRepository;
 
-        public OfficerController(IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory)
+        public OfficerController(IClassSettingRepository classSettingRepository, IClassRepository classRepository, IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
             _accountRepository = accountRepository;
             _sessionRepository = sessionRepository;
             _scopeFactory = scopeFactory;
+            _classRepository = classRepository;
+            _classSettingRepository = classSettingRepository;
         }
 
         [HttpGet("all-schedule")]
@@ -147,6 +151,54 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return StatusCode(500, "Đã xảy ra lỗi trong quá trình xử lý.");
             }
         }
+
+        [HttpGet("Classes")]
+        public async Task<IActionResult> GetClassList()
+        {
+            var classes = await _classRepository.GetClassList();
+            if(classes == null) return NotFound();
+
+            var response = _mapper.Map<List<ClassDTO>>(classes);
+
+            return Ok(response);
+        }
+
+        [HttpGet("ClassSetting")]
+        public async Task<IActionResult> GetClassSetting()
+        {
+            var settings = await _classSettingRepository.GetAllAsync();
+            if(settings == null) return NotFound();
+            return Ok(settings.Last());
+        }
+
+        [HttpGet("Account/Lecturers")]
+        public async Task<IActionResult> GetLecturerList()
+        {
+            var lecturers = await _accountRepository.GetLecturerList();
+            var response = _mapper.Map<List<AccountDTO>>(lecturers);
+            if(lecturers == null) return NotFound();
+            return Ok(response);
+        }
+
+        [HttpGet("Account/Officers")]
+        public async Task<IActionResult> GetOfficerList()
+        {
+            var officers = await _accountRepository.GetOfficerList();
+            var response = _mapper.Map<List<AccountDTO>>(officers);
+            if (officers == null) return NotFound();
+            return Ok(response);
+        }
+
+        [HttpGet("Account/Students")]
+        public async Task<IActionResult> GetStudentList()
+        {
+            var students = await _accountRepository.GetStudentList();
+            var response = _mapper.Map<List<AccountDTO>>(students);
+            if (students == null) return NotFound();
+            return Ok(response);
+        }
+
+
 
     }
 }
