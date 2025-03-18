@@ -50,7 +50,7 @@ namespace OTMS.API.Controllers
             return Ok(Class);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateClass(ClassDTO newClassDTO)
+        public async Task<IActionResult> CreateClass(InpirtClassDTO newClassDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -79,12 +79,16 @@ namespace OTMS.API.Controllers
             try
             {
                 await _classRepository.AddAsync(newClass);
-
-                return Ok("create class successfull");
+                return Ok(new
+                {
+                    message = "Create class successful",
+                    classId = newClass.ClassId
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while creating class: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                new { message = $"An error occurred while creating class: {ex.Message}" });
             }
         }
 
