@@ -21,7 +21,7 @@ namespace OTMS.API.Profile
 
             CreateMap<Notification, InputNotificationDTO>().ReverseMap();
 
-            CreateMap<Class, InpirtClassDTO>().ReverseMap();
+            CreateMap<Class, InputClassDTO>().ReverseMap();
             CreateMap<Class, ClassDTO>().ReverseMap();
             CreateMap<Account, AccountDTO>().ReverseMap();
             CreateMap<Role, RoleDTO>().ReverseMap();
