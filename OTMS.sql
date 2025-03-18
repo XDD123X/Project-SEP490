@@ -221,6 +221,11 @@ CREATE TABLE LecturerSchedule (
     weekday_available NVARCHAR(50) DEFAULT '2,3,4,5,6,7,8', -- Mặc định từ thứ 2 đến chủ nhật
     updated_at DATETIME DEFAULT GETDATE()
 );
+
+INSERT INTO LecturerSchedule (lecturer_id, slot_available, weekday_available, updated_at)
+SELECT account_id, '1,2,3,4', '2,3,4,5,6,7,8', GETDATE()
+FROM Account
+WHERE email IN ('lecturer1@gmail.com', 'lecturer2@gmail.com', 'lecturer3@gmail.com');
 GO
 
 
