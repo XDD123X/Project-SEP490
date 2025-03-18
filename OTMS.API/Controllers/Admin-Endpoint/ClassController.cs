@@ -50,7 +50,8 @@ namespace OTMS.API.Controllers
             return Ok(Class);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateClass(ClassAddModel addClass)
+        public async Task<IActionResult> CreateClass(InputClassDTO newClassDTO)
+
         {
             if (!ModelState.IsValid)
             {

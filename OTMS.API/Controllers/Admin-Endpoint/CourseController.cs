@@ -15,6 +15,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         private readonly IMapper _mapper;
         private readonly ICourseRepository _courseRepository;
         private readonly IClassRepository _classRepository;
+        private IAccountRepository _accountRepository;
 
         public CourseController(IMapper mapper, ICourseRepository courseRepository, IClassRepository classRepository)
         {
@@ -43,6 +44,11 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+            var creator = await _accountRepository.GetByIdAsync(UserId);
+            if(creator == null || (creator.Role.Name != "Officer"))
+            {
+                return BadRequest("Invalid account");
             }
             var newCourse = _mapper.Map<Course>(course);
             newCourse.Status = 1;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OTMS.BLL.DTOs
 {
-    public class InpirtClassDTO
+    public class InputClassDTO
     {
         public string ClassCode { get; set; } = null!;
 
