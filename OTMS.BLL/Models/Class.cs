@@ -29,6 +29,8 @@ public partial class Class
 
     public int? Status { get; set; }
 
+    public bool? Scheduled { get; set; }
+
     public virtual ICollection<ClassStudent> ClassStudents { get; set; } = new List<ClassStudent>();
 
     public virtual Course Course { get; set; } = null!;

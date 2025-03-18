@@ -27,6 +27,8 @@ namespace OTMS.BLL.DTOs
 
         public string? ClassUrl { get; set; }
 
+        public bool? Scheduled { get; set; }
+
         public int? Status { get; set; }
         public virtual ICollection<ClassStudentDTO> ClassStudents { get; set; } = new List<ClassStudentDTO>();
         public virtual CourseDTO Course { get; set; } = null!;
