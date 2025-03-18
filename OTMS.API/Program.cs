@@ -30,7 +30,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowLocalhost",
         policy =>
         {
-            policy.WithOrigins(builder.Configuration["Jwt:Issuer"])
+            policy.WithOrigins(
+                builder.Configuration["Jwt:Issuer"],
+                "https://192.168.0.100:3000"
+                )
                   .AllowCredentials()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
@@ -52,7 +55,7 @@ builder.Services.AddScoped<IScheduleSolverService, ScheduleSolverService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IClassSettingRepository, ClassSettingRepository>();
-
+builder.Services.AddScoped<ILecturerScheduleRepository, LecturerScheduleRepository>();
 
 //DI DAO
 builder.Services.AddScoped<AccountDAO>();
@@ -66,6 +69,7 @@ builder.Services.AddScoped<SessionDAO>();
 builder.Services.AddScoped<CourseDAO>();
 builder.Services.AddScoped<AttendanceDAO>();
 builder.Services.AddScoped<ClassSettingDAO>();
+builder.Services.AddScoped<LecturerScheduleDAO>();
 
 //SignalR
 //builder.Services.AddSignalR();

@@ -24,6 +24,7 @@ namespace OTMS.DAL.DAO
             return await _context.Accounts
                 .Where(a => a.Email == email).
                 Include(a => a.Role)
+                .Include(a => a.LecturerSchedules)
                 .FirstOrDefaultAsync();
         }
 

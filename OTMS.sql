@@ -250,11 +250,22 @@ VALUES
 ( 'student14@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Mai Thanh Tí', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
 ( 'student15@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Lý Minh Ưu', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
 ( 'student16@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Châu Văn Việt', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()); --password: matkhau123
+GO
 
 INSERT INTO LecturerSchedule (lecturer_id, slot_available, weekday_available, updated_at)
 SELECT account_id, '1,2,3,4', '2,3,4,5,6,7,8', GETDATE()
 FROM Account
 WHERE email IN ('lecturer1@gmail.com', 'lecturer2@gmail.com', 'lecturer3@gmail.com');
+GO
+
+UPDATE Account
+SET img_url = 
+    CASE 
+        WHEN gender = 0 THEN 'https://i.imgur.com/0dTvSSQ.png'  -- Ảnh cho nữ
+        WHEN gender = 1 THEN 'https://i.imgur.com/McuGRDf.png'  -- Ảnh cho nam
+        ELSE img_url  -- Giữ nguyên nếu không có giá trị hợp lệ
+    END
+WHERE img_url IS NULL OR img_url = 'https://ui.shadcn.com/avatars/shadcn.jpg';
 GO
 
 -- 18. Thêm dữ liệu mẫu cho Course

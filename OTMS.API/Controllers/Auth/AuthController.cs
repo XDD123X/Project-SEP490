@@ -161,6 +161,7 @@ namespace OTMS.API.Controllers.Auth
                     Dob = user.Dob,
                     ImgUrl = user.ImgUrl,
                     Role = user.Role.Name,
+                    Schedule = user.LecturerSchedules.Count()
                 });
             }
             catch (Exception ex)
@@ -230,6 +231,29 @@ namespace OTMS.API.Controllers.Auth
             }
         }
 
+        [HttpPut("avatar")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> UpdateAvatar(UpdateProfileDTO updateProfileDTO)
+        {
+            try
+            {
+                var email = User.FindFirst("ue")?.Value;
+                if (string.IsNullOrEmpty(email)) return Unauthorized("Email not found in token");
+
+                var user = await _accountRepository.GetByEmailAsync(email);
+                if (user == null) return NotFound("User not found");
+
+                user.ImgUrl = updateProfileDTO.ImgUrl;
+
+                await _accountRepository.UpdateAsync(user);
+
+                return Ok("Profile updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
 
     }

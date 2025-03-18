@@ -11,5 +11,6 @@ namespace OTMS.BLL.DTOs
         public string FullName { get; set; }
         public string Phone { get; set; }
         public DateOnly Dob { get; set; }
+        public string? ImgUrl { get; set; } = null;
     }
 }

@@ -27,6 +27,7 @@ namespace OTMS.API.Profile
             CreateMap<ClassStudent, ClassStudentDTO>().ReverseMap();
             CreateMap<Session, SessionDTO>().ReverseMap();
             CreateMap<Course, CourseDTO>().ReverseMap();
+            CreateMap<LecturerSchedule,  LecturerScheduleDTO>().ReverseMap();
         }
     }
 }
