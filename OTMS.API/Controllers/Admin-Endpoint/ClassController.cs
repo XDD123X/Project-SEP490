@@ -50,32 +50,32 @@ namespace OTMS.API.Controllers
             return Ok(Class);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateClass(InpirtClassDTO newClassDTO)
+        public async Task<IActionResult> CreateClass(ClassAddModel addClass)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var existingClass = await _classRepository.GetByClassCodeAsync(newClassDTO.ClassCode);
+            var existingClass = await _classRepository.GetByClassCodeAsync(addClass.ClassCode);
             if (existingClass != null)
             {
                 return Conflict("Class code already exists.");
             }
-            var newClass = _mapper.Map<Class>(newClassDTO);
-            newClass.Status = 1;
-            newClass.CreatedAt = DateTime.Now;
-            if (newClassDTO.LecturerId != null)
+
+            var newClass = new Class
             {
-                var l = await _accountRepository.GetByIdAsync((Guid)newClassDTO.LecturerId);
-                if (l == null || !l.Role.Name.Equals("Lecturer"))
-                {
-                    return BadRequest("Please select correct lecturer");
-                }
-            }
-            if(await _courseRepository.GetByIdAsync(newClassDTO.CourseId) == null)
-            {
-                return BadRequest("Please select correct course");
-            }
+                ClassCode = addClass.ClassCode,
+                ClassName = addClass.ClassName,
+                LecturerId = addClass.LecturerId,
+                CourseId = addClass.CourseId,
+                TotalSession = addClass.TotalSession,
+                StartDate = addClass.StartDate,
+                EndDate = addClass.EndDate,
+                ClassUrl = addClass.ClassUrl,
+                Status = addClass.Status,
+                CreatedAt = DateTime.Now
+            };
+
             try
             {
                 await _classRepository.AddAsync(newClass);
@@ -104,7 +104,7 @@ namespace OTMS.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if(classDTO.LecturerId != null)
+            if (classDTO.LecturerId != null)
             {
                 var l = await _accountRepository.GetByIdAsync((Guid)classDTO.LecturerId);
                 if (l == null || !l.Role.Name.Equals("Lecturer"))
@@ -159,13 +159,13 @@ namespace OTMS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id +": " +ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while activate account " + id + ": " + ex.Message);
             }
         }
         [HttpGet("get-student-in-class/{id}")]
         public async Task<IActionResult> GetStudentInClass(Guid id)
         {
-            var  students = await _accountRepository.GetByStudentByClass(id);
+            var students = await _accountRepository.GetByStudentByClass(id);
             return Ok(students);
         }
         [HttpPost("asign-student-into-class/{id}")]
