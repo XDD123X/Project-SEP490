@@ -23,6 +23,8 @@ public partial class Account
 
     public string? ImgUrl { get; set; }
 
+    public string? MeetUrl { get; set; }
+
     public int Status { get; set; }
 
     public DateTime? CreatedAt { get; set; }

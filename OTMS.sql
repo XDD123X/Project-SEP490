@@ -37,6 +37,7 @@ CREATE TABLE Account (
     phone_number NVARCHAR(15) NULL DEFAULT '0123456789',
 	dob DATE NULL DEFAULT '01/01/2000',
     img_url NVARCHAR(500) DEFAULT 'https://ui.shadcn.com/avatars/shadcn.jpg',
+	meet_url NVARCHAR(500) DEFAULT 'https://example.com/meet/euf-nwbu-cet',
 	status INT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE() ,
     updated_at DATETIME DEFAULT NULL
@@ -181,6 +182,9 @@ CREATE TABLE ClassSetting (
 );
 GO
 
+INSERT INTO ClassSetting (session_per_week, session_total)  
+VALUES (4, 18);
+
 -- 14. Tạo bảng SessionChangeRequest
 CREATE TABLE SessionChangeRequest (
     request_change_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
@@ -251,10 +255,10 @@ VALUES
 GO
 
 -- 19. Thêm lớp IELTS02-25 và SAT02-25
-INSERT INTO Class (class_code, class_name, course_id, total_session, start_date, end_date, status, created_at)
+INSERT INTO Class (class_code, class_name, lecturer_id, course_id, total_session, start_date, end_date, status, created_at)
 VALUES 
-(N'IELTS02-25', N'Lớp IELTS Khai Giảng 02-25', 1, 15, GETDATE(), DATEADD(DAY, 60, GETDATE()), 0, GETDATE()),
-(N'SAT02-25', N'Lớp SAT Khai Giảng 02-25', 2, 15, GETDATE(), DATEADD(DAY, 60, GETDATE()), 0, GETDATE());
+(N'IELTS02-25', N'Lớp IELTS Khai Giảng 02-25',(select account_id from account where email = 'lecturer1@gmail.com'), 1, 15, GETDATE(), DATEADD(DAY, 60, GETDATE()), 0, GETDATE()),
+(N'SAT02-25', N'Lớp SAT Khai Giảng 02-25',(select account_id from account where email = 'lecturer2@gmail.com'), 2, 15, GETDATE(), DATEADD(DAY, 60, GETDATE()), 0, GETDATE());
 GO
 
 -- 20. Xếp học viên vào lớp IELTS01-25

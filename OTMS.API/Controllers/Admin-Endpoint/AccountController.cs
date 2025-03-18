@@ -30,15 +30,15 @@ namespace OTMS.API.Controllers
         private readonly IClassRepository _classRepository;
         private readonly IConfiguration _configuration;
 
-        public AccountController(IMapper mapper, IAccountRepository accountRepository, IRoleRepository roleRepository, IClassStudentRepository classStudentRepository, IClassRepository classRepository, IConfiguration configuration)
+        public AccountController(IMapper mapper, IAccountRepository accountRepository, IRoleRepository roleRepository, IClassStudentRepository classStudentRepository, IConfiguration configuration)
         {
             _mapper = mapper;
             _accountRepository = accountRepository;
             _roleRepository = roleRepository;
             _classStudentRepository = classStudentRepository;
-            _classRepository = classRepository;
             _configuration = configuration;
         }
+
         [HttpPost("import-users")]
         public async Task<IActionResult> ImportUsers(IFormFile file)
         {

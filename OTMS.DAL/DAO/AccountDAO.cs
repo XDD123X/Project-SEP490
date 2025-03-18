@@ -141,7 +141,7 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                using (OtmsContext context = new OtmsContext())
+                using (OtmsContext context = new OtmsContext()) 
                 {
                     Parent existingParent = await context.Parents.FindAsync(parent.StudentId);
 
@@ -154,7 +154,7 @@ namespace OTMS.DAL.DAO
                         context.Parents.Update(parent);
                     }
 
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(); 
                 }
             }
             catch (Exception ex)
@@ -212,27 +212,6 @@ namespace OTMS.DAL.DAO
             }
         }
 
-        public async Task<List<Account>> getAllStudentAndLecturerAccount()
-        {
-            try
-            {
-                var roles = await _context.Roles
-                    .Where(r => r.Name == "Student" || r.Name == "Lecturer")
-                    .ToListAsync();
 
-                var roleIds = roles.Select(r => r.RoleId).ToList();
-
-                var accounts = await _context.Accounts
-                    .Where(a => roleIds.Contains(a.RoleId))
-                    .ToListAsync();
-                return accounts;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-                throw;
-            }
-
-        }
     }
 }
