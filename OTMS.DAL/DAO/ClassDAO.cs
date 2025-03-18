@@ -73,13 +73,13 @@ namespace OTMS.DAL.DAO
         }
 
         public async Task<List<Class>> GetClassList()
-        {   
+        {
 
             return await _context.Classes
-                .Include( c => c.Course)
-                .Include (c => c.Lecturer)
+                .Include(c => c.Course)
+                .Include(c => c.Lecturer)
                 .Include(c => c.ClassStudents)
-                .ThenInclude( cs => cs.Student)
+                .ThenInclude(cs => cs.Student)
                 .ToListAsync();
         }
 
@@ -87,5 +87,32 @@ namespace OTMS.DAL.DAO
         {
             return await _dbSet.AnyAsync(c => c.CourseId == id);
         }
+
+        public async Task<bool> UpdateClassScheduled(Guid classId)
+        {
+            try
+            {
+                var classItem = await _context.Classes
+                    .FirstOrDefaultAsync(c => c.ClassId == classId);
+
+                if (classItem == null)
+                {
+                    return false;
+                }
+
+                classItem.Scheduled = !classItem.Scheduled;
+
+                _context.Classes.Update(classItem);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi cập nhật lịch học: {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }

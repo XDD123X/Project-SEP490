@@ -3,6 +3,7 @@ using OTMS.BLL.Services;
 using OTMS.BLL.Models;
 using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
+using DocumentFormat.OpenXml.VariantTypes;
 
 namespace OTMS.DAL.Repository
 {
@@ -11,13 +12,15 @@ namespace OTMS.DAL.Repository
         private readonly SessionDAO _sessionDAO;
         private readonly ClassStudentDAO _classStudentDAO;
         private readonly IScheduleSolverService _scheduleSolverService;
+        private readonly ClassDAO _classDAO;
 
-        public SessionRepository(SessionDAO sessionDAO, ClassStudentDAO classStudentDAO, IScheduleSolverService scheduleSolverService)
+        public SessionRepository(ClassDAO classDAO ,SessionDAO sessionDAO, ClassStudentDAO classStudentDAO, IScheduleSolverService scheduleSolverService)
             : base(sessionDAO)
         {
             _sessionDAO = sessionDAO;
             _scheduleSolverService = scheduleSolverService;
             _classStudentDAO = classStudentDAO;
+            _classDAO = classDAO;
         }
 
 
@@ -64,6 +67,9 @@ namespace OTMS.DAL.Repository
             }).ToList();
 
             await _sessionDAO.AddSessionsAsync(newSessions);
+
+            //Update Class Scheduled to true
+            var classSelected = await _classDAO.UpdateClassScheduled(request.ClassId);
 
             return newSessions;
         }
