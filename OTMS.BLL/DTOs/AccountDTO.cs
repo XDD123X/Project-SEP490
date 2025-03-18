@@ -21,6 +21,7 @@ namespace OTMS.BLL.DTOs
         public string? PhoneNumber { get; set; }
 
         public DateOnly? Dob { get; set; }
+        public bool? Gender { get; set; }
 
         public string? ImgUrl { get; set; }
         public string? MeetUrl { get; set; }
