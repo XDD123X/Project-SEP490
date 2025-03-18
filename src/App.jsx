@@ -1,6 +1,6 @@
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/HomePage";
 import HomeLayout from "./components/layouts/HomeLayout";
 import { HelmetProvider } from "react-helmet-async";
@@ -10,19 +10,16 @@ import { StoreProvider } from "./services/StoreContext";
 import Notfound from "./pages/Errors/notfound";
 import LogoutPage from "./pages/LogoutPage";
 import PrivateRoute from "./pages/private/PrivateRoute";
-import RefrestTokenTest from "./pages/test/RefrestTokenTest";
 import { Toaster } from "./components/ui/sonner";
 import DemoPage from "./pages/dashboard/DemoPage";
 import MainScreen from "./pages/dashboard/MainScreen";
 import Notification from "./pages/dashboard/Notification";
 import DashboardPage from "./pages/dashboard/admin/Dashboard";
-import SchedulePage from "./pages/dashboard/SchedulePage";
 import ProfilePage from "./pages/profile/profilePage";
 import ProfileAccount from "./pages/profile/profile-account";
 import ProfileSchedule from "./pages/profile/profile-schedule";
 import ProfilePassword from "./pages/profile/profile-password";
 import ForgotPassword from "./pages/auth/forgot-password";
-import ClassPage from "./pages/class-page/class-page";
 import ProfileAvatar from "./pages/profile/profile-avatar";
 import AccountManagementPage from "./pages/dashboard/officer/account/account-management";
 import SessionViewPage from "./pages/dashboard/officer/session-page/session-view";
@@ -32,8 +29,9 @@ import StudentSchedulePage from "./pages/dashboard/student/StudentSchedulePage";
 import StudentClassPage from "./pages/dashboard/student/class-student-page";
 import ClassViewPage from "./pages/dashboard/officer/classroom/class-view-page";
 import ClassAddNewPage from "./pages/dashboard/officer/classroom/class-add-page";
-import ClassAddStudentPage from "./pages/dashboard/officer/classroom/class-add-student-page";
 import ClassDetailPage from "./pages/dashboard/officer/classroom/class-detail-page";
+import ClassAddStudentPage from "./pages/dashboard/officer/classroom/add-student/class-add-student-page";
+import RefreshTokenTest from "./pages/test/RefreshTokenTest";
 
 function App() {
   return (
@@ -107,7 +105,7 @@ function App() {
                 <Route path="*" element={<Notfound />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="/test">
-                  <Route path="refresh-token" element={<RefrestTokenTest />} />
+                  <Route path="refresh-token" element={<RefreshTokenTest />} />
                 </Route>
               </Routes>
             </Router>

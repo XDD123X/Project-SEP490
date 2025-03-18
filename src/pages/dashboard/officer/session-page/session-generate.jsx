@@ -154,8 +154,13 @@ export default function SessionGeneratePage() {
                 </SelectTrigger>
                 <SelectContent>
                   {classList.map((classItem) => (
-                    <SelectItem key={classItem.classId} value={classItem.classId}>
+                    <SelectItem
+                      key={classItem.classId}
+                      value={classItem.classId}
+                      disabled={classItem.scheduled} // Vô hiệu hóa nếu scheduled = true
+                    >
                       {classItem.classCode} - {classItem.className}
+                      {classItem.scheduled && " ( Scheduled ) "}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -190,13 +195,13 @@ export default function SessionGeneratePage() {
 
               {/* Slots Per Week */}
               <div className="flex-1">
-                <label className="text-sm font-medium">Slots Per Week</label>
+                <label className="text-sm font-medium">Slot Per Day</label>
                 <Input type="number" value={setting ? setting.sessionPerWeek : 0} disabled className="h-10 w-full mt-2" />
               </div>
 
               {/* Slot Per Day */}
               <div className="flex-1">
-                <label className="text-sm font-medium">Slot Per Day</label>
+                <label className="text-sm font-medium">Slots Per Week</label>
                 <Input type="number" value={setting ? setting.slotNumber : 0} disabled className="h-10 w-full mt-2" />
               </div>
             </div>
@@ -270,7 +275,9 @@ export default function SessionGeneratePage() {
                       <TableRow key={index}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{session.class.classCode}</TableCell>
-                        <TableCell>{session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}</TableCell>
+                        <TableCell>
+                          {session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}
+                        </TableCell>
                         <TableCell>{format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
                         <TableCell>{format(new Date(session.sessionDate), "EEEE")}</TableCell>
                         <TableCell>{session.slot}</TableCell>

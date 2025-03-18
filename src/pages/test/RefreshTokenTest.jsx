@@ -3,7 +3,7 @@ import axiosClient, { getAccessToken, setAccessToken } from "@/services/axiosCli
 import React, { useState } from "react";
 import { toast } from "sonner";
 
-export default function RefrestTokenTest() {
+export default function RefreshTokenTest() {
   const [responseMessage, setResponseMessage] = useState("");
 
   const testApi = async () => {
