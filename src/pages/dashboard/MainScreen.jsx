@@ -95,8 +95,7 @@ const roleBasedData = {
         url: "class",
         icon: BookOpen,
         items: [
-          { title: "My Class", url: "my-class" },
-          { title: "Other Classes", url: "other-classes" }
+          { title: "View Assigned Classes", url: "/lecturer/my-class" }
         ]
       },
       {
@@ -104,19 +103,17 @@ const roleBasedData = {
         url: "attendance",
         icon: ClipboardList,
         items: [
-          { title: "View Attendance", url: "view" },
-          { title: "Take Attendance", url: "take" },
-          { title: "Other", url: "other" }
+          { title: "View Attendance", url: "/lecturer/attendace" },
+          { title: "Take Attendance", url: "/lecturer/attendance/take-attendance" }
         ]
       },
       {
-        title: "Schedule",
-        url: "my-schedule",
+        title: "Session",
+        url: "request",
         icon: Calendar,
         items: [
-          { title: "My Schedule", url: "lecturer/my-schedule" },
-          { title: "Change Request", url: "change-request" },
-          { title: "Other", url: "other" }
+          { title: "Change Session", url: "/lecturer/session/change" },
+          { title: "Update Session", url: "/lecturer/session/update" }
         ]
       },
       {
@@ -154,30 +151,32 @@ const roleBasedData = {
         url: "class",
         icon: BookOpen,
         items: [
-          { title: "Class List", url: "/officer/class/" },
-          { title: "Create Class", url: "/officer/class/add-new" },
-          { title: "Class Student", url: "/officer/class/add-student" }
+          { title: "View Classes", url: "/officer/class/" },
+          { title: "Add Class", url: "/officer/class/add-new" },
+          { title: "Add Student", url: "/officer/class/add-student" }
         ]
       },
       {
-        title: "Schedule",
+        title: "Session Management",
         url: "my-schedule",
         icon: Calendar,
         items: [
-          { title: "View Session", url: "/officer/session" },
+          { title: "View Sessions", url: "/officer/session" },
           { title: "Generate Session", url: "/officer/session/generate" }
         ]
       },
       {
-        title: "Account",
+        title: "User Management",
         url: "accounts",
         icon: User,
         items: [
-          { title: "List", url: "/officer/account" },
+          { title: "View Students", url: "/officer/account/students" },
+          { title: "View Lecturers", url: "/officer/account/lecturers" },
+          { title: "Add Account", url: "/officer/account/add" },
         ]
       },
       {
-        title: "Course",
+        title: "Course Management",
         url: "courses",
         icon: BookOpen,
         items: [
@@ -185,25 +184,25 @@ const roleBasedData = {
         ]
       },
       {
-        title: "Record",
+        title: "Record Management",
         url: "records",
         icon: ClipboardList,
         items: [
-          { title: "View Records", url: "view" },
-          { title: "Upload Records", url: "upload" }
+          { title: "View Records", url: "/officer/notification" },
+          { title: "Upload Records", url: "/officer/notification/upload" }
         ]
       },
       {
-        title: "Notification",
+        title: "Notification Management",
         url: "notifications",
         icon: Bell,
         items: [
-          { title: "My Notifications", url: "my" },
-          { title: "Create New", url: "create" }
+          { title: "View Notifications", url: "/officer/notification" },
+          { title: "Create New", url: "/officer/notification/add" }
         ]
       },
       {
-        title: "Report",
+        title: "Report Management",
         url: "reports",
         icon: FileText,
         items: [
@@ -212,12 +211,12 @@ const roleBasedData = {
         ]
       },
       {
-        title: "Request",
+        title: "Request Management",
         url: "requests",
         icon: FileText,
         items: [
-          { title: "Student Requests", url: "student" },
-          { title: "Lecturer Requests", url: "lecturer" }
+          { title: "Student Requests", url: "/officer/request/student" },
+          { title: "Lecturer Requests", url: "/officer/request/lecturer" }
         ]
       }
     ],
@@ -226,7 +225,7 @@ const roleBasedData = {
       // { title: "Contact", url: "contact", icon: Users }
     ],
     general: [
-      { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
+      // { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
       { title: "Notification", url: "notification", icon: Bell }
     ]
   }

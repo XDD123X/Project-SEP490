@@ -1,0 +1,25 @@
+-- 17. Thêm dữ liệu mẫu cho Account
+INSERT INTO Account ( email, password, full_name, role_id, status, gender, created_at)
+VALUES 
+( 'admin@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Nguyễn Văn Quân', (select role_id from Role where name = 'Administrator'), 1, 1,  GETDATE()), --password: matkhau123
+( 'officer1@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Trần Thị Mai', (select role_id from Role where name = 'Officer'), 1, 0,  GETDATE()), --password: matkhau123
+( 'officer2@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Phạm Hoàng Nam', (select role_id from Role where name = 'Officer'), 1, 1,  GETDATE()), --password: matkhau123
+( 'lecturer1@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Lê Thanh Hải', (select role_id from Role where name = 'Lecturer'), 1, 1,  GETDATE()), --password: matkhau123
+( 'lecturer2@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Nguyễn Thị Lan', (select role_id from Role where name = 'Lecturer'), 1, 0,  GETDATE()), --password: matkhau123
+( 'lecturer3@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Doãn Minh Tài', (select role_id from Role where name = 'Lecturer'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student1@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Đỗ Quốc Đạt', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student2@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Bùi Văn Hiện', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student3@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Nguyễn Hoàng Linh', (select role_id from Role where name = 'Student'), 1, 0,  GETDATE()), --password: matkhau123
+( 'student4@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Lương Thị Dân', (select role_id from Role where name = 'Student'), 1, 0,  GETDATE()), --password: matkhau123
+( 'student5@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Phan Thanh Khánh', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student6@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Cao Văn Linh', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student7@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Tôn Nữ Minh', (select role_id from Role where name = 'Student'), 1, 0,  GETDATE()), --password: matkhau123
+( 'student8@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Tô Minh NHật', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student9@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Huỳnh Văn Trọng', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student10@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Đặng Thị Phan', (select role_id from Role where name = 'Student'), 1, 0,  GETDATE()), --password: matkhau123
+( 'student11@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Hoàng Minh Quân', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student12@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Ngô Văn Danh', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student13@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Vũ Thị Sinh', (select role_id from Role where name = 'Student'), 1, 0,  GETDATE()), --password: matkhau123
+( 'student14@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Mai Thanh Tí', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student15@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Lý Minh Ưu', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()), --password: matkhau123
+( 'student16@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Châu Văn Việt', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()); --password: matkhau123

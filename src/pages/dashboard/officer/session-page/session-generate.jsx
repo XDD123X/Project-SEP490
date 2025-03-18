@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Pencil, PencilOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -14,6 +14,7 @@ import { GetClassList } from "@/services/classService";
 import { getLecturerList } from "@/services/accountService";
 import { getCurrentSetting } from "@/services/classSettingService";
 import { generateSession } from "@/services/sessionService";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const days = [
   { id: 1, name: "Monday" },
@@ -35,6 +36,8 @@ export default function SessionGeneratePage() {
   const [startDate, setStartDate] = useState();
   const [sessions, setSessions] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSelectDisabled, setIsSelectDisabled] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,9 +58,35 @@ export default function SessionGeneratePage() {
     fetchData();
   }, []);
 
+  //Update selectedLecturer even selectedClass change
+  useEffect(() => {
+    if (selectedClass) {
+      const foundClass = classList.find((c) => c.classId === selectedClass);
+      if (foundClass && foundClass.lecturer) {
+        setSelectedLecturer(foundClass.lecturer.accountId);
+      } else {
+        setSelectedLecturer(null);
+      }
+    }
+  }, [selectedClass, classList]);
 
   const handleCheckboxChange = (day) => {
     setPreferredDays((prev) => (prev.includes(day.id) ? prev.filter((d) => d !== day.id) : [...prev, day.id]));
+  };
+
+  // Function to toggle the disabled state
+  const toggleSelectEnabled = () => {
+    if (!isSelectDisabled) {
+      setIsSelectDisabled(true);
+      return;
+    }
+    setIsConfirmOpen(true);
+  };
+
+  //Confirm
+  const confirmChange = () => {
+    setIsSelectDisabled(false); // Bật chế độ chọn Lecturer
+    setIsConfirmOpen(false); // Đóng Dialog
   };
 
   const handleSubmit = async () => {
@@ -68,8 +97,12 @@ export default function SessionGeneratePage() {
 
     const parsedStartDate = new Date(startDate);
     const currentDate = new Date();
-    if (parsedStartDate <= currentDate) {
-      toast.error("Start Date Must Not Be Today Or Past");
+
+    parsedStartDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    if (parsedStartDate < currentDate) {
+      toast.error("Start Date Cannot Be In The Past");
       return;
     }
 
@@ -82,6 +115,7 @@ export default function SessionGeneratePage() {
       startDate: new Date(startDate).toISOString(),
       totalSessions: setting.sessionTotal,
       slotsPerDay: setting.sessionPerWeek,
+      slotNumber: setting.slotNumber,
       preferredDays: preferredDays,
     };
 
@@ -115,7 +149,7 @@ export default function SessionGeneratePage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Class</label>
               <Select value={selectedClass} onValueChange={setSelectedClass}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-10">
                   <SelectValue placeholder="Select a class" />
                 </SelectTrigger>
                 <SelectContent>
@@ -129,47 +163,49 @@ export default function SessionGeneratePage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Lecturer</label>
-              <Select onValueChange={setSelectedLecturer} defaultValue={selectedLecturer}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select a Lecturer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {lecturerList.map((lecturer) => (
-                    <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
-                      {lecturer.fullName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col-1 justify-center items-center">
+                <Select value={selectedLecturer} onValueChange={setSelectedLecturer} disabled={isSelectDisabled}>
+                  <SelectTrigger className="h-10 w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                    <SelectValue placeholder="Please Select Class First" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {lecturerList.map((lecturer) => (
+                      <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
+                        {lecturer.gender === false ? "Ms." : "Mr."} {lecturer.fullName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={toggleSelectEnabled} size="icon" variant="outline" className="ml-5 h-10 w-10" disabled={!selectedClass}>
+                  {isSelectDisabled ? <Pencil variant="icon" /> : <PencilOff variant="icon" />}
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <div>
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Total Sessions */}
+              <div className="flex-1">
                 <label className="text-sm font-medium">Total Sessions</label>
-                <Input type="number" value={setting ? setting.sessionTotal : 0} disabled className="mt-1" />
+                <Input type="number" value={setting ? setting.sessionTotal : 0} disabled className="h-10 w-full mt-2" />
+              </div>
+
+              {/* Slots Per Week */}
+              <div className="flex-1">
+                <label className="text-sm font-medium">Slots Per Week</label>
+                <Input type="number" value={setting ? setting.sessionPerWeek : 0} disabled className="h-10 w-full mt-2" />
+              </div>
+
+              {/* Slot Per Day */}
+              <div className="flex-1">
+                <label className="text-sm font-medium">Slot Per Day</label>
+                <Input type="number" value={setting ? setting.slotNumber : 0} disabled className="h-10 w-full mt-2" />
               </div>
             </div>
-            <div className="space-y-2">
-              <div>
-                <label className="text-sm font-medium">Slots per Day</label>
-                <Input type="number" value={setting ? setting.sessionPerWeek : 0} disabled className="mt-1" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Preferred Days</p>
-              <div className="grid grid-cols-2 gap-2 mt-1">
-                {days.map((day) => (
-                  <label key={day.id} className="flex items-center space-x-2">
-                    <Checkbox checked={preferredDays.includes(day.id)} onCheckedChange={() => handleCheckboxChange(day)} />
-                    <span>{day.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Start Date</label>
               <Popover open={isOpen} onOpenChange={setIsOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                  <Button variant="outline" className="w-full h-10 justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {startDate ? format(new Date(startDate), "dd/MM/yyyy") : <span>Pick a date</span>}
                   </Button>
@@ -190,6 +226,17 @@ export default function SessionGeneratePage() {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Preferred Days</p>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                {days.map((day) => (
+                  <label key={day.id} className="flex items-center space-x-2">
+                    <Checkbox checked={preferredDays.includes(day.id)} onCheckedChange={() => handleCheckboxChange(day)} />
+                    <span>{day.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
           <div className="flex space-x-4 mt-6">
@@ -223,7 +270,7 @@ export default function SessionGeneratePage() {
                       <TableRow key={index}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{session.class.classCode}</TableCell>
-                        <TableCell>{session.lecturer.fullName}</TableCell>
+                        <TableCell>{session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}</TableCell>
                         <TableCell>{format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
                         <TableCell>{format(new Date(session.sessionDate), "EEEE")}</TableCell>
                         <TableCell>{session.slot}</TableCell>
@@ -236,6 +283,24 @@ export default function SessionGeneratePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog Xác Nhận */}
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Change Lecturer</DialogTitle>
+            <p>Do you want to change the class assigned lecturer?</p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button className="mt-3" variant="outline" onClick={() => setIsConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button className="mt-3" onClick={confirmChange}>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

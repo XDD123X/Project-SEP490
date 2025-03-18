@@ -118,6 +118,13 @@ export default function ClassDetailPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
+                <div className="font-semibold">Meet URL:</div>
+                <div>
+                  <Link className="underline underline-offset-4 text-blue-500" to={currentClass.classUrl} target="_blank">{currentClass.classUrl}</Link>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Status:</div>
                 <div>{getStatusBadge(currentClass.status)}</div>
               </div>

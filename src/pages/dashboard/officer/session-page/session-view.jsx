@@ -449,7 +449,7 @@ export default function SessionViewPage() {
                   <TableCell>{index + 1}</TableCell>
 
                   <TableCell>{session.class.classCode}</TableCell>
-                  <TableCell>{session.lecturer.fullName}</TableCell>
+                  <TableCell>{session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}</TableCell>
                   <TableCell>{format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
                   <TableCell>{format(new Date(session.sessionDate), "EEEE")}</TableCell>
                   <TableCell>{session.slot}</TableCell>
@@ -596,7 +596,7 @@ export default function SessionViewPage() {
                   <SelectContent>
                     {lecturers.map((lecturer) => (
                       <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
-                        {lecturer.fullName}
+                        {lecturer.gender === false ? "Ms." : "Mr."} {lecturer.fullName}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -697,13 +697,13 @@ export default function SessionViewPage() {
               {/* Lecturer (Dropdown Select) */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Lecturer</Label>
-                <Input value={currentSession.lecturer.fullName} className="col-span-3" readOnly />
+                <Input value={(currentSession.lecturer.gender === false ? "Ms. " : "Mr. ") + currentSession.lecturer.fullName} className="col-span-3" readOnly />
               </div>
 
               {/* Date */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Date</Label>
-                <Input value={currentSession.sessionDate ? currentSession.sessionDate.split("T")[0] : ""} className="col-span-3" readOnly />
+                <Input value={currentSession.sessionDate ? format( (currentSession.sessionDate), 'dd/MM/yyyy') : ""} className="col-span-3" readOnly />
               </div>
 
               {/* Slot (Dropdown Select) */}
@@ -726,7 +726,7 @@ export default function SessionViewPage() {
 
               {/* Session Record */}
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Session Record</Label>
+                <Label className="text-right">Record</Label>
                 <div className="col-span-3 flex items-center gap-2">
                   {currentSession.sessionRecord ? (
                     <>
@@ -779,10 +779,9 @@ export default function SessionViewPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button className='w-full' onClick={() => setIsViewDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditSession}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

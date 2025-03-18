@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,16 +28,27 @@ const formSchema = z.object({
   classCode: z.string().min(3, "Class code must be at least 3 characters"),
   className: z.string().min(3, "Class name must be at least 3 characters"),
   lecturerId: z.string().min(1, "Please select a lecturer"),
-  courseId: z.coerce.number(),
+  courseId: z.coerce.number().min(1, "Please select a course"),
   totalSession: z.coerce.number(),
-  startDate: z.string().datetime({ required_error: "Start date is required" }),
+  startDate: z
+    .string()
+    .datetime({ required_error: "Start date is required" })
+    .refine(
+      (date) => {
+        const selectedDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate >= today;
+      },
+      { message: "Start date cannot be in the past" }
+    ),
   endDate: z.string().datetime().nullable().optional(),
   classUrl: z.string(),
   status: z.coerce.number(),
 });
 
 // Confirmation Dialog Component
-function ConfirmationDialog({ open, onClose, onConfirm, data, lecturerName, course }) {
+function ConfirmationDialog({ open, onClose, onConfirm, data, lecturerName, course, classCodeExist }) {
   // Find the lecturer and course names based on their IDs
 
   return (
@@ -49,8 +60,11 @@ function ConfirmationDialog({ open, onClose, onConfirm, data, lecturerName, cour
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="font-medium">Class Code:</div>
-            <div>{data.classCode}</div>
+            <div className={`font-medium ${classCodeExist === true ? "text-red-500" : ""}`}>Class Code:</div>
+            <div className={`${classCodeExist === true ? "text-red-500" : ""}`}>
+              {data.classCode}
+              <p className={classCodeExist === true ? "font-bold" : "hidden"}>( Class Code Already Exists )</p>
+            </div>
 
             <div className="font-medium">Class Name:</div>
             <div>{data.className}</div>
@@ -96,6 +110,7 @@ export default function ClassFormPage() {
   const [classSetting, setClassSetting] = useState({ sessionTotal: 0 });
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [classCodeExist, setClassCodeExist] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -147,6 +162,7 @@ export default function ClassFormPage() {
   }, [watchLecturer, form, lecturers, classSetting]);
 
   function onSubmit(data) {
+    setClassCodeExist(false);
     setFormData(data);
     setShowConfirmation(true);
   }
@@ -154,11 +170,11 @@ export default function ClassFormPage() {
   async function handleConfirm() {
     try {
       const result = await AddClass(formData); // Gửi dữ liệu lên API
-  
       if (result.status === 200) {
         toast.success("Class created successfully! 🎉");
         navigate(`/officer/class/detail?classId=${result.data.classId}`);
       } else if (result.status === 409) {
+        setClassCodeExist(true);
         toast.error("Class code already exists! 🚨");
       } else {
         toast.error("Something went wrong! ❌");
@@ -237,7 +253,7 @@ export default function ClassFormPage() {
                           <SelectContent>
                             {lecturers.map((lecturer) => (
                               <SelectItem key={lecturer.accountId} value={lecturer.accountId.toString()}>
-                                {lecturer.fullName}
+                                {lecturer.gender === false ? 'Ms.' : 'Mr.'} {lecturer.fullName}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -403,6 +419,7 @@ export default function ClassFormPage() {
           data={formData}
           lecturerName={lecturers.find((l) => l.accountId === formData.lecturerId)?.fullName || "Unknown Lecturer"}
           course={courses.find((c) => c.courseId === formData.courseId) || null}
+          classCodeExist={classCodeExist}
         />
       )}
     </main>

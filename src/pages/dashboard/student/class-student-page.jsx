@@ -74,7 +74,7 @@ export default function StudentClassPage() {
               <div className="space-y-3">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-2" />
-                  <span>Lecturer: {classItem.lecturer?.fullName || "No Lecturer Assigned"}</span>
+                  <span>Lecturer: {classItem.lecturer.gender === false ? "Ms. " : "Mr. "} {classItem.lecturer?.fullName || "No Lecturer Assigned"}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
@@ -115,20 +115,20 @@ export default function StudentClassPage() {
                 <h3 className="font-semibold mb-4 text-lg uppercase">Class Information</h3>
                 <ul className="space-y-2">
                   <li>
-                    <span className="font-medium">Status:</span>{" "}
-                    <Badge variant={selectedClass.status === 0 ? "default" : selectedClass.status === 1 ? "success" : "destructive"}>{selectedClass.status === 0 ? "Upcoming" : selectedClass.status === 1 ? "Studying" : "Finished"}</Badge>
+                    <span className="font-medium mr-1">Status:</span>
+                    <Badge variant={selectedClass.status === 0 ? "default" : selectedClass.status === 1 ? "success" : "destructive"}> {selectedClass.status === 0 ? "Upcoming" : selectedClass.status === 1 ? "Studying" : "Finished"}</Badge>
                   </li>
                   <li>
-                    <span className="font-medium">Lecturer:</span> {selectedClass.lecture?.fullName || "No Lecturer Assigned"}
+                    <span className="font-medium">Lecturer:</span> {selectedClass.lecturer.gender === false ? "Ms. " : "Mr. "} {selectedClass.lecturer?.fullName || "No Lecturer Assigned"}
                   </li>
                   <li>
                     <span className="font-medium">Total Sessions:</span> {selectedClass.totalSession}
                   </li>
                   <li>
-                    <span className="font-medium">Start Date:</span> {new Date(selectedClass.startDate).toLocaleDateString()}
+                    <span className="font-medium">Start Date:</span> {selectedClass.startDate ? format( (selectedClass.startDate), 'dd/MM/yyy') : 'TBD'}
                   </li>
                   <li>
-                    <span className="font-medium">End Date:</span> {new Date(selectedClass.endDate).toLocaleDateString()}
+                    <span className="font-medium">End Date:</span> {selectedClass.endDate ? format( (selectedClass.endDate), 'dd/MM/yyy') : 'TBD'}
                   </li>
                 </ul>
               </div>
