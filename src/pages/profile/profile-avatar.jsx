@@ -1,52 +1,107 @@
-import React, { useEffect } from "react";
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useStore } from "@/services/StoreContext";
+import { authMe, updateAvatar } from "@/services/authService";
+import { toast } from "sonner";
 
 export default function ProfileAvatar() {
   const [isUploading, setIsUploading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState(""); // Chỉ hiển thị ảnh preview
+  const [selectedFile, setSelectedFile] = useState(null); // Lưu file để upload khi bấm Save
   const fileInputRef = useRef(null);
 
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
   const { user } = state;
 
   useEffect(() => {
-    setAvatarUrl(user.imgUrl);
+    setPreviewUrl(user.imgUrl); // Load avatar từ user profile
   }, [user.imgUrl]);
 
+  // Khi chọn file: Chỉ hiển thị preview, chưa upload
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-
-    try {
-      // In a real application, you would upload the file to a server here
-      // For this example, we'll just use URL.createObjectURL
-      const objectUrl = URL.createObjectURL(file);
-      setAvatarUrl(objectUrl);
-
-      // Simulate upload delay
-      setTimeout(() => {
-        setIsUploading(false);
-      }, 1000);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      setIsUploading(false);
-    }
+    setSelectedFile(file); // Lưu file để upload sau
+    setPreviewUrl(URL.createObjectURL(file)); // Hiển thị preview ngay
   };
 
+  // Khi bấm avatar -> mở file dialog
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleSave = () => {
-    alert("Avatar updated successfully!");
+  // Khi bấm Save -> Upload ảnh lên Cloudinary + updateProfile
+  const handleSave = async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    try {
+      // Upload ảnh lên Cloudinary
+      const uploadedImageUrl = await uploadImageToStorage(selectedFile);
+
+      if (uploadedImageUrl) {
+        // Update profile với ảnh mới
+        await updateAvatar(user.name, user.phone, user.dob, uploadedImageUrl);
+
+        // Gọi authMe để lấy lại thông tin mới nhất
+        const userResponse = await authMe();
+
+        if (!userResponse || !userResponse.data) {
+          throw new Error("Không thể lấy dữ liệu người dùng");
+        }
+
+        const userData = {
+          uid: userResponse.data.accountId,
+          email: userResponse.data.email,
+          name: userResponse.data.fullname,
+          phone: userResponse.data.phone,
+          dob: userResponse.data.dob,
+          imgUrl: uploadedImageUrl, // Gán URL mới trực tiếp
+          role: userResponse.data.role,
+          schedule: userResponse.data.schedule,
+        };
+
+        // Cập nhật state Redux
+        dispatch({ type: "SET_USER", payload: { user: userData, role: userData.role } });
+
+        // Hiển thị ngay trên UI
+        // setAvatarUrl(uploadedImageUrl);
+        setPreviewUrl(uploadedImageUrl);
+        setSelectedFile(null);
+
+        toast.success("Avatar Changed!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Lỗi khi cập nhật avatar!");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Hàm upload ảnh lên Cloudinary
+  const uploadImageToStorage = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "my_preset"); // Thay bằng preset của bạn
+    formData.append("cloud_name", "dprozebpx"); // Thay bằng Cloud Name của bạn
+
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/dprozebpx/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      return data.secure_url || null;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return null;
+    }
   };
 
   return (
@@ -59,8 +114,8 @@ export default function ProfileAvatar() {
         <CardContent className="flex flex-col items-center gap-6">
           <div onClick={handleAvatarClick} className="relative cursor-pointer group">
             <div className={cn("relative h-64 w-64 rounded-full overflow-hidden border-2 border-muted bg-muted", isUploading && "opacity-50")}>
-              {avatarUrl ? (
-                <img src={avatarUrl || "/placeholder.svg"} alt="Avatar" className="object-cover fill" />
+              {previewUrl ? (
+                <img src={previewUrl || "/placeholder.svg"} alt="Avatar" className="object-cover fill" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-muted text-3xl font-semibold uppercase text-muted-foreground">{isUploading ? <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" /> : "JD"}</div>
               )}
@@ -84,8 +139,15 @@ export default function ProfileAvatar() {
               )}
             </Button>
 
-            <Button onClick={handleSave} disabled={!avatarUrl || isUploading} className="w-32">
-              Save Avatar
+            <Button onClick={handleSave} disabled={!selectedFile || isUploading} className="w-32">
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Avatar"
+              )}
             </Button>
           </div>
 

@@ -77,12 +77,13 @@ export const authMe = async () => {
   }
 };
 
-export const updateProfile = async (fullName, phone, dob) => {
+export const updateProfile = async (fullName, phone, dob, imgUrl) => {
   try {
     const response = await axiosClient.put("/auth/profile", {
       fullName,
       phone,
       dob,
+      imgUrl,
     });
 
     return {
@@ -121,11 +122,25 @@ export const changePassword = async (oldPassword, newPassword, reNewPassword) =>
   }
 };
 
-export const updateAvatar = async (file) => {
-  const formData = new FormData();
-  formData.append("avatar", file);
+export const updateAvatar = async (fullName, phone, dob, imgUrl) => {
+  try {
+    const response = await axiosClient.put("/auth/avatar", {
+      fullName,
+      phone,
+      dob,
+      imgUrl,
+    });
 
-  return axiosClient.post("/auth/update-avatar", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    toast.error("Update Profile Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data || "Update Profile Failed!",
+    };
+  }
 };

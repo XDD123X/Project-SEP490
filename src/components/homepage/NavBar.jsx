@@ -1,8 +1,20 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/services/StoreContext";
-import { useEffect, useState } from "react";
 import { Spinner } from "../ui/spinner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const FACEBOOK_URL = import.meta.env.VITE_SUPPORT_FACEBOOK;
 const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
@@ -31,7 +43,28 @@ export default function Navbar() {
             </Link>
           ) : (
             <Link to={`/${role}`}>
-              <Button size="sm">Welcome, {user.name}</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm">Welcome, {user.name}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>
+                    {role} {user.name}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <Link to={`/profile`}>My Profile</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Support</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Link to={`/logout`}>Log out</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </Link>
           )}
         </div>

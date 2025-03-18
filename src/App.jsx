@@ -32,6 +32,7 @@ import ClassAddNewPage from "./pages/dashboard/officer/classroom/class-add-page"
 import ClassDetailPage from "./pages/dashboard/officer/classroom/class-detail-page";
 import ClassAddStudentPage from "./pages/dashboard/officer/classroom/add-student/class-add-student-page";
 import RefreshTokenTest from "./pages/test/RefreshTokenTest";
+import ProtectedRoute from "./pages/private/ProtectedRoute";
 
 function App() {
   return (
@@ -68,36 +69,44 @@ function App() {
                     <Route path="/notification" element={<Notification />} />
 
                     {/* Dashboard by Role */}
-                    <Route path="/Student">
-                      <Route path="demo" element={<DemoPage />} />
-                      <Route path="dashboard" element={<DashboardPage />} />
-                      <Route path="notification" element={<Notification />} />
-                      <Route path="my-schedule" element={<StudentSchedulePage />} />
-                      <Route path="my-class" element={<StudentClassPage />} />
+                    <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+                      <Route path="/Student">
+                        <Route path="demo" element={<DemoPage />} />
+                        <Route path="dashboard" element={<DashboardPage />} />
+                        <Route path="notification" element={<Notification />} />
+                        <Route path="my-schedule" element={<StudentSchedulePage />} />
+                        <Route path="my-class" element={<StudentClassPage />} />
+                      </Route>
                     </Route>
-                    <Route path="/Administrator">
-                      <Route path="demo" element={<DemoPage />} />
-                      <Route path="dashboard" element={<DashboardPage />} />
-                      <Route path="notification" element={<Notification />} />
+                    <Route element={<ProtectedRoute allowedRoles={["administrator"]} />} >
+                      <Route path="/Administrator">
+                        <Route path="demo" element={<DemoPage />} />
+                        <Route path="dashboard" element={<DashboardPage />} />
+                        <Route path="notification" element={<Notification />} />
+                      </Route>
                     </Route>
-                    <Route path="/Lecturer">
-                      <Route path="demo" element={<DemoPage />} />
-                      <Route path="notification" element={<Notification />} />
-                      <Route path="my-schedule" element={<LecturerSchedulePage />} />
+                    <Route element={<ProtectedRoute allowedRoles={["lecturer"]} />}>
+                      <Route path="/Lecturer">
+                        <Route path="demo" element={<DemoPage />} />
+                        <Route path="notification" element={<Notification />} />
+                        <Route path="my-schedule" element={<LecturerSchedulePage />} />
+                      </Route>
                     </Route>
-                    <Route path="/Officer">
-                      <Route path="session" element={<SessionViewPage />} />
-                      <Route path="session/generate" element={<SessionGeneratePage />} />
+                    <Route element={<ProtectedRoute allowedRoles={["officer"]} />}>
+                      <Route path="/Officer">
+                        <Route path="session" element={<SessionViewPage />} />
+                        <Route path="session/generate" element={<SessionGeneratePage />} />
 
-                      <Route path="class" element={<ClassViewPage />} />
-                      <Route path="class/add-new" element={<ClassAddNewPage />} />
-                      <Route path="class/add-student" element={<ClassAddStudentPage />} />
-                      <Route path="class/detail" element={<ClassDetailPage />} />
+                        <Route path="class" element={<ClassViewPage />} />
+                        <Route path="class/add-new" element={<ClassAddNewPage />} />
+                        <Route path="class/add-student" element={<ClassAddStudentPage />} />
+                        <Route path="class/detail" element={<ClassDetailPage />} />
 
-                      <Route path="account" element={<AccountManagementPage />} />
-                      <Route path="demo" element={<DemoPage />} />
-                      <Route path="dashboard" element={<DashboardPage />} />
-                      <Route path="notification" element={<Notification />} />
+                        <Route path="account" element={<AccountManagementPage />} />
+                        <Route path="demo" element={<DemoPage />} />
+                        <Route path="dashboard" element={<DashboardPage />} />
+                        <Route path="notification" element={<Notification />} />
+                      </Route>
                     </Route>
                   </Route>
                 </Route>

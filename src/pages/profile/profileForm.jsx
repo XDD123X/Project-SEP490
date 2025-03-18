@@ -55,7 +55,7 @@ export default function ProfileForm() {
 
   async function onSubmit(data) {
     try {
-      const response = await updateProfile(data.fullname, data.phone, data.dob);
+      const response = await updateProfile(data.fullname, data.phone, data.dob, "");
       if (response.status === 200) {
         toast.success("Profile updated successfully!");
       } else {

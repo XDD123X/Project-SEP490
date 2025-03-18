@@ -16,10 +16,10 @@ export default function ProfilePage() {
             icon: <User size={18} />,
             href: '/profile',
         },
-        role === 'Teacher' && {
-            title: 'Schedule',
+        role === 'Lecturer' && {
+            title: 'Personal Schedule',
             icon: <Calendar size={18} />,
-            href: '/profile/schedule',
+            href: '/profile/personal-schedule',
         },
         {
             title: 'Avatar',

@@ -89,13 +89,10 @@ export function LoginForm() {
 
       // Original API call code (commented)
       const response = await login(formData.email, formData.password, formData.rememberMe);
-      console.log("login step 1: ", response);
-      
-
 
       if (response.status === 200 && response?.data) {
         const userResponse = await authMe();
-        console.log("login step 2 authMe: ", userResponse);
+        
         const user = {
           uid: userResponse.data.accountId,
           email: userResponse.data.email,
@@ -104,6 +101,7 @@ export function LoginForm() {
           dob: userResponse.data.dob,
           imgUrl: userResponse.data.imgUrl,
           role: userResponse.data.role,
+          schedule: userResponse.data.schedule
         };
         const role = userResponse.data.role;
         dispatch({ type: "SET_USER", payload: { user, role } });
@@ -185,7 +183,7 @@ export function LoginForm() {
             </div>
           </form>
           <div className="relative hidden bg-muted md:block">
-            <img src="https://wallpapers.com/images/featured/teacher-hnlnd76tuq5wxeaz.jpg" alt="Image" className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+            <img src="https://wallpapers.com/images/featured/teacher-hnlnd76tuq5wxeaz.jpg" alt="Image" className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.8]" />
           </div>
         </CardContent>
       </Card>

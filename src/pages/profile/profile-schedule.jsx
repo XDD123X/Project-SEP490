@@ -1,176 +1,219 @@
-import React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import React, { useEffect } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { useStore } from "@/services/StoreContext";
+import { toast } from "sonner";
+import { AddLecturerSchedule, getLecturerScheduleByLecturerId, UpdateLecturerSchedule } from "@/services/lecturerScheduleService";
 
-// Define the time slots
-const timeSlots = ["Slot 1", "Slot 2", "Slot 3", "Slot 4"]
+const timeSlots = [
+  { label: "Slot 1", value: 1 },
+  { label: "Slot 2", value: 2 },
+  { label: "Slot 3", value: 3 },
+  { label: "Slot 4", value: 4 },
+];
 
-// Define the days of the week
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+// Define the days of the week with values
+const daysOfWeek = [
+  { label: "Monday", value: 2 },
+  { label: "Tuesday", value: 3 },
+  { label: "Wednesday", value: 4 },
+  { label: "Thursday", value: 5 },
+  { label: "Friday", value: 6 },
+  { label: "Saturday", value: 7 },
+  { label: "Sunday", value: 8 },
+];
 
 export default function ProfileSchedule() {
-  // Create state to track selected days and slots
-  const [selectedDays, setSelectedDays] = useState({})
-  const [selectedSlots, setSelectedSlots] = useState({})
+  const [exist, setExist] = useState(null);
+  const [selectedDays, setSelectedDays] = useState({});
+  const [selectedSlots, setSelectedSlots] = useState({});
+  const { state } = useStore();
+  const { user } = state;
 
-  // Initialize the state objects
-  useState(() => {
-    const initialDays  = {}
-    const initialSlots = {}
+  //Fetch Data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getLecturerScheduleByLecturerId(user.uid);
+        if (response.status === 200 && response.data) {
+          console.log(response.data);
 
-    daysOfWeek.forEach((day) => {
-      initialDays[day] = false
-    })
+          setExist(response.data.scheduleId);
+          const { weekdayAvailable, slotAvailable } = response.data;
 
-    timeSlots.forEach((slot) => {
-      initialSlots[slot] = false
-    })
+          // Chuyển danh sách từ API thành object { value: true/false }
+          const formattedDays = daysOfWeek.reduce((acc, day) => {
+            acc[day.value] = weekdayAvailable.includes(day.value);
+            return acc;
+          }, {});
 
-    setSelectedDays(initialDays)
-    setSelectedSlots(initialSlots)
-  })
+          const formattedSlots = timeSlots.reduce((acc, slot) => {
+            acc[slot.value] = slotAvailable.includes(slot.value);
+            return acc;
+          }, {});
 
-  // Toggle a day checkbox
-  const toggleDay = (day) => {
+          setSelectedDays(formattedDays);
+          setSelectedSlots(formattedSlots);
+        }
+      } catch (error) {
+        toast.error("Failed to fetch schedule");
+      }
+    };
+    if (user?.uid) fetchData();
+  }, [user]);
+
+  const toggleDay = (dayValue) => {
     setSelectedDays((prev) => ({
       ...prev,
-      [day]: !prev[day],
-    }))
-  }
+      [dayValue]: !prev[dayValue],
+    }));
+  };
 
-  // Toggle a slot checkbox
-  const toggleSlot = (slot) => {
+  const toggleSlot = (slotValue) => {
     setSelectedSlots((prev) => ({
       ...prev,
-      [slot]: !prev[slot],
-    }))
-  }
+      [slotValue]: !prev[slotValue],
+    }));
+  };
 
-  // Check all days
   const checkAllDays = () => {
-    const newDays = { ...selectedDays }
-    Object.keys(newDays).forEach((day) => {
-      newDays[day] = true
-    })
-    setSelectedDays(newDays)
-  }
+    const newDays = daysOfWeek.reduce((acc, day) => ({ ...acc, [day.value]: true }), {});
+    setSelectedDays(newDays);
+  };
 
-  // Uncheck all days
   const uncheckAllDays = () => {
-    const newDays = { ...selectedDays }
-    Object.keys(newDays).forEach((day) => {
-      newDays[day] = false
-    })
-    setSelectedDays(newDays)
-  }
+    setSelectedDays({});
+  };
 
-  // Check all slots
   const checkAllSlots = () => {
-    const newSlots = { ...selectedSlots }
-    Object.keys(newSlots).forEach((slot) => {
-      newSlots[slot] = true
-    })
-    setSelectedSlots(newSlots)
-  }
+    const newSlots = timeSlots.reduce((acc, slot) => ({ ...acc, [slot.value]: true }), {});
+    setSelectedSlots(newSlots);
+  };
 
-  // Uncheck all slots
   const uncheckAllSlots = () => {
-    const newSlots = { ...selectedSlots }
-    Object.keys(newSlots).forEach((slot) => {
-      newSlots[slot] = false
-    })
-    setSelectedSlots(newSlots)
-  }
+    setSelectedSlots({});
+  };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // Create a schedule from the selected days and slots
-    const schedule = {
-      days: Object.keys(selectedDays).filter((day) => selectedDays[day]),
-      slots: Object.keys(selectedSlots).filter((slot) => selectedSlots[slot]),
+    if (!exist) {
+      //create
+      const create = {
+        lecturerId: user.uid,
+        weekdayAvailable: Object.keys(selectedDays)
+          .filter((key) => selectedDays[key])
+          .map(Number)
+          .join(","),
+        slotAvailable: Object.keys(selectedSlots)
+          .filter((key) => selectedSlots[key])
+          .map(Number)
+          .join(","),
+      };
+      console.log("Submitted schedule:", create);
+
+      try {
+        const response = await AddLecturerSchedule(create);
+
+        if (response.status === 200) {
+          toast.success("Schedule created successfully!");
+        }
+      } catch (error) {
+        toast.error(error);
+      }
+    } else {
+      //update
+      const update = {
+        scheduleId: exist,
+        lecturerId: user.uid,
+        weekdayAvailable: Object.keys(selectedDays)
+          .filter((key) => selectedDays[key])
+          .map(Number)
+          .join(","),
+        slotAvailable: Object.keys(selectedSlots)
+          .filter((key) => selectedSlots[key])
+          .map(Number)
+          .join(","),
+      };
+      console.log("Submitted schedule:", update);
+      try {
+        const response = await UpdateLecturerSchedule(update);
+
+        if (response.status === 200) {
+          toast.success("Schedule updated successfully!");
+        }
+      } catch (error) {
+        toast.error(error);
+      }
     }
-
-    console.log("Submitted schedule:", schedule)
-    // Here you would typically send the data to your backend
-    alert("Schedule submitted successfully!")
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-4xl mx-auto">
-      {/* Weekday Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekdays</CardTitle>
-          <CardDescription>Select the days of the week.</CardDescription>
-          <div className="flex gap-2 mt-4">
-            <Button type="button" variant="outline" onClick={checkAllDays}>
-              Check All
-            </Button>
-            <Button type="button" variant="outline" onClick={uncheckAllDays}>
-              Uncheck All
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {daysOfWeek.map((day) => (
-              <div key={day} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`day-${day}`}
-                  checked={selectedDays[day] || false}
-                  onCheckedChange={() => toggleDay(day)}
-                />
-                <Label htmlFor={`day-${day}`} className="cursor-pointer">
-                  {day}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-4xl ">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Weekdays */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Weekdays</CardTitle>
+            <CardDescription>Select the days of the week.</CardDescription>
+            <div className="flex gap-2 mt-4">
+              <Button type="button" variant="outline" onClick={checkAllDays}>
+                Check All
+              </Button>
+              <Button type="button" variant="outline" onClick={uncheckAllDays}>
+                Uncheck All
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              {daysOfWeek.map((day) => (
+                <div key={day.value} className="flex items-center space-x-2">
+                  <Checkbox id={`day-${day.value}`} checked={selectedDays[day.value] || false} onCheckedChange={() => toggleDay(day.value)} />
+                  <Label htmlFor={`day-${day.value}`} className="cursor-pointer">
+                    {day.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Time Slots Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Time Slots</CardTitle>
-          <CardDescription>Select the time slots.</CardDescription>
-          <div className="flex gap-2 mt-4">
-            <Button type="button" variant="outline" onClick={checkAllSlots}>
-              Check All
-            </Button>
-            <Button type="button" variant="outline" onClick={uncheckAllSlots}>
-              Uncheck All
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {timeSlots.map((slot) => (
-              <div key={slot} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`slot-${slot}`}
-                  checked={selectedSlots[slot] || false}
-                  onCheckedChange={() => toggleSlot(slot)}
-                />
-                <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
-                  {slot}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        {/* Time Slots */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Time Slots</CardTitle>
+            <CardDescription>Select the time slots.</CardDescription>
+            <div className="flex gap-2 mt-4">
+              <Button type="button" variant="outline" onClick={checkAllSlots}>
+                Check All
+              </Button>
+              <Button type="button" variant="outline" onClick={uncheckAllSlots}>
+                Uncheck All
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              {timeSlots.map((slot) => (
+                <div key={slot.value} className="flex items-center space-x-2">
+                  <Checkbox id={`slot-${slot.value}`} checked={selectedSlots[slot.value] || false} onCheckedChange={() => toggleSlot(slot.value)} />
+                  <Label htmlFor={`slot-${slot.value}`} className="cursor-pointer">
+                    {slot.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-center">
         <Button type="submit">Submit Schedule</Button>
       </div>
     </form>
-  )
+  );
 }
-

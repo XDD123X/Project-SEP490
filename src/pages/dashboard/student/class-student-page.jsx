@@ -82,11 +82,11 @@ export default function StudentClassPage() {
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>Start Date: {format(new Date(classItem.startDate), "dd/MM/yyyy")}</span>
+                  <span>Start Date: {classItem.startDate ? (format(new Date(classItem.startDate), "dd/MM/yyyy")) : 'TBD'}</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>End Date: {format(new Date(classItem.endDate), "dd/MM/yyyy")}</span>
+                  <span>End Date: {classItem.endDate ? (format(new Date(classItem.endDate), "dd/MM/yyyy")) : 'TBD'}</span>
                 </div>
               </div>
             </CardContent>
