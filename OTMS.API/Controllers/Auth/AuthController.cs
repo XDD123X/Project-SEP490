@@ -113,9 +113,26 @@ namespace OTMS.API.Controllers.Auth
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> Logout()
         {
+
+            var email = User.FindFirst("ue")?.Value;
+            if (string.IsNullOrEmpty(email))
+            {
+                return Unauthorized("Email not found in token");
+
+            }
+
+            var user = await _accountRepository.GetByEmailAsync(email);
+            if (user == null) return NotFound("User Not Found");
+
+            //delete cookies
             Response.Cookies.Delete("refreshToken");
+
+            //revoke token
+            await _refreshTokenRepository.RevokeByUserIdAsync(user.AccountId);
+
             return Ok("Logged out successfully");
         }
 
@@ -136,7 +153,7 @@ namespace OTMS.API.Controllers.Auth
                 if (user == null) return NotFound("User Not Found");
 
                 return Ok(new
-                {   
+                {
                     AccountId = user.AccountId,
                     Email = user.Email,
                     Fullname = user.FullName,
@@ -192,7 +209,7 @@ namespace OTMS.API.Controllers.Auth
 
                 string oldhashed = user.Password;
 
-                if (  _passwordService.HashPassword(changePasswordDTO.OldPassword) != oldhashed)
+                if (_passwordService.HashPassword(changePasswordDTO.OldPassword) != oldhashed)
                 {
                     return BadRequest("Old password is incorrect");
                 }
