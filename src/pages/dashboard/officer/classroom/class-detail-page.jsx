@@ -17,13 +17,31 @@ export default function ClassDetailPage() {
   const [currentClass, setCurrentClass] = useState(null);
   const classId = searchParams.get("classId");
 
+  {
+    /* <Badge
+                    variant={
+                      classItem.status === 0 ? "destructive"   // Disabled
+                      : classItem.status === 1 ? "secondary"  // Upcoming
+                      : classItem.status === 2 ? "info"    // Studying
+                      : "success" // Finished
+                    }
+                  >
+                    {classItem.status === 0 ? "Disabled"
+                    : classItem.status === 1 ? "Upcoming"
+                    : classItem.status === 2 ? "Studying"
+                    : "Finished"}
+                  </Badge> */
+  }
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 0:
-        return <Badge variant="outline">Upcoming</Badge>;
+        return <Badge variant="destructive">Disabled</Badge>;
       case 1:
-        return <Badge variant="info">Studying</Badge>;
+        return <Badge variant="outline">Upcoming</Badge>;
       case 2:
+        return <Badge variant="info">Studying</Badge>;
+      case 3:
         return <Badge variant="success">Finished</Badge>;
       default:
         return <Badge>Unknown</Badge>;
@@ -99,17 +117,19 @@ export default function ClassDetailPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Lecturer:</div>
-                <div>{currentClass.lecturer.fullName}</div>
+                <div>
+                  {currentClass.lecturer.gender ? "Mr." : "Ms."} {currentClass.lecturer.fullName}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Start Date:</div>
-                <div>{currentClass?.startDate ? format(new Date(currentClass.startDate), "dd/MM/yyyy") : "N/A"}</div>
+                <div>{currentClass?.startDate ? format(new Date(currentClass.startDate), "dd/MM/yyyy") : "TBD"}</div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">End Date:</div>
-                <div>{currentClass?.endDate ? format(new Date(currentClass.endDate), "dd/MM/yyyy") : "N/A"}</div>
+                <div>{currentClass?.endDate ? format(new Date(currentClass.endDate), "dd/MM/yyyy") : "TBD"}</div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -120,7 +140,9 @@ export default function ClassDetailPage() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Meet URL:</div>
                 <div>
-                  <Link className="underline underline-offset-4 text-blue-500" to={currentClass.classUrl} target="_blank">{currentClass.classUrl}</Link>
+                  <Link className="underline underline-offset-4 text-blue-500" to={currentClass.classUrl} target="_blank">
+                    {currentClass.classUrl}
+                  </Link>
                 </div>
               </div>
 

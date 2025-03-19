@@ -24,7 +24,6 @@ export default function StudentClassPage() {
     const fetchData = async () => {
       try {
         const response = await GetClassListByStudentId(user.uid);
-        console.log("class list by id: ", response.data);
         setClassList(response.data);
       } catch (error) {
         toast.error("Error", error);
@@ -35,21 +34,7 @@ export default function StudentClassPage() {
 
   const handleDetailClick = (classItem) => {
     setSelectedClass(classItem);
-    console.log("item class: ", classItem);
     setIsDialogOpen(true);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "1":
-        return "bg-green-500";
-      case "0":
-        return "bg-blue-500";
-      case "2":
-        return "bg-gray-500";
-      default:
-        return "bg-gray-500";
-    }
   };
 
   return (
@@ -62,10 +47,18 @@ export default function StudentClassPage() {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <CardTitle className="text-xl">{classItem.className}</CardTitle>
-                <Badge className={getStatusColor(classItem.status)}>
-                  {classItem.status === 0 ? "Upcoming" : ""}
-                  {classItem.status === 1 ? "Studying" : ""}
-                  {classItem.status === 2 ? "Finished" : ""}
+                <Badge
+                  variant={
+                    classItem.status === 0
+                      ? "destructive" // Disabled
+                      : classItem.status === 1
+                      ? "secondary" // Upcoming
+                      : classItem.status === 2
+                      ? "info" // Studying
+                      : "success" // Finished
+                  }
+                >
+                  {classItem.status === 0 ? "Disabled" : classItem.status === 1 ? "Upcoming" : classItem.status === 2 ? "Studying" : "Finished"}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">Code: {classItem.classCode}</p>
@@ -74,7 +67,9 @@ export default function StudentClassPage() {
               <div className="space-y-3">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-2" />
-                  <span>Lecturer: {classItem.lecturer.gender === false ? "Ms. " : "Mr. "} {classItem.lecturer?.fullName || "No Lecturer Assigned"}</span>
+                  <span>
+                    Lecturer: {classItem.lecturer.gender === false ? "Ms. " : "Mr. "} {classItem.lecturer?.fullName || "No Lecturer Assigned"}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
@@ -82,11 +77,11 @@ export default function StudentClassPage() {
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>Start Date: {classItem.startDate ? (format(new Date(classItem.startDate), "dd/MM/yyyy")) : 'TBD'}</span>
+                  <span>Start Date: {classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "TBD"}</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>End Date: {classItem.endDate ? (format(new Date(classItem.endDate), "dd/MM/yyyy")) : 'TBD'}</span>
+                  <span>End Date: {classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "TBD"}</span>
                 </div>
               </div>
             </CardContent>
@@ -116,7 +111,19 @@ export default function StudentClassPage() {
                 <ul className="space-y-2">
                   <li>
                     <span className="font-medium mr-1">Status:</span>
-                    <Badge variant={selectedClass.status === 0 ? "default" : selectedClass.status === 1 ? "success" : "destructive"}> {selectedClass.status === 0 ? "Upcoming" : selectedClass.status === 1 ? "Studying" : "Finished"}</Badge>
+                    <Badge
+                      variant={
+                        selectedClass.status === 0
+                          ? "destructive" // Disabled
+                          : selectedClass.status === 1
+                          ? "secondary" // Upcoming
+                          : selectedClass.status === 2
+                          ? "info" // Studying
+                          : "success" // Finished
+                      }
+                    >
+                      {selectedClass.status === 0 ? "Disabled" : selectedClass.status === 1 ? "Upcoming" : selectedClass.status === 2 ? "Studying" : "Finished"}
+                    </Badge>{" "}
                   </li>
                   <li>
                     <span className="font-medium">Lecturer:</span> {selectedClass.lecturer.gender === false ? "Ms. " : "Mr. "} {selectedClass.lecturer?.fullName || "No Lecturer Assigned"}
@@ -125,10 +132,10 @@ export default function StudentClassPage() {
                     <span className="font-medium">Total Sessions:</span> {selectedClass.totalSession}
                   </li>
                   <li>
-                    <span className="font-medium">Start Date:</span> {selectedClass.startDate ? format( (selectedClass.startDate), 'dd/MM/yyy') : 'TBD'}
+                    <span className="font-medium">Start Date:</span> {selectedClass.startDate ? format(selectedClass.startDate, "dd/MM/yyy") : "TBD"}
                   </li>
                   <li>
-                    <span className="font-medium">End Date:</span> {selectedClass.endDate ? format( (selectedClass.endDate), 'dd/MM/yyy') : 'TBD'}
+                    <span className="font-medium">End Date:</span> {selectedClass.endDate ? format(selectedClass.endDate, "dd/MM/yyy") : "TBD"}
                   </li>
                 </ul>
               </div>

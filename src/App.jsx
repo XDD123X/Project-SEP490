@@ -33,6 +33,7 @@ import ClassDetailPage from "./pages/dashboard/officer/classroom/class-detail-pa
 import ClassAddStudentPage from "./pages/dashboard/officer/classroom/add-student/class-add-student-page";
 import RefreshTokenTest from "./pages/test/RefreshTokenTest";
 import ProtectedRoute from "./pages/private/ProtectedRoute";
+import ClassEditPage from "./pages/dashboard/officer/classroom/class-edit-page";
 
 function App() {
   return (
@@ -101,6 +102,7 @@ function App() {
                         <Route path="class/add-new" element={<ClassAddNewPage />} />
                         <Route path="class/add-student" element={<ClassAddStudentPage />} />
                         <Route path="class/detail" element={<ClassDetailPage />} />
+                        <Route path="class/edit" element={<ClassEditPage />} />
 
                         <Route path="account" element={<AccountManagementPage />} />
                         <Route path="demo" element={<DemoPage />} />

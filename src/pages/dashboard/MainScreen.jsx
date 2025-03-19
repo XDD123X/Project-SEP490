@@ -16,9 +16,7 @@ const roleBasedData = {
         title: "Class",
         url: "class",
         icon: BookOpen,
-        items: [
-          { title: "My Class", url: "/student/my-class" }
-        ]
+        items: [{ title: "My Class", url: "/student/my-class" }],
       },
       {
         title: "Attendance",
@@ -26,18 +24,18 @@ const roleBasedData = {
         icon: ClipboardList,
         items: [
           { title: "View Attendance", url: "view-attendance" },
-          { title: "Attendance Complain", url: "attendance-complain" }
-        ]
-      }
+          { title: "Attendance Complain", url: "attendance-complain" },
+        ],
+      },
     ],
     navSecondary: [
       { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Feedback", url: "/feedback", icon: FileText }
+      { title: "Feedback", url: "/feedback", icon: FileText },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "My Schedule", url: "Student/my-schedule", icon: Calendar }
-    ]
+      { title: "My Schedule", url: "Student/my-schedule", icon: Calendar },
+    ],
   },
   administrator: {
     navMain: [
@@ -48,8 +46,8 @@ const roleBasedData = {
         items: [
           { title: "View Accounts", url: "view" },
           { title: "Add New", url: "add" },
-          { title: "Other", url: "other" }
-        ]
+          { title: "Other", url: "other" },
+        ],
       },
       {
         title: "Settings",
@@ -57,8 +55,8 @@ const roleBasedData = {
         icon: Settings2,
         items: [
           { title: "Website Settings", url: "website" },
-          { title: "Class Settings", url: "class" }
-        ]
+          { title: "Class Settings", url: "class" },
+        ],
       },
       {
         title: "Notification",
@@ -66,8 +64,8 @@ const roleBasedData = {
         icon: Bell,
         items: [
           { title: "View Notifications", url: "view" },
-          { title: "Add New", url: "add" }
-        ]
+          { title: "Add New", url: "add" },
+        ],
       },
       {
         title: "Report",
@@ -75,18 +73,18 @@ const roleBasedData = {
         icon: FileText,
         items: [
           { title: "View Reports", url: "view" },
-          { title: "Add New", url: "add" }
-        ]
-      }
+          { title: "Add New", url: "add" },
+        ],
+      },
     ],
     navSecondary: [
       { title: "Documentation", url: "docs", icon: BookOpen },
-      { title: "System Health", url: "health", icon: LifeBuoy }
+      { title: "System Health", url: "health", icon: LifeBuoy },
     ],
     general: [
       { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
-      { title: "Notification", url: "notification", icon: Bell }
-    ]
+      { title: "Notification", url: "notification", icon: Bell },
+    ],
   },
   lecturer: {
     navMain: [
@@ -94,9 +92,7 @@ const roleBasedData = {
         title: "Class",
         url: "class",
         icon: BookOpen,
-        items: [
-          { title: "View Assigned Classes", url: "/lecturer/my-class" }
-        ]
+        items: [{ title: "View Assigned Classes", url: "/lecturer/my-class" }],
       },
       {
         title: "Attendance",
@@ -104,8 +100,8 @@ const roleBasedData = {
         icon: ClipboardList,
         items: [
           { title: "View Attendance", url: "/lecturer/attendace" },
-          { title: "Take Attendance", url: "/lecturer/attendance/take-attendance" }
-        ]
+          { title: "Take Attendance", url: "/lecturer/attendance/take-attendance" },
+        ],
       },
       {
         title: "Session",
@@ -113,8 +109,8 @@ const roleBasedData = {
         icon: Calendar,
         items: [
           { title: "Change Session", url: "/lecturer/session/change" },
-          { title: "Update Session", url: "/lecturer/session/update" }
-        ]
+          { title: "Update Session", url: "/lecturer/session/update" },
+        ],
       },
       {
         title: "Report",
@@ -122,8 +118,8 @@ const roleBasedData = {
         icon: FileText,
         items: [
           { title: "View Reports", url: "view" },
-          { title: "Other", url: "other" }
-        ]
+          { title: "Other", url: "other" },
+        ],
       },
       {
         title: "Record",
@@ -131,94 +127,92 @@ const roleBasedData = {
         icon: ClipboardList,
         items: [
           { title: "View Records", url: "view" },
-          { title: "Upload Records", url: "upload" }
-        ]
-      }
+          { title: "Upload Records", url: "upload" },
+        ],
+      },
     ],
     navSecondary: [
       { title: "Academic Support", url: "/support", icon: LifeBuoy },
-      { title: "Collaboration", url: "collab", icon: Users }
+      { title: "Collaboration", url: "collab", icon: Users },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "My Schedule", url: "lecturer/my-schedule", icon: Calendar }
-    ]
+      { title: "My Schedule", url: "lecturer/my-schedule", icon: Calendar },
+    ],
   },
   officer: {
     navMain: [
       {
-        title: "Class Management",
+        title: "Class",
         url: "class",
         icon: BookOpen,
         items: [
           { title: "View Classes", url: "/officer/class/" },
           { title: "Add Class", url: "/officer/class/add-new" },
-          { title: "Add Student", url: "/officer/class/add-student" }
-        ]
+          { title: "Add Student", url: "/officer/class/add-student" },
+        ],
       },
       {
-        title: "Session Management",
+        title: "Session",
         url: "my-schedule",
         icon: Calendar,
         items: [
           { title: "View Sessions", url: "/officer/session" },
-          { title: "Generate Session", url: "/officer/session/generate" }
-        ]
+          { title: "Generate Session", url: "/officer/session/generate" },
+        ],
       },
       {
-        title: "User Management",
+        title: "Account",
         url: "accounts",
         icon: User,
         items: [
           { title: "View Students", url: "/officer/account/students" },
           { title: "View Lecturers", url: "/officer/account/lecturers" },
           { title: "Add Account", url: "/officer/account/add" },
-        ]
+        ],
       },
       {
-        title: "Course Management",
+        title: "Course",
         url: "courses",
         icon: BookOpen,
-        items: [
-          { title: "View Courses", url: "view" }
-        ]
+        items: [{ title: "View Courses", url: "view" }],
       },
       {
-        title: "Record Management",
+        title: "Record",
         url: "records",
         icon: ClipboardList,
         items: [
           { title: "View Records", url: "/officer/notification" },
-          { title: "Upload Records", url: "/officer/notification/upload" }
-        ]
+          { title: "Upload Records", url: "/officer/notification/upload" },
+        ],
       },
       {
-        title: "Notification Management",
+        title: "Notification",
         url: "notifications",
         icon: Bell,
         items: [
           { title: "View Notifications", url: "/officer/notification" },
-          { title: "Create New", url: "/officer/notification/add" }
-        ]
+          { title: "Create New", url: "/officer/notification/add" },
+        ],
       },
       {
-        title: "Report Management",
-        url: "reports",
-        icon: FileText,
-        items: [
-          { title: "View Reports", url: "view" },
-          { title: "Add New", url: "add" }
-        ]
-      },
-      {
-        title: "Request Management",
+        title: "Request",
         url: "requests",
         icon: FileText,
         items: [
           { title: "Student Requests", url: "/officer/request/student" },
-          { title: "Lecturer Requests", url: "/officer/request/lecturer" }
-        ]
-      }
+          { title: "Lecturer Requests", url: "/officer/request/lecturer" },
+        ],
+      },
+      {
+        title: "Report",
+        url: "reports",
+        icon: FileText,
+        items: [
+          { title: "View Reports", url: "view" },
+          { title: "Add New", url: "add" },
+        ],
+      },
     ],
     navSecondary: [
       // { title: "Support", url: "/support", icon: LifeBuoy },
@@ -226,9 +220,9 @@ const roleBasedData = {
     ],
     general: [
       // { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
-      { title: "Notification", url: "notification", icon: Bell }
-    ]
-  }
+      { title: "Notification", url: "notification", icon: Bell },
+    ],
+  },
 };
 
 export default function MainScreen() {

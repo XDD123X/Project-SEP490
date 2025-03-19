@@ -400,7 +400,19 @@ export default function ClassViewPage() {
                   <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "d/M/yy") : "-"}</TableCell>
                   <TableCell>{classItem.classUrl ? <Link2 className="text-green-500 w-5" /> : <Link2Off className="text-red-500 w-5" />}</TableCell>
                   <TableCell>
-                    <Badge variant={classItem.status === 0 ? "outline" : classItem.status === 1 ? "info" : "success"}>{classItem.status === 0 ? "Upcoming" : classItem.status === 1 ? "Studying" : "Finished"}</Badge>
+                  <Badge
+                    variant={
+                      classItem.status === 0 ? "destructive"   // Disabled
+                      : classItem.status === 1 ? "secondary"  // Upcoming
+                      : classItem.status === 2 ? "info"    // Studying
+                      : "success" // Finished
+                    }
+                  >
+                    {classItem.status === 0 ? "Disabled"
+                    : classItem.status === 1 ? "Upcoming"
+                    : classItem.status === 2 ? "Studying"
+                    : "Finished"}
+                  </Badge>
                   </TableCell>
                   <TableCell>
                     {classItem.classStudents.length}
