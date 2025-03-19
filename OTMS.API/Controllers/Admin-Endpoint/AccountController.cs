@@ -92,7 +92,7 @@ namespace OTMS.API.Controllers
                     Email = email,
                     FullName = fullName,
                     Password = hashedPassword,
-                    RoleId = (Guid)role,
+                    RoleId = (Guid)role.RoleId,
                     PhoneNumber = phoneNumber,
                     Dob = dob,
                     Fulltime = fulltime,

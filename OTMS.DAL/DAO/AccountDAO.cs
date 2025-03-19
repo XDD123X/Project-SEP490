@@ -126,9 +126,6 @@ namespace OTMS.DAL.DAO
             await _context.SaveChangesAsync();
         }
 
-
-        //
-
         public async Task<List<Account>> getAllStudentAccount()
         {
             List<Account> accounts = await _context.Accounts
@@ -142,7 +139,7 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                using (OtmsContext context = new OtmsContext()) 
+                using (OtmsContext context = new OtmsContext())
                 {
                     Parent existingParent = await context.Parents.FindAsync(parent.StudentId);
 
@@ -155,7 +152,7 @@ namespace OTMS.DAL.DAO
                         context.Parents.Update(parent);
                     }
 
-                    await context.SaveChangesAsync(); 
+                    await context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -212,7 +209,20 @@ namespace OTMS.DAL.DAO
                 throw;
             }
         }
+        public async Task<bool> AddAccount(Account account)
+        {
+            try
+            {
+                await _context.Accounts.AddAsync(account);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error when adding account: {ex.Message}");
+                return false;
 
-
+            }
+        }
     }
 }

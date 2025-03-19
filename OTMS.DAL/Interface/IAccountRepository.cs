@@ -35,5 +35,7 @@ namespace OTMS.DAL.Interface
         public Task<List<Account>> GetLecturerList();
         public Task<List<Account>> GetOfficerList();
 
+        public Task<bool> AddAccount(Account account);
+
     }
 }
