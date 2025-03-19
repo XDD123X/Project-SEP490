@@ -92,5 +92,52 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             }
         }
 
+        [HttpGet("{classId}")]
+        public async Task<IActionResult> GetClassById(Guid classId)
+        {
+            var classList = await _classRepository.GetClassList();
+
+            var classEntity = classList.FirstOrDefault(c => c.ClassId == classId);
+
+            if (classEntity == null) return NotFound("Class not found.");
+
+            var response = _mapper.Map<ClassDTO>(classEntity);
+
+            return Ok(response);
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateClass(ClassUpdateDTO classUpdate)
+        {
+            if (classUpdate == null)
+            {
+                return BadRequest("Invalid class data");
+            }
+
+            var classItem = await _classRepository.GetByIdAsync(classUpdate.ClassId);
+            if (classItem == null)
+            {
+                return NotFound("Class not found");
+            }
+
+            classItem.ClassCode = classUpdate.ClassCode;
+            classItem.ClassName = classUpdate.ClassName;
+            classItem.LecturerId = classUpdate.LecturerId;
+            classItem.CourseId = classUpdate.CourseId;
+            classItem.TotalSession = classUpdate.TotalSession;
+            classItem.ClassUrl = classUpdate.ClassUrl;
+            classItem.Scheduled = classUpdate.Scheduled;
+            classItem.StartDate = classUpdate.StartDate;
+            classItem.EndDate = classUpdate.EndDate;
+            classItem.Status = classUpdate.Status;
+
+            await _classRepository.UpdateAsync(classItem);
+            return Ok(new
+            {
+                id = classItem.ClassId,
+                message = "Class updated successfully"
+            });
+        }
+
     }
 }

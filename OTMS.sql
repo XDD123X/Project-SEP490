@@ -278,8 +278,8 @@ GO
 -- 19. Thêm lớp IELTS02-25 và SAT02-25
 INSERT INTO Class (class_code, class_name, lecturer_id, course_id, total_session, start_date, end_date, status, created_at)
 VALUES 
-(N'IELTS25-03/25', N'Lớp IELTS25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer1@gmail.com'), 1, 32, GETDATE(), null, 0, GETDATE()),
-(N'SAT25-03/25', N'Lớp SAT25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer2@gmail.com'), 2, 32, GETDATE(), null, 0, GETDATE());
+(N'IELTS25-03/25', N'Lớp IELTS25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer1@gmail.com'), 1, 32, GETDATE(), null, 1, GETDATE()),
+(N'SAT25-03/25', N'Lớp SAT25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer2@gmail.com'), 2, 32, GETDATE(), null, 1, GETDATE());
 GO
 
 -- 20. Xếp học viên vào lớp IELTS01-25
