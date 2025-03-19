@@ -144,3 +144,57 @@ export const updateAvatar = async (fullName, phone, dob, imgUrl) => {
     };
   }
 };
+
+export const requestOtp = async (email) => {
+  try {
+    const response = await axiosClient.post(`/auth/request-otp/${email}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    toast.error("Request Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data || "Request Failed!",
+    };
+  }
+};
+
+export const verifyOtp = async (email, otp) => {
+  try {
+    const response = await axiosClient.post(`/auth/verify-otp/${email}/${otp}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    toast.error("Request Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data || "Request Failed!",
+    };
+  }
+};
+
+export const forgotPassword = async (requestModel) => {
+  try {
+    const response = await axiosClient.post(`auth/forgot-password`, requestModel);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    toast.error("Request Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data || "Request Failed!",
+    };
+  }
+};

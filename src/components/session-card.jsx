@@ -39,7 +39,7 @@ export default function ClassCard({ session }) {
           {/* Row 2: Lecturer Name */}
           <div className="border-b px-3 py-2 flex items-center justify-between">
             <p className="text-xs text-muted-foreground flex-shrink-0">Lecturer:</p>
-            <span className="text-xs font-medium truncate w-[60%] text-right">{session.lecturer.fullName}</span>
+            <span className="text-xs font-medium w-[60%] text-right">{session.lecturer.fullName.split(" ").slice(-2).join(" ")}</span>
           </div>
 
           {/* Row 3: Combined Record Icon and Attendance Badge */}
@@ -79,17 +79,21 @@ export default function ClassCard({ session }) {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Lecturer:</span>
-              <span className="col-span-3">{session.lecturer.fullName}</span>
+              <span className="col-span-3">
+                {session.lecturer.gender ? "Mr." : "Ms."} {session.lecturer.fullName}
+              </span>
             </div>
+            {/*
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Status:</span>
               <span className="col-span-3">
-                {/* <Badge variant={session.status === 1 ? "default" : session.status === 2 ? "secondary" : "outline"}>{session.status}</Badge> */}
+                <Badge variant={session.status === 1 ? "default" : session.status === 2 ? "secondary" : "outline"}>{session.status}</Badge>
                 <Badge variant={session.status === 1 ? "outline" : session.status === 2 ? "success" : "destructive"} className="text-xs px-1.5 py-0">
                   {session.status === 1 ? "Not Yet" : session.status === 2 ? "Finished" : "Cancelled"}
                 </Badge>
               </span>
             </div>
+            */}
 
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Attendance:</span>

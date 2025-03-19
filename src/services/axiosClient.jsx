@@ -12,11 +12,14 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  validateStatus: function (status) {
+    return status < 500;
+  },
 });
 
 // ✅ Request Interceptor: Tự động gắn accessToken vào header
 axiosClient.interceptors.request.use(
-  (config) =>  {
+  (config) => {
     const token = getAccessToken(); // Lấy accessToken từ cookie
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -56,7 +59,7 @@ axiosClient.interceptors.response.use(
 
 // ✅ Hàm lưu accessToken vào cookie
 export const setAccessToken = (token) => {
-  Cookies.set("access_token", token, { expires: 1, path: "/" }); 
+  Cookies.set("access_token", token, { expires: 1, path: "/" });
 };
 
 // ✅ Hàm lấy accessToken từ cookie
