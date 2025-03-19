@@ -19,7 +19,6 @@ namespace OTMS.DAL.Repository
         {
             _classStudentDAO = classStudentDAO;
         }
-        public Task addStudentIntoClass(Guid classId, List<Guid> listStudentId) => _classStudentDAO.addStudentIntoClass(classId, listStudentId);
 
         public bool checkStuentInClass(Guid classId, Guid studentId) => _classStudentDAO.checkStuentInClass(classId, studentId);
         public Task<bool> checkStudentAnyInClass(Guid studentId) => _classStudentDAO.CheckStudentInAnyClass(studentId);
@@ -29,5 +28,10 @@ namespace OTMS.DAL.Repository
         public Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds) => _classStudentDAO.RemoveStudentsFromClass(id, validStudentIds);
         public async Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId) => await _classStudentDAO.GetListOfClassStudentEnrolled(studentId);
 
+        public Task AddStudentsToClassAsync(Guid classId, List<Guid> listStudentId) => _classStudentDAO.addStudentIntoClass(classId, listStudentId);
+
+        public Task UpdateClassStudentsAsync(Guid classId, List<Guid> studentIds) => _classStudentDAO.UpdateClassStudentsAsync(classId, studentIds);
+
+        public Task RemoveAllClassStudentsAsync(Guid classId) => _classStudentDAO.RemoveAllStudentsAsync(classId);
     }
 }

@@ -185,7 +185,7 @@ namespace OTMS.API.Controllers
             if (validStudentIds.Count == 0) return BadRequest("No valid students to add");
             try
             {
-                await _classStudentRepository.addStudentIntoClass(id, validStudentIds);
+                //await _classStudentRepository.addStudentsToClass(id, validStudentIds);
                 return Ok("Add successfully");
             }
             catch (Exception ex)

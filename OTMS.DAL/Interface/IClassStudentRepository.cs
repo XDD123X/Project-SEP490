@@ -12,10 +12,12 @@ namespace OTMS.DAL.Interface
     {
         bool checkStuentInClass(Guid classId, Guid studentId);
         Task<bool> checkStudentAnyInClass(Guid studentId);
-        Task addStudentIntoClass(Guid classId, List<Guid> listStudentId);
+        Task AddStudentsToClassAsync(Guid classId, List<Guid> listStudentId);
         Task removeStudentIntoClass(Guid id, List<Guid> validStudentIds);
         Task<List<ClassStudent>> GetByClassIdAsync(Guid id);
 
+        Task UpdateClassStudentsAsync(Guid classId, List<Guid> studentIds);
+        Task RemoveAllClassStudentsAsync(Guid classId);
 
         public  Task<List<ClassStudentEnrollmentDTO>> GetListOfClassStudentEnrolled(Guid studentId);
     }

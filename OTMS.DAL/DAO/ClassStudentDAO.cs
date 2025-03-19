@@ -18,26 +18,29 @@ namespace OTMS.DAL.DAO
         public ClassStudentDAO(OtmsContext context) : base(context)
         {
         }
-        public async Task addStudentIntoClass(Guid classId, List<Guid> listStudentId)
+        public async Task addStudentIntoClass(Guid classId, List<Guid> studentIds)
         {
-            Class? thisclass = _context.Classes.FirstOrDefault(c => c.ClassId == classId);
-            List<ClassStudent> students = new List<ClassStudent>();
-            foreach (var item in listStudentId)
+            if (studentIds == null || !studentIds.Any()) return;
+
+            var existingStudents = await _context.ClassStudents
+            .Where(cs => cs.ClassId == classId && studentIds.Contains(cs.StudentId))
+            .Select(cs => cs.StudentId)
+            .ToListAsync();
+
+            var newStudents = studentIds.Except(existingStudents)
+            .Select(studentId => new ClassStudent
             {
-                ClassStudent student = new ClassStudent()
-                {
-                    ClassId = classId,
-                    StudentId = item,
-                    CreatedAt = DateTime.Now,
-                };
-                students.Add(student);
-            }
-            if (students.Count > 0)
+                ClassId = classId,
+                StudentId = studentId
+            })
+            .ToList();
+
+            if (newStudents.Any())
             {
-                await _dbSet.AddRangeAsync(students);
+                await _context.ClassStudents.AddRangeAsync(newStudents);
                 await _context.SaveChangesAsync();
             }
-            return;
+
         }
 
         public bool checkStuentInClass(Guid classId, Guid studentId)
@@ -51,7 +54,7 @@ namespace OTMS.DAL.DAO
                 .Where(cs => cs.ClassId == classId && listStudentId.Contains(cs.StudentId))
                 .ToListAsync();
 
-            if (studentsToRemove.Any()) 
+            if (studentsToRemove.Any())
             {
                 _dbSet.RemoveRange(studentsToRemove);
                 await _context.SaveChangesAsync();
@@ -75,8 +78,8 @@ namespace OTMS.DAL.DAO
                                              ClassCode = c.ClassCode,
                                              ClassName = c.ClassName,
                                              CourseName = co.CourseName,
-                                             StartDate = c.StartDate ?? DateTime.MinValue, 
-                                             EndDate = c.EndDate ?? DateTime.MinValue,     
+                                             StartDate = c.StartDate ?? DateTime.MinValue,
+                                             EndDate = c.EndDate ?? DateTime.MinValue,
                                              Status = c.Status.ToString()
                                          }).ToListAsync();
 
@@ -97,7 +100,7 @@ namespace OTMS.DAL.DAO
         public async Task<List<Guid>> GetStudentInClassAsync(Guid classId)
         {
             return await _context.ClassStudents
-                .Where (cs => cs.ClassId == classId)
+                .Where(cs => cs.ClassId == classId)
                 .Select(cs => cs.StudentId)
                 .ToListAsync();
 
@@ -107,5 +110,29 @@ namespace OTMS.DAL.DAO
         {
             return await _dbSet.AnyAsync(sc => sc.StudentId.Equals(studentId));
         }
+
+        public async Task UpdateClassStudentsAsync(Guid classId, List<Guid> studentIds)
+        {
+            var existingStudents = _context.ClassStudents.Where(cs => cs.ClassId == classId);
+            _context.ClassStudents.RemoveRange(existingStudents);
+            await _context.SaveChangesAsync();
+
+            var newStudents = studentIds.Select(studentId => new ClassStudent
+            {
+                ClassId = classId,
+                StudentId = studentId
+            }).ToList();
+
+            await _context.ClassStudents.AddRangeAsync(newStudents);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveAllStudentsAsync(Guid classId)
+        {
+            var existingStudents = _context.ClassStudents.Where(cs => cs.ClassId == classId);
+            _context.ClassStudents.RemoveRange(existingStudents);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
