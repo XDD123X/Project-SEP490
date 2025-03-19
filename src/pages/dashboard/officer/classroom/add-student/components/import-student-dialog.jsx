@@ -1,145 +1,174 @@
-import { useState, useRef } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Save } from "lucide-react"
+import { useState, useRef } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Save } from "lucide-react";
 
-export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
-  const fileInputRef = useRef(null)
-  const [fileName, setFileName] = useState("")
-  const [fileData, setFileData] = useState([])
-  const [headers, setHeaders] = useState([])
+export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }) {
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState("");
+  const [fileData, setFileData] = useState([]);
+  const [headers, setHeaders] = useState([]);
   const [columnMapping, setColumnMapping] = useState({
     fullName: -1,
     email: -1,
     phoneNumber: -1,
     dob: -1,
     gender: -1,
-  })
-  const [parsedStudents, setParsedStudents] = useState([])
-  const [step, setStep] = useState("upload")
-  const [importMode, setImportMode] = useState("add")
+  });
+  const [parsedStudents, setParsedStudents] = useState([]);
+  const [step, setStep] = useState("upload");
+  const [importMode, setImportMode] = useState("add");
 
   // Handle file selection
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    setFileName(file.name)
+    setFileName(file.name);
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result
-      const rows = text.split("\n").map((row) => row.split(",").map((cell) => cell.trim()))
+      const text = event.target?.result;
+      const rows = text.split("\n").map((row) => row.split(",").map((cell) => cell.trim()));
 
       if (rows.length > 0) {
-        setHeaders(rows[0])
-        setFileData(rows.slice(1).filter((row) => row.some((cell) => cell !== "")))
+        setHeaders(rows[0]);
+        setFileData(rows.slice(1).filter((row) => row.some((cell) => cell !== "")));
 
         // Try to auto-map columns
-        const newMapping = { ...columnMapping }
+        const newMapping = { ...columnMapping };
         rows[0].forEach((header, index) => {
-          const lowerHeader = header.toLowerCase()
-          if (lowerHeader.includes("name")) newMapping.fullName = index
-          if (lowerHeader.includes("email")) newMapping.email = index
-          if (lowerHeader.includes("phone")) newMapping.phoneNumber = index
-          if (lowerHeader.includes("birth") || lowerHeader.includes("dob")) newMapping.dob = index
-          if (lowerHeader.includes("gender")) newMapping.gender = index
-        })
+          const lowerHeader = header.toLowerCase();
+          if (lowerHeader.includes("name")) newMapping.fullName = index;
+          if (lowerHeader.includes("email")) newMapping.email = index;
+          if (lowerHeader.includes("phone")) newMapping.phoneNumber = index;
+          if (lowerHeader.includes("birth") || lowerHeader.includes("dob")) newMapping.dob = index;
+          if (lowerHeader.includes("gender")) newMapping.gender = index;
+        });
 
-        setColumnMapping(newMapping)
-        setStep("mapping")
+        setColumnMapping(newMapping);
+        setStep("mapping");
       }
-    }
+    };
 
-    reader.readAsText(file)
-  }
+    reader.readAsText(file);
+  };
 
   // Handle column mapping change
   const handleMappingChange = (field, value) => {
     setColumnMapping({
       ...columnMapping,
       [field]: Number.parseInt(value),
-    })
-  }
+    });
+  };
 
   // Process data after mapping
   const handleProcessData = () => {
     // Validate that email column is mapped
     if (columnMapping.email === -1) {
-      alert("Email column must be mapped")
-      return
+      alert("Email column must be mapped");
+      return;
     }
 
+    // Lấy danh sách email từ studentsData để so sánh
+    const studentMap = new Map(studentsData.map((student) => [student.email, student]));
+
     const students = fileData.map((row, index) => {
+      const email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+      const fullName = columnMapping.fullName !== -1 ? row[columnMapping.fullName] : "";
+      const existingStudent = studentMap.get(email);
+
+      // Kiểm tra email có trong danh sách studentsData không
+      if (!existingStudent) {
+        return {
+          accountId: null,
+          email: email,
+          fullName: fullName,
+          roleId: null,
+          fulltime: null,
+          phoneNumber: null,
+          dob: null,
+          gender: null,
+          imgUrl: null,
+          meetUrl: null,
+          status: null,
+          createdAt: null,
+          updatedAt: null,
+          role: null,
+          available: false,
+        };
+      }
+
       // Get gender value
-      let gender = true // Default to male
+      let gender = existingStudent.gender; // Lấy giới tính từ studentsData
       if (columnMapping.gender !== -1) {
-        const genderValue = row[columnMapping.gender].toLowerCase()
-        gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false")
+        const genderValue = row[columnMapping.gender].toLowerCase();
+        gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false");
       }
 
       return {
-        accountId: `import-${index}`,
-        email: columnMapping.email !== -1 ? row[columnMapping.email] : "",
-        fullName: columnMapping.fullName !== -1 ? row[columnMapping.fullName] : "",
-        roleId: "b5ec52be-e7ea-442c-927e-f023416f2202",
-        fulltime: true,
-        phoneNumber: columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : "",
-        dob: columnMapping.dob !== -1 ? row[columnMapping.dob] : "2000-01-01",
+        accountId: existingStudent.accountId || `import-${index}`,
+        email: existingStudent.email,
+        fullName: existingStudent.fullName || fullName,
+        roleId: existingStudent.roleId || "b5ec52be-e7ea-442c-927e-f023416f2202",
+        fulltime: existingStudent.fulltime ?? true,
+        phoneNumber: existingStudent.phoneNumber || (columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : ""),
+        dob: existingStudent.dob || (columnMapping.dob !== -1 ? row[columnMapping.dob] : "2000-01-01"),
         gender: gender,
-        imgUrl: "https://ui.shadcn.com/avatars/shadcn.jpg",
-        meetUrl: "https://example.com/meet/euf-nwbu-cet",
-        status: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: null,
-        role: null,
-      }
-    })
+        imgUrl: existingStudent.imgUrl || "https://ui.shadcn.com/avatars/shadcn.jpg",
+        meetUrl: existingStudent.meetUrl || "https://example.com/meet/euf-nwbu-cet",
+        status: existingStudent.status || 1,
+        createdAt: existingStudent.createdAt || new Date().toISOString(),
+        updatedAt: existingStudent.updatedAt || null,
+        role: existingStudent.role || null,
+        available: existingStudent.available
+      };
+    });
 
-    setParsedStudents(students)
-    setStep("preview")
-  }
+    setParsedStudents(students);
+    setStep("preview");
+  };
 
   // Handle import
   const handleImport = () => {
-    onImport(parsedStudents, importMode)
-    resetDialog()
-    onClose()
-  }
+    onImport(parsedStudents, importMode);
+    resetDialog();
+    onClose();
+  };
 
   // Reset dialog state
   const resetDialog = () => {
-    setFileName("")
-    setFileData([])
-    setHeaders([])
+    setFileName("");
+    setFileData([]);
+    setHeaders([]);
     setColumnMapping({
       fullName: -1,
       email: -1,
       phoneNumber: -1,
       dob: -1,
       gender: -1,
-    })
-    setParsedStudents([])
-    setStep("upload")
-    setImportMode("add")
+    });
+    setParsedStudents([]);
+    setStep("upload");
+    setImportMode("add");
 
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   // Handle dialog close
   const handleClose = () => {
-    resetDialog()
-    onClose()
-  }
+    resetDialog();
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -169,10 +198,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="fullName-mapping">Full Name</Label>
-                <Select
-                  value={columnMapping.fullName.toString()}
-                  onValueChange={(value) => handleMappingChange("fullName", value)}
-                >
+                <Select value={columnMapping.fullName.toString()} onValueChange={(value) => handleMappingChange("fullName", value)}>
                   <SelectTrigger id="fullName-mapping">
                     <SelectValue placeholder="Select column" />
                   </SelectTrigger>
@@ -189,10 +215,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
 
               <div className="space-y-2">
                 <Label htmlFor="email-mapping">Email (Required)</Label>
-                <Select
-                  value={columnMapping.email.toString()}
-                  onValueChange={(value) => handleMappingChange("email", value)}
-                >
+                <Select value={columnMapping.email.toString()} onValueChange={(value) => handleMappingChange("email", value)}>
                   <SelectTrigger id="email-mapping">
                     <SelectValue placeholder="Select column" />
                   </SelectTrigger>
@@ -209,10 +232,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
 
               <div className="space-y-2">
                 <Label htmlFor="phone-mapping">Phone Number</Label>
-                <Select
-                  value={columnMapping.phoneNumber.toString()}
-                  onValueChange={(value) => handleMappingChange("phoneNumber", value)}
-                >
+                <Select value={columnMapping.phoneNumber.toString()} onValueChange={(value) => handleMappingChange("phoneNumber", value)}>
                   <SelectTrigger id="phone-mapping">
                     <SelectValue placeholder="Select column" />
                   </SelectTrigger>
@@ -229,10 +249,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
 
               <div className="space-y-2">
                 <Label htmlFor="dob-mapping">Date of Birth</Label>
-                <Select
-                  value={columnMapping.dob.toString()}
-                  onValueChange={(value) => handleMappingChange("dob", value)}
-                >
+                <Select value={columnMapping.dob.toString()} onValueChange={(value) => handleMappingChange("dob", value)}>
                   <SelectTrigger id="dob-mapping">
                     <SelectValue placeholder="Select column" />
                   </SelectTrigger>
@@ -249,10 +266,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
 
               <div className="space-y-2">
                 <Label htmlFor="gender-mapping">Gender</Label>
-                <Select
-                  value={columnMapping.gender.toString()}
-                  onValueChange={(value) => handleMappingChange("gender", value)}
-                >
+                <Select value={columnMapping.gender.toString()} onValueChange={(value) => handleMappingChange("gender", value)}>
                   <SelectTrigger id="gender-mapping">
                     <SelectValue placeholder="Select column" />
                   </SelectTrigger>
@@ -284,21 +298,19 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Full Name</TableHead>
+                    <TableHead> # </TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Date of Birth</TableHead>
-                    <TableHead>Gender</TableHead>
+                    <TableHead>Full Name</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {parsedStudents.map((student, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{student.fullName}</TableCell>
+                    <TableRow key={index} className={student.accountId ? "text-green-500" : "text-red-500"}>
+                      <TableCell>{index + 1}</TableCell>
                       <TableCell>{student.email}</TableCell>
-                      <TableCell>{student.phoneNumber}</TableCell>
-                      <TableCell>{student.dob}</TableCell>
-                      <TableCell>{student.gender ? "Male" : "Female"}</TableCell>
+                      <TableCell>{student.fullName || "-"}</TableCell>
+                      <TableCell className={student.accountId ? "text-green-500 font-semibold" : "text-red-500 font-semibold" }>{student.accountId ? "Available" : "Not Available"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -307,11 +319,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
 
             <div className="pt-4 space-y-2">
               <Label>Import Mode</Label>
-              <RadioGroup
-                value={importMode}
-                onValueChange={(value) => setImportMode(value)}
-                className="flex flex-col space-y-1"
-              >
+              <RadioGroup value={importMode} onValueChange={(value) => setImportMode(value)} className="flex flex-col space-y-1">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="add" id="add" />
                   <Label htmlFor="add" className="font-normal">
@@ -361,6 +369,5 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

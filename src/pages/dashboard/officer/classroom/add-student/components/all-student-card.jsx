@@ -13,8 +13,15 @@ export function AllStudentsCard({ students, onAddStudents }) {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  console.log('data', students);
+  
+
+  const sortedByEmail = students.sort((a, b) => {
+    return a.email.localeCompare(b.email, undefined, { numeric: true });
+  });
+
   // Filter students based on search term
-  const filteredStudents = students.filter((student) => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || student.email.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredStudents = sortedByEmail.filter((student) => student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || student.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
   // Handle student selection
   const handleStudentSelect = (studentId) => {

@@ -13,6 +13,7 @@ import { getAllSession, getSessionByStudentId } from "@/services/sessionService"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStore } from "@/services/StoreContext";
 import ClassCard from "@/components/session-card";
+import { Link } from "react-router-dom";
 
 export default function StudentSchedulePage() {
   const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -28,10 +29,6 @@ export default function StudentSchedulePage() {
       try {
         const response = await getSessionByStudentId(user.uid);
         setSessions(response.data);
-        console.log("current id: ", user.uid);
-
-        console.log("data fetched: ", response.data);
-
         // setSessions(generateMockSessions(selectedWeek));
       } catch (error) {
         console.error("Error fetching sessions:", error);
@@ -67,7 +64,7 @@ export default function StudentSchedulePage() {
       return newWeek;
     });
   };
-  
+
   const goToNextWeek = () => {
     setSelectedWeek((prev) => {
       const newWeek = addWeeks(prev, 1);
@@ -205,16 +202,20 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
 
 // Mobile Schedule Component
 function MobileSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
-  const [activeDay, setActiveDay] = useState(weekDays[0]);
+  const [activeDay, setActiveDay] = useState(weekDays[0]); // Luôn lấy ngày đầu tuần
+
+  useEffect(() => {
+    setActiveDay(weekDays[0]); // Cập nhật ngày khi tuần thay đổi
+  }, [weekDays]);
 
   const getSessionsForDay = (day) => {
-    return sessions.filter((session) => isSameDay(session.date, day)).sort((a, b) => a.slot - b.slot);
+    return sessions.filter((session) => isSameDay(new Date(session.sessionDate), day)).sort((a, b) => a.slot - b.slot);
   };
 
   return (
     <div className="min-w-2">
-      <Tabs defaultValue={activeDay.toISOString()} onValueChange={(value) => setActiveDay(new Date(value))}>
-        <TabsList className="w-full p-5 overflow-x-auto flex-nowrap justify-start">
+      <Tabs value={activeDay.toISOString()} onValueChange={(value) => setActiveDay(new Date(value))}>
+        <TabsList className="w-full p-2 overflow-x-auto flex-nowrap justify-start">
           {weekDays.map((day) => (
             <TabsTrigger key={day.toISOString()} value={day.toISOString()} className="flex-shrink-0">
               {format(day, "EEE")}
@@ -232,14 +233,14 @@ function MobileSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
                 getSessionsForDay(day).map((session) => {
                   const timeSlot = timeSlots.find((slot) => slot.id === session.slot);
                   return (
-                    <Card key={session.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onSessionClick(session)}>
+                    <Card key={session.sessionId} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onSessionClick(session)}>
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <div className="font-medium text-lg">{session.class}</div>
+                            <div className="font-medium text-lg">{session.class.classCode}</div>
                             <div className="text-sm text-muted-foreground mt-1">{timeSlot?.time}</div>
-                            <div className="text-sm mt-2">Teacher: {session.teacher}</div>
-                            {session.note && <div className="text-sm mt-1 text-muted-foreground">Note: {session.note}</div>}
+                            <div className="text-sm mt-2">Teacher: {session.lecturer.fullName}</div>
+                            {session.note && <div className="text-sm mt-1 text-muted-foreground">Note: {session.description}</div>}
                           </div>
                           <Badge variant={session.status === "Confirmed" ? "default" : session.status === "Cancelled" ? "destructive" : "outline"}>{session.status}</Badge>
                         </div>
@@ -268,18 +269,29 @@ function SessionModal({ session, isOpen, onClose, timeSlots }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{session.class}</DialogTitle>
-          <DialogDescription>{format(session.date, "EEEE, MMMM d, yyyy")}</DialogDescription>
+          <DialogTitle>{session.class.classCode}</DialogTitle>
+          <DialogDescription>{format(session.sessionDate, "dd/MM/yyyy")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <span className="text-sm font-medium">Time:</span>
-            <span className="col-span-3">{timeSlot?.time}</span>
+            <span className="text-sm font-medium">Slot:</span>
+            <span className="col-span-3">
+              {" "}
+              {session.slot}({timeSlot?.time})
+            </span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <span className="text-sm font-medium">Teacher:</span>
-            <span className="col-span-3">{session.teacher}</span>
+            <span className="text-sm font-medium">Lecturer:</span>
+            <span className="col-span-3">{session.lecturer.fullName}</span>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <span className="text-sm font-medium">Meet Url:</span>
+            <span className="col-span-3">
+              <Link to={session.class.classUrl} target="_blank" className="text-blue-500 underline underline-offset-4">
+                {session.class.classUrl}
+              </Link>
+            </span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="text-sm font-medium">Status:</span>
@@ -290,7 +302,7 @@ function SessionModal({ session, isOpen, onClose, timeSlots }) {
           {session.note && (
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Note:</span>
-              <span className="col-span-3">{session.note}</span>
+              <span className="col-span-3">{session.description}</span>
             </div>
           )}
         </div>

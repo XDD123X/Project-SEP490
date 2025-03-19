@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Download, Upload, FileDown } from "lucide-react"
 import { ImportStudentsDialog } from "./import-student-dialog"
 
-export function ClassActionButtons({ classData, onImportStudents }) {
+export function ClassActionButtons({ classData, onImportStudents, studentsData }) {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
 
   // Handle export class students
@@ -71,6 +71,7 @@ export function ClassActionButtons({ classData, onImportStudents }) {
         isOpen={isImportDialogOpen}
         onClose={() => setIsImportDialogOpen(false)}
         onImport={onImportStudents}
+        studentsData = {studentsData}
       />
     </div>
   )

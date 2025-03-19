@@ -1,6 +1,9 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pencil } from "lucide-react";
+import { CardFooter } from "react-bootstrap";
 
-export function ClassInfoCard({ classData }) {
+export function ClassInfoCard({ classData , setSelectedClass}) {
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
@@ -22,7 +25,9 @@ export function ClassInfoCard({ classData }) {
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Lecturer</p>
-            <p className="font-medium">{classData.lecturer.gender ? 'Mr.' : 'Ms.'} {classData.lecturer.fullName}</p>
+            <p className="font-medium">
+              {classData.lecturer.gender ? "Mr." : "Ms."} {classData.lecturer.fullName}
+            </p>
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Start Date</p>
@@ -42,6 +47,12 @@ export function ClassInfoCard({ classData }) {
           </div>
         </div>
       </CardContent>
+      <CardFooter>
+        <Button className="ml-4 mb-4 flex items-center gap-2" onClick={() => setSelectedClass(null)}>
+          <Pencil className="w-5 h-5"/>
+          Change Class
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

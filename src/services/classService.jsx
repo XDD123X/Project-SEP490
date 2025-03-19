@@ -82,3 +82,23 @@ export const AddClass = async (classItem) => {
     };
   }
 };
+
+export const AddStudentsToClass = async (jsonData) => {
+  try {
+    const response = await axiosClient.post("officer/Class/add-student", jsonData);
+    return response.data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
+export const UpdateStudentsInClass = async (jsonData) => {
+  try {
+    const response = await axiosClient.post("officer/Class/update-student", jsonData);
+    return response.data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};

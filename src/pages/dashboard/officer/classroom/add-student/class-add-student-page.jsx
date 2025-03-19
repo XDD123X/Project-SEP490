@@ -35,10 +35,10 @@ export default function ClassAddStudentPage() {
   const handleClassSelect = (classData) => {
     setSelectedClass(classData);
     //get ids list
-    const classStudentIds = new Set(classData.classStudents.map(cs => cs.studentId));
-    
+    const classStudentIds = new Set(classData.classStudents.map((cs) => cs.studentId));
+
     //filter
-    const filteredStudents = students.filter(student => !classStudentIds.has(student.accountId));
+    const filteredStudents = students.filter((student) => !classStudentIds.has(student.accountId));
 
     // In a real app, you would fetch all students here
     // For now, we'll create some dummy data
@@ -113,26 +113,38 @@ export default function ClassAddStudentPage() {
   const handleImportStudents = (importedStudents, mode) => {
     if (!selectedClass) return;
 
-    // Create class student entries for each imported student
-    const newClassStudents = importedStudents.map((student) => {
-      return {
-        classStudentId: Math.floor(Math.random() * 1000), // Generate a random ID for demo
-        classId: selectedClass.classId,
-        studentId: student.accountId,
-        student: student,
-      };
-    });
+    const AvailableList = importedStudents.filter((student) => student.accountId !== null);
 
     let updatedClass;
 
     if (mode === "add") {
-      // Add new students to existing ones
+      // Lọc để tránh trùng studentId
+      const existingStudentIds = new Set(selectedClass.classStudents.map((cs) => cs.studentId));
+      const uniqueStudents = AvailableList.filter((student) => !existingStudentIds.has(student.accountId));
+      const newClassStudents = uniqueStudents.map((student) => ({
+        classId: selectedClass.classId,
+        studentId: student.accountId,
+        student: student,
+      }));
+      if (uniqueStudents.length === 0) {
+        toast.error(`All Students Already In The Class`);
+      } else {
+        toast.success(`Added ${uniqueStudents.length} To Class Sucessfully`);
+      }
+
+      // Add new students vào danh sách hiện tại
       updatedClass = {
         ...selectedClass,
         classStudents: [...selectedClass.classStudents, ...newClassStudents],
       };
     } else {
-      // Replace all students with imported ones
+      const newClassStudents = AvailableList.map((student) => ({
+        classId: selectedClass.classId,
+        studentId: student.accountId,
+        student: student,
+      }));
+      toast.success(`Added ${newClassStudents.length} To Class Sucessfully`);
+      // Replace
       updatedClass = {
         ...selectedClass,
         classStudents: [...newClassStudents],
@@ -151,11 +163,11 @@ export default function ClassAddStudentPage() {
         ) : (
           <div className="space-y-6">
             <div className="w-full">
-              <ClassInfoCard classData={selectedClass} />
+              <ClassInfoCard classData={selectedClass} setSelectedClass={setSelectedClass} />
             </div>
 
             {/* Add the action buttons below the class info card */}
-            <ClassActionButtons classData={selectedClass} onImportStudents={handleImportStudents} />
+            <ClassActionButtons classData={selectedClass} studentsData={students} onImportStudents={handleImportStudents} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ClassStudentsCard classData={selectedClass} onRemoveStudent={handleRemoveStudent} />

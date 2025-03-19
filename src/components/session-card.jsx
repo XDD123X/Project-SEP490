@@ -38,8 +38,8 @@ export default function ClassCard({ session }) {
 
           {/* Row 2: Lecturer Name */}
           <div className="border-b px-3 py-2 flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">Lecturer:</p>
-            <span className="text-xs font-medium">{session.lecturer.fullName}</span>
+            <p className="text-xs text-muted-foreground flex-shrink-0">Lecturer:</p>
+            <span className="text-xs font-medium truncate w-[60%] text-right">{session.lecturer.fullName}</span>
           </div>
 
           {/* Row 3: Combined Record Icon and Attendance Badge */}

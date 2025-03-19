@@ -377,6 +377,9 @@ export default function ClassViewPage() {
               <TableHead className="cursor-pointer" onClick={() => requestSort("status")}>
                 <div className="flex items-center">Status {getSortDirectionIcon("status")}</div>
               </TableHead>
+              <TableHead className="cursor-pointer" onClick={() => requestSort("classStudents")}>
+                <div className="flex items-center">Students {getSortDirectionIcon("classStudents")}</div>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -393,11 +396,14 @@ export default function ClassViewPage() {
 
                   <TableCell> {classItem.lecturer.gender === false ? 'Ms.' : 'Mr.'} {classItem.lecturer?.fullName ?? "-"}</TableCell>
                   <TableCell>{classItem.totalSession}</TableCell>
-                  <TableCell>{classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "-"}</TableCell>
-                  <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "-"}</TableCell>
+                  <TableCell>{classItem.startDate ? format(new Date(classItem.startDate), "d/M/yy") : "-"}</TableCell>
+                  <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "d/M/yy") : "-"}</TableCell>
                   <TableCell>{classItem.classUrl ? <Link2 className="text-green-500 w-5" /> : <Link2Off className="text-red-500 w-5" />}</TableCell>
                   <TableCell>
                     <Badge variant={classItem.status === 0 ? "outline" : classItem.status === 1 ? "info" : "success"}>{classItem.status === 0 ? "Upcoming" : classItem.status === 1 ? "Studying" : "Finished"}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {classItem.classStudents.length}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
