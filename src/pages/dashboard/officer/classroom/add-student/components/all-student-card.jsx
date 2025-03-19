@@ -13,9 +13,6 @@ export function AllStudentsCard({ students, onAddStudents }) {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  console.log('data', students);
-  
-
   const sortedByEmail = students.sort((a, b) => {
     return a.email.localeCompare(b.email, undefined, { numeric: true });
   });

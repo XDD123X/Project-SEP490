@@ -21,7 +21,6 @@ import ProfileSchedule from "./pages/profile/profile-schedule";
 import ProfilePassword from "./pages/profile/profile-password";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ProfileAvatar from "./pages/profile/profile-avatar";
-import AccountManagementPage from "./pages/dashboard/officer/account/account-management";
 import SessionViewPage from "./pages/dashboard/officer/session-page/session-view";
 import SessionGeneratePage from "./pages/dashboard/officer/session-page/session-generate";
 import LecturerSchedulePage from "./pages/dashboard/lecturer/LecturerSchedulePage";
@@ -34,6 +33,9 @@ import ClassAddStudentPage from "./pages/dashboard/officer/classroom/add-student
 import RefreshTokenTest from "./pages/test/RefreshTokenTest";
 import ProtectedRoute from "./pages/private/ProtectedRoute";
 import ClassEditPage from "./pages/dashboard/officer/classroom/class-edit-page";
+import ViewStudentManagementPage from "./pages/dashboard/officer/account/view-student-officer-page";
+import ViewLecturerManagementPage from "./pages/dashboard/officer/account/view-lecturer-officer-page";
+import AddAccountOfficerPage from "./pages/dashboard/officer/account/add-account-page";
 
 function App() {
   return (
@@ -104,7 +106,10 @@ function App() {
                         <Route path="class/detail" element={<ClassDetailPage />} />
                         <Route path="class/edit" element={<ClassEditPage />} />
 
-                        <Route path="account" element={<AccountManagementPage />} />
+                        <Route path="account/students" element={<ViewStudentManagementPage />} />
+                        <Route path="account/lecturers" element={<ViewLecturerManagementPage />} />
+                        <Route path="account/add" element={<AddAccountOfficerPage />} />
+                        
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="notification" element={<Notification />} />
