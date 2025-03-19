@@ -57,6 +57,9 @@ builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IClassSettingRepository, ClassSettingRepository>();
 builder.Services.AddScoped<ILecturerScheduleRepository, LecturerScheduleRepository>();
 
+//Email
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 //DI DAO
 builder.Services.AddScoped<AccountDAO>();
 builder.Services.AddScoped<ClassDAO>();
