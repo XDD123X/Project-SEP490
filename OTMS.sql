@@ -156,8 +156,9 @@ GO
 -- Bảng trung gian để lưu thông báo theo role
 CREATE TABLE NotificationRole (
     notification_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Notification(notification_id) ON DELETE CASCADE,
-    role_id INT NOT NULL FOREIGN KEY REFERENCES Role(role_id) ON DELETE CASCADE,
-    PRIMARY KEY (notification_id, role_id)
+    -- role_name NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Role(role_name) ON DELETE CASCADE,
+	role_name NVARCHAR(50) NOT NULL,
+    PRIMARY KEY (notification_id, role_name)
 );
 GO
 
