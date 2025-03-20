@@ -21,11 +21,29 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             _notificationRepository = notificationRepository;
             _mapper = mapper;
         }
-
         [HttpGet("notification-list")]
         public async Task<IActionResult> GetNotification()
         {
             var notificationList = await _notificationRepository.GetAllAsync();
+            return Ok(notificationList);
+        }
+        [HttpGet("common-notification-list")]
+        public async Task<IActionResult> GetCommonNotification()
+        {
+            var notificationList = await _notificationRepository.GetAllCommonNotificationAsync();
+            return Ok(notificationList);
+        }
+
+        [HttpGet("account-notification-list")]
+        public async Task<IActionResult> GetNotificationByAccount(Guid aid)
+        {
+            var notificationList = await _notificationRepository.GetAllAccountNotificationAsync();
+            return Ok(notificationList);
+        }
+        [HttpGet("role-notification-list")]
+        public async Task<IActionResult> GetNotificationByRole(Guid rid)
+        {
+            var notificationList = await _notificationRepository.GetAllRoleNotificationAsync();
             return Ok(notificationList);
         }
         [HttpGet("find-notification/{id}")]
@@ -36,7 +54,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(Class);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateNotification(InputNotificationDTO newNotificationDTO)
+        public async Task<IActionResult> CreateNotification(InputNotificationDTO newNotificationDTO, List<Guid> listId)
         {
             if (!ModelState.IsValid)
             {
@@ -45,6 +63,15 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             var newNotification = _mapper.Map<Notification>(newNotificationDTO);
             newNotification.CreatedBy = new Guid();
             newNotification.CreatedAt = DateTime.Now;
+            switch (newNotification.Type)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+            }
             try
             {
                 await _notificationRepository.AddAsync(newNotification);

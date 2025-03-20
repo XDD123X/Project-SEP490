@@ -9,5 +9,8 @@ namespace OTMS.DAL.Interface
 {
     public interface INotificationRepository : IRepository<Notification>
     {
+        Task<List<Notification>> GetAllAccountNotificationAsync();
+        Task<List<Notification>> GetAllCommonNotificationAsync();
+        Task<List<Notification>> GetAllRoleNotificationAsync();
     }
 }

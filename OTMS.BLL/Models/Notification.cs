@@ -20,4 +20,8 @@ public partial class Notification
     public DateTime? UpdatedAt { get; set; }
 
     public virtual Account CreatedByNavigation { get; set; } = null!;
+
+    public virtual ICollection<NotificationAccount> NotificationAccounts { get; set; } = new List<NotificationAccount>();
+
+    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }

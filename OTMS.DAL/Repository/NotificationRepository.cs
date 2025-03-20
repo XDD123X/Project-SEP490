@@ -17,5 +17,11 @@ namespace OTMS.DAL.Repository
         {
             _notificationDAO = notificationDAO;
         }
+
+        public Task<List<Notification>> GetAllAccountNotificationAsync() => _notificationDAO.GetAllAccountNotificationAsync();
+
+        public Task<List<Notification>> GetAllCommonNotificationAsync() => _notificationDAO.GetAllCommonNotificationAsync();
+
+        public Task<List<Notification>> GetAllRoleNotificationAsync() => _notificationDAO.GetAllRoleNotificationAsync();
     }
 }
