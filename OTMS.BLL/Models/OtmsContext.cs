@@ -55,7 +55,7 @@ public partial class OtmsContext : DbContext
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("appsettings.json", true, true)
         .Build();
-        var strConn = config["ConnectionStrings:MyDatabase"];
+        var strConn = config["ConnectionStrings:OTMS"];
         optionsBuilder.UseSqlServer(strConn);
     }
 
