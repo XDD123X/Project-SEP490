@@ -3,8 +3,6 @@ using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OTMS.DAL.Repository
@@ -17,11 +15,25 @@ namespace OTMS.DAL.Repository
         {
             _notificationDAO = notificationDAO;
         }
-
-        public Task<List<Notification>> GetAllAccountNotificationAsync() => _notificationDAO.GetAllAccountNotificationAsync();
-
-        public Task<List<Notification>> GetAllCommonNotificationAsync() => _notificationDAO.GetAllCommonNotificationAsync();
-
-        public Task<List<Notification>> GetAllRoleNotificationAsync() => _notificationDAO.GetAllRoleNotificationAsync();
+        public Task<List<Notification>> GetAllAccountNotificationAsync(Guid accountId)
+        {
+            return _notificationDAO.GetAllAccountNotificationAsync(accountId);
+        }
+        public Task<List<Notification>> GetAllCommonNotificationAsync()
+        {
+            return _notificationDAO.GetAllCommonNotificationAsync();
+        }
+        public Task<List<Notification>> GetAllRoleNotificationAsync(string roleName)
+        {
+            return _notificationDAO.GetAllRoleNotificationAsync(roleName);
+        }
+        public async Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds)
+        {
+            await _notificationDAO.AssignToAccountsAsync(notificationId, accountIds);
+        }
+        public async Task AssignToRolesAsync(Guid notificationId, List<string> roleNames)
+        {
+            await _notificationDAO.AssignToRolesAsync(notificationId, roleNames);
+        }
     }
 }

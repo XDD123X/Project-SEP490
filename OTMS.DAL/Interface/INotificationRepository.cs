@@ -1,16 +1,16 @@
 ﻿using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OTMS.DAL.Interface
 {
     public interface INotificationRepository : IRepository<Notification>
     {
-        Task<List<Notification>> GetAllAccountNotificationAsync();
+        Task<List<Notification>> GetAllAccountNotificationAsync(Guid accountId);
         Task<List<Notification>> GetAllCommonNotificationAsync();
-        Task<List<Notification>> GetAllRoleNotificationAsync();
+        Task<List<Notification>> GetAllRoleNotificationAsync(string roleName);
+        Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds);
+        Task AssignToRolesAsync(Guid notificationId, List<string> roleNames);
     }
 }
