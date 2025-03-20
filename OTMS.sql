@@ -143,15 +143,34 @@ GO
 
 -- 10. Tạo bảng Notification
 CREATE TABLE Notification (
-    notification_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
+    notification_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     title NVARCHAR(255) NOT NULL,
-    content NVARCHAR(255) NOT NULL,
-	type INT DEFAULT 0,
-    created_by uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    content NVARCHAR(MAX) NOT NULL,
+    type INT DEFAULT 0, -- 0: chung, 1: theo role, 2: theo account
+    created_by UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL
 );
 GO
+
+-- Bảng trung gian để lưu thông báo theo role
+CREATE TABLE NotificationRole (
+    notification_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Notification(notification_id) ON DELETE CASCADE,
+    role_id INT NOT NULL FOREIGN KEY REFERENCES Role(role_id) ON DELETE CASCADE,
+    PRIMARY KEY (notification_id, role_id)
+);
+GO
+
+-- Bảng trung gian để lưu thông báo theo account
+CREATE TABLE NotificationAccount (
+    notification_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Notification(notification_id) ON DELETE CASCADE,
+    account_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
+    is_read BIT DEFAULT 0, -- Trạng thái đã đọc
+    PRIMARY KEY (notification_id, account_id)
+);
+GO
+
+
 
 -- 11. Tạo bảng RefreshToken
 CREATE TABLE RefreshToken (
