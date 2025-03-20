@@ -54,7 +54,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(Class);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateNotification(InputNotificationDTO newNotificationDTO, List<Guid> listId)
+        public async Task<IActionResult> CreateNotification(InputNotificationDTO newNotificationDTO, List<Guid>? listId, )
         {
             if (!ModelState.IsValid)
             {

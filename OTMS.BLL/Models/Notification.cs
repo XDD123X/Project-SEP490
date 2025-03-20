@@ -23,5 +23,5 @@ public partial class Notification
 
     public virtual ICollection<NotificationAccount> NotificationAccounts { get; set; } = new List<NotificationAccount>();
 
-    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+    public virtual ICollection<NotificationRole> NotificationRoles { get; set; } = new List<NotificationRole>();
 }
