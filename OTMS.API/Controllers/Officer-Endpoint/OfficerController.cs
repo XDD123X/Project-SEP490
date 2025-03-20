@@ -97,7 +97,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             "Parent Full Name", "ParentGender", "Parent Phone Number", "Parent Email"
         };
 
-        [HttpPost("import-student-accounts")]
+        [HttpPost("import-parents-information")]
         public IActionResult ImportStudentAccounts(IFormFile file)
         {
             if (file == null || file.Length == 0)
