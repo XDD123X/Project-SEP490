@@ -278,6 +278,33 @@ FROM Account
 WHERE email IN ('lecturer1@gmail.com', 'lecturer2@gmail.com', 'lecturer3@gmail.com');
 GO
 
+-- Thêm Data mẫu cho notification
+INSERT INTO Notification (title, content, type, created_by) VALUES
+('System Announcement 1', '<b>Important:</b> Please update your account details.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 2', '<i>Reminder:</i> The server will be under maintenance from <u>10 PM to 12 AM</u>.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 3', 'New feature: <span style="color:blue">Dark Mode</span> is now available in settings.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 4', 'Check out our latest <a href="https://example.com">user guide</a> for better experience.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 5', '<b>Security Alert:</b> Please change your password regularly to ensure safety.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Lecturer Notice', '<b>Attention lecturers:</b> Please submit the <i>final grades</i> by <u>March 25th</u>.', 1, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Student Notice', '<b>Dear students,</b> the next semester starts on <u>April 1st</u>. Please check your schedule.', 1, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Private Message', '<b>Hi Student,</b> Your assignment deadline is extended to <i>March 30th</i>.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Private Message', '<b>Hi Lecturer,</b> Your meeting with the admin is scheduled for <u>March 20th at 10 AM</u>.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Private Message', '<b>Hi Officer,</b> Please review the new policy updates and provide feedback.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
+GO
+-- Thông báo cho Student
+INSERT INTO NotificationRole (notification_id, role_name) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Student Notice'), 'student');
+-- Thông báo cho Lecturer
+INSERT INTO NotificationRole (notification_id, role_name) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Lecturer Notice'), 'lecturer');
+GO
+-- Liên kết thông báo với từng tài khoản cụ thể
+INSERT INTO NotificationAccount (notification_id, account_id) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Student%'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com')),
+((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Lecturer%'), (SELECT account_id FROM Account WHERE email = 'lecturer1@gmail.com')),
+((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Officer%'), (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
+GO
+
 UPDATE Account
 SET img_url = 
     CASE 
