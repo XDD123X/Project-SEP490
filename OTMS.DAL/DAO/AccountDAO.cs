@@ -209,6 +209,22 @@ namespace OTMS.DAL.DAO
                 throw;
             }
         }
+
+        public async Task<List<Account>> GetAccountListAsync()
+        {
+            try
+            {
+                var accounts = await _context.Accounts.Include(a => a.Role).ToListAsync();
+                if (accounts == null) return null;
+                return accounts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
         public async Task<bool> AddAccount(Account account)
         {
             try

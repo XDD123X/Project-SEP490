@@ -305,6 +305,7 @@ INSERT INTO NotificationAccount (notification_id, account_id) VALUES
 ((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Officer%'), (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
 GO
 
+--update avatar for user as gender male and female
 UPDATE Account
 SET img_url = 
     CASE 

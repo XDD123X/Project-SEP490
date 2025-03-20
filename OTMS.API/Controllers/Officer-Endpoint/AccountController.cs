@@ -94,6 +94,15 @@ Phong Linh Class Center";
             });
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOfficerList(Guid id)
+        {
+            var accountList = await _accountRepository.GetAccountListAsync();
+            var account = accountList.FirstOrDefault(a => a.AccountId == id);
+            var response = _mapper.Map<AccountDTO>(account);
+            if (account == null) return NotFound();
+            return Ok(response);
+        }
 
     }
 }
