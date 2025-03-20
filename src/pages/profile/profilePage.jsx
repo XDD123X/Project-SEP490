@@ -21,7 +21,7 @@ export default function ProfilePage() {
             icon: <Calendar size={18} />,
             href: '/profile/personal-schedule',
         },
-        {
+        role !== 'Student' && {
             title: 'Avatar',
             icon: <Image size={18} />,
             href: '/profile/avatar',

@@ -13,7 +13,6 @@ import PrivateRoute from "./pages/private/PrivateRoute";
 import { Toaster } from "./components/ui/sonner";
 import DemoPage from "./pages/dashboard/DemoPage";
 import MainScreen from "./pages/dashboard/MainScreen";
-import Notification from "./pages/dashboard/Notification";
 import DashboardPage from "./pages/dashboard/admin/Dashboard";
 import ProfilePage from "./pages/profile/profilePage";
 import ProfileAccount from "./pages/profile/profile-account";
@@ -36,6 +35,9 @@ import ClassEditPage from "./pages/dashboard/officer/classroom/class-edit-page";
 import ViewStudentManagementPage from "./pages/dashboard/officer/account/view-student-officer-page";
 import ViewLecturerManagementPage from "./pages/dashboard/officer/account/view-lecturer-officer-page";
 import AddAccountOfficerPage from "./pages/dashboard/officer/account/add-account-page";
+import AddNotificationPage from "./pages/notification/add-notification-page";
+import ViewNotificationPage from "./pages/notification/view-notification-page";
+import ViewAccountDetail from "./pages/dashboard/officer/account/view-account-detail";
 
 function App() {
   return (
@@ -69,29 +71,30 @@ function App() {
                       <Route path="avatar" element={<ProfileAvatar />} />
                     </Route>
 
-                    <Route path="/notification" element={<Notification />} />
+                    {/* Notification */}
+                    <Route path="/notification">
+                      <Route path="" element={<ViewNotificationPage />} />
+                      <Route path="add" element={<AddNotificationPage />} />
+                    </Route>
 
                     {/* Dashboard by Role */}
                     <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
                       <Route path="/Student">
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="notification" element={<Notification />} />
                         <Route path="my-schedule" element={<StudentSchedulePage />} />
                         <Route path="my-class" element={<StudentClassPage />} />
                       </Route>
                     </Route>
-                    <Route element={<ProtectedRoute allowedRoles={["administrator"]} />} >
+                    <Route element={<ProtectedRoute allowedRoles={["administrator"]} />}>
                       <Route path="/Administrator">
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="notification" element={<Notification />} />
                       </Route>
                     </Route>
                     <Route element={<ProtectedRoute allowedRoles={["lecturer"]} />}>
                       <Route path="/Lecturer">
                         <Route path="demo" element={<DemoPage />} />
-                        <Route path="notification" element={<Notification />} />
                         <Route path="my-schedule" element={<LecturerSchedulePage />} />
                       </Route>
                     </Route>
@@ -106,13 +109,13 @@ function App() {
                         <Route path="class/detail" element={<ClassDetailPage />} />
                         <Route path="class/edit" element={<ClassEditPage />} />
 
+                        <Route path="account/:id" element={<ViewAccountDetail />} />
                         <Route path="account/students" element={<ViewStudentManagementPage />} />
                         <Route path="account/lecturers" element={<ViewLecturerManagementPage />} />
                         <Route path="account/add" element={<AddAccountOfficerPage />} />
-                        
+
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="notification" element={<Notification />} />
                       </Route>
                     </Route>
                   </Route>

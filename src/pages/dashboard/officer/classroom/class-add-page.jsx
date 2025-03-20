@@ -139,7 +139,7 @@ export default function ClassFormPage() {
       courseId: "",
       totalSession: classSetting.sessionTotal || 0,
       classUrl: "",
-      status: 0, // ✅ Để số thay vì string
+      status: 1, // ✅ Để số thay vì string
       startDate: new Date().toISOString(), // ✅ Fix lỗi startDate
       endDate: null,
     },
@@ -321,8 +321,8 @@ export default function ClassFormPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Upcoming</SelectItem>
-                            <SelectItem value="1">Studying</SelectItem>
+                            <SelectItem value="1">Upcoming</SelectItem>
+                            <SelectItem value="2">Studying</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

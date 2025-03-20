@@ -15,6 +15,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 const FACEBOOK_URL = import.meta.env.VITE_SUPPORT_FACEBOOK;
 const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
@@ -48,17 +49,17 @@ export default function Navbar() {
                   <Button size="sm">Welcome, {user.name}</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel>
-                    {role} {user.name}
-                  </DropdownMenuLabel>
+                  <DropdownMenuLabel>Welcome {user.name},</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
+                      <Link to={`/${role}`}>Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
                       <Link to={`/profile`}>My Profile</Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem>Support</DropdownMenuItem>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>Support</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Link to={`/logout`}>Log out</Link>

@@ -287,7 +287,7 @@ export default function ClassViewPage() {
                       : "success" // Finished
                     }
                   >
-                    {classItem.status === 0 ? "Disabled"
+                    {classItem.status === 0 ? "Cancelled"
                     : classItem.status === 1 ? "Upcoming"
                     : classItem.status === 2 ? "Studying"
                     : "Finished"}

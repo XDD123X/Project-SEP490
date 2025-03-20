@@ -10,6 +10,7 @@ import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL;
+import { format } from "date-fns";
 
 export default function ProfileForm() {
   const form = useForm({
@@ -128,7 +129,7 @@ export default function ProfileForm() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className={`w-[240px] pl-3 text-left font-normal ${!field.value ? "text-muted-foreground" : ""}`}>
-                      {field.value ? new Date(field.value).toLocaleDateString() : "Pick a date"}
+                      {field.value ? format(new Date(field.value), "dd/MM/yyyy") : "Pick a date"}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -136,7 +137,7 @@ export default function ProfileForm() {
                     <Calendar
                       mode="single"
                       selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={(date) => field.onChange(date?.toISOString().split("T")[0])} // Lưu dưới dạng "YYYY-MM-DD"
+                      onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")} // Lưu chuẩn "YYYY-MM-DD"
                       disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                       initialFocus
                     />

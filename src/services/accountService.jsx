@@ -71,3 +71,39 @@ export const importStudentList = async (students) => {
     };
   }
 };
+
+export const importLecturerList = async (lecturers) => {
+  try {
+    const response = await axiosClient.post("/officer/account/add-list-lecturer", lecturers);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Import failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Import lecturers failed!",
+    };
+  }
+};
+
+export const getAccountById = async (id) => {
+  try {
+    const response = await axiosClient.get(`/officer/account/${id}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Request Failed!",
+    };
+  }
+}

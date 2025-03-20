@@ -10,7 +10,8 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { getStudentList, importStudentList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ImportStudentsOfficerDialog } from "./components/add-student-import-dialog";
+import { ImportAccountsOfficerDialog } from "./components/add-student-import-dialog";
+import { Link } from "react-router-dom";
 
 export default function ViewStudentManagementPage() {
   const [students, setStudents] = useState([]);
@@ -351,10 +352,12 @@ export default function ViewStudentManagementPage() {
                   <TableCell>{getStatusBadge(account.status)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Eye className="h-4 w-4" />
-                        <span className="sr-only">View</span>
-                      </Button>
+                      <Link to={`/officer/account/${account.accountId}`} target="_blank">
+                        <Button variant="ghost" size="icon">
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View</span>
+                        </Button>
+                      </Link>
                       <Button variant="ghost" size="icon">
                         <Edit className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
@@ -452,7 +455,7 @@ export default function ViewStudentManagementPage() {
         </div>
       </div>
 
-      <ImportStudentsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} studentsData={students} />
+      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={students} type={'Student'}/>
       {/* Loading Screen   */}
       {isLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">

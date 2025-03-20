@@ -36,7 +36,7 @@ export default function ClassDetailPage() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 0:
-        return <Badge variant="destructive">Disabled</Badge>;
+        return <Badge variant="destructive">Cancelled</Badge>;
       case 1:
         return <Badge variant="outline">Upcoming</Badge>;
       case 2:
@@ -86,7 +86,7 @@ export default function ClassDetailPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Class Information</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6">
         {/* Class Information Card */}
         <Card className="w-full">
           <CardHeader>
@@ -140,7 +140,7 @@ export default function ClassDetailPage() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Meet URL:</div>
                 <div>
-                  <Link className="underline underline-offset-4 text-blue-500" to={currentClass.classUrl} target="_blank">
+                  <Link className="underline underline-offset-4 text-blue-500 text-xs" to={currentClass.classUrl} target="_blank">
                     {currentClass.classUrl}
                   </Link>
                 </div>

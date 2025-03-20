@@ -6,11 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Save } from "lucide-react";
 import { format } from "date-fns";
 
-export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, studentsData }) {
+export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, accountsData, type }) {
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [fileData, setFileData] = useState([]);
@@ -23,7 +22,7 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
     gender: -1,
     createdDate: -1,
   });
-  const [parsedStudents, setParsedStudents] = useState([]);
+  const [parsedAccounts, setParsedAccounts] = useState([]);
   const [step, setStep] = useState("upload");
 
   // Handle file selection
@@ -78,10 +77,10 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
     }
 
     // Tạo Set chứa danh sách email đã tồn tại
-    const existingEmails = new Set(studentsData.map((student) => student.email));
+    const existingEmails = new Set(accountsData.map((account) => account.email));
 
     // Lọc danh sách fileData, chỉ giữ lại các email chưa tồn tại
-    const newStudents = fileData
+    const newAccounts = fileData
       .map((row) => {
         const email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
 
@@ -117,13 +116,13 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
       })
       .filter(Boolean);
 
-    setParsedStudents(newStudents.sort((a, b) => b.email.localeCompare(a.email)));
+    setParsedAccounts(newAccounts.sort((a, b) => b.email.localeCompare(a.email)));
     setStep("preview");
   };
 
   // Handle import
   const handleImport = () => {
-    onImport(parsedStudents);
+    onImport(parsedAccounts);
     resetDialog();
     onClose();
   };
@@ -141,7 +140,7 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
       gender: -1,
       createdDate: -1,
     });
-    setParsedStudents([]);
+    setParsedAccounts([]);
     setStep("upload");
 
     // Reset file input
@@ -160,7 +159,7 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Import Students</DialogTitle>
+          <DialogTitle>Import {type}</DialogTitle>
         </DialogHeader>
 
         {step === "upload" && (
@@ -169,7 +168,7 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
               <Input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} className="flex-1 cursor-pointer" />
             </div>
             <div className="text-sm text-muted-foreground">
-              <p>Please upload a CSV file with student information.</p>
+              <p>Please upload a CSV file with {type} information.</p>
               <p>The file should contain columns for name, email, phone, date of birth, and gender.</p>
               <p>You can download a template using the &quot;Download Template&quot; button.</p>
             </div>
@@ -282,7 +281,7 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
 
         {step === "preview" && (
           <div className="space-y-4 py-4">
-            <p className="text-sm font-medium">Preview: {parsedStudents.length} students found</p>
+            <p className="text-sm font-medium">Preview: {parsedAccounts.length} {type} found</p>
 
             <ScrollArea className="h-[300px] rounded-md border">
               <Table>
@@ -297,37 +296,19 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {parsedStudents.map((student, index) => (
+                  {parsedAccounts.map((account, index) => (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{student.email}</TableCell>
-                      <TableCell>{student.fullName || "-"}</TableCell>
-                      <TableCell>{student.phoneNumber || "-"}</TableCell>
-                      <TableCell>{format(student.dob, "dd/MM/yyy") || "-"}</TableCell>
-                      <TableCell>{student.gender ? "Male" : "Female"}</TableCell>
+                      <TableCell>{account.email}</TableCell>
+                      <TableCell>{account.fullName || "-"}</TableCell>
+                      <TableCell>{account.phoneNumber || "-"}</TableCell>
+                      <TableCell>{format(account.dob, "dd/MM/yyy") || "-"}</TableCell>
+                      <TableCell>{account.gender ? "Male" : "Female"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </ScrollArea>
-
-            {/* <div className="pt-4 space-y-2">
-              <Label>Import Mode</Label>
-              <RadioGroup value={importMode} onValueChange={(value) => setImportMode(value)} className="flex flex-col space-y-1">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="add" id="add" />
-                  <Label htmlFor="add" className="font-normal">
-                    Add to current students
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="replace" id="replace" />
-                  <Label htmlFor="replace" className="font-normal">
-                    Replace all current students
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div> */}
           </div>
         )}
 
@@ -356,7 +337,7 @@ export function ImportStudentsOfficerDialog({ isOpen, onClose, onImport, student
               </Button>
               <Button onClick={handleImport} className="flex items-center gap-2">
                 <Save className="h-4 w-4" />
-                Save Students
+                Save {type}s
               </Button>
             </>
           )}

@@ -6,8 +6,10 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Bell, BookOpen, Calendar, ClipboardList, FileText, LayoutDashboard, LifeBuoy, Lock, Settings2, User, Users } from "lucide-react";
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { useStore } from "@/services/StoreContext";
+import { NotificationDropdown } from "@/components/notification/notification-dropdown";
+import { MessageDropdown } from "@/components/notification/message-dropdown";
 
 const roleBasedData = {
   student: {
@@ -242,6 +244,8 @@ export default function MainScreen() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Search />
           <div className="ml-auto flex items-center space-x-4">
+            <NotificationDropdown />
+            <MessageDropdown />
             <ThemeSwitch />
             <ProfileDropdown />
           </div>

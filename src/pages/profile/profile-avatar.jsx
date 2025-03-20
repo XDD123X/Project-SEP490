@@ -6,17 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useStore } from "@/services/StoreContext";
 import { authMe, updateAvatar } from "@/services/authService";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileAvatar() {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(""); // Chỉ hiển thị ảnh preview
   const [selectedFile, setSelectedFile] = useState(null); // Lưu file để upload khi bấm Save
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const { state, dispatch } = useStore();
-  const { user } = state;
+  const { user, role } = state;
 
   useEffect(() => {
+    if (role.toLowerCase() === "student") {
+      navigate("/profile");
+    }
+
     setPreviewUrl(user.imgUrl); // Load avatar từ user profile
   }, [user.imgUrl]);
 
