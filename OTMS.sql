@@ -278,6 +278,12 @@ FROM Account
 WHERE email IN ('lecturer1@gmail.com', 'lecturer2@gmail.com', 'lecturer3@gmail.com');
 GO
 
+--Parent
+INSERT INTO Parent (student_id, full_name, gender, phone_number, email, status)  VALUES
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Nguyễn Văn Hoàng', 1, '0987654321', 'parent1@gmail.com', 1),
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Trần Thị Hiền', 0, '0987654321', 'parent1@gmail.com', 1);
+GO
+
 -- Thêm Data mẫu cho notification
 INSERT INTO Notification (title, content, type, created_by) VALUES
 ('System Announcement 1', '<b>Important:</b> Please update your account details.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),

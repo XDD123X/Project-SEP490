@@ -167,7 +167,9 @@ namespace OTMS.DAL.DAO
             try
             {
                 var role = await _context.Roles.Where(r => r.Name == "Student").FirstOrDefaultAsync();
-                var students = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                var students = await _context.Accounts
+                    .Include(s => s.Parents)
+                    .Where(a => a.RoleId == role.RoleId).ToListAsync();
                 if (students == null) return null;
                 return students;
             }
@@ -214,7 +216,9 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                var accounts = await _context.Accounts.Include(a => a.Role).ToListAsync();
+                var accounts = await _context.Accounts
+                    .Include(s => s.Parents)
+                    .Include(a => a.Role).ToListAsync();
                 if (accounts == null) return null;
                 return accounts;
             }
