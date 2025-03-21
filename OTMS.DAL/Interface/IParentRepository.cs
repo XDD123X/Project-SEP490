@@ -7,8 +7,10 @@ using OTMS.BLL.Models;
 
 namespace OTMS.DAL.Interface
 {
-  public  interface IParentsRepository
+    public interface IParentRepository
     {
         public Task<List<Parent>> GetAllParentsAsync();
+        public Task<Guid> AddParentAsync(Parent parent);
+        public Task<bool> DeleteParentsByStudentIdAsync(Guid studentId);
     }
 }

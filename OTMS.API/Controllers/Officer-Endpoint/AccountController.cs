@@ -18,14 +18,18 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IPasswordService _passwordService;
         private readonly IEmailService _emailService;
         private readonly IRoleRepository _roleRepository;
+        private readonly IParentRepository _parentRepository;
 
-        public AccountController(IRoleRepository roleRepository, IEmailService emailService, IPasswordService passwordService, IAccountRepository accountRepository, IMapper mapper)
+        public AccountController(IParentRepository parentRepository, IRoleRepository roleRepository,
+            IEmailService emailService, IPasswordService passwordService,
+            IAccountRepository accountRepository, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
             _passwordService = passwordService;
             _emailService = emailService;
             _roleRepository = roleRepository;
+            _parentRepository = parentRepository;
         }
 
         [HttpPost("add-list-student")]
@@ -158,6 +162,112 @@ Phong Linh Class Center";
                 success,
                 fail
             });
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateAccount([FromBody] AccountUpdate update)
+        {
+            if (update == null || update.AccountId == Guid.Empty)
+            {
+                return BadRequest("Invalid account data.");
+            }
+
+            var account = await _accountRepository.GetByIdAsync(update.AccountId);
+            if (account == null)
+            {
+                return NotFound("Account not found.");
+            }
+
+            account.Email = update.Email;
+            account.FullName = update.FullName;
+            account.Fulltime = update.Fulltime;
+            account.PhoneNumber = update.PhoneNumber;
+            account.Dob = update.Dob;
+            account.Gender = update.Gender;
+            account.Status = update.Status;
+            account.UpdatedAt = DateTime.UtcNow;
+
+
+            if (update.Parents != null)
+            {
+                await _parentRepository.DeleteParentsByStudentIdAsync(update.AccountId);
+                foreach (var p in update.Parents)
+                {
+                    var newParent = new Parent
+                    {
+                        FullName = p.FullName,
+                        Gender = p.Gender,
+                        PhoneNumber = p.PhoneNumber,
+                        Email = p.Email,
+                        StudentId = update.AccountId
+                    };
+
+                    await _parentRepository.AddParentAsync(newParent);
+                }
+            }
+
+            return Ok("Account updated successfully.");
+        }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddAccount([FromBody] AddAccountModel newAccount)
+        {
+            if (newAccount == null)
+            {
+                return BadRequest(new { message = "Invalid account data." });
+            }
+
+            var accountExist = await _accountRepository.GetByEmailAsync(newAccount.Email);
+            if (accountExist != null)
+            {
+                return Conflict(new { message = "Email already exists." });
+            }
+
+            var role = await _roleRepository.GetRoleByNameAsync(newAccount.Role);
+            if (role == null)
+            {
+                return NotFound(new { message = "Invalid Role field." });
+            }
+
+            var plainPassword = _passwordService.RandomPassword(8);
+            var hashedPassword = _passwordService.HashPassword(plainPassword);
+            var account = new Account
+            {
+                AccountId = Guid.NewGuid(),
+                Email = newAccount.Email,
+                Password = hashedPassword,
+                FullName = newAccount.FullName,
+                RoleId = role.RoleId,
+                Fulltime = newAccount.Fulltime,
+                PhoneNumber = newAccount.PhoneNumber,
+                Dob = newAccount.Dob,
+                Gender = newAccount.Gender,
+                Status = 3, // Invited First Time
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _accountRepository.AddAsync(account);
+
+            // Nội dung email
+            string subject = "Welcome To Phong Linh Class Center";
+            string message =
+$@"Chào {account.FullName},
+
+Chào mừng bạn đến với Phong Linh Class Center! 
+Đây là thông tin tài khoản của bạn:
+
+- Email: {account.Email}
+- Mật khẩu: {plainPassword} (vui lòng đổi mật khẩu sau khi đăng nhập)
+
+Truy cập hệ thống tại: https://phonglinhclass.com
+
+Trân trọng,
+Phong Linh Class Center";
+
+            // Thêm email vào hàng đợi
+            EmailBackgroundService.EnqueueEmail(account.Email, subject, message);
+
+            return Ok(new { message = "Account created successfully.", accountId = account.AccountId });
         }
 
 

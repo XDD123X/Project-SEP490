@@ -23,8 +23,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IClassRepository _classRepository;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IClassSettingRepository _classSettingRepository;
+        private readonly IParentRepository _parentsRepository;
 
-        public OfficerController(IClassSettingRepository classSettingRepository, IClassRepository classRepository, IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory)
+        public OfficerController(IParentRepository parentsRepository, IClassSettingRepository classSettingRepository, IClassRepository classRepository, IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
@@ -33,6 +34,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             _scopeFactory = scopeFactory;
             _classRepository = classRepository;
             _classSettingRepository = classSettingRepository;
+            _parentsRepository = parentsRepository;
         }
 
         [HttpGet("all-schedule")]
@@ -123,7 +125,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
                         int rowCount = worksheet.RowsUsed().Count();
 
-                        using (var context = new OtmsContext()) 
+                        using (var context = new OtmsContext())
                         {
                             for (int row = 2; row <= rowCount; row++)
                             {
@@ -133,11 +135,11 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                                     FullName = worksheet.Cell(row, 4).GetValue<string>(),
                                     PhoneNumber = worksheet.Cell(row, 6).GetValue<string>(),
                                     Email = worksheet.Cell(row, 7).GetValue<string>(),
-                                    Gender = worksheet.Cell(row, 5).GetValue<string>() == "M" ? 1 : 0,
+                                    Gender = worksheet.Cell(row, 5).GetValue<string>() == "M" ? true : false,
                                     Status = 1
                                 };
 
-                                _accountRepository.ImportParent(parent).Wait(); 
+                                _accountRepository.ImportParent(parent).Wait();
                             }
 
                             return Ok(new { message = "File Excel hợp lệ" });
@@ -156,7 +158,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         public async Task<IActionResult> GetClassList()
         {
             var classes = await _classRepository.GetClassList();
-            if(classes == null) return NotFound();
+            if (classes == null) return NotFound();
 
             var response = _mapper.Map<List<ClassDTO>>(classes);
 
@@ -167,7 +169,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         public async Task<IActionResult> GetClassSetting()
         {
             var settings = await _classSettingRepository.GetAllAsync();
-            if(settings == null) return NotFound();
+            if (settings == null) return NotFound();
             return Ok(settings.Last());
         }
 
@@ -176,7 +178,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         {
             var lecturers = await _accountRepository.GetLecturerList();
             var response = _mapper.Map<List<AccountDTO>>(lecturers);
-            if(lecturers == null) return NotFound();
+            if (lecturers == null) return NotFound();
             return Ok(response);
         }
 
@@ -203,4 +205,4 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     }
 }
 
-    
+

@@ -135,7 +135,7 @@ CREATE TABLE Parent (
     parent_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     full_name NVARCHAR(100) NOT NULL,
-	gender INT DEFAULT NULL,
+	gender bit DEFAULT NULL,
     phone_number NVARCHAR(20) NULL,
     email NVARCHAR(100) NULL,
     status INT DEFAULT 1
@@ -282,7 +282,8 @@ GO
 --Parent
 INSERT INTO Parent (student_id, full_name, gender, phone_number, email, status)  VALUES
 ((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Nguyễn Văn Hoàng', 1, '0987654321', 'parent1@gmail.com', 1),
-((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Trần Thị Hiền', 0, '0987654321', 'parent1@gmail.com', 1);
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Trần Thị Hiền', 0, '0987654321', 'parent2@gmail.com', 1),
+((SELECT account_id FROM Account WHERE email = 'student2@gmail.com'), N'Đặng Quang Tuấn', 0, '0964256432', 'parent3@gmail.com', 1);
 GO
 
 -- Thêm Data mẫu cho notification
