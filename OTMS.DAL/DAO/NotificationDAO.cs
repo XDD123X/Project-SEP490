@@ -14,8 +14,7 @@ namespace OTMS.DAL.DAO
         public async Task<List<Notification>> GetAllCommonNotificationAsync()
         {
             return await _context.Notifications
-                .Where(n => !_context.NotificationRoles.Any(nr => nr.NotificationId == n.NotificationId) &&
-                            !_context.NotificationAccounts.Any(na => na.NotificationId == n.NotificationId))
+                .Where(n => n.Type == 0)
                 .ToListAsync();
         }
         public async Task<List<Notification>> GetAllAccountNotificationAsync(Guid accountId)
