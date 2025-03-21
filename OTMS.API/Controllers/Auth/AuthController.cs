@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.BLL.Services;
@@ -18,17 +20,21 @@ namespace OTMS.API.Controllers.Auth
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly ITokenService _tokenService;
         private readonly IPasswordService _passwordService;
+        private readonly IMemoryCache _cache;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IAccountRepository accountRepository, IPasswordService passwordService, ITokenService tokenService, IRefreshTokenRepository refreshTokenRepository)
+        public AuthController(IEmailService emailService, IMemoryCache cache, IAccountRepository accountRepository, IPasswordService passwordService, ITokenService tokenService, IRefreshTokenRepository refreshTokenRepository)
         {
             _accountRepository = accountRepository;
             _passwordService = passwordService;
             _tokenService = tokenService;
             _refreshTokenRepository = refreshTokenRepository;
+            _emailService = emailService;
+            _cache = cache;
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login(LoginDTO loginDTO)
+        public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
             try
             {
@@ -88,7 +94,7 @@ namespace OTMS.API.Controllers.Auth
         }
 
         [HttpGet("refresh-token")]
-        public async Task<ActionResult> RefreshToken()
+        public async Task<IActionResult> RefreshToken()
         {
             if (!Request.Cookies.TryGetValue("refresh_token", out var refreshToken)) return Unauthorized();
 
@@ -114,7 +120,7 @@ namespace OTMS.API.Controllers.Auth
 
         [HttpPost("logout")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> Logout()
+        public async Task<IActionResult> Logout()
         {
 
             var email = User.FindFirst("ue")?.Value;
@@ -138,7 +144,7 @@ namespace OTMS.API.Controllers.Auth
 
         [HttpGet("Me")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> Me()
+        public async Task<IActionResult> Me()
         {
             try
             {
@@ -172,7 +178,7 @@ namespace OTMS.API.Controllers.Auth
 
         [HttpPut("profile")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> UpdateProfile(UpdateProfileDTO updateProfileDTO)
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDTO updateProfileDTO)
         {
             try
             {
@@ -198,7 +204,7 @@ namespace OTMS.API.Controllers.Auth
 
         [HttpPost("change-password")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
             try
             {
@@ -233,7 +239,7 @@ namespace OTMS.API.Controllers.Auth
 
         [HttpPut("avatar")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> UpdateAvatar(UpdateProfileDTO updateProfileDTO)
+        public async Task<IActionResult> UpdateAvatar(UpdateProfileDTO updateProfileDTO)
         {
             try
             {
@@ -255,6 +261,96 @@ namespace OTMS.API.Controllers.Auth
             }
         }
 
+        [HttpPost("request-otp/{email}")]
+        public async Task<IActionResult> RequestOtp(string email)
+        {
+            var user = await _accountRepository.GetByEmailAsync(email);
+            if (user == null) return BadRequest(new { message = "Email Not Found" });
+
+            var otp = GenerateOtp();
+
+            // Lấy danh sách keys hiện có
+            if (!_cache.TryGetValue("CacheKeys", out List<string> keys))
+            {
+                keys = new List<string>();
+            }
+
+            // Nếu key chưa tồn tại trong danh sách, thêm vào
+            if (!keys.Contains(email))
+            {
+                keys.Add(email);
+                _cache.Set("CacheKeys", keys);
+            }
+
+            // Lưu OTP vào cache với thời gian sống 15 phút
+            _cache.Set(email, otp, TimeSpan.FromMinutes(15));
+
+            await _emailService.SendEmailAsync(email, "OTP Verification", $"Your OTP Reset Password: {otp}");
+
+            return Ok(new { message = "OTP Send To Email Successfully" });
+        }
+
+        [HttpPost("verify-otp/{email}/{otp}")]
+        public IActionResult VerifyOtp(string email, string otp)
+        {
+            // Kiểm tra xem cache có chứa email không
+            if (!_cache.TryGetValue(email, out string cachedOtp))
+            {
+                return BadRequest(new { message = "OTP is Invalid or Expired" });
+            }
+
+            // Kiểm tra OTP nhập vào có khớp với OTP đã lưu không
+            if (cachedOtp != otp)
+            {
+                return BadRequest(new { message = "OTP is Incorrect" });
+            }
+
+            return Ok(new { message = "OTP Verified Successfully" });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO model)
+        {
+            // Kiểm tra model có đủ thông tin không
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Otp) || string.IsNullOrEmpty(model.NewPassword))
+            {
+                return BadRequest(new { message = "Email, OTP, and New Password are required" });
+            }
+
+            // Kiểm tra xem cache có chứa email không
+            if (!_cache.TryGetValue(model.Email, out string cachedOtp))
+            {
+                return BadRequest(new { message = "OTP is Invalid or Expired" });
+            }
+
+            // Kiểm tra OTP nhập vào có khớp với OTP đã lưu không
+            if (cachedOtp != model.Otp)
+            {
+                return BadRequest(new { message = "OTP is Incorrect" });
+            }
+
+            // OTP hợp lệ -> kiểm tra tài khoản trong DB
+            var user = await _accountRepository.GetByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return BadRequest(new { message = "Email Not Found" });
+            }
+
+            // Cập nhật mật khẩu mới
+            user.Password = _passwordService.HashPassword(model.NewPassword);
+            await _accountRepository.UpdateAsync(user);
+
+            // Xóa OTP khỏi cache để không sử dụng lại
+            _cache.Remove(model.Email);
+
+            return Ok(new { message = "Password Updated Successfully" });
+        }
+
+        private string GenerateOtp()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999).ToString();
+        }
 
     }
 }

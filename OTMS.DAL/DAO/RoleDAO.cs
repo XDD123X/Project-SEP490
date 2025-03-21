@@ -9,9 +9,9 @@ namespace OTMS.DAL.DAO
     {
         public RoleDAO(OtmsContext context) : base(context) { }
 
-        public async Task<Guid?> GetRoleByNameAsync(string roleName)
+        public async Task<Role> GetRoleByNameAsync(string roleName)
         {
-            return (await _dbSet.FirstOrDefaultAsync(a => a.Name.Equals(roleName)))?.RoleId;
+            return await _context.Roles.FirstOrDefaultAsync(a => a.Name.ToLower() == roleName.ToLower());
         }
     }
 }

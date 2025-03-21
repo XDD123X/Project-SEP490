@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace OTMS.BLL.Services
 {
-    public interface IPasswordService
+    public interface IEmailService
     {
-        string HashPassword(string password);
-        string RandomPassword(int length);
+        Task SendEmailAsync(string to, string subject, string body);
     }
 }

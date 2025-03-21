@@ -143,15 +143,35 @@ GO
 
 -- 10. Tạo bảng Notification
 CREATE TABLE Notification (
-    notification_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
+    notification_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     title NVARCHAR(255) NOT NULL,
-    content NVARCHAR(255) NOT NULL,
-	type INT DEFAULT 0,
-    created_by uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    content NVARCHAR(MAX) NOT NULL,
+    type INT DEFAULT 0, -- 0: chung, 1: theo role, 2: theo account
+    created_by UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL
 );
 GO
+
+-- Bảng trung gian để lưu thông báo theo role
+CREATE TABLE NotificationRole (
+    notification_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Notification(notification_id) ON DELETE CASCADE,
+    -- role_name NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Role(role_name) ON DELETE CASCADE,
+	role_name NVARCHAR(50) NOT NULL,
+    PRIMARY KEY (notification_id, role_name)
+);
+GO
+
+-- Bảng trung gian để lưu thông báo theo account
+CREATE TABLE NotificationAccount (
+    notification_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Notification(notification_id) ON DELETE CASCADE,
+    account_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
+    is_read BIT DEFAULT 0, -- Trạng thái đã đọc
+    PRIMARY KEY (notification_id, account_id)
+);
+GO
+
+
 
 -- 11. Tạo bảng RefreshToken
 CREATE TABLE RefreshToken (
@@ -258,6 +278,40 @@ FROM Account
 WHERE email IN ('lecturer1@gmail.com', 'lecturer2@gmail.com', 'lecturer3@gmail.com');
 GO
 
+--Parent
+INSERT INTO Parent (student_id, full_name, gender, phone_number, email, status)  VALUES
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Nguyễn Văn Hoàng', 1, '0987654321', 'parent1@gmail.com', 1),
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Trần Thị Hiền', 0, '0987654321', 'parent1@gmail.com', 1);
+GO
+
+-- Thêm Data mẫu cho notification
+INSERT INTO Notification (title, content, type, created_by) VALUES
+('System Announcement 1', '<b>Important:</b> Please update your account details.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 2', '<i>Reminder:</i> The server will be under maintenance from <u>10 PM to 12 AM</u>.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 3', 'New feature: <span style="color:blue">Dark Mode</span> is now available in settings.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 4', 'Check out our latest <a href="https://example.com">user guide</a> for better experience.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('System Announcement 5', '<b>Security Alert:</b> Please change your password regularly to ensure safety.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Lecturer Notice', '<b>Attention lecturers:</b> Please submit the <i>final grades</i> by <u>March 25th</u>.', 1, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Student Notice', '<b>Dear students,</b> the next semester starts on <u>April 1st</u>. Please check your schedule.', 1, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Private Message', '<b>Hi Student,</b> Your assignment deadline is extended to <i>March 30th</i>.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Private Message', '<b>Hi Lecturer,</b> Your meeting with the admin is scheduled for <u>March 20th at 10 AM</u>.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
+('Private Message', '<b>Hi Officer,</b> Please review the new policy updates and provide feedback.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
+GO
+-- Thông báo cho Student
+INSERT INTO NotificationRole (notification_id, role_name) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Student Notice'), 'student');
+-- Thông báo cho Lecturer
+INSERT INTO NotificationRole (notification_id, role_name) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Lecturer Notice'), 'lecturer');
+GO
+-- Liên kết thông báo với từng tài khoản cụ thể
+INSERT INTO NotificationAccount (notification_id, account_id) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Student%'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com')),
+((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Lecturer%'), (SELECT account_id FROM Account WHERE email = 'lecturer1@gmail.com')),
+((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Officer%'), (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
+GO
+
+--update avatar for user as gender male and female
 UPDATE Account
 SET img_url = 
     CASE 

@@ -268,66 +268,66 @@ namespace OTMS.API.Controllers.Auth
             return null;
         }
 
-        [HttpPost("forgotpassword")]
-        public async Task<ActionResult> ForgotPassword([FromBody] string email)
-        {
-            var user = await _accountRepository.GetByEmailAsync(email);
-            if (user == null)
-            {
-                return NotFound("User not found.");
-            }
+        //[HttpPost("forgotpassword")]
+        //public async Task<ActionResult> ForgotPassword([FromBody] string email)
+        //{
+        //    var user = await _accountRepository.GetByEmailAsync(email);
+        //    if (user == null)
+        //    {
+        //        return NotFound("User not found.");
+        //    }
 
-            var resetToken = GenerateResetToken(email);
-            var resetLink = $"{_configuration["AppSettings:ClientBaseUrl"]}/resetpassword?token={resetToken}";
+        //    var resetToken = GenerateResetToken(email);
+        //    var resetLink = $"{_configuration["AppSettings:ClientBaseUrl"]}/resetpassword?token={resetToken}";
 
-            try
-            {
-                var smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
-                {
-                    Port = int.Parse(_configuration["EmailSettings:SmtpPort"]),
-                    Credentials = new NetworkCredential(_configuration["EmailSettings:Email"], _configuration["EmailSettings:Password"]),
-                    EnableSsl = true
-                };
+        //    try
+        //    {
+        //        var smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
+        //        {
+        //            Port = int.Parse(_configuration["EmailSettings:SmtpPort"]),
+        //            Credentials = new NetworkCredential(_configuration["EmailSettings:Email"], _configuration["EmailSettings:Password"]),
+        //            EnableSsl = true
+        //        };
 
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress(_configuration["EmailSettings:Email"]),
-                    Subject = "Password Reset Request",
-                    Body = $"Click the following link to reset your password: {resetLink}",
-                    IsBodyHtml = true,
-                };
-                mailMessage.To.Add(user.Email);
-                await smtpClient.SendMailAsync(mailMessage);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while sending email.");
-            }
+        //        var mailMessage = new MailMessage
+        //        {
+        //            From = new MailAddress(_configuration["EmailSettings:Email"]),
+        //            Subject = "Password Reset Request",
+        //            Body = $"Click the following link to reset your password: {resetLink}",
+        //            IsBodyHtml = true,
+        //        };
+        //        mailMessage.To.Add(user.Email);
+        //        await smtpClient.SendMailAsync(mailMessage);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while sending email.");
+        //    }
 
-            return Ok("Password reset link has been sent to your email.");
-        }
+        //    return Ok("Password reset link has been sent to your email.");
+        //}
 
-        [HttpPost("resetpassword")]
-        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO resetRequest)
-        {
-            string? email = ValidateResetToken(resetRequest.Token);
-            if (email == null || email != resetRequest.Email)
-            {
-                return Unauthorized("Invalid or expired reset token.");
-            }
+        //[HttpPost("resetpassword")]
+        //public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequestDTO resetRequest)
+        //{
+        //    string? email = ValidateResetToken(resetRequest.Token);
+        //    if (email == null || email != resetRequest.Email)
+        //    {
+        //        return Unauthorized("Invalid or expired reset token.");
+        //    }
 
-            var account = await _accountRepository.GetByEmailAsync(resetRequest.Email);
-            if (account == null)
-            {
-                return NotFound("User not found.");
-            }
+        //    var account = await _accountRepository.GetByEmailAsync(resetRequest.Email);
+        //    if (account == null)
+        //    {
+        //        return NotFound("User not found.");
+        //    }
 
-            account.Password = BCrypt.Net.BCrypt.HashPassword(resetRequest.NewPassword);
-            account.UpdatedAt = DateTime.UtcNow;
+        //    account.Password = BCrypt.Net.BCrypt.HashPassword(resetRequest.NewPassword);
+        //    account.UpdatedAt = DateTime.UtcNow;
 
-            await _accountRepository.UpdateAsync(account);
-            return Ok("Password has been reset successfully.");
-        }
+        //    await _accountRepository.UpdateAsync(account);
+        //    return Ok("Password has been reset successfully.");
+        //}
 
     }
 }

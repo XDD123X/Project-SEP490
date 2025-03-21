@@ -32,6 +32,7 @@ namespace OTMS.BLL.DTOs
 
         public DateTime? UpdatedAt { get; set; }
 
+        public virtual ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
 
         public virtual RoleDTO Role { get; set; } = null!;
     }

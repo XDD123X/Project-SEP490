@@ -19,7 +19,7 @@ namespace OTMS.API.Profile
             CreateMap<CourseDTO, Course>()
            .ForMember(dest => dest.CourseId, opt => opt.Ignore());
 
-
+            CreateMap<Notification, InputNotificationDTO>().ReverseMap();
             CreateMap<Class, ClassDTO>().ReverseMap();
             CreateMap<Account, AccountDTO>().ReverseMap();
             CreateMap<Role, RoleDTO>().ReverseMap();
@@ -28,6 +28,7 @@ namespace OTMS.API.Profile
             CreateMap<Session, SessionDTO>().ReverseMap();
             CreateMap<Course, CourseDTO>().ReverseMap();
             CreateMap<LecturerSchedule,  LecturerScheduleDTO>().ReverseMap();
+            CreateMap<Parent, ParentDTO>().ReverseMap();
         }
     }
 }
