@@ -43,6 +43,8 @@ public partial class Account
 
     public virtual ICollection<LecturerSchedule> LecturerSchedules { get; set; } = new List<LecturerSchedule>();
 
+    public virtual ICollection<NotificationAccount> NotificationAccounts { get; set; } = new List<NotificationAccount>();
+
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();

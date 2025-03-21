@@ -9,6 +9,6 @@ namespace OTMS.DAL.Interface
 {
     public interface IRoleRepository : IRepository<Role>
     {
-        Task<Guid?> GetRoleByNameAsync(string roleName);
+        Task<Role> GetRoleByNameAsync(string roleName);
     }
 }

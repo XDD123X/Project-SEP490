@@ -47,8 +47,6 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IClassStudentRepository, ClassStudentRepository>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IScheduleSolverService, ScheduleSolverService>();
@@ -58,6 +56,14 @@ builder.Services.AddScoped<IClassSettingRepository, ClassSettingRepository>();
 builder.Services.AddScoped<ILecturerScheduleRepository, LecturerScheduleRepository>();
 builder.Services.AddScoped<IParentsRepository, ParentsRepository>();
 
+
+//Service
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<IPasswordService, PasswordService>();
+
+//Email
+builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddHostedService<EmailBackgroundService>();
 
 //DI DAO
 builder.Services.AddScoped<AccountDAO>();

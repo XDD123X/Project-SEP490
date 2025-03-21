@@ -1,10 +1,12 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace OTMS.BLL.Services
 {
     public class PasswordService : IPasswordService
     {
+        private static readonly Random _random = new Random();
         public string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
@@ -21,6 +23,14 @@ namespace OTMS.BLL.Services
 
                 return builder.ToString();
             }
+        }
+
+        public string RandomPassword(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
     }
 }
