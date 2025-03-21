@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Video, ExternalLink, Info, VideoOff } from "lucide-react";
+import { Video, ExternalLink, Info, VideoOff, Speech } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -37,9 +37,10 @@ export default function ClassCard({ session }) {
           </div>
 
           {/* Row 2: Lecturer Name */}
-          <div className="border-b px-3 py-2 flex items-center justify-between">
+          <div className="border-b px-3 py-2 flex items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground flex-shrink-0">Lecturer:</p>
-            <span className="text-xs font-medium w-[60%] text-right">{session.lecturer.fullName.split(" ").slice(-2).join(" ")}</span>
+            {/* <Speech className="text-muted-foreground w-4 h-4" /> */}
+            <span className="text-xs font-medium text-right">{session.lecturer.fullName}</span>
           </div>
 
           {/* Row 3: Combined Record Icon and Attendance Badge */}
@@ -48,9 +49,8 @@ export default function ClassCard({ session }) {
             <div className="h-4 border-r mx-2"></div>
             <Badge
               variant={session.attendances === "attended" ? "success" : session.attendances === "absent" ? "destructive" : "outline"}
-              className={`text-xs px-1.5 py-0 ${
-                session.attendances === "attended" ? "bg-green-100 text-green-800 hover:bg-green-100" : session.attendances === "absent" ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"
-              }`}
+              className={`text-xs px-1.5 py-0 ${session.attendances === "attended" ? "bg-green-100 text-green-800 hover:bg-green-100" : session.attendances === "absent" ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                }`}
             >
               {session.attendances === "attended" ? "Attended" : session.attendances === "absent" ? "Absent" : "Not yet"}
             </Badge>

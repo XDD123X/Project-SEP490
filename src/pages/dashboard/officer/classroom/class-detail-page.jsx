@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { GetClassById } from "@/services/classService";
 import { format } from "date-fns";
-import { Eye } from "lucide-react";
+import { ChevronLeft, Eye } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -87,6 +87,17 @@ export default function ClassDetailPage() {
       <h1 className="text-2xl font-bold mb-6">Class Information</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6">
+
+        <div className="col-span-3 flex justify-start mt-4">
+          <Button onClick={() => navigate("/officer/class")}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
+          </Button>
+          {/* <Button variant="outline" >
+            Next <ChevronRight className="ml-2 h-4 w-4" />
+          </Button> */}
+        </div>
+
+
         {/* Class Information Card */}
         <Card className="w-full">
           <CardHeader>

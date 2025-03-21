@@ -22,6 +22,7 @@ import { getAllCourse } from "@/services/courseService";
 import { getCurrentSetting } from "@/services/classSettingService";
 import { useNavigate } from "react-router-dom";
 import { AddClass } from "@/services/classService";
+import CalendarSelector from "@/components/CalendarSelector";
 
 // Form schema with validation
 const formSchema = z.object({
@@ -339,19 +340,10 @@ export default function ClassFormPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Start Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                                {field.value ? format(new Date(field.value), "dd/MM/yyy") : <span>Pick a date</span>}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => field.onChange(date?.toISOString())} initialFocus />
-                          </PopoverContent>
-                        </Popover>
+                        <CalendarSelector className="w-full"
+                          date={field.value ? new Date(field.value) : undefined}
+                          setDate={(date) => field.onChange(date?.toISOString())}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -380,7 +372,7 @@ export default function ClassFormPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>End Date (Optional)</FormLabel>
-                        <Popover>
+                        {/* <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -392,7 +384,11 @@ export default function ClassFormPage() {
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar mode="single" selected={field.value || undefined} onSelect={(date) => field.onChange(date?.toISOString())} initialFocus />
                           </PopoverContent>
-                        </Popover>
+                        </Popover> */}
+                        <CalendarSelector className="w-full"
+                          date={field.value ? new Date(field.value) : undefined}
+                          setDate={(date) => field.onChange(date?.toISOString())}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}

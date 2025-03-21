@@ -2,7 +2,7 @@ import React from "react";
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Pencil, Save, Wrench } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight, Pencil, Save, Wrench } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { GetClassById, UpdateClass } from "@/services/classService";
 import { getLecturerList } from "@/services/accountService";
 import { getAllCourse } from "@/services/courseService";
+import CalendarSelector from "@/components/CalendarSelector";
 
 export default function ClassEditPage() {
   const [searchParams] = useSearchParams();
@@ -159,96 +160,105 @@ export default function ClassEditPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">Class Edit</h1>
-      <Card className="max-w-3xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center text-xl">Code: {classItem.classCode}</CardTitle>
-          <Separator />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Class Code */}
-            <div className="space-y-2">
-              <Label htmlFor="classCode">Class Code</Label>
-              <Input id="classCode" name="classCode" value={classItem.classCode} onChange={handleInputChange} />
-            </div>
+      <h1 className="text-3xl font-bold mb-6 text-center">Class Infomation Update</h1>
+      <div className="w-full max-w-2xl mx-auto space-y-4">
+        <div className="flex justify-start mt-4">
+          <Button onClick={() => navigate("/officer/class")}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
+          </Button>
+          {/* <Button variant="outline" >
+            Next <ChevronRight className="ml-2 h-4 w-4" />
+          </Button> */}
+        </div>
+        <Card className="">
+          <CardHeader>
+            <CardTitle className="text-center text-xl">Code: {classItem.classCode}</CardTitle>
+            <Separator />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Class Code */}
+              <div className="space-y-2">
+                <Label htmlFor="classCode">Class Code</Label>
+                <Input id="classCode" name="classCode" value={classItem.classCode} onChange={handleInputChange} />
+              </div>
 
-            {/* Class Name */}
-            <div className="space-y-2">
-              <Label htmlFor="className">Class Name</Label>
-              <Input id="className" name="className" value={classItem.className} onChange={handleInputChange} />
-            </div>
+              {/* Class Name */}
+              <div className="space-y-2">
+                <Label htmlFor="className">Class Name</Label>
+                <Input id="className" name="className" value={classItem.className} onChange={handleInputChange} />
+              </div>
 
-            {/* Course ID - Select */}
-            <div className="space-y-2">
-              <Label htmlFor="courseId">Course</Label>
-              <Select value={classItem.courseId} onValueChange={(value) => handleSelectChange("courseId", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem key={course.courseId} value={course.courseId}>
-                      {course.courseName} - {course.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Lecturer ID - Select */}
-            <div className="space-y-2">
-              <Label htmlFor="lecturerId">Lecturer</Label>
-              <div className="flex gap-2">
-                <Select value={classItem.lecturer.accountId} onValueChange={(value) => handleSelectChange("lecturerId", value)} disabled={!editLecturer}>
+              {/* Course ID - Select */}
+              <div className="space-y-2">
+                <Label htmlFor="courseId">Course</Label>
+                <Select value={classItem.courseId} onValueChange={(value) => handleSelectChange("courseId", value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select lecturer" />
+                    <SelectValue placeholder="Select course" />
                   </SelectTrigger>
                   <SelectContent>
-                    {lecturers.map((lecturer) => (
-                      <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
-                        {lecturer.gender ? "Mr. " : "Ms."} {lecturer.fullName}
+                    {courses.map((course) => (
+                      <SelectItem key={course.courseId} value={course.courseId}>
+                        {course.courseName} - {course.description}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="icon" onClick={() => setShowEditLecturerDialog(true)} title="Change Lecturer">
-                  <Pencil className="h-4 w-4" />
-                </Button>
               </div>
-            </div>
 
-            {/* Total Session - With Check button */}
-            <div className="space-y-2">
-              <Label htmlFor="totalSession">Total Sessions</Label>
-              <div className="flex gap-2">
-                <Input id="totalSession" name="totalSession" type="number" value={classItem.totalSession} disabled />
-                <Button variant="outline" size="icon" onClick={handleCheckTotalSession} title="Check total sessions">
-                  <Wrench className="h-4 w-4" />
-                </Button>
+              {/* Lecturer ID - Select */}
+              <div className="space-y-2">
+                <Label htmlFor="lecturerId">Lecturer</Label>
+                <div className="flex gap-2">
+                  <Select value={classItem.lecturer.accountId} onValueChange={(value) => handleSelectChange("lecturerId", value)} disabled={!editLecturer}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select lecturer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {lecturers.map((lecturer) => (
+                        <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
+                          {lecturer.gender ? "Mr. " : "Ms."} {lecturer.fullName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon" onClick={() => setShowEditLecturerDialog(true)} title="Change Lecturer">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {/* Status - Select */}
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={classItem.status.toString()} onValueChange={(value) => handleSelectChange("status", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">Disabled</SelectItem>
-                  <SelectItem value="1">Upcoming</SelectItem>
-                  <SelectItem value="2">Studying</SelectItem>
-                  <SelectItem value="2">Finished</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Total Session - With Check button */}
+              <div className="space-y-2">
+                <Label htmlFor="totalSession">Total Sessions</Label>
+                <div className="flex gap-2">
+                  <Input id="totalSession" name="totalSession" type="number" value={classItem.totalSession} disabled />
+                  <Button variant="outline" size="icon" onClick={handleCheckTotalSession} title="Check total sessions">
+                    <Wrench className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
 
-            {/* Start Date */}
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Popover>
+              {/* Status - Select */}
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={classItem.status.toString()} onValueChange={(value) => handleSelectChange("status", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Disabled</SelectItem>
+                    <SelectItem value="1">Upcoming</SelectItem>
+                    <SelectItem value="2">Studying</SelectItem>
+                    <SelectItem value="2">Finished</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Start Date */}
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                {/* <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !classItem.startDate && "text-muted-foreground")}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -269,13 +279,24 @@ export default function ClassEditPage() {
                     initialFocus
                   />
                 </PopoverContent>
-              </Popover>
-            </div>
+              </Popover> */}
+                <CalendarSelector
+                  className={'w-full'}
+                  selectedDate={classItem.startDate ? new Date(classItem.startDate) : undefined}
+                  setSelectedDate={(date) =>
+                    date &&
+                    setClassItem((prev) => ({
+                      ...prev,
+                      startDate: date.toISOString().split("T")[0],
+                    }))
+                  }
+                />
+              </div>
 
-            {/* End Date */}
-            <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
-              <Popover>
+              {/* End Date */}
+              <div className="space-y-2">
+                <Label htmlFor="endDate">End Date</Label>
+                {/* <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !classItem.endDate && "text-muted-foreground")}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -296,42 +317,54 @@ export default function ClassEditPage() {
                     initialFocus
                   />
                 </PopoverContent>
-              </Popover>
-            </div>
+              </Popover> */}
+                <CalendarSelector
+                  className={'w-full'}
+                  selectedDate={classItem.endDate ? new Date(classItem.endDate) : undefined}
+                  setSelectedDate={(date) =>
+                    date &&
+                    setClassItem((prev) => ({
+                      ...prev,
+                      endDate: date.toISOString().split("T")[0],
+                    }))
+                  }
+                />
+              </div>
 
-            {/* Class URL - Disabled */}
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="classUrl">Class URL</Label>
-              <Input id="classUrl" name="classUrl" value={selectedLecturer.meetUrl} disabled />
-            </div>
+              {/* Class URL - Disabled */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="classUrl">Class URL</Label>
+                <Input id="classUrl" name="classUrl" value={selectedLecturer.meetUrl} disabled />
+              </div>
 
-            {/* Scheduled - Disabled with button */}
-            <div className="space-y-2">
-              <Label htmlFor="scheduled">Scheduled</Label>
-              <div className="flex gap-2">
-                <Select value={classItem.scheduled.toString()} disabled>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Scheduled status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="false">No</SelectItem>
-                    <SelectItem value="true">Yes</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" onClick={() => setShowScheduledDialog(true)}>
-                  Change
-                </Button>
+              {/* Scheduled - Disabled with button */}
+              <div className="space-y-2">
+                <Label htmlFor="scheduled">Scheduled</Label>
+                <div className="flex gap-2">
+                  <Select value={classItem.scheduled.toString()} disabled>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Scheduled status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false">No</SelectItem>
+                      <SelectItem value="true">Yes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" onClick={() => setShowScheduledDialog(true)}>
+                    Change
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-          </Button>
-        </CardFooter>
-      </Card>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
 
       {/* Scheduled Confirmation Dialog */}
       <Dialog open={showScheduledDialog} onOpenChange={setShowScheduledDialog}>

@@ -352,16 +352,19 @@ export default function ViewStudentManagementPage() {
                   <TableCell>{getStatusBadge(account.status)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Link to={`/officer/account/${account.accountId}`} target="_blank">
+                      <Link to={`/officer/account/${account.accountId}`} >
                         <Button variant="ghost" size="icon">
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">View</span>
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
+                      <Link to={`/officer/account/edit/${account.accountId}`}>
+                        <Button variant="ghost" size="icon">
+
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                      </Link>
                       <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDeleteStudent(account)}>
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>
@@ -455,7 +458,7 @@ export default function ViewStudentManagementPage() {
         </div>
       </div>
 
-      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={students} type={'Student'}/>
+      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={students} type={'Student'} />
       {/* Loading Screen   */}
       {isLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">

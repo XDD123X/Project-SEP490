@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useStore } from "@/services/StoreContext";
 import ClassCard from "@/components/session-card";
 import { Link } from "react-router-dom";
+import CalendarSelector from "@/components/CalendarSelector";
 
 export default function StudentSchedulePage() {
   const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -89,7 +90,7 @@ export default function StudentSchedulePage() {
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
-          <Popover>
+          {/* <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-64 flex justify-between items-center px-4">
                 <span className="mx-auto">{format(selectedDate, "d/MM/yyyy")}</span>
@@ -110,7 +111,8 @@ export default function StudentSchedulePage() {
                 initialFocus
               />
             </PopoverContent>
-          </Popover>
+          </Popover> */}
+           <CalendarSelector className='min-w-[400px] flex justify-between items-center px-4' selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} selectedDate={new Date()}/>
           <Button onClick={goToNextWeek} variant="outline" className="w-28 flex justify-center">
             Next
             <ChevronRight className="h-4 w-4" />
@@ -137,6 +139,7 @@ export default function StudentSchedulePage() {
               <Calendar mode="single" selected={selectedWeek} onSelect={(date) => date && setSelectedWeek(startOfWeek(date))} initialFocus />
             </PopoverContent>
           </Popover>
+           {/* <CalendarSelector selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} /> */}
         </div>
       </div>
 
@@ -239,8 +242,8 @@ function MobileSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
                           <div>
                             <div className="font-medium text-lg">{session.class.classCode}</div>
                             <div className="text-sm text-muted-foreground mt-1">{timeSlot?.time}</div>
-                            <div className="text-sm mt-2">Teacher: {session.lecturer.fullName}</div>
-                            {session.note && <div className="text-sm mt-1 text-muted-foreground">Note: {session.description}</div>}
+                            <div className="text-sm mt-2">Lecturer: {session.lecturer.fullName}</div>
+                            {session.description && <div className="text-sm mt-1 text-muted-foreground">Note: {session.description}</div>}
                           </div>
                           <Badge variant={session.status === "Confirmed" ? "default" : session.status === "Cancelled" ? "destructive" : "outline"}>{session.status}</Badge>
                         </div>
@@ -277,7 +280,6 @@ function SessionModal({ session, isOpen, onClose, timeSlots }) {
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="text-sm font-medium">Slot:</span>
             <span className="col-span-3">
-              {" "}
               {session.slot}({timeSlot?.time})
             </span>
           </div>

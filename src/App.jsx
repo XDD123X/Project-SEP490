@@ -38,6 +38,7 @@ import AddAccountOfficerPage from "./pages/dashboard/officer/account/add-account
 import AddNotificationPage from "./pages/notification/add-notification-page";
 import ViewNotificationPage from "./pages/notification/view-notification-page";
 import ViewAccountDetail from "./pages/dashboard/officer/account/view-account-detail";
+import { EditAccountOfficerPage } from "./pages/dashboard/officer/account/edit-account-page";
 
 function App() {
   return (
@@ -113,6 +114,7 @@ function App() {
                         <Route path="account/students" element={<ViewStudentManagementPage />} />
                         <Route path="account/lecturers" element={<ViewLecturerManagementPage />} />
                         <Route path="account/add" element={<AddAccountOfficerPage />} />
+                        <Route path="account/edit/:id" element={<EditAccountOfficerPage />} />
 
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />

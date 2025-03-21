@@ -15,6 +15,8 @@ import { getLecturerList } from "@/services/accountService";
 import { getCurrentSetting } from "@/services/classSettingService";
 import { generateSession } from "@/services/sessionService";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import CalendarSelector from "@/components/CalendarSelector";
+import { cn } from "@/lib/utils";
 
 const days = [
   { id: 1, name: "Monday" },
@@ -208,7 +210,7 @@ export default function SessionGeneratePage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Start Date</label>
-              <Popover open={isOpen} onOpenChange={setIsOpen}>
+              {/* <Popover open={isOpen} onOpenChange={setIsOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full h-10 justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -230,7 +232,17 @@ export default function SessionGeneratePage() {
                     initialFocus
                   />
                 </PopoverContent>
-              </Popover>
+              </Popover> */}
+              <CalendarSelector
+                selectedDate={startDate}
+                setSelectedDate={(date) => {
+                  if (date) {
+                    const localDate = new Date(date);
+                    localDate.setHours(12, 0, 0, 0);
+                    setStartDate(localDate);
+                  }
+                }}
+              />
             </div>
             <div className="space-y-2">
               <p className="text-sm font-medium">Preferred Days</p>
@@ -244,8 +256,12 @@ export default function SessionGeneratePage() {
               </div>
             </div>
           </div>
-          <div className="flex space-x-4 mt-6">
-            <Button className="w-full md:w-auto" onClick={handleSubmit} disabled={sessions.length > 0}>
+          <div className="flex mt-6">
+            <Button
+              className={cn("w-full md:w-auto mr-5", sessions.length > 0 ? "hidden" : "")}
+              onClick={handleSubmit}
+              disabled={sessions.length > 0}
+            >
               Generate Sessions
             </Button>
             {sessions.length > 0 && (
@@ -266,7 +282,7 @@ export default function SessionGeneratePage() {
                       <TableHead>Class</TableHead>
                       <TableHead>Lecturer</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead>Day</TableHead> {/* Cột mới hiển thị thứ */}
+                      {/* <TableHead>Day</TableHead> */}
                       <TableHead>Slot</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -278,8 +294,7 @@ export default function SessionGeneratePage() {
                         <TableCell>
                           {session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}
                         </TableCell>
-                        <TableCell>{format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
-                        <TableCell>{format(new Date(session.sessionDate), "EEEE")}</TableCell>
+                        <TableCell>{format(new Date(session.sessionDate), "EEEE")}, {format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
                         <TableCell>{session.slot}</TableCell>
                       </TableRow>
                     ))}

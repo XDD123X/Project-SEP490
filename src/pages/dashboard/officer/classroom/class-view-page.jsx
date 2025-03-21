@@ -176,11 +176,11 @@ export default function ClassViewPage() {
   };
 
   // Handle deleting a session
-  const handleDeleteClass = (id) => {
-    if (confirm("Are you sure you want to delete this session?")) {
-      ("");
-    }
-  };
+  // const handleDeleteClass = (id) => {
+  //   if (confirm("Are you sure you want to delete this session?")) {
+  //     ("");
+  //   }
+  // };
 
   // Handle form input changes for editing class
   const handleEditSessionChange = (field, value) => {
@@ -298,19 +298,19 @@ export default function ClassViewPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Link target="_blank" to={`/officer/class/detail?classId=${classItem.classId}`}>
+                      <Link  to={`/officer/class/detail?classId=${classItem.classId}`}>
                         <Button variant="outline" size="icon">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Link target="_blank" to={`/officer/class/edit?classId=${classItem.classId}`}>
+                      <Link  to={`/officer/class/edit?classId=${classItem.classId}`}>
                         <Button variant="outline" size="icon">
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button variant="destructive" size="icon" onClick={() => handleDeleteClass(classItem.classId)}>
+                      {/* <Button variant="destructive" size="icon" onClick={() => handleDeleteClass(classItem.classId)}>
                         <Trash2 className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                     </div>
                   </TableCell>
                 </TableRow>
