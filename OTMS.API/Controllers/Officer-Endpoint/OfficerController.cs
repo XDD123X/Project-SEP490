@@ -221,11 +221,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return Ok(response);
         }
 
-        //test git
-        public void printMessage(string message)
-        {
-            Console.WriteLine(message);
-        }
+       
+
+        //comment
     }
 }
 
