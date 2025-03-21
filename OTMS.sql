@@ -78,6 +78,7 @@ GO
 -- 5. Tạo bảng Session
 CREATE TABLE Session (
     session_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
+	session_number INT DEFAULT 0,
     class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id),
     lecturer_id uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
     session_date DATETIME NOT NULL,

@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.Models;
 using System;
@@ -126,20 +126,10 @@ namespace OTMS.DAL.DAO
             await _context.SaveChangesAsync();
         }
 
-
-        //
-
-        public async Task<Role> GetRoleByRoleName(string RoleName)
+        public async Task<List<Account>> getAllStudentAccount()
         {
-            Role Role =_context.Roles.FirstOrDefault(r => r.Name.ToLower().Equals(RoleName.ToLower()));
-            return Role;
-        }
-
-        public async Task<List<Account>> getAllStudentAccount(string roleId)
-        {
-           
             List<Account> accounts = await _context.Accounts
-                .Where(a => a.RoleId == new Guid(roleId))
+                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757"))
                 .ToListAsync();
             return accounts;
         }
@@ -177,7 +167,9 @@ namespace OTMS.DAL.DAO
             try
             {
                 var role = await _context.Roles.Where(r => r.Name == "Student").FirstOrDefaultAsync();
-                var students = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
+                var students = await _context.Accounts
+                    .Include(s => s.Parents)
+                    .Where(a => a.RoleId == role.RoleId).ToListAsync();
                 if (students == null) return null;
                 return students;
             }
@@ -220,6 +212,37 @@ namespace OTMS.DAL.DAO
             }
         }
 
+        public async Task<List<Account>> GetAccountListAsync()
+        {
+            try
+            {
+                var accounts = await _context.Accounts
+                    .Include(s => s.Parents)
+                    .Include(a => a.Role).ToListAsync();
+                if (accounts == null) return null;
+                return accounts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
 
+        public async Task<bool> AddAccount(Account account)
+        {
+            try
+            {
+                await _context.Accounts.AddAsync(account);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error when adding account: {ex.Message}");
+                return false;
+
+            }
+        }
     }
 }

@@ -37,10 +37,7 @@ namespace OTMS.DAL.Repository
      
         public Task UpdateAsync(Account account) => _accountDAO.UpdateAsync(account);
 
-        public Task<Role> GetRoleByRoleName(string RoleName) => _accountDAO.GetRoleByRoleName(RoleName);
-
-
-        public Task<List<Account>> getAllStudentAccount(string roleId) =>_accountDAO.getAllStudentAccount( roleId);
+        public Task<List<Account>> getAllStudentAccount() =>_accountDAO.getAllStudentAccount();
         public async Task ImportParent(Parent parent) => await _accountDAO.ImportParent(parent);
 
         public Task<List<Account>> GetStudentList() => _accountDAO.GetStudentList();

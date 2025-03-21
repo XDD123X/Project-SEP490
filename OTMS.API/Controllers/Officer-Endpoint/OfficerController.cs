@@ -23,11 +23,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IClassRepository _classRepository;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IClassSettingRepository _classSettingRepository;
-        private readonly RoleRepository _roleRepository;
 
-        private readonly IParentsRepository _parentsRepository;
-
-        public OfficerController(IClassSettingRepository classSettingRepository, IClassRepository classRepository, IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory, IParentsRepository parentsRepository)
+        public OfficerController(IClassSettingRepository classSettingRepository, IClassRepository classRepository, IMapper mapper, IScheduleRepository scheduleRepository, IAccountRepository accountRepository, ISessionRepository sessionRepository, IServiceScopeFactory scopeFactory)
         {
             _mapper = mapper;
             _scheduleRepository = scheduleRepository;
@@ -36,7 +33,6 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             _scopeFactory = scopeFactory;
             _classRepository = classRepository;
             _classSettingRepository = classSettingRepository;
-            _parentsRepository = parentsRepository;
         }
 
         [HttpGet("all-schedule")]
@@ -49,12 +45,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpGet("get-all-student-account-to-import-parent")]
         public async Task<IActionResult> GetAllStudentAccountExcelFile()
         {
-           Role role = await _accountRepository.GetRoleByRoleName("Student");
-
-
-            List<Account> accountStudent = await _accountRepository.getAllStudentAccount(role.RoleId.ToString());
-
-            List<Parent> ParentList= await _parentsRepository.GetAllParentsAsync();
+            List<Account> accountStudent = await _accountRepository.getAllStudentAccount();
 
             using (var workbook = new XLWorkbook())
             {
@@ -66,32 +57,18 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 worksheet.Cell(currentRow, 3).Value = "Student FullName";
 
                 worksheet.Cell(currentRow, 4).Value = "Parent Full Name";
-                worksheet.Cell(currentRow, 5).Value = "ParentGender"  ;
+                worksheet.Cell(currentRow, 5).Value = "ParentGender";
                 worksheet.Cell(currentRow, 6).Value = "Parent Phone Number";
                 worksheet.Cell(currentRow, 7).Value = "Parent Email";
 
-                foreach (Account account in accountStudent)
+                foreach (var account in accountStudent)
                 {
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = account.AccountId.ToString();
                     worksheet.Cell(currentRow, 2).Value = account.Email;
                     worksheet.Cell(currentRow, 3).Value = account.FullName;
 
-
-                    foreach (Parent parent in ParentList)
-                    {
-                        if (parent.StudentId == account.AccountId)
-                        {
-                            worksheet.Cell(currentRow, 4).Value = parent.FullName;
-                            worksheet.Cell(currentRow, 5).Value = parent.Gender == 1 ? "M" : "Fe";
-                            worksheet.Cell(currentRow, 6).Value = parent.PhoneNumber;
-                            worksheet.Cell(currentRow, 7).Value = parent.Email;
-                        }
-                    }
-
                 }
-
-
                 worksheet.Column(1).Style.Fill.BackgroundColor = XLColor.LightBlue;
 
                 worksheet.Column(1).Width = 35;
@@ -120,7 +97,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             "Parent Full Name", "ParentGender", "Parent Phone Number", "Parent Email"
         };
 
-        [HttpPost("import-parents-information")]
+        [HttpPost("import-student-accounts")]
         public IActionResult ImportStudentAccounts(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -221,9 +198,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return Ok(response);
         }
 
-       
 
-        //comment
+
     }
 }
 

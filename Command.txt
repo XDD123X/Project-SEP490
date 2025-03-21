@@ -1,0 +1,30 @@
+dotnet ef dbcontext scaffold "server =(local); database = OTMS;uid=sa;pwd=sa12345;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -o Models --force
+
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server =(local); database = OTMS;uid=sa;pwd=sa12345;"
+  }
+}
+
+var ConnectionString = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetConnectionString("DefaultConnection");
+optionsBuilder.UseSqlServer(ConnectionString);
+
+
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    Console.WriteLine(Directory.GetCurrentDirectory());
+    IConfiguration config = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", true, true)
+    .Build();
+    var strConn = config["ConnectionStrings:DefaultConnection"];
+    optionsBuilder.UseSqlServer(strConn);
+}
+
+
+builder.Services.AddDbContext<OTMS>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+Add-Migration InitDB
+Drop-Database
+Update-Database

@@ -7,6 +7,8 @@ public partial class Session
 {
     public Guid SessionId { get; set; }
 
+    public int? SessionNumber { get; set; }
+
     public Guid ClassId { get; set; }
 
     public Guid? LecturerId { get; set; }
