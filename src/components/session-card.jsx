@@ -7,15 +7,17 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Textarea } from "./ui/textarea";
+import { cn } from "@/lib/utils";
+import { Separator } from "./ui/separator";
 
 export default function ClassCard({ session }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   return (
     <>
-      <Card className="w-full max-w-xs overflow-hidden">
+      <Card className={cn('w-full max-w-xs overflow-hidden')}>
         <CardContent className="p-0">
           {/* Row 1: Class Name and Status Badge */}
-          <div className="flex items-center justify-between border-b px-3 py-2">
+          <div className="flex items-center justify-between px-3 py-2">
             <h3 className="text-xs font-medium">{session.class.classCode}</h3>
             {/* <Badge variant={session.status === 1 ? "outline" : session.status === 2 ? "success" : "destructive"} className="text-xs px-1.5 py-0">
               {session.status === 1 ? "Not Yet" : session.status === 2 ? "Finished" : "Cancelled"}
@@ -35,6 +37,7 @@ export default function ClassCard({ session }) {
               </Tooltip>
             </TooltipProvider>
           </div>
+          <Separator />
 
           {/* Row 2: Lecturer Name */}
           <div className="border-b px-3 py-2 flex items-center justify-between gap-2">
@@ -69,7 +72,7 @@ export default function ClassCard({ session }) {
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{session.class.classCode} Details</DialogTitle>
+            <DialogTitle>{session.class.classCode}</DialogTitle>
             <DialogDescription>Class information and details</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -83,17 +86,14 @@ export default function ClassCard({ session }) {
                 {session.lecturer.gender ? "Mr." : "Ms."} {session.lecturer.fullName}
               </span>
             </div>
-            {/*
+            
             <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Status:</span>
+              <span className="text-sm font-medium">Session number:</span>
               <span className="col-span-3">
-                <Badge variant={session.status === 1 ? "default" : session.status === 2 ? "secondary" : "outline"}>{session.status}</Badge>
-                <Badge variant={session.status === 1 ? "outline" : session.status === 2 ? "success" : "destructive"} className="text-xs px-1.5 py-0">
-                  {session.status === 1 ? "Not Yet" : session.status === 2 ? "Finished" : "Cancelled"}
-                </Badge>
+                {session.sessionNumber ?? "-"}
               </span>
             </div>
-            */}
+           
 
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Attendance:</span>
@@ -109,13 +109,13 @@ export default function ClassCard({ session }) {
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Description:</span>
               <Textarea className="col-span-3" readOnly>
-                {session.description || "No Description"}
+                {session.description || ""}
               </Textarea>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Recording:</span>
               <span className="col-span-3 flex items-center">
-                {session.sessionRecord ? <Video className="mr-2 h-4 w-4" /> : <VideoOff className="mr-2 h-4 w-4" />}
+                {session.sessionRecord ? <Video className="mr-2 h-4 w-4 text-green-500" /> : <VideoOff className="mr-2 h-4 w-4 text-red-500" />}
                 {session.sessionRecord ? format(new Date(), "dd/MM/yyyy") : "Not available"}
               </span>
             </div>

@@ -17,6 +17,7 @@ import { generateSession } from "@/services/sessionService";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import CalendarSelector from "@/components/CalendarSelector";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 const days = [
   { id: 1, name: "Monday" },
@@ -37,10 +38,14 @@ export default function SessionGeneratePage() {
   const [selectedLecturer, setSelectedLecturer] = useState("");
   const [startDate, setStartDate] = useState();
   const [sessions, setSessions] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setisLoading] = useState(false);
   const [isSelectDisabled, setIsSelectDisabled] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  //delay func
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  //fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -72,11 +77,12 @@ export default function SessionGeneratePage() {
     }
   }, [selectedClass, classList]);
 
+  //change week day select
   const handleCheckboxChange = (day) => {
     setPreferredDays((prev) => (prev.includes(day.id) ? prev.filter((d) => d !== day.id) : [...prev, day.id]));
   };
 
-  // Function to toggle the disabled state
+  //toggle the disabled state
   const toggleSelectEnabled = () => {
     if (!isSelectDisabled) {
       setIsSelectDisabled(true);
@@ -121,26 +127,32 @@ export default function SessionGeneratePage() {
       preferredDays: preferredDays,
     };
 
-    console.log(submissionData);
     try {
+      setisLoading(true);
       const response = await generateSession(submissionData);
 
       if (response.status === 200 && response.data) {
+        setisLoading(false);
         setSessions(response.data.data);
-        console.log("set data for sessions:", response.data.data);
-
         toast.success("Session generated successfully!");
       } else {
         toast.error("Failed to generate session");
       }
     } catch (error) {
       console.error("Error generating session:", error);
+      setisLoading(false);
       toast.error("An error occurred while generating the session");
     }
   };
 
   return (
     <div className="container mx-auto py-10">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+          <Spinner />
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Class Session Scheduler</CardTitle>
@@ -234,6 +246,7 @@ export default function SessionGeneratePage() {
                 </PopoverContent>
               </Popover> */}
               <CalendarSelector
+                className="w-full"
                 selectedDate={startDate}
                 setSelectedDate={(date) => {
                   if (date) {
@@ -257,11 +270,7 @@ export default function SessionGeneratePage() {
             </div>
           </div>
           <div className="flex mt-6">
-            <Button
-              className={cn("w-full md:w-auto mr-5", sessions.length > 0 ? "hidden" : "")}
-              onClick={handleSubmit}
-              disabled={sessions.length > 0}
-            >
+            <Button className={cn("w-full md:w-auto mr-5", sessions.length > 0 ? "hidden" : "")} onClick={handleSubmit} disabled={sessions.length > 0}>
               Generate Sessions
             </Button>
             {sessions.length > 0 && (
@@ -294,7 +303,9 @@ export default function SessionGeneratePage() {
                         <TableCell>
                           {session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}
                         </TableCell>
-                        <TableCell>{format(new Date(session.sessionDate), "EEEE")}, {format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
+                        <TableCell>
+                          {format(new Date(session.sessionDate), "EEEE")}, {format(new Date(session.sessionDate), "dd/MM/yyyy")}
+                        </TableCell>
                         <TableCell>{session.slot}</TableCell>
                       </TableRow>
                     ))}

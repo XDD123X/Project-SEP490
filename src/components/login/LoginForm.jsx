@@ -87,12 +87,12 @@ export function LoginForm() {
         return;
       }
 
-      // Original API call code (commented)
-      const response = await login(formData.email, formData.password, formData.rememberMe);
+      // Call login API
+      const response = await login(email, password, formData.rememberMe);
 
       if (response.status === 200 && response?.data) {
         const userResponse = await authMe();
-        
+
         const user = {
           uid: userResponse.data.accountId,
           email: userResponse.data.email,
@@ -101,17 +101,24 @@ export function LoginForm() {
           dob: userResponse.data.dob,
           imgUrl: userResponse.data.imgUrl,
           role: userResponse.data.role,
-          schedule: userResponse.data.schedule
+          schedule: userResponse.data.schedule,
         };
+
         const role = userResponse.data.role;
         dispatch({ type: "SET_USER", payload: { user, role } });
         toast.success("Login successful!");
         navigate(`/${role.toLowerCase()}`);
+      } else if (response.status === 401) {
+        toast.error("Incorrect email or password. Please try again!");
+      } else if (response.status === 403) {
+        toast.warning("Account has been suspended! Contact our staff for assistance.");
+      } else if (response.status === 500) {
+        toast.error("Server error. Please try again later!");
       } else {
-        toast.error("Email or Password Is Not Correct.");
+        toast.error("Unable to connect to the server. Please check your network!");
       }
     } catch (error) {
-      toast.error(error.message || "Login failed, please try again!");
+      toast.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -145,7 +152,16 @@ export function LoginForm() {
                   </Link>
                 </div>
                 <div className="relative">
-                  <Input tabIndex={2} id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" value={formData.password} onChange={handleChange} className={errors.password ? "border-red-500 pr-10" : "pr-10"} />
+                  <Input
+                    tabIndex={2}
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                  />
                   <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-md text-muted-foreground" onClick={togglePasswordVisibility}>
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
@@ -190,7 +206,6 @@ export function LoginForm() {
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
         By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </div>
-      
     </div>
   );
 }

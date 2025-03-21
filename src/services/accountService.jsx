@@ -106,4 +106,40 @@ export const getAccountById = async (id) => {
       message: error.response?.data?.message || "Request Failed!",
     };
   }
-}
+};
+
+export const updateAccount = async (account) => {
+  try {
+    const response = await axiosClient.put("/officer/account/update", account);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Import failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Update Account failed!",
+    };
+  }
+};
+
+export const addAccount = async (account) => {
+  try {
+    const response = await axiosClient.post("/officer/account/add", account);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Import failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Add Account failed!",
+    };
+  }
+};

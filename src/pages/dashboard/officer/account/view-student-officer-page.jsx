@@ -12,6 +12,7 @@ import { getStudentList, importStudentList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImportAccountsOfficerDialog } from "./components/add-student-import-dialog";
 import { Link } from "react-router-dom";
+import { AccountBadge } from "@/utils/BadgeComponent";
 
 export default function ViewStudentManagementPage() {
   const [students, setStudents] = useState([]);
@@ -26,37 +27,6 @@ export default function ViewStudentManagementPage() {
   // Add state for pagination in the SessionsPage component
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 0:
-        return (
-          <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
-            <X className="w-3 h-3 mr-1" /> Deactivated
-          </Badge>
-        );
-      case 1:
-        return (
-          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-            <Check className="w-3 h-3 mr-1" /> Active
-          </Badge>
-        );
-      case 2:
-        return (
-          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
-            <Check className="w-3 h-3 mr-1" /> Finished
-          </Badge>
-        );
-      case 3:
-        return (
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            <Clock className="w-3 h-3 mr-1" /> Invited
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
-  };
 
   const fetchData = async () => {
     try {
@@ -349,10 +319,12 @@ export default function ViewStudentManagementPage() {
                   <TableCell>{account.gender ? "Male" : "Female"}</TableCell>
                   <TableCell>{format(new Date(account.dob), "dd/MM/yyyy")}</TableCell>
                   <TableCell>{format(new Date(account.createdAt), "dd/MM/yyyy")}</TableCell>
-                  <TableCell>{getStatusBadge(account.status)}</TableCell>
+                  <TableCell>
+                    <AccountBadge status={account.status} />
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Link to={`/officer/account/${account.accountId}`} >
+                      <Link to={`/account/${account.accountId}`}>
                         <Button variant="ghost" size="icon">
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">View</span>
@@ -360,7 +332,6 @@ export default function ViewStudentManagementPage() {
                       </Link>
                       <Link to={`/officer/account/edit/${account.accountId}`}>
                         <Button variant="ghost" size="icon">
-
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Button>
@@ -458,7 +429,7 @@ export default function ViewStudentManagementPage() {
         </div>
       </div>
 
-      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={students} type={'Student'} />
+      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={students} type={"Student"} />
       {/* Loading Screen   */}
       {isLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">

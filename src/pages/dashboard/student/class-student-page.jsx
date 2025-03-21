@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Calendar, Clock, Eye, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "@/services/StoreContext";
 import { toast } from "sonner";
 import { GetClassListByStudentId } from "@/services/classService";
@@ -19,12 +19,14 @@ export default function StudentClassPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { state } = useStore();
   const { user } = state;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await GetClassListByStudentId(user.uid);
         setClassList(response.data);
+        console.log(classList);
       } catch (error) {
         toast.error("Error", error);
       }
@@ -42,59 +44,63 @@ export default function StudentClassPage() {
       <h1 className="text-3xl font-bold mb-8">My Classes</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {classList.map((classItem, index) => (
-          <Card key={index} className="h-full flex flex-col">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-xl">{classItem.className}</CardTitle>
-                <Badge
-                  variant={
-                    classItem.status === 0
-                      ? "destructive" // Disabled
-                      : classItem.status === 1
-                      ? "secondary" // Upcoming
-                      : classItem.status === 2
-                      ? "info" // Studying
-                      : "success" // Finished
-                  }
-                >
-                  {classItem.status === 0 ? "Disabled" : classItem.status === 1 ? "Upcoming" : classItem.status === 2 ? "Studying" : "Finished"}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">Code: {classItem.classCode}</p>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <Users className="h-4 w-4 mr-2" />
-                  <span>
-                    Lecturer: {classItem.lecturer.gender === false ? "Ms. " : "Mr. "} {classItem.lecturer?.fullName || "No Lecturer Assigned"}
-                  </span>
+        {classList.length > 0 ? (
+          classList.map((classItem, index) => (
+            <Card key={index} className="h-full flex flex-col">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-xl">{classItem.className}</CardTitle>
+                  <Badge
+                    variant={
+                      classItem.status === 0
+                        ? "destructive" // Disabled
+                        : classItem.status === 1
+                        ? "secondary" // Upcoming
+                        : classItem.status === 2
+                        ? "info" // Studying
+                        : "success" // Finished
+                    }
+                  >
+                    {classItem.status === 0 ? "Disabled" : classItem.status === 1 ? "Upcoming" : classItem.status === 2 ? "Studying" : "Finished"}
+                  </Badge>
                 </div>
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-2" />
-                  <span>Total Sessions: {classItem.totalSession}</span>
+                <p className="text-sm text-muted-foreground">Code: {classItem.classCode}</p>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    <span>
+                      Lecturer: {classItem.lecturer.gender === false ? "Ms. " : "Mr. "} {classItem.lecturer?.fullName || "No Lecturer Assigned"}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <span>Total Sessions: {classItem.totalSession}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span>Start Date: {classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "TBD"}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span>End Date: {classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "TBD"}</span>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>Start Date: {classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "TBD"}</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>End Date: {classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "TBD"}</span>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex gap-2">
-              <Button variant="outline" onClick={() => handleDetailClick(classItem)} className="flex-1">
-                Detail
-              </Button>
-              <Button className="flex-1" onClick={() => window.open(classItem.classUrl, "_blank")}>
-                Online Meeting
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+              </CardContent>
+              <CardFooter className="flex gap-2">
+                <Button variant="outline" onClick={() => handleDetailClick(classItem)} className="flex-1">
+                  Detail
+                </Button>
+                <Button className="flex-1" onClick={() => window.open(classItem.classUrl, "_blank")}>
+                  Online Meeting
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground" >Student has not been registered for any classes yet.</p>
+        )}
       </div>
 
       {selectedClass && (
@@ -122,7 +128,7 @@ export default function StudentClassPage() {
                           : "success" // Finished
                       }
                     >
-                      {selectedClass.status === 0 ? "Disabled" : selectedClass.status === 1 ? "Upcoming" : selectedClass.status === 2 ? "Studying" : "Finished"}
+                      {selectedClass.status === 0 ? "Cancelled" : selectedClass.status === 1 ? "Upcoming" : selectedClass.status === 2 ? "Studying" : "Finished"}
                     </Badge>{" "}
                   </li>
                   <li>
@@ -169,6 +175,7 @@ export default function StudentClassPage() {
                       <TableHead></TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
+                      {/* <TableHead></TableHead> */}
                     </TableRow>
                   </TableHeader>
 
@@ -180,6 +187,11 @@ export default function StudentClassPage() {
                         </TableCell>
                         <TableCell>{cs.student?.fullName || "N/A"}</TableCell>
                         <TableCell>{cs.student?.email || "N/A"}</TableCell>
+                        {/* <TableCell>
+                          <Button variant="outline" size="icon" onClick={() => navigate(`/account/${cs.student.accountId}`)}>
+                            <Eye />
+                          </Button>
+                        </TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>

@@ -1,15 +1,16 @@
 import { SideBar } from "@/components/dashboard/SideBar";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
-import { Search } from "@/components/search";
+import { SearchDialog } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Bell, BookOpen, Calendar, ClipboardList, FileText, LayoutDashboard, LifeBuoy, Lock, Settings2, User, Users } from "lucide-react";
-import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useStore } from "@/services/StoreContext";
 import { NotificationDropdown } from "@/components/notification/notification-dropdown";
 import { MessageDropdown } from "@/components/notification/message-dropdown";
+import { cn } from "@/lib/utils";
 
 const roleBasedData = {
   student: {
@@ -229,20 +230,39 @@ const roleBasedData = {
 
 export default function MainScreen() {
   const { state } = useStore();
+  const navigate = useNavigate();
   const { role } = state;
-  const data = roleBasedData[role.toLowerCase()] || roleBasedData.student;
+  const data = roleBasedData[role.toLowerCase()];
+  const [offset, setOffset] = useState(0);
+  const fixed = true;
+
+  //check current role
+  useEffect(() => {
+    if (!data) {
+      navigate("/503");
+    }
+  }, [data, navigate]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setOffset(document.body.scrollTop || document.documentElement.scrollTop);
+    };
+
+    // Add scroll listener to the body
+    document.addEventListener("scroll", onScroll, { passive: true });
+
+    // Clean up the event listener on unmount
+    return () => document.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <SidebarProvider>
       <SideBar data={data} />
       <SidebarInset>
-        <header
-          className="flex h-16 shrink-0 items-center gap-2 border-b px-4
-          light:bg-white dark:bg-black
-                      sticky top-0 z-50 md:relative"
-        >
+        <header className={cn("flex h-16 items-center gap-2 border-b px-4 bg-background sticky top-0 z-50 w-full", fixed && "header-fixed peer/header rounded-md", offset > 10 && fixed ? "shadow" : "shadow-none")}>
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <Search />
+          <SearchDialog/>
           <div className="ml-auto flex items-center space-x-4">
             <NotificationDropdown />
             <MessageDropdown />

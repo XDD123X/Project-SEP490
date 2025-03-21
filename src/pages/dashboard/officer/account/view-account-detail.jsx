@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, ChevronLeft, Link, Mail, Pencil, Phone, Plus, User } from "lucide-react";
+import { Calendar, Check, ChevronLeft, Clock, Link, Mail, Pencil, Phone, Plus, User, X } from "lucide-react";
 import { format } from "date-fns";
 import { getAccountById } from "@/services/accountService";
 import { toast } from "sonner";
@@ -11,12 +11,16 @@ import { Spinner } from "@/components/ui/spinner";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { use } from "react";
+import { useStore } from "@/services/StoreContext";
+import { AccountBadge } from "@/utils/BadgeComponent";
 
 export default function ViewAccountDetail() {
   const { id } = useParams();
+  const { state } = useStore();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { role } = state;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -37,37 +41,6 @@ export default function ViewAccountDetail() {
       fetchProfile();
     }
   }, [id]);
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 0:
-        return (
-          <Badge variant="outline" className="bg-yellow-100 text-red-800 hover:bg-red-100">
-            Pending
-          </Badge>
-        );
-      case 1:
-        return (
-          <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
-            Active
-          </Badge>
-        );
-      case 2:
-        return (
-          <Badge variant="outline" className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-            Finished
-          </Badge>
-        );
-      case 3:
-        return (
-          <Badge variant="outline" className="bg-purple-100 text-yellow-800 hover:bg-yellow-100">
-            Invited
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
-  };
 
   if (loading) {
     return (
@@ -91,13 +64,20 @@ export default function ViewAccountDetail() {
   return (
     <div className="container mx-auto  px-4">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">Student Information</h1>
+        <h1 className="text-2xl font-bold uppercase">{profile.role.name} Information</h1>
       </div>
       <div className="w-full max-w-2xl mx-auto space-y-4">
-        <div className="flex justify-start mt-4">
-          <Button onClick={() => navigate(`/officer/account/${profile.role.name}s`)}>
-            <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
-          </Button>
+        <div className="flex justify-between mt-4">
+          {role.toLowerCase() === "officer" && (
+            <>
+              <Button onClick={() => navigate(`/officer/account/${profile.role.name}s`)}>
+                <ChevronLeft className="h-4 w-4" />Back
+              </Button>
+              <Button onClick={() => navigate(`/officer/account/edit/${profile.accountId}`)}>
+                <Pencil className="h-4 w-4" />Edit
+              </Button>
+            </>
+          )}
         </div>
 
         <Card className="max-w-4xl mx-auto">
@@ -114,8 +94,9 @@ export default function ViewAccountDetail() {
                     <User className="h-3 w-3" />
                     {profile.role.name}
                   </Badge>
-                  {getStatusBadge(profile.status)}
-                  {profile.role.name.toLowerCase() === 'lecturer' && profile.fulltime && <Badge className="bg-primary">Full-time</Badge>}
+                  {/* {getStatusBadge(profile.status)} */}
+                  <AccountBadge status={profile.status} />
+                  {profile.role.name.toLowerCase() === "lecturer" && profile.fulltime && <Badge className="bg-primary">Full-time</Badge>}
                 </div>
               </div>
             </div>
@@ -180,14 +161,10 @@ export default function ViewAccountDetail() {
               <div className="mt-6">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">Parent Information</h3>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <Plus className="h-4 w-4" />
-                    Add
-                  </Button>
                 </div>
                 <Separator className="my-2" />
 
-                {profile.parents && profile.parents.length > 0 ? (
+                {role.toLowerCase() !== "student" && profile.parents && profile.parents.length > 0 ? (
                   <div className="space-y-6">
                     {profile.parents.map((parent, index) => (
                       <div key={index} className="bg-muted/30 rounded-lg p-4">
@@ -195,10 +172,6 @@ export default function ViewAccountDetail() {
                           <h4 className="font-medium">
                             {parent.gender ? "Mr." : "Ms."} {parent.fullName}
                           </h4>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Pencil className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="flex items-center gap-2">

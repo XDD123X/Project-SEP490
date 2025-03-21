@@ -39,6 +39,7 @@ import AddNotificationPage from "./pages/notification/add-notification-page";
 import ViewNotificationPage from "./pages/notification/view-notification-page";
 import ViewAccountDetail from "./pages/dashboard/officer/account/view-account-detail";
 import { EditAccountOfficerPage } from "./pages/dashboard/officer/account/edit-account-page";
+import MaintenanceError from "./pages/Errors/Maintenance";
 
 function App() {
   return (
@@ -78,6 +79,9 @@ function App() {
                       <Route path="add" element={<AddNotificationPage />} />
                     </Route>
 
+                    {/* account information */}
+                    <Route path="account/:id" element={<ViewAccountDetail />} />
+
                     {/* Dashboard by Role */}
                     <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
                       <Route path="/Student">
@@ -110,7 +114,6 @@ function App() {
                         <Route path="class/detail" element={<ClassDetailPage />} />
                         <Route path="class/edit" element={<ClassEditPage />} />
 
-                        <Route path="account/:id" element={<ViewAccountDetail />} />
                         <Route path="account/students" element={<ViewStudentManagementPage />} />
                         <Route path="account/lecturers" element={<ViewLecturerManagementPage />} />
                         <Route path="account/add" element={<AddAccountOfficerPage />} />
@@ -125,6 +128,7 @@ function App() {
 
                 <Route path="*" element={<Notfound />} />
                 <Route path="/404" element={<NotFound />} />
+                <Route path='/503' element={<MaintenanceError />} />
                 <Route path="/test">
                   <Route path="refresh-token" element={<RefreshTokenTest />} />
                 </Route>
