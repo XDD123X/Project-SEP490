@@ -61,7 +61,7 @@ namespace OTMS.DAL.DAO
                                     .ToListAsync();
 
             var sessions = await _context.Sessions
-                .Where(s => classList.Contains(s.ClassId))
+                .Where(s => classList.Contains(s.ClassId) && s.Class.Status != 0)
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
                 .Include(s => s.Attendances)

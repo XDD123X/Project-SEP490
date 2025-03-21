@@ -49,12 +49,12 @@ namespace OTMS.API.Controllers.Auth
 
                 if (account == null)
                 {
-                    return NotFound("Incorrect email or password.");
+                    return Unauthorized("Incorrect email or password.");
                 }
 
                 if (account.Status == 0)
                 {
-                    return StatusCode(403, "Your account has been locked.");
+                    return StatusCode(403, "Your account has been suspended.");
                 }
 
                 var accessToken = _tokenService.GenerateAccessToken(account);

@@ -64,6 +64,7 @@ namespace OTMS.DAL.DAO
                 .Include(c => c.Lecturer)
                 .Include(c => c.ClassStudents)
                 .ThenInclude(cs => cs.Student)
+                .Where(c => c.Status != 0)
                 .ToListAsync();
         }
 
