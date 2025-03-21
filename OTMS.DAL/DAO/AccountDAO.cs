@@ -129,10 +129,17 @@ namespace OTMS.DAL.DAO
 
         //
 
-        public async Task<List<Account>> getAllStudentAccount()
+        public async Task<Role> GetRoleByRoleName(string RoleName)
         {
+            Role Role =_context.Roles.FirstOrDefault(r => r.Name.ToLower().Equals(RoleName.ToLower()));
+            return Role;
+        }
+
+        public async Task<List<Account>> getAllStudentAccount(string roleId)
+        {
+           
             List<Account> accounts = await _context.Accounts
-                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757"))
+                .Where(a => a.RoleId == new Guid(roleId))
                 .ToListAsync();
             return accounts;
         }
@@ -142,7 +149,7 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                using (OtmsContext context = new OtmsContext()) 
+                using (OtmsContext context = new OtmsContext())
                 {
                     Parent existingParent = await context.Parents.FindAsync(parent.StudentId);
 
@@ -155,7 +162,7 @@ namespace OTMS.DAL.DAO
                         context.Parents.Update(parent);
                     }
 
-                    await context.SaveChangesAsync(); 
+                    await context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
