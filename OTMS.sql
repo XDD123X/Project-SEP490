@@ -37,8 +37,8 @@ CREATE TABLE Account (
     phone_number NVARCHAR(15) NULL DEFAULT '0123456789',
 	dob DATE NULL DEFAULT '01/01/2000',
 	gender BIT NULL DEFAULT 0, --giới tính 0 nữ 1 nam
-    img_url NVARCHAR(500) DEFAULT 'https://ui.shadcn.com/avatars/shadcn.jpg',
-	meet_url NVARCHAR(500) DEFAULT 'https://example.com/meet/euf-nwbu-cet',
+    img_url NVARCHAR(500) DEFAULT NULL,
+	meet_url NVARCHAR(500) DEFAULT NULL,
 	status INT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE() ,
     updated_at DATETIME DEFAULT NULL
@@ -67,7 +67,7 @@ CREATE TABLE Class (
     total_session INT NOT NULL,
     start_date DATETIME NULL,
     end_date DATETIME NULL,
-	class_url NVARCHAR(100) NULL DEFAULT 'https://example.com/meet/euf-nwbu-cet',
+	class_url NVARCHAR(100) NULL DEFAULT 'https://meet.google.com/abc-defg-hjk',
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1,
