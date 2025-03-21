@@ -113,7 +113,7 @@ export default function AddAccountOfficerPage() {
       // Gọi API để thêm tài khoản
       const response = await addAccount(formattedData);
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         toast.success("Account created successfully!");
         setShowConfirmation(false);
 
