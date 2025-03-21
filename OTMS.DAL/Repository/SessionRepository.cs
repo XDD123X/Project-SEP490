@@ -14,7 +14,7 @@ namespace OTMS.DAL.Repository
         private readonly IScheduleSolverService _scheduleSolverService;
         private readonly ClassDAO _classDAO;
 
-        public SessionRepository(ClassDAO classDAO ,SessionDAO sessionDAO, ClassStudentDAO classStudentDAO, IScheduleSolverService scheduleSolverService)
+        public SessionRepository(ClassDAO classDAO, SessionDAO sessionDAO, ClassStudentDAO classStudentDAO, IScheduleSolverService scheduleSolverService)
             : base(sessionDAO)
         {
             _sessionDAO = sessionDAO;
@@ -55,9 +55,10 @@ namespace OTMS.DAL.Repository
             var scheduledItems = _scheduleSolverService.SolveSchedule(request, existingSessionInfos);
 
             // Chuyển DTO về Session model để lưu DB
-            var newSessions = scheduledItems.Select(item => new Session
+            var newSessions = scheduledItems.Select((item, index) => new Session
             {
                 SessionId = Guid.NewGuid(),
+                SessionNumber = index + 1, // add session number
                 ClassId = item.ClassId,
                 LecturerId = item.TeacherId,
                 SessionDate = item.ActualDate,

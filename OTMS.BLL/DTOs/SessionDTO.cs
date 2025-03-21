@@ -11,6 +11,8 @@ namespace OTMS.BLL.DTOs
     {
         public Guid SessionId { get; set; }
 
+        public int? SessionNumber { get; set; }
+
         public Guid ClassId { get; set; }
 
         public Guid? LecturerId { get; set; }
