@@ -54,6 +54,8 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IClassSettingRepository, ClassSettingRepository>();
 builder.Services.AddScoped<ILecturerScheduleRepository, LecturerScheduleRepository>();
+builder.Services.AddScoped<IParentsRepository, ParentsRepository>();
+
 
 //Service
 builder.Services.AddSingleton<ITokenService, TokenService>();
@@ -76,6 +78,8 @@ builder.Services.AddScoped<CourseDAO>();
 builder.Services.AddScoped<AttendanceDAO>();
 builder.Services.AddScoped<ClassSettingDAO>();
 builder.Services.AddScoped<LecturerScheduleDAO>();
+builder.Services.AddScoped<ParentsDAO>();
+
 
 //SignalR
 //builder.Services.AddSignalR();
