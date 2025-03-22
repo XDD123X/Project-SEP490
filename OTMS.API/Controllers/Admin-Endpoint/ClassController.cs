@@ -218,27 +218,28 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while adding students to class {id}: {ex.Message}");
             }
         }
-        //[HttpDelete("delete/{id}")]
-        //public async Task<IActionResult> DeleteClass(Guid id)
-        //{
-        //    var existingClass = await _classRepository.GetByIdAsync(id);
-        //    if (existingClass == null)
-        //    {
-        //        return NotFound("Class not found.");
-        //    }
-        //    var studentsInClass = await _classStudentRepository.GetByClassIdAsync(id);
-        //    if (studentsInClass.Any())
-        //    {
-        //        List<Guid> studentIds = new List<Guid>();
-        //        foreach (var student in studentsInClass) {
-        //            studentIds.Add(student.StudentId);
-        //        } 
-        //        await _classStudentRepository.removeStudentIntoClass(id, studentIds);
-        //    }
-        //    await _classRepository.DeleteAsync(id);
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteClass(Guid id)
+        {
+            var existingClass = await _classRepository.GetByIdAsync(id);
+            if (existingClass == null)
+            {
+                return NotFound("Class not found.");
+            }
+            var studentsInClass = await _classStudentRepository.GetByClassIdAsync(id);
+            if (studentsInClass.Any())
+            {
+                List<Guid> studentIds = new List<Guid>();
+                foreach (var student in studentsInClass)
+                {
+                    studentIds.Add(student.StudentId);
+                }
+                await _classStudentRepository.removeStudentIntoClass(id, studentIds);
+            }
+            await _classRepository.DeleteAsync(id);
 
-        //    return Ok("Class deleted successfully.");
-        //}
+            return Ok("Class deleted successfully.");
+        }
 
     }
 }
