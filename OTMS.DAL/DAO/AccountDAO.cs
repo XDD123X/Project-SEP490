@@ -126,10 +126,17 @@ namespace OTMS.DAL.DAO
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Account>> getAllStudentAccount()
+        public async Task<Role> GetRoleByRoleName(string RoleName)
         {
+            Role Role = _context.Roles.FirstOrDefault(r => r.Name.ToLower().Equals(RoleName.ToLower()));
+            return Role;
+        }
+
+        public async Task<List<Account>> getAllStudentAccount(string roleId)
+        {
+
             List<Account> accounts = await _context.Accounts
-                .Where(a => a.RoleId == new Guid("0CC0C4B7-F3A5-47DC-B247-A0CCAB05E757"))
+                .Where(a => a.RoleId == new Guid(roleId))
                 .ToListAsync();
             return accounts;
         }
@@ -141,7 +148,9 @@ namespace OTMS.DAL.DAO
             {
                 using (OtmsContext context = new OtmsContext())
                 {
-                    Parent existingParent = await context.Parents.FindAsync(parent.StudentId);
+                    var existingParent = await context.Parents
+                        .Where(x => x.StudentId == parent.StudentId)
+                        .FirstOrDefaultAsync();
 
                     if (existingParent == null)
                     {
@@ -149,7 +158,13 @@ namespace OTMS.DAL.DAO
                     }
                     else
                     {
-                        context.Parents.Update(parent);
+                        existingParent.FullName = parent.FullName;
+                        existingParent.PhoneNumber = parent.PhoneNumber;
+                        existingParent.Email = parent.Email;
+                        existingParent.Gender = parent.Gender;
+                        existingParent.Status = parent.Status;
+
+                        context.Parents.Update(existingParent);
                     }
 
                     await context.SaveChangesAsync();
@@ -161,6 +176,7 @@ namespace OTMS.DAL.DAO
                 throw;
             }
         }
+
 
         public async Task<List<Account>> GetStudentList()
         {

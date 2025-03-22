@@ -47,7 +47,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpGet("get-all-student-account-to-import-parent")]
         public async Task<IActionResult> GetAllStudentAccountExcelFile()
         {
-            List<Account> accountStudent = await _accountRepository.getAllStudentAccount();
+            Role role = await _accountRepository.GetRoleByRoleName("Student");
+
+
+            List<Account> accountStudent = await _accountRepository.getAllStudentAccount(role.RoleId.ToString());
+
+            List<Parent> ParentList = await _parentsRepository.GetAllParentsAsync();
 
             using (var workbook = new XLWorkbook())
             {
@@ -63,14 +68,28 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 worksheet.Cell(currentRow, 6).Value = "Parent Phone Number";
                 worksheet.Cell(currentRow, 7).Value = "Parent Email";
 
-                foreach (var account in accountStudent)
+                foreach (Account account in accountStudent)
                 {
                     currentRow++;
                     worksheet.Cell(currentRow, 1).Value = account.AccountId.ToString();
                     worksheet.Cell(currentRow, 2).Value = account.Email;
                     worksheet.Cell(currentRow, 3).Value = account.FullName;
 
+
+                    foreach (Parent parent in ParentList)
+                    {
+                        if (parent.StudentId == account.AccountId)
+                        {
+                            worksheet.Cell(currentRow, 4).Value = parent.FullName;
+                            worksheet.Cell(currentRow, 5).Value = parent.Gender == true ? "M" : "Fe";
+                            worksheet.Cell(currentRow, 6).Value = parent.PhoneNumber;
+                            worksheet.Cell(currentRow, 7).Value = parent.Email;
+                        }
+                    }
+
                 }
+
+
                 worksheet.Column(1).Style.Fill.BackgroundColor = XLColor.LightBlue;
 
                 worksheet.Column(1).Width = 35;
