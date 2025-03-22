@@ -1,4 +1,5 @@
-﻿using OTMS.BLL.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.Models;
 
 namespace OTMS.DAL.DAO
 {
@@ -21,5 +22,9 @@ namespace OTMS.DAL.DAO
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<ClassSetting?> GetLastSettingAsync()
+        {
+            return await _dbSet.OrderByDescending(cs => cs.UpdatedAt).FirstOrDefaultAsync();
+        }
     }
 }

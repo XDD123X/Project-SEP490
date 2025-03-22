@@ -9,6 +9,6 @@ namespace OTMS.BLL.Services
 {
     public interface IScheduleSolverService
     {
-        List<ScheduleItem> SolveSchedule(ClassScheduleRequest request, List<SessionInfo> existingSessions);
+        List<ScheduleItem> SolveSchedule(ScheduleParameters parameters, List<SessionInfo> existingSessions);
     }
 }

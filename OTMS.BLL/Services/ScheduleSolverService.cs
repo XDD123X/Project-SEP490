@@ -1,38 +1,68 @@
 ﻿using Google.OrTools.Sat;
 using OTMS.BLL.DTOs;
+using System.Globalization;
 
 namespace OTMS.BLL.Services
 {
     public class ScheduleSolverService : IScheduleSolverService
     {
-        public List<ScheduleItem> SolveSchedule(ClassScheduleRequest request, List<SessionInfo> existingSessions)
+        public List<ScheduleItem> SolveSchedule(ScheduleParameters parameters, List<SessionInfo> existingSessions)
         {
             var existingSlots = existingSessions
                 .Select(s => (s.SessionDate.Date, s.Slot))
                 .ToHashSet();
 
-            var availableDates = GetAvailableDates(request.StartDate, request.EndDate.Value, request.PreferredDays);
+            var availableDates = GetAvailableDates(parameters.StartDate, parameters.EndDate, parameters.ValidDays);
+
+            var availableSlots = parameters.AvailableSlots;
 
             var model = new CpModel();
             var x = new Dictionary<(DateTime date, int slot), BoolVar>();
 
             foreach (var date in availableDates)
             {
-                for (int slot = 1; slot <= request.SlotsPerDay; slot++)
+                foreach (int slot in availableSlots)
                 {
-                    if (!existingSlots.Contains((date.Date, slot)))
+                    if (slot <= parameters.SlotsPerDay && !existingSlots.Contains((date.Date, slot)))
                     {
                         x[(date, slot)] = model.NewBoolVar($"x_{date:yyyyMMdd}_{slot}");
                     }
                 }
             }
 
-            model.Add(LinearExpr.Sum(x.Values) == request.TotalSessions);
+            if (x.Count == 0)
+                throw new Exception("Không có thời gian phù hợp để lập lịch. Vui lòng điều chỉnh các thông số.");
+
+            model.Add(LinearExpr.Sum(x.Values) == parameters.TotalSessions);
 
             foreach (var date in availableDates)
             {
                 var dailySlots = x.Where(k => k.Key.date == date).Select(k => k.Value).ToList();
-                model.Add(LinearExpr.Sum(dailySlots) <= 1);
+                if (dailySlots.Any())
+                {
+                    model.Add(LinearExpr.Sum(dailySlots) <= 1);
+                }
+            }
+
+            var calendar = CultureInfo.CurrentCulture.Calendar;
+            var datesByWeek = availableDates.GroupBy(d => 
+            {
+                var week = calendar.GetWeekOfYear(d, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+                return $"{d.Year}-{week}"; // Format: YYYY-WW
+            });
+
+            foreach (var weekGroup in datesByWeek)
+            {
+                var weekSlots = new List<BoolVar>();
+                foreach (var date in weekGroup)
+                {
+                    weekSlots.AddRange(x.Where(k => k.Key.date == date).Select(k => k.Value));
+                }
+
+                if (weekSlots.Any())
+                {
+                    model.Add(LinearExpr.Sum(weekSlots) <= parameters.MaxSessionsPerWeek);
+                }
             }
 
             var objectiveTerms = x.Select((kvp, index) =>
@@ -43,14 +73,14 @@ namespace OTMS.BLL.Services
             var status = solver.Solve(model);
 
             if (status != CpSolverStatus.Feasible && status != CpSolverStatus.Optimal)
-                throw new Exception("Không tìm được lịch phù hợp.");
+                throw new Exception("Không tìm được lịch phù hợp với các ràng buộc đã cho.");
 
             var schedule = x
                 .Where(kvp => solver.Value(kvp.Value) > 0.5)
                 .Select(kvp => new ScheduleItem
                 {
-                    ClassId = request.ClassId,
-                    TeacherId = request.LecturerId,
+                    ClassId = parameters.ClassId,
+                    TeacherId = parameters.LecturerId,
                     ActualDate = kvp.Key.date,
                     Slot = kvp.Key.slot
                 })
@@ -61,11 +91,11 @@ namespace OTMS.BLL.Services
             return schedule;
         }
 
-        private static List<DateTime> GetAvailableDates(DateTime start, DateTime end, List<DayOfWeek> preferredDays)
+        private static List<DateTime> GetAvailableDates(DateTime start, DateTime end, List<DayOfWeek> validDays)
         {
             var dates = new List<DateTime>();
             for (var date = start.Date; date <= end.Date; date = date.AddDays(1))
-                if (preferredDays.Contains(date.DayOfWeek))
+                if (validDays != null && validDays.Contains(date.DayOfWeek))
                     dates.Add(date);
             return dates;
         }

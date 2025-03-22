@@ -8,15 +8,15 @@ namespace OTMS.BLL.DTOs
 {
     public class ClassScheduleRequest
     {
+        // Thông tin cơ bản
         public Guid ClassId { get; set; }
         public Guid LecturerId { get; set; }
         public DateTime StartDate { get; set; }
-
-        // Optional parameters
-        public DateTime? EndDate { get; set; }
+        
+        // Số buổi học cần lập lịch
         public int TotalSessions { get; set; }
-        public int SlotsPerDay { get; set; }
-
-        public List<DayOfWeek>? PreferredDays { get; set; }
+        
+        // Ngày mong muốn học (thứ 2, thứ 3, v.v.)
+        public List<int>? PreferredDays { get; set; }
     }
 }

@@ -13,33 +13,33 @@ namespace OTMS.DAL.Repository
         private readonly ClassStudentDAO _classStudentDAO;
         private readonly IScheduleSolverService _scheduleSolverService;
         private readonly ClassDAO _classDAO;
+        private readonly ClassSettingDAO _classSettingDAO;
 
-        public SessionRepository(ClassDAO classDAO, SessionDAO sessionDAO, ClassStudentDAO classStudentDAO, IScheduleSolverService scheduleSolverService)
+        public SessionRepository(ClassDAO classDAO, SessionDAO sessionDAO, ClassStudentDAO classStudentDAO, IScheduleSolverService scheduleSolverService, ClassSettingDAO classSettingDAO)
             : base(sessionDAO)
         {
             _sessionDAO = sessionDAO;
             _scheduleSolverService = scheduleSolverService;
             _classStudentDAO = classStudentDAO;
             _classDAO = classDAO;
+            _classSettingDAO = classSettingDAO;
         }
 
-
-
-        public async Task<List<Session>> GenerateAndSaveScheduleAsync(ClassScheduleRequest request)
+        public async Task<List<Session>> GenerateAndSaveScheduleAsync(ScheduleParameters parameters)
         {
             //lấy dsach svien trong class đang xếp lịch
-            var studentsInClass = await _classStudentDAO.GetStudentInClassAsync(request.ClassId);
+            var studentsInClass = await _classStudentDAO.GetStudentInClassAsync(parameters.ClassId);
 
             // Lấy tất cả các lớp mà các sinh viên đó tham gia (trừ lớp hiện tại)
             var otherClassIds = await _classStudentDAO.GetOtherClassesOfStudentsAsync(studentsInClass);
 
             // Lịch đã có của sinh viên
             var existingStudentSessions = await _sessionDAO.GetSessionsByClassIdsAsync(
-                otherClassIds, request.StartDate, request.EndDate.Value);
+                otherClassIds, parameters.StartDate, parameters.EndDate);
 
             //lịch đã có của lecturer
             var existingLecturerSessions = await _sessionDAO.GetSessionsByLecturerAsync(
-                request.LecturerId, request.StartDate, request.EndDate.Value);
+                parameters.LecturerId, parameters.StartDate, parameters.EndDate);
 
             //ghép 2 lịch vơi snhau
             var existingSessions = existingLecturerSessions.Concat(existingStudentSessions).ToList();
@@ -51,8 +51,8 @@ namespace OTMS.DAL.Repository
                 Slot = s.Slot
             }).ToList();
 
-            // Gọi service logic để xếp lịch
-            var scheduledItems = _scheduleSolverService.SolveSchedule(request, existingSessionInfos);
+            // Gọi service logic để xếp lịch với ràng buộc số buổi mỗi tuần
+            var scheduledItems = _scheduleSolverService.SolveSchedule(parameters, existingSessionInfos);
 
             // Chuyển DTO về Session model để lưu DB
             var newSessions = scheduledItems.Select((item, index) => new Session
@@ -70,7 +70,7 @@ namespace OTMS.DAL.Repository
             await _sessionDAO.AddSessionsAsync(newSessions);
 
             //Update Class Scheduled to true
-            var classSelected = await _classDAO.UpdateClassScheduled(request.ClassId);
+            var classSelected = await _classDAO.UpdateClassScheduled(parameters.ClassId);
 
             return newSessions;
         }
