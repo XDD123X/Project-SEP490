@@ -25,11 +25,14 @@ export function ProfileDropdown() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name ?? "N/A"}</p>
-            <p className="text-xs">
-              role: <span className="font-medium">{role ?? "N/A"}</span>{" "}
+            {/* <p className="text-xs text-secondary-foreground">
+              Role: <span className="font-medium">{role ?? "N/A"}</span>
             </p>
             <p className="text-xs">
-              email: <span className="font-medium"> {user.email ?? "N/A"}</span>
+              Email: <span className="font-medium"> {user.email ?? "N/A"}</span>
+            </p> */}
+            <p className='text-xs leading-none text-muted-foreground'>
+            {user.email ?? "N/A"}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -41,7 +44,7 @@ export function ProfileDropdown() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/Logout">Logout</Link>
+          <Link to="/Logout">Log Out</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
