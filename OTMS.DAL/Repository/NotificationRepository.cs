@@ -1,4 +1,5 @@
-﻿using OTMS.BLL.Models;
+﻿using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using OTMS.BLL.Models;
 using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
 using System;
@@ -34,6 +35,11 @@ namespace OTMS.DAL.Repository
         public async Task AssignToRolesAsync(Guid notificationId, List<string> roleNames)
         {
             await _notificationDAO.AssignToRolesAsync(notificationId, roleNames);
+        }
+
+        public Task<List<Notification>> GetNotificationsByAccountOrRole(Guid? accountId, string? roleName)
+        {
+            return _notificationDAO.GetNotificationsByAccountOrRole(accountId, roleName);
         }
     }
 }
