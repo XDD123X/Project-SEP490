@@ -13,23 +13,21 @@ namespace OTMS.DAL.Interface
 {
     public interface IAccountRepository : IRepository<Account>
     {
-        Task<Account?> GetByIdAsync(Guid id);
+        new Task<Account?> GetByIdAsync(Guid id);
         Task<Account?> GetByEmailAsync(string email);
         Task<bool> ExistsByEmailAsync(string email);
         Task<List<string>> GetAllEmailsAsync();
         Task AddMultipleAsync(List<Account> accounts);
-        Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder);
-        Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date);
 
-        Task<Account> GetByLogin(string email, string password);
+        Task<Account?> GetByLogin(string email, string password);
         public Task<List<Account>> GetByStudentByClass(Guid classId);
 
 
-        public Task UpdateAsync(Account account);
+        public new Task UpdateAsync(Account account);
 
 
 
-        public Task<Role> GetRoleByRoleName(string RoleName);
+        public Task<Role?> GetRoleByRoleName(string RoleName);
         public Task<List<Account>> getAllStudentAccount(string roleId);
         public Task ImportParent(Parent parent);
 

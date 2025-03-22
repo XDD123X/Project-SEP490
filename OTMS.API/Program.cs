@@ -27,13 +27,12 @@ builder.Services.AddMemoryCache();
 //CORS
 builder.Services.AddCors(options =>
 {
+    var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
     options.AddPolicy("AllowLocalhost",
         policy =>
         {
-            policy.WithOrigins(
-                builder.Configuration["Jwt:Issuer"],
-                "https://192.168.0.100:3000"
-                )
+            policy.WithOrigins(allowedOrigins ?? new string[0]) // Tránh lỗi null
                   .AllowCredentials()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
@@ -96,6 +95,8 @@ builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
 //Authentication
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("JWT Key is missing from configuration.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -105,24 +106,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.FromMinutes(5),
 
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
+
 //Authorization
-builder.Services.AddAuthorization(async options =>
+builder.Services.AddAuthorization(options =>
 {
-    using (var scope = builder.Services.BuildServiceProvider().CreateScope())
-    {
-        //var roleRepository = scope.ServiceProvider.GetRequiredService<IRoleRepository>();
-
-        // Get role id from database
-        //var adminRoleId = (await roleRepository.GetByNameAsync("admin"))?.Id.ToString();
-
-        //options.AddPolicy("AdminOnly", policy => policy.RequireClaim("roleId", adminRoleId!));
-    }
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(context =>
+        {
+            var user = context.User;
+            return user.HasClaim(c => c.Type == "role" && c.Value == "admin");
+        }));
 });
 
 builder.Services.AddSwaggerGen(c =>

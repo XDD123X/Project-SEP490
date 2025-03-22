@@ -22,9 +22,6 @@ namespace OTMS.DAL.Repository
 
         public Task<List<string>> GetAllEmailsAsync() => _accountDAO.GetAllEmailsAsync();
 
-        public Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder)
-            => _accountDAO.GetAccountsAsync(page, pageSize, search, status, classCode, date, sortBy, sortOrder);
-
         public Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date)
             => _accountDAO.GetTotalAccountsAsync(search, status, classCode, date);
 
@@ -32,12 +29,12 @@ namespace OTMS.DAL.Repository
 
         public new Task<Account?> GetByIdAsync(Guid id) => _accountDAO.GetByIdAsync(id);
 
-        public Task<Account> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
+        public Task<Account?> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
         public Task<List<Account>> GetByStudentByClass(Guid classId) => _accountDAO.GetStudentByClass(classId);
      
-        public Task UpdateAsync(Account account) => _accountDAO.UpdateAsync(account);
+        public new Task UpdateAsync(Account account) => _accountDAO.UpdateAsync(account);
 
-        public Task<Role> GetRoleByRoleName(string RoleName) => _accountDAO.GetRoleByRoleName(RoleName);
+        public Task<Role?> GetRoleByRoleName(string RoleName) => _accountDAO.GetRoleByRoleName(RoleName);
 
         public Task<List<Account>> getAllStudentAccount(string roleId) => _accountDAO.getAllStudentAccount(roleId);
         public async Task ImportParent(Parent parent) => await _accountDAO.ImportParent(parent);

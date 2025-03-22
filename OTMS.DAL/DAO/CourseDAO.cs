@@ -23,10 +23,11 @@ namespace OTMS.DAL.DAO
         public async Task<int> GetTotalCourseAsync(string? search)
         {
             IQueryable<Course> query = _context.Courses;
+
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(u => u.CourseName.Contains(search));
-            int page = query.Count();
-            return page;
+
+            return await query.CountAsync();
         }
         public async Task<Course?> GetCourseByIdAsync(int id)
         {

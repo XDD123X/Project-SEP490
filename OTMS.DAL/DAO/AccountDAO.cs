@@ -38,32 +38,6 @@ namespace OTMS.DAL.DAO
             return await _context.Accounts.Select(a => a.Email).ToListAsync();
         }
 
-        public async Task<List<Account>> GetAccountsAsync(int page, int pageSize, string? search, int? status, string? classCode, DateTime? date, string sortBy, string sortOrder)
-        {
-            IQueryable<Account> query = _context.Accounts.Include(a => a.Role);
-
-            if (!string.IsNullOrEmpty(search))
-                query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-
-            if (status.HasValue)
-                query = query.Where(u => u.Status == status);
-
-            if (!string.IsNullOrEmpty(classCode))
-                query = query.Where(u => _context.ClassStudents
-                    .Where(cs => _context.Classes.Any(c => c.ClassId == cs.ClassId && c.ClassCode == classCode))
-                    .Select(cs => cs.StudentId)
-                    .Contains(u.AccountId));
-
-            if (date.HasValue)
-                query = query.Where(u => u.CreatedAt == date.Value.Date);
-
-            query = sortOrder.ToLower() == "desc"
-                ? query.OrderByDescending(GetSortExpression(sortBy))
-                : query.OrderBy(GetSortExpression(sortBy));
-
-            return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-        }
-
         public async Task<int> GetTotalAccountsAsync(string? search, int? status, string? classCode, DateTime? date)
         {
             IQueryable<Account> query = _context.Accounts;
@@ -80,18 +54,6 @@ namespace OTMS.DAL.DAO
             return await query.CountAsync();
         }
 
-        private static Expression<Func<Account, object>> GetSortExpression(string sortBy)
-        {
-            return sortBy.ToLower() switch
-            {
-                "fullname" => u => u.FullName,
-                "email" => u => u.Email,
-                "status" => u => u.Status,
-                "role" => u => u.Role.Name,
-                "date" => u => u.CreatedAt,
-                _ => u => u.FullName
-            };
-        }
 
         public async Task AddMultipleAsync(List<Account> accounts)
         {
@@ -101,13 +63,12 @@ namespace OTMS.DAL.DAO
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Account> GetByLogin(string email, string password)
+        public async Task<Account?> GetByLogin(string email, string password)
         {
-            var account = await _context.Accounts
+            return await _context.Accounts
                 .Where(a => a.Email == email && a.Password == password)
                 .Include(a => a.Role)
                 .FirstOrDefaultAsync();
-            return account;
         }
 
         public async Task<List<Account>> GetStudentByClass(Guid classId)
@@ -120,16 +81,16 @@ namespace OTMS.DAL.DAO
         }
 
 
-        public async Task UpdateAsync(Account account)
+        public new async Task UpdateAsync(Account account)
         {
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Role> GetRoleByRoleName(string RoleName)
+        public async Task<Role?> GetRoleByRoleName(string roleName)
         {
-            Role Role = _context.Roles.FirstOrDefault(r => r.Name.ToLower().Equals(RoleName.ToLower()));
-            return Role;
+            return await _context.Roles
+                .FirstOrDefaultAsync(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<List<Account>> getAllStudentAccount(string roleId)
@@ -182,12 +143,10 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                var role = await _context.Roles.Where(r => r.Name == "Student").FirstOrDefaultAsync();
-                var students = await _context.Accounts
+                return await _context.Accounts
                     .Include(s => s.Parents)
-                    .Where(a => a.RoleId == role.RoleId).ToListAsync();
-                if (students == null) return null;
-                return students;
+                    .Where(a => a.Role.Name == "Student")
+                    .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -200,10 +159,9 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                var role = await _context.Roles.Where(r => r.Name == "Lecturer").FirstOrDefaultAsync();
-                var lecturers = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
-                if (lecturers == null) return null;
-                return lecturers;
+                return await _context.Accounts
+                    .Where(a => a.Role.Name == "Lecturer")
+                    .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -216,10 +174,9 @@ namespace OTMS.DAL.DAO
         {
             try
             {
-                var role = await _context.Roles.Where(r => r.Name == "Officer").FirstOrDefaultAsync();
-                var officers = await _context.Accounts.Where(a => a.RoleId == role.RoleId).ToListAsync();
-                if (officers == null) return null;
-                return officers;
+                return await _context.Accounts
+                   .Where(a => a.Role.Name == "Officer")
+                   .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -235,7 +192,6 @@ namespace OTMS.DAL.DAO
                 var accounts = await _context.Accounts
                     .Include(s => s.Parents)
                     .Include(a => a.Role).ToListAsync();
-                if (accounts == null) return null;
                 return accounts;
             }
             catch (Exception ex)

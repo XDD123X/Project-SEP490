@@ -15,6 +15,8 @@ public partial class ProfileChangeRequest
 
     public Guid? ApprovedBy { get; set; }
 
+    public string? Description { get; set; }
+
     public DateTime? ApprovedDate { get; set; }
 
     public int? Status { get; set; }

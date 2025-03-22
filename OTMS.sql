@@ -60,7 +60,7 @@ GO
 -- 4. Tạo bảng Class
 CREATE TABLE Class (
     class_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    class_code NVARCHAR(50) NOT NULL,
+    class_code NVARCHAR(50) NOT NULL UNIQUE,
     class_name NVARCHAR(100) NOT NULL,
 	lecturer_id uniqueidentifier FOREIGN KEY REFERENCES Account(account_id),
     course_id INT NOT NULL FOREIGN KEY REFERENCES Course(course_id),
@@ -186,14 +186,6 @@ CREATE TABLE RefreshToken (
 );
 GO
 
--- 12. Thêm dữ liệu mẫu cho Role
-INSERT INTO Role (name, description)
-VALUES 
-('Administrator', N'Quản lý hệ thống'),
-('Lecturer', N'Giảng dạy các lớp học'),
-('Student', N'Tham gia lớp học'),
-('Officer', N'Quản lý lớp học và lịch học');
-GO
 
 -- 13. Tạo bảng ClassSetting
 CREATE TABLE ClassSetting (
@@ -215,6 +207,7 @@ CREATE TABLE SessionChangeRequest (
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
     lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
+	description NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
     status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
     created_at DATETIME DEFAULT GETDATE()
@@ -228,6 +221,7 @@ CREATE TABLE ProfileChangeRequest (
     img_url_old NVARCHAR(500) NOT NULL,
     img_url_new NVARCHAR(500) NOT NULL,
     approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
+	description NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
     status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
     created_at DATETIME DEFAULT GETDATE()
@@ -244,7 +238,14 @@ CREATE TABLE LecturerSchedule (
 );
 
 
-
+-- 12. Thêm dữ liệu mẫu cho Role
+INSERT INTO Role (name, description)
+VALUES 
+('Administrator', N'Quản lý hệ thống'),
+('Lecturer', N'Giảng dạy các lớp học'),
+('Student', N'Tham gia lớp học'),
+('Officer', N'Quản lý lớp học và lịch học');
+GO
 
 -- 17. Thêm dữ liệu mẫu cho Account
 INSERT INTO Account ( email, password, full_name, role_id, status, gender, created_at)
