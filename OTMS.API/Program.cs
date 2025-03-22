@@ -82,7 +82,7 @@ builder.Services.AddScoped<ClassSettingDAO>();
 builder.Services.AddScoped<LecturerScheduleDAO>();
 builder.Services.AddScoped<ParentDAO>();
 builder.Services.AddScoped<NotificationDAO>();
-
+builder.Services.AddScoped<RecordDAO>();
 
 
 //SignalR
