@@ -55,5 +55,27 @@ namespace OTMS.DAL.DAO
             await _context.NotificationRoles.AddRangeAsync(notificationRoles);
             await _context.SaveChangesAsync();
         }
+
+
+
+        public async Task<List<Notification>> GetNotificationsByAccountOrRole(Guid? accountId, string? roleName)
+        {
+            using (var context = new OtmsContext())
+            {
+                var query = from n in context.Notifications
+                            join nr in context.NotificationRoles on n.NotificationId equals nr.NotificationId into nrGroup
+                            from nr in nrGroup.DefaultIfEmpty()
+                            join na in context.NotificationAccounts on n.NotificationId equals na.NotificationId into naGroup
+                            from na in naGroup.DefaultIfEmpty()
+                            where (roleName == null || nr.RoleName == roleName)
+                               || (accountId == null || na.AccountId == accountId)
+                            select n;
+
+                return await query.Distinct().ToListAsync();
+            }
+        }
+
+
+
     }
 }

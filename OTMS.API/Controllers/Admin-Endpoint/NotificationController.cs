@@ -35,6 +35,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(notifications);
         }
 
+
         [HttpGet("account-notification-list/{accountId}")]
         public async Task<IActionResult> GetNotificationByAccount(Guid accountId)
         {
@@ -48,6 +49,8 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             var notifications = await _notificationRepository.GetAllRoleNotificationAsync(roleName);
             return Ok(notifications);
         }
+
+
         [HttpGet("find-notification/{id}")]
         public async Task<IActionResult> GetNotificationById(Guid id)
         {
@@ -148,5 +151,15 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             await _notificationRepository.DeleteAsync(id);
             return Ok("Notification deleted successfully.");
         }
+
+
+        //get cả notification của cả account và role tránh mất thông báo 
+        [HttpGet("getNotificationAsRoleOrAccountId")]
+        public async Task<IActionResult> GetNotificationAsRoleOrAccountId([FromQuery] Guid? accountId, [FromQuery] string? roleName)
+        {
+            var notifications = await _notificationRepository.GetNotificationsByAccountOrRole(accountId, roleName);
+            return Ok(notifications);
+        }
+
     }
 }

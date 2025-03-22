@@ -55,6 +55,8 @@ builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<IClassSettingRepository, ClassSettingRepository>();
 builder.Services.AddScoped<ILecturerScheduleRepository, LecturerScheduleRepository>();
 builder.Services.AddScoped<IParentRepository, ParentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
 
 //Service
 builder.Services.AddSingleton<ITokenService, TokenService>();
@@ -78,6 +80,8 @@ builder.Services.AddScoped<AttendanceDAO>();
 builder.Services.AddScoped<ClassSettingDAO>();
 builder.Services.AddScoped<LecturerScheduleDAO>();
 builder.Services.AddScoped<ParentDAO>();
+builder.Services.AddScoped<NotificationDAO>();
+
 
 
 //SignalR
