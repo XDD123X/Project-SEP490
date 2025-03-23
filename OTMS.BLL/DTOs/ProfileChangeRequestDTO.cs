@@ -21,6 +21,7 @@ namespace OTMS.BLL.DTOs
         public string? Description { get; set; }
 
         public DateTime? ApprovedDate { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public int? Status { get; set; }
 

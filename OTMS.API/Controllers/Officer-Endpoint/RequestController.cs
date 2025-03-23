@@ -30,7 +30,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (requests == null || !requests.Any())
                 return NotFound("No requests found");
 
-            var requestDtos = _mapper.Map<List<ProfileChangeRequestDTO>>(requests);
+            var sortedRequests = requests.OrderByDescending(r => r.CreatedAt).ToList();
+
+            var requestDtos = _mapper.Map<List<ProfileChangeRequestDTO>>(sortedRequests);
             return Ok(requestDtos);
         }
 
@@ -43,8 +45,11 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (requests == null || !requests.Any())
                 return NotFound($"No requests found for studentId: {studentId}");
 
+            //sort
+            var sortedRequests = requests.OrderByDescending(r => r.CreatedAt).ToList();
+
             // Map danh sách kết quả
-            var requestDtos = _mapper.Map<List<ProfileChangeRequestDTO>>(requests);
+            var requestDtos = _mapper.Map<List<ProfileChangeRequestDTO>>(sortedRequests);
             return Ok(requestDtos);
         }
 
@@ -61,7 +66,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
            // ProfileChangeRequest request = await _repository.GetLastRequestByStudentIdAsync(studentId);
             if (request == null) return NotFound("Request ko thay not found");
 
-            _accountRepository.updateImageAccount(request.AccountId, request.ImgUrlNew);
+            await _accountRepository.updateImageAccount(request.AccountId, request.ImgUrlNew);
 
 
             await _repository.UpdateRequestAsync(model);
