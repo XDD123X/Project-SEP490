@@ -74,5 +74,18 @@ namespace OTMS.DAL.DAO
             _context.ProfileChangeRequests.Update(request);
             await _context.SaveChangesAsync();
         }
+
+
+        public async Task<ProfileChangeRequest?> GetRequestByRequestChangeIdAsync(Guid requestChangeId)
+        {
+            return await _context.ProfileChangeRequests
+                .Where(r => r.RequestChangeId == requestChangeId)
+                .Include(r => r.Account)
+                .Include(r => r.Officer)
+                .FirstOrDefaultAsync();
+        }
+
+
+
     }
 }

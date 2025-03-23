@@ -46,5 +46,8 @@ namespace OTMS.DAL.Repository
         public Task<List<Account>> GetOfficerList() => _accountDAO.GetOfficerList();
         public Task<List<Account>> GetAccountListAsync() => _accountDAO.GetAccountListAsync();
         public Task<bool> AddAccount(Account account) => _accountDAO.AddAccount(account);
+
+        public Task<bool> updateImageAccount(Guid accountId, string newImgUrl) => _accountDAO.updateImageAccount(accountId, newImgUrl);
+       
     }
 }

@@ -90,7 +90,7 @@ namespace OTMS.DAL.DAO
         public async Task<Role?> GetRoleByRoleName(string roleName)
         {
             return await _context.Roles
-                .FirstOrDefaultAsync(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefaultAsync(r => r.Name.ToLower() == roleName.ToLower());
         }
 
         public async Task<List<Account>> getAllStudentAccount(string roleId)
@@ -216,5 +216,22 @@ namespace OTMS.DAL.DAO
 
             }
         }
+
+
+
+        public async Task<bool> updateImageAccount(Guid accountId, string newImgUrl)
+        {
+            Account account = await _context.Accounts
+                .Where(a => a.AccountId == accountId)
+                .FirstOrDefaultAsync();
+            if (account == null)
+            {
+                return false;
+            }
+            account.ImgUrl = newImgUrl;
+            _context.Update(account);
+            return true;
+        }
+
     }
 }

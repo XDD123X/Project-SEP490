@@ -54,6 +54,18 @@ namespace OTMS.API.Controllers.Student_Endpoint
         public async Task<IActionResult> AddRequest([FromBody] AddProfileChangeRequestModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userIdClaim = User.FindFirst("uid");
+            if (userIdClaim == null)
+                return Unauthorized("User ID not found in token");
+
+            // Parse
+            if (!Guid.TryParse(userIdClaim.Value, out Guid studentId))
+                return BadRequest("Invalid User ID format");
+
+
+            model.AccountId = studentId;
+            Console.WriteLine(studentId.ToString());
             await _repository.AddRequestAsync(model);
             return Ok("Request Created Successfully");
         }

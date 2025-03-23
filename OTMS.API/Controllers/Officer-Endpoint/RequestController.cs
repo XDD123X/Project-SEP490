@@ -12,12 +12,15 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     public class RequestController : ControllerBase
     {
         private readonly IProfileChangeRequestRepository _repository;
+        private readonly IAccountRepository _accountRepository;
+
         private readonly IMapper _mapper;
 
-        public RequestController(IProfileChangeRequestRepository repository, IMapper mapper)
+        public RequestController(IProfileChangeRequestRepository repository, IMapper mapper, IAccountRepository accountRepository)
         {
             _repository = repository;
             _mapper = mapper;
+            _accountRepository = accountRepository;
         }
 
         [HttpGet("all")]
@@ -50,7 +53,19 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         public async Task<IActionResult> UpdateRequest([FromBody] UpdateProfileChangeRequestModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+
+            ProfileChangeRequest request = await _repository.GetRequestByRequestChangeIdAsync(model.RequestChangeId);
+
+
+           // ProfileChangeRequest request = await _repository.GetLastRequestByStudentIdAsync(studentId);
+            if (request == null) return NotFound("Request ko thay not found");
+
+            _accountRepository.updateImageAccount(request.AccountId, request.ImgUrlNew);
+
+
             await _repository.UpdateRequestAsync(model);
+
             return NoContent();
         }
     }
