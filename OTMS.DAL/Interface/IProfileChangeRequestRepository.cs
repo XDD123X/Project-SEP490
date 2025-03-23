@@ -11,9 +11,8 @@ namespace OTMS.DAL.Interface
     public interface IProfileChangeRequestRepository
     {
         Task<IEnumerable<ProfileChangeRequest>> GetAllRequestsAsync();
-        Task<ProfileChangeRequest?> GetRequestByStudentIdAsync(Guid studentId);
+        Task<IEnumerable<ProfileChangeRequest>> GetRequestByStudentIdAsync(Guid studentId);
         Task<ProfileChangeRequest?> GetLastRequestByStudentIdAsync(Guid studentId);
-        Task<IEnumerable<ProfileChangeRequest>> GetRequestByOfficerIdAsync(Guid officerId);
         Task AddRequestAsync(AddProfileChangeRequestModel model);
         Task UpdateRequestAsync(UpdateProfileChangeRequestModel model);
     }

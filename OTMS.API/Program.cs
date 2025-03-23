@@ -56,6 +56,7 @@ builder.Services.AddScoped<ILecturerScheduleRepository, LecturerScheduleReposito
 builder.Services.AddScoped<IParentRepository, ParentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
+builder.Services.AddScoped<IProfileChangeRequestRepository, ProfileChangeRequestRepository>();
 
 
 //Service
@@ -82,6 +83,7 @@ builder.Services.AddScoped<LecturerScheduleDAO>();
 builder.Services.AddScoped<ParentDAO>();
 builder.Services.AddScoped<NotificationDAO>();
 builder.Services.AddScoped<RecordDAO>();
+builder.Services.AddScoped<ProfileChangeRequestDAO>();
 
 
 //SignalR

@@ -274,6 +274,7 @@ VALUES
 ( 'student16@gmail.com', 'fc8d5c17ee6bd893ac3d47583df509da68ada40070b9c9e1890cae52bc62de28', N'Châu Văn Việt', (select role_id from Role where name = 'Student'), 1, 1,  GETDATE()); --password: matkhau123
 GO
 
+--LecturerSchedule
 INSERT INTO LecturerSchedule (lecturer_id, slot_available, weekday_available, updated_at)
 SELECT account_id, '1,2,3,4', '2,3,4,5,6,7,8', GETDATE()
 FROM Account
@@ -285,6 +286,13 @@ INSERT INTO Parent (student_id, full_name, gender, phone_number, email, status) 
 ((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Nguyễn Văn Hoàng', 1, '0987654321', 'parent1@gmail.com', 1),
 ((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), N'Trần Thị Hiền', 0, '0987654321', 'parent2@gmail.com', 1),
 ((SELECT account_id FROM Account WHERE email = 'student2@gmail.com'), N'Đặng Quang Tuấn', 0, '0964256432', 'parent3@gmail.com', 1);
+GO
+
+--data mẫu cho ProfileChangeRequest
+INSERT INTO ProfileChangeRequest (account_id, img_url_old, img_url_new, approved_by, description, approved_date, status, created_at) VALUES
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://scontent.fhan2-3.fna.fbcdn.net/v/t39.30808-6/426239673_3546373639026826_4770505595665812582_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEdyjFVQy8l0brvB7Z8XZB_tS9oGeeQ2i-1L2gZ55DaL-LNZBlKwHPip_4m7pY0Z3ormwLn2wqftGyo0qt_1qnH&_nc_ohc=9f0dpgDQNWEQ7kNvgEcIYp8&_nc_oc=Admw-1vLaeHRLXbu3nQcWK5pghvloNNlHk71848dXJ8yP1Tl67qYKl_LkHJgu8sJxnc&_nc_zt=23&_nc_ht=scontent.fhan2-3.fna&_nc_gid=OtplOUMdyqcEG-S_XWEMFA&oh=00_AYG2v6OqDPUhg9dbn4BYZQ4UtoEEEDWnf213sWZ4IWEMbA&oe=67E51552',NULL,NULL,NULL,0,GETDATE()),
+((SELECT account_id FROM Account WHERE email = 'student2@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://scontent.fhan2-3.fna.fbcdn.net/v/t39.30808-6/426239673_3546373639026826_4770505595665812582_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEdyjFVQy8l0brvB7Z8XZB_tS9oGeeQ2i-1L2gZ55DaL-LNZBlKwHPip_4m7pY0Z3ormwLn2wqftGyo0qt_1qnH&_nc_ohc=9f0dpgDQNWEQ7kNvgEcIYp8&_nc_oc=Admw-1vLaeHRLXbu3nQcWK5pghvloNNlHk71848dXJ8yP1Tl67qYKl_LkHJgu8sJxnc&_nc_zt=23&_nc_ht=scontent.fhan2-3.fna&_nc_gid=OtplOUMdyqcEG-S_XWEMFA&oh=00_AYG2v6OqDPUhg9dbn4BYZQ4UtoEEEDWnf213sWZ4IWEMbA&oe=67E51552',(SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'),N'Rejected because student''s profile picture is unclear',GETDATE(),2,GETDATE()),
+((SELECT account_id FROM Account WHERE email = 'student3@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',(SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'),N'Accepted',GETDATE(),1,GETDATE());
 GO
 
 -- Thêm Data mẫu cho notification

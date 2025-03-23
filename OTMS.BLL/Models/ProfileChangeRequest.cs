@@ -25,5 +25,5 @@ public partial class ProfileChangeRequest
 
     public virtual Account Account { get; set; } = null!;
 
-    public virtual Account? ApprovedByNavigation { get; set; }
+    public virtual Account? Officer { get; set; }
 }

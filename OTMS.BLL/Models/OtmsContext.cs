@@ -464,7 +464,7 @@ public partial class OtmsContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK__ProfileCh__accou__208CD6FA");
 
-            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.ProfileChangeRequestApprovedByNavigations)
+            entity.HasOne(d => d.Officer).WithMany(p => p.ProfileChangeRequestOfficers)
                 .HasForeignKey(d => d.ApprovedBy)
                 .HasConstraintName("FK__ProfileCh__appro__2180FB33");
         });
@@ -641,7 +641,7 @@ public partial class OtmsContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("status");
 
-            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.SessionChangeRequestApprovedByNavigations)
+            entity.HasOne(d => d.Officer).WithMany(p => p.SessionChangeRequestOfficers)
                 .HasForeignKey(d => d.ApprovedBy)
                 .HasConstraintName("FK__SessionCh__appro__19DFD96B");
 

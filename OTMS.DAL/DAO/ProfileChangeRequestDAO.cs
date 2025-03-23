@@ -22,17 +22,17 @@ namespace OTMS.DAL.DAO
         {
             return await _context.ProfileChangeRequests
                 .Include(r => r.Account)
-                .Include(r => r.ApprovedByNavigation)
+                .Include(r => r.Officer)
                 .ToListAsync();
         }
 
-        public async Task<ProfileChangeRequest?> GetRequestByStudentIdAsync(Guid studentId)
+        public async Task<IEnumerable<ProfileChangeRequest>> GetRequestByStudentIdAsync(Guid studentId)
         {
             return await _context.ProfileChangeRequests
                 .Where(r => r.AccountId == studentId)
                 .Include(r => r.Account)
-                .Include(r => r.ApprovedByNavigation)
-                .FirstOrDefaultAsync();
+                .Include(r => r.Officer)
+                .ToListAsync();
         }
 
         public async Task<ProfileChangeRequest?> GetLastRequestByStudentIdAsync(Guid studentId)
@@ -41,17 +41,8 @@ namespace OTMS.DAL.DAO
                 .Where(r => r.AccountId == studentId)
                 .OrderByDescending(r => r.CreatedAt)
                 .Include(r => r.Account)
-                .Include(r => r.ApprovedByNavigation)
+                .Include(r => r.Officer)
                 .FirstOrDefaultAsync();
-        }
-
-        public async Task<IEnumerable<ProfileChangeRequest>> GetRequestByOfficerIdAsync(Guid officerId)
-        {
-            return await _context.ProfileChangeRequests
-                .Where(r => r.ApprovedBy == officerId)
-                .Include(r => r.Account)
-                .Include(r => r.ApprovedByNavigation)
-                .ToListAsync();
         }
 
         public async Task AddRequestAsync(AddProfileChangeRequestModel model)

@@ -21,7 +21,7 @@ public partial class SessionChangeRequest
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual Account? ApprovedByNavigation { get; set; }
+    public virtual Account? Officer { get; set; }
 
     public virtual Account Lecturer { get; set; } = null!;
 

@@ -22,11 +22,11 @@ namespace OTMS.DAL.Repository
 
         public Task<IEnumerable<ProfileChangeRequest>> GetAllRequestsAsync() => _profileRequestChangeDAO.GetAllRequestsAsync();
 
-        public Task<ProfileChangeRequest?> GetRequestByStudentIdAsync(Guid studentId) => _profileRequestChangeDAO.GetRequestByStudentIdAsync(studentId);
+        public Task<IEnumerable<ProfileChangeRequest>> GetRequestByStudentIdAsync(Guid studentId) => _profileRequestChangeDAO.GetRequestByStudentIdAsync(studentId);
 
         public Task<ProfileChangeRequest?> GetLastRequestByStudentIdAsync(Guid studentId) => _profileRequestChangeDAO.GetLastRequestByStudentIdAsync(studentId);
 
-        public Task<IEnumerable<ProfileChangeRequest>> GetRequestByOfficerIdAsync(Guid officerId) => _profileRequestChangeDAO.GetRequestByOfficerIdAsync(officerId);
+        //public Task<IEnumerable<ProfileChangeRequest>> GetRequestByOfficerIdAsync(Guid officerId) => _profileRequestChangeDAO.GetRequestByOfficerIdAsync(officerId);
 
         public Task AddRequestAsync(AddProfileChangeRequestModel model) => _profileRequestChangeDAO.AddRequestAsync(model);
 
