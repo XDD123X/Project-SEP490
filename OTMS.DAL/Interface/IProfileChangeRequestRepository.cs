@@ -15,5 +15,8 @@ namespace OTMS.DAL.Interface
         Task<ProfileChangeRequest?> GetLastRequestByStudentIdAsync(Guid studentId);
         Task AddRequestAsync(AddProfileChangeRequestModel model);
         Task UpdateRequestAsync(UpdateProfileChangeRequestModel model);
+
+        public Task<ProfileChangeRequest?> GetRequestByRequestChangeIdAsync(Guid requestChangeId);
+
     }
 }

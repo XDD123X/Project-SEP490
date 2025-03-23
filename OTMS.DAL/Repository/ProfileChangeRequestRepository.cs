@@ -31,5 +31,10 @@ namespace OTMS.DAL.Repository
         public Task AddRequestAsync(AddProfileChangeRequestModel model) => _profileRequestChangeDAO.AddRequestAsync(model);
 
         public Task UpdateRequestAsync(UpdateProfileChangeRequestModel model) => _profileRequestChangeDAO.UpdateRequestAsync(model);
+
+
+        public async Task<ProfileChangeRequest?> GetRequestByRequestChangeIdAsync(Guid requestChangeId)
+=> await _profileRequestChangeDAO.GetRequestByRequestChangeIdAsync(requestChangeId);
+
     }
 }

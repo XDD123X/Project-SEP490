@@ -37,5 +37,8 @@ namespace OTMS.DAL.Interface
         public Task<List<Account>> GetAccountListAsync();
         public Task<bool> AddAccount(Account account);
 
+        public Task<bool> updateImageAccount(Guid accountId, string newImgUrl);
+
+
     }
 }
