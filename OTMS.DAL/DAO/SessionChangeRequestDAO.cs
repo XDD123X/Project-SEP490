@@ -9,9 +9,9 @@ using OTMS.DAL;
 
 namespace OTMS.DAL.DAO
 {
-    public class SessionChangeRequestDAO :GenericDAO<SessionChangeRequest>
+    public class SessionChangeRequestDAO : GenericDAO<SessionChangeRequest>
     {
-        private readonly OtmsContext _context;
+        private new readonly OtmsContext _context;
 
         public SessionChangeRequestDAO(OtmsContext context) : base(context)
         {

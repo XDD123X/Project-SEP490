@@ -207,10 +207,16 @@ CREATE TABLE SessionChangeRequest (
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
     lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
-	description NVARCHAR(MAX) NULL,
+    description NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
     status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
-    created_at DATETIME DEFAULT GETDATE()
+    created_at DATETIME DEFAULT GETDATE(),
+    
+    -- Thêm thông tin ngày và slot mới
+    new_date DATE NOT NULL,  -- Ngày yêu cầu đổi
+    new_slot INT NOT NULL CHECK (new_slot BETWEEN 1 AND 4), -- Slot mới yêu cầu đổi
+    old_date DATE NULL, -- Ngày cũ của buổi học
+    old_slot INT NULL -- Slot cũ của buổi học
 );
 GO
 
