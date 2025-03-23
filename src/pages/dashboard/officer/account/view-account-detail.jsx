@@ -71,12 +71,21 @@ export default function ViewAccountDetail() {
           {role.toLowerCase() === "officer" && (
             <>
               <Button onClick={() => navigate(`/officer/account/${profile.role.name}s`)}>
-                <ChevronLeft className="h-4 w-4" />Back
+                <ChevronLeft className="h-4 w-4" />
+                Back
               </Button>
               <Button onClick={() => navigate(`/officer/account/edit/${profile.accountId}`)}>
-                <Pencil className="h-4 w-4" />Edit
+                <Pencil className="h-4 w-4" />
+                Edit
               </Button>
             </>
+          )}
+
+          {role.toLowerCase() === "lecturer" && (
+            <Button onClick={() => navigate(-1)}>
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </Button>
           )}
         </div>
 

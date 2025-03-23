@@ -43,6 +43,8 @@ import ViewStudentRequest from "./pages/dashboard/officer/request/view-student-r
 import ViewLecturerRequest from "./pages/dashboard/officer/request/view-lecturer-request";
 import ScrollTest from "./pages/test/Scroll";
 import LecturerSchedulePage from "./pages/dashboard/lecturer/schedule/LecturerSchedulePage";
+import ViewClassLecturerPage from "./pages/dashboard/lecturer/classroom/view-class-lecturer-page";
+import ViewClassDetailLecturerPage from "./pages/dashboard/lecturer/classroom/view-detail-class-lecturer-page";
 
 function App() {
   return (
@@ -104,6 +106,10 @@ function App() {
                       <Route path="/Lecturer">
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="my-schedule" element={<LecturerSchedulePage />} />
+
+                        <Route path="my-class" element={<ViewClassLecturerPage />} />
+                        <Route path="class/detail/:id" element={<ViewClassDetailLecturerPage />} />
+
                       </Route>
                     </Route>
                     <Route element={<ProtectedRoute allowedRoles={["officer"]} />}>

@@ -12,9 +12,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getAllSession, getSessionByLecturerId, getSessionByStudentId } from "@/services/sessionService";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStore } from "@/services/StoreContext";
-import ClassCard from "@/components/lecturer-session-card";
 import { Link } from "react-router-dom";
 import CalendarSelector from "@/components/CalendarSelector";
+import LecturerClassCard from "@/components/lecturer-session-card";
 
 export default function LecturerSchedulePage() {
   const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -74,10 +74,6 @@ export default function LecturerSchedulePage() {
     });
   };
 
-  const getSessionForDayAndSlot = (day, slotId) => {
-    return sessions.find((session) => isSameDay(new Date(session.sessionDate), day) && session.slot === slotId);
-  };
-
   return (
     <div className="container mx-auto p-4 pt-0">
       <div className="flex justify-between items-center mb-6">
@@ -90,29 +86,7 @@ export default function LecturerSchedulePage() {
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
-          {/* <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-64 flex justify-between items-center px-4">
-                <span className="mx-auto">{format(selectedDate, "d/MM/yyyy")}</span>
-                <CalendarIcon className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate} // Giữ ngày hiển thị trên nút
-                onSelect={(date) => {
-                  if (date) {
-                    setSelectedDate(date); // Cập nhật ngày hiển thị trên nút
-                    setSelectedWeek(startOfWeek(date, { weekStartsOn: 1 })); // Cập nhật tuần
-                  }
-                }}
-                weekStartsOn={1} // Bắt đầu tuần từ thứ 2
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover> */}
-           <CalendarSelector className='min-w-[400px] flex justify-between items-center px-4' selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} selectedDate={new Date()}/>
+          <CalendarSelector className="min-w-[400px] flex justify-between items-center px-4" selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
           <Button onClick={goToNextWeek} variant="outline" className="w-28 flex justify-center">
             Next
             <ChevronRight className="h-4 w-4" />
@@ -139,7 +113,7 @@ export default function LecturerSchedulePage() {
               <Calendar mode="single" selected={selectedWeek} onSelect={(date) => date && setSelectedWeek(startOfWeek(date))} initialFocus />
             </PopoverContent>
           </Popover>
-           {/* <CalendarSelector selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} /> */}
+          {/* <CalendarSelector selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} /> */}
         </div>
       </div>
 
@@ -190,8 +164,8 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
               {weekDays.map((day) => {
                 const session = getSessionForDayAndSlot(day, slot.id);
                 return (
-                  <td key={`${day.toISOString()}-${slot.id}`} className="p-1 border max-w-xs">
-                    {session ? <ClassCard session={session} style={{ width: "100%" }} /> : <div className="h-full flex items-center justify-center text-muted-foreground">-</div>}
+                  <td key={`${day.toISOString()}-${slot.id}`} className="p-[6px] border max-w-xs">
+                    {session ? <LecturerClassCard session={session} style={{ width: "100%" }} /> : <div className="h-full flex items-center justify-center text-muted-foreground">-</div>}
                   </td>
                 );
               })}

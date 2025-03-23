@@ -12,9 +12,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getAllSession, getSessionByStudentId } from "@/services/sessionService";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStore } from "@/services/StoreContext";
-import ClassCard from "@/components/lecturer-session-card";
-import { Link } from "react-router-dom";
 import CalendarSelector from "@/components/CalendarSelector";
+import StudentClassCard from "@/components/student-session-card";
 
 export default function StudentSchedulePage() {
   const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -191,7 +190,7 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
                 const session = getSessionForDayAndSlot(day, slot.id);
                 return (
                   <td key={`${day.toISOString()}-${slot.id}`} className="p-1 border max-w-xs">
-                    {session ? <ClassCard session={session} style={{ width: "100%" }} /> : <div className="h-full flex items-center justify-center text-muted-foreground">-</div>}
+                    {session ? <StudentClassCard session={session} style={{ width: "100%" }} /> : <div className="h-full flex items-center justify-center text-muted-foreground">-</div>}
                   </td>
                 );
               })}

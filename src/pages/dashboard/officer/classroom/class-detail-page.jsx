@@ -1,3 +1,4 @@
+import { ClassBadge } from "@/components/BadgeComponent";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,37 +17,6 @@ export default function ClassDetailPage() {
   const [searchParams] = useSearchParams();
   const [currentClass, setCurrentClass] = useState(null);
   const classId = searchParams.get("classId");
-
-  {
-    /* <Badge
-                    variant={
-                      classItem.status === 0 ? "destructive"   // Disabled
-                      : classItem.status === 1 ? "secondary"  // Upcoming
-                      : classItem.status === 2 ? "info"    // Studying
-                      : "success" // Finished
-                    }
-                  >
-                    {classItem.status === 0 ? "Disabled"
-                    : classItem.status === 1 ? "Upcoming"
-                    : classItem.status === 2 ? "Studying"
-                    : "Finished"}
-                  </Badge> */
-  }
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 0:
-        return <Badge variant="destructive">Cancelled</Badge>;
-      case 1:
-        return <Badge variant="outline">Upcoming</Badge>;
-      case 2:
-        return <Badge variant="info">Studying</Badge>;
-      case 3:
-        return <Badge variant="success">Finished</Badge>;
-      default:
-        return <Badge>Unknown</Badge>;
-    }
-  };
 
   useEffect(() => {
     if (!classId) {
@@ -87,7 +57,6 @@ export default function ClassDetailPage() {
       <h1 className="text-2xl font-bold mb-6">Class Information</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6">
-
         <div className="col-span-3 flex justify-start mt-4">
           <Button onClick={() => navigate("/officer/class")}>
             <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
@@ -96,7 +65,6 @@ export default function ClassDetailPage() {
             Next <ChevronRight className="ml-2 h-4 w-4" />
           </Button> */}
         </div>
-
 
         {/* Class Information Card */}
         <Card className="w-full">
@@ -159,7 +127,9 @@ export default function ClassDetailPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Status:</div>
-                <div>{getStatusBadge(currentClass.status)}</div>
+                <div>
+                  <ClassBadge status={currentClass.status} />
+                </div>
               </div>
             </div>
           </CardContent>

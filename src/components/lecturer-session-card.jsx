@@ -1,21 +1,30 @@
+/* eslint-disable react/prop-types */
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Video, ExternalLink, Info, VideoOff, Speech, FileUp, FileCog, Pencil } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Video, ExternalLink, Info, VideoOff, BookOpen, User, Calendar, Clock, CircleCheck } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, isBefore, isSameDay } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 import { SessionBadge } from "./BadgeComponent";
+import { Link } from "react-router-dom";
 
-export default function ClassCard({ session }) {
+export default function LecturerClassCard({ session }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   return (
     <>
-      <Card className={cn("w-full max-w-xs overflow-hidden")}>
+      <Card
+        className={cn(
+          "w-full max-w-xs overflow-hidden transition-shadow duration-500",
+          session.status === 1 && "shadow-[0_0_4px_2px_#e5e7eb] hover:shadow-[0_0_10px_3px_#e5e7eb]",
+          session.status === 2 && "shadow-[0_0_4px_2px_#4ade80] hover:shadow-[0_0_10px_3px_#4ade80]",
+          session.status === 3 && "shadow-[0_0_4px_2px_#ef4444] hover:shadow-[0_0_10px_3px_#ef4444]"
+        )}
+      >
         <CardContent className="p-0">
           {/* Row 1: Class Name and Status Badge */}
           <div className="flex items-center justify-between px-3 py-2">
@@ -72,78 +81,140 @@ export default function ClassCard({ session }) {
 
       {/* Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{session.class.classCode}</DialogTitle>
-            <DialogDescription>Class information and details</DialogDescription>
+            <DialogTitle className="flex justify-between items-center">
+              <span>Session #{session.sessionNumber}</span>
+            </DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4 pb-0">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Class:</span>
-              <span className="col-span-3">{session.class.classCode}</span>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Lecturer:</span>
-              <span className="col-span-3">
-                {session.lecturer.gender ? "Mr." : "Ms."} {session.lecturer.fullName}
-              </span>
-            </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Number:</span>
-              <span className="col-span-3">{session.sessionNumber ?? "-"}</span>
-            </div>
+          <div className="py-4 space-y-4">
+            <div className="space-y-3">
+              {/* Class Code */}
+              <div className="flex items-center">
+                <div className="w-1/3 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Class Code:</span>
+                </div>
+                <div className="w-2/3">{session.class.classCode}</div>
+              </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Status:</span>
-              <span className="col-span-3">
-                <SessionBadge status={session.status} />
-              </span>
+              {/* Class Name */}
+              <div className="flex items-center">
+                <div className="w-1/3 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Class Name:</span>
+                </div>
+                <div className="w-2/3">{session.class.className}</div>
+              </div>
+
+              {/* Lecturer */}
+              <div className="flex items-center">
+                <div className="w-1/3 flex items-center gap-2">
+                  <User className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Lecturer:</span>
+                </div>
+                <div className="w-2/3">{session.class.lecturer.fullName}</div>
+              </div>
+
+              {/* Date */}
+              <div className="flex items-center">
+                <div className="w-1/3 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Date:</span>
+                </div>
+                <div className="w-2/3">{format(session.sessionDate, "dd/MM/yyyy")}</div>
+              </div>
+
+              {/* Slot */}
+              <div className="flex items-center">
+                <div className="w-1/3 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Slot:</span>
+                </div>
+                <div className="w-2/3">{session.slot}</div>
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center">
+                <div className="w-1/3 flex items-center gap-2">
+                  <CircleCheck className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">Status:</span>
+                </div>
+                <div className="w-2/3">
+                  <SessionBadge status={session.status} />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="font-semibold">Description:</span>
+                </div>
+                <Textarea value={session.description || "No description available"} readOnly className="resize-none bg-muted" />
+              </div>
+
+              {/* Recording */}
+              <div>
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="font-semibold">Recording:</span>
+                </div>
+                <div className="bg-muted p-3 rounded-md">
+                  {session.sessionRecord ? (
+                    <div className="space-y-2">
+                      <p className="flex items-center gap-2">
+                        <Video className="h-5 w-5 text-green-500" />
+                        <span>Recording available</span>
+                      </p>
+                      <a href={session.sessionRecord} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                        <ExternalLink className="h-4 w-4" />
+                        <span>View Recording</span>
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="flex items-center gap-2 text-muted-foreground">
+                      <VideoOff className="h-5 w-5" />
+                      <span>No recording available</span>
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Description:</span>
-              <Textarea defaultValue="" className="col-span-3" readOnly>
-                {session.description}
-              </Textarea>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Recording:</span>
-              <span className="col-span-3 flex items-center">
-                {session.sessionRecord ? <Video className="mr-2 h-4 w-4 text-green-500" /> : <VideoOff className="mr-2 h-4 w-4 text-red-500" />}
-                {session.sessionRecord ? format(new Date(), "dd/MM/yyyy HH:mm:ss") : "Not available"}
-              </span>
-            </div>
-            {session.sessionRecord ? (
+          </div>
+
+          <DialogFooter className="flex flex-wrap gap-2 sm:justify-end pt-2">
+            {session.status === 1 && (
               <>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <span className="text-sm font-medium">Link:</span>
-                  <span className="col-span-3">
-                    <a href="https://facebook.com/abc-xyz" target="_blank">
-                      <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center">
-                        <ExternalLink className="mr-1 h-3 w-3" />
-                        Record Link
-                      </Button>
-                    </a>
-                  </span>
-                </div>
-                <div className="flex flex-wrap justify-center items-center gap-4">
-                  <Button className="w-full md:w-auto justify-center mt-6">
-                    <FileCog className="mr-1 h-4 w-4" />
-                    Edit Record
+                {isBefore(new Date(), new Date(session.sessionDate)) && (
+                  <Button variant="outline" size="sm">
+                    Request Change
                   </Button>
-                  <Button className="w-full md:w-auto justify-center mt-6">
-                    <Pencil className="mr-1 h-4 w-4" />
-                    Edit Session
+                )}
+
+                {isSameDay(new Date(), new Date(session.sessionDate)) && (
+                  <Button variant="outline" size="sm">
+                    Take Attendance
                   </Button>
-                </div>
+                )}
               </>
-            ) : (
-              <Button className="w-full justify-center mt-6">
-                <FileUp className="mr-1 h-4 w-4" />
+            )}
+
+            {session.sessionRecord === null ? session.status === 2 &&(
+              <Button variant="default" size="sm">
                 Upload Record
               </Button>
+            ) : (
+              <Button variant="default" size="sm">
+                Edit Record
+              </Button>
             )}
-          </div>
+
+            {isSameDay(session.sessionDate) && (
+              <Button variant="default" size="sm">
+                Edit Attendance
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

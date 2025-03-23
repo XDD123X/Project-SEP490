@@ -97,7 +97,7 @@ const roleBasedData = {
         title: "Class",
         url: "class",
         icon: BookOpen,
-        items: [{ title: "View Assigned Classes", url: "/lecturer/my-class" }],
+        items: [{ title: "My Class", url: "/lecturer/my-class" }],
       },
       {
         title: "Attendance",
