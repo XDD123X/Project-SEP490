@@ -6,7 +6,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "OfficerOnly")]
+    //[Authorize(Policy = "OfficerOnly")]
     public class OfficerPolicyController : ControllerBase
     {
     }

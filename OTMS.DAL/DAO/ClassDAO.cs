@@ -54,7 +54,14 @@ namespace OTMS.DAL.DAO
 
         public async Task<List<Class>> getClassByLecturer(Guid lecturerId)
         {
-            return await _dbSet.Where(c => c.LecturerId.Equals(lecturerId)).ToListAsync();
+            return await _dbSet
+                .Where(c => c.LecturerId.Equals(lecturerId))
+                .Include(c => c.Course)
+                .Include(c => c.Lecturer)
+                .Include(c => c.ClassStudents)
+                .ThenInclude(cs => cs.Student)
+                .Where(c => c.Status != 0)
+                .ToListAsync();
         }
         public async Task<List<Class>> GetClassesByStudentAsync(Guid studentId)
         {
