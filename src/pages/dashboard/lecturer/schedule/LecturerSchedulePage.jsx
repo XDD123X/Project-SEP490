@@ -9,10 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { getAllSession, getSessionByStudentId } from "@/services/sessionService";
+import { getAllSession, getSessionByLecturerId, getSessionByStudentId } from "@/services/sessionService";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStore } from "@/services/StoreContext";
-import ClassCard from "@/components/session-card";
+import ClassCard from "@/components/lecturer-session-card";
 import { Link } from "react-router-dom";
 import CalendarSelector from "@/components/CalendarSelector";
 
@@ -28,7 +28,7 @@ export default function LecturerSchedulePage() {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const response = await getSessionByStudentId(user.uid);
+        const response = await getSessionByLecturerId(user.uid);
         setSessions(response.data);
         // setSessions(generateMockSessions(selectedWeek));
       } catch (error) {

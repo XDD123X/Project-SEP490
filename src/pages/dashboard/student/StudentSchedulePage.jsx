@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getAllSession, getSessionByStudentId } from "@/services/sessionService";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStore } from "@/services/StoreContext";
-import ClassCard from "@/components/session-card";
+import ClassCard from "@/components/lecturer-session-card";
 import { Link } from "react-router-dom";
 import CalendarSelector from "@/components/CalendarSelector";
 

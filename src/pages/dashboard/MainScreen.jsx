@@ -12,6 +12,7 @@ import { NotificationDropdown } from "@/components/notification/notification-dro
 import { MessageDropdown } from "@/components/notification/message-dropdown";
 import { cn } from "@/lib/utils";
 import SiteHeader from "@/components/dashboard/site-header";
+import Cookies from "js-cookie";
 
 const roleBasedData = {
   student: {
@@ -237,6 +238,7 @@ export default function MainScreen() {
   const data = roleBasedData[role.toLowerCase()];
   const [offset, setOffset] = useState(0);
   const fixed = true;
+  const defaultOpen = Cookies.get("sidebar_state") === "true";
 
   //check current role
   useEffect(() => {
@@ -258,27 +260,10 @@ export default function MainScreen() {
   }, []);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <SideBar data={data} />
       <SidebarInset>
         <SiteHeader fixed={fixed} offset={offset} />
-
-        {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-5">
-          <div
-            id="content"
-            className={cn(
-              "ml-auto w-full max-w-full",
-              "peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]",
-              "peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]",
-              "transition-[width] duration-200 ease-linear",
-              "flex h-svh flex-col",
-              "group-data-[scroll-locked=1]/body:h-full",
-              "group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh"
-            )}
-          >
-            <Outlet />
-          </div>
-        </div> */}
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

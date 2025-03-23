@@ -60,7 +60,7 @@ export const getSessionByStudentId = async (studentId) => {
 
 export const getSessionByLecturerId = async (lecturerId) => {
   try {
-    const response = await axiosClient.get(`/Lecturer/lecturer-schedule/${lecturerId}`);
+    const response = await axiosClient.get(`/Lecturer/Session/lecturer-schedule/${lecturerId}`);
 
     return {
       status: response.status,

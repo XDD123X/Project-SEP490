@@ -33,10 +33,7 @@ export default function ProfileAvatar() {
         if (response.data.status === 1) {
           //fetch User Data
           const userResponse = await authMe();
-          console.log('auth me: ', userResponse);
-          
           const { imgUrl: fetchAvatar, ...userData } = userResponse.data;
-          console.log('fetch img:', fetchAvatar);
           
 
           //compare current with api

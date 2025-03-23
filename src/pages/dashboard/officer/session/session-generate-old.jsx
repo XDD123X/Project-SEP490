@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Pencil, Save } from "lucide-react";
+import { CalendarIcon, Pencil, PencilOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -27,7 +29,7 @@ const days = [
   { id: 7, name: "Sunday" },
 ];
 
-export default function SessionGeneratePage() {
+export default function SessionGeneratePageOld() {
   const [classList, setClassList] = useState([]);
   const [lecturerList, setLecturerList] = useState([]);
   const [setting, setSetting] = useState();
@@ -40,62 +42,8 @@ export default function SessionGeneratePage() {
   const [isSelectDisabled, setIsSelectDisabled] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const [isEditingTotalSessions, setIsEditingTotalSessions] = useState(false);
-  const [tempTotalSessions, setTempTotalSessions] = useState("0");
-  const [isConfirmTotalSessionsOpen, setIsConfirmTotalSessionsOpen] = useState(false);
-
-  const [isEditingLecturer, setIsEditingLecturer] = useState(false);
-  const [originalLecturer, setOriginalLecturer] = useState("");
-  const [totalSessionError, setTotalSessionError] = useState(false);
-
-  // Update when setting is loaded
-  useEffect(() => {
-    if (setting) {
-      setTempTotalSessions(setting.sessionTotal);
-    }
-  }, [setting]);
-
-  // Toggle edit mode for total sessions
-  const toggleEditTotalSessions = () => {
-    if (!isEditingTotalSessions) {
-      // Enter edit mode
-      setIsEditingTotalSessions(true);
-      setTempTotalSessions(setting.sessionTotal);
-    } else {
-      // If saving, show confirmation dialog if value changed
-      if (tempTotalSessions !== setting.sessionTotal) {
-        setIsConfirmTotalSessionsOpen(true);
-      } else {
-        // If no change, just exit edit mode
-        setIsEditingTotalSessions(false);
-      }
-    }
-  };
-
-  // Confirm total sessions change
-  const confirmTotalSessionsChange = () => {
-    // Parse the input value to an integer
-    const newSessionTotal = parseInt(tempTotalSessions, 10);
-
-    console.log("temp: ", tempTotalSessions);
-    console.log("new: ", newSessionTotal);
-    // Validate input: not NaN and not empty
-    if (!isNaN(newSessionTotal) && tempTotalSessions.trim() !== "") {
-      if (setting) {
-        setSetting({
-          ...setting,
-          sessionTotal: newSessionTotal, // Update sessionTotal with the new value
-        });
-        toast.success("Total sessions updated successfully");
-      }
-      setTotalSessionError(false); // Clear error if valid
-      setIsEditingTotalSessions(false);
-      setIsConfirmTotalSessionsOpen(false);
-    } else {
-      setTotalSessionError(true);
-      setIsConfirmTotalSessionsOpen(false);
-    }
-  };
+  //delay func
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   //fetch data
   useEffect(() => {
@@ -136,40 +84,20 @@ export default function SessionGeneratePage() {
 
   //toggle the disabled state
   const toggleSelectEnabled = () => {
-    if (!isEditingLecturer) {
-      // Enter edit mode
-      setIsEditingLecturer(true);
-      setIsSelectDisabled(false);
-      setOriginalLecturer(selectedLecturer);
-    } else {
-      // If saving, show confirmation dialog if lecturer changed
-      if (originalLecturer !== selectedLecturer) {
-        setIsConfirmOpen(true);
-      } else {
-        // If no change, just exit edit mode
-        setIsEditingLecturer(false);
-        setIsSelectDisabled(true);
-      }
+    if (!isSelectDisabled) {
+      setIsSelectDisabled(true);
+      return;
     }
+    setIsConfirmOpen(true);
   };
 
   //Confirm
   const confirmChange = () => {
-    // Save the changes
-    setIsEditingLecturer(false);
-    setIsSelectDisabled(true);
-    setIsConfirmOpen(false);
-    toast.success("Lecturer updated successfully");
-    // Here you would typically call an API to update the lecturer
+    setIsSelectDisabled(false); // Bật chế độ chọn Lecturer
+    setIsConfirmOpen(false); // Đóng Dialog
   };
 
-  //submit
   const handleSubmit = async () => {
-    if (isEditingTotalSessions) {
-      toast.error("Please save your changes first");
-      return;
-    }
-
     if (!selectedClass || !startDate || !selectedLecturer) {
       toast.error("Please select all required fields");
       return;
@@ -267,6 +195,9 @@ export default function SessionGeneratePage() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Button onClick={toggleSelectEnabled} size="icon" variant="outline" className="ml-5 h-10 w-10" disabled={!selectedClass}>
+                  {isSelectDisabled ? <Pencil variant="icon" /> : <PencilOff variant="icon" />}
+                </Button>
               </div>
             </div>
             <div className="flex flex-col gap-4">
@@ -274,19 +205,11 @@ export default function SessionGeneratePage() {
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium mr-2">Total Sessions</label>
                 <div className="flex items-center space-x-2 w-full">
-                  <Input
-                    value={tempTotalSessions}
-                    disabled={!isEditingTotalSessions}
-                    onChange={(e) => setTempTotalSessions(e.target.value)}
-                    className={`flex-1 h-10 ${totalSessionError ? "border-red-500" : ""}`} // Add red border if error
-                  />
-                  <Button size="icon" className="h-10" onClick={toggleEditTotalSessions}>
-                    {isEditingTotalSessions ? <Save className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                  <Input type="number" value={setting ? setting.sessionTotal : 0} disabled className="flex-1 h-10" />
+                  <Button size="icon" className="h-10">
+                    <Pencil className="w-4 h-4" variant="icon" />
                   </Button>
                 </div>
-                {totalSessionError && (
-                  <p className="text-sm text-red-500 mt-2">Please enter a valid number for total sessions.</p> // Error message
-                )}
               </div>
 
               {/* Slots Per Week and Slot Per Day */}
@@ -332,7 +255,7 @@ export default function SessionGeneratePage() {
             </div>
           </div>
           <div className="flex mt-6">
-            <Button className={cn("w-full md:w-auto mr-5", sessions.length > 0 ? "hidden" : "")} onClick={handleSubmit} disabled={sessions.length > 0 || isEditingTotalSessions || isEditingLecturer}>
+            <Button className={cn("w-full md:w-auto mr-5", sessions.length > 0 ? "hidden" : "")} onClick={handleSubmit} disabled={sessions.length > 0}>
               Generate Sessions
             </Button>
             {sessions.length > 0 && (
@@ -384,44 +307,13 @@ export default function SessionGeneratePage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Change Lecturer</DialogTitle>
-            <p>
-              Do you want to change the lecturer from {lecturerList.find((l) => l.accountId === originalLecturer)?.fullName || "None"} to {lecturerList.find((l) => l.accountId === selectedLecturer)?.fullName || "None"}?
-            </p>
+            <p>Do you want to change the class assigned lecturer?</p>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              className="mt-3"
-              variant="outline"
-              onClick={() => {
-                setSelectedLecturer(originalLecturer);
-                setIsConfirmOpen(false);
-                setIsEditingLecturer(false);
-                setIsSelectDisabled(true);
-              }}
-            >
+            <Button className="mt-3" variant="outline" onClick={() => setIsConfirmOpen(false)}>
               Cancel
             </Button>
             <Button className="mt-3" onClick={confirmChange}>
-              Confirm
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog for Total Sessions Confirmation */}
-      <Dialog open={isConfirmTotalSessionsOpen} onOpenChange={setIsConfirmTotalSessionsOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Total Sessions Change</DialogTitle>
-            <p>
-              Do you want to change the total number of sessions from {setting?.sessionTotal} to {tempTotalSessions}?
-            </p>
-          </DialogHeader>
-          <DialogFooter>
-            <Button className="mt-3" variant="outline" onClick={() => setIsConfirmTotalSessionsOpen(false)}>
-              Cancel
-            </Button>
-            <Button className="mt-3" onClick={confirmTotalSessionsChange}>
               Confirm
             </Button>
           </DialogFooter>

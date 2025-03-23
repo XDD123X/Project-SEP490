@@ -12,9 +12,6 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  validateStatus: function (status) {
-    return status < 500;
-  },
 });
 
 // ✅ Request Interceptor: Tự động gắn accessToken vào header
@@ -57,9 +54,11 @@ axiosClient.interceptors.response.use(
   }
 );
 
-// ✅ Hàm lưu accessToken vào cookie
+// ✅ Hàm lưu accessToken vào cookie với thời gian hết hạn 30 phút
 export const setAccessToken = (token) => {
-  Cookies.set("access_token", token, { expires: 1, path: "/" });
+  const expiryDate = new Date();
+  expiryDate.setMinutes(expiryDate.getMinutes() + 30); // Set hết hạn sau 30 phút
+  Cookies.set("access_token", token, { expires: expiryDate, path: "/" });
 };
 
 // ✅ Hàm lấy accessToken từ cookie

@@ -20,7 +20,7 @@ export function SideBar(props) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
+              <Link to="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
@@ -34,7 +34,6 @@ export function SideBar(props) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* <SideBarProfile items={data.general}/> */}
         <SidebarGeneral items={data.general} />
         <SideBarMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
