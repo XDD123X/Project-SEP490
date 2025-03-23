@@ -12,7 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { use } from "react";
 import { useStore } from "@/services/StoreContext";
-import { AccountBadge } from "@/utils/BadgeComponent";
+import { AccountBadge } from "@/components/BadgeComponent";
 
 export default function ViewAccountDetail() {
   const { id } = useParams();

@@ -11,6 +11,7 @@ import { useStore } from "@/services/StoreContext";
 import { NotificationDropdown } from "@/components/notification/notification-dropdown";
 import { MessageDropdown } from "@/components/notification/message-dropdown";
 import { cn } from "@/lib/utils";
+import SiteHeader from "@/components/dashboard/site-header";
 
 const roleBasedData = {
   student: {
@@ -174,6 +175,16 @@ const roleBasedData = {
           { title: "Add Account", url: "/officer/account/add" },
         ],
       },
+
+      {
+        title: "Request",
+        url: "requests",
+        icon: FileText,
+        items: [
+          { title: "Student Requests", url: "/officer/request/student" },
+          { title: "Lecturer Requests", url: "/officer/request/lecturer" },
+        ],
+      },
       {
         title: "Course",
         url: "courses",
@@ -196,15 +207,6 @@ const roleBasedData = {
         items: [
           { title: "View Notifications", url: "/officer/notification" },
           { title: "Create New", url: "/officer/notification/add" },
-        ],
-      },
-      {
-        title: "Request",
-        url: "requests",
-        icon: FileText,
-        items: [
-          { title: "Student Requests", url: "/officer/request/student" },
-          { title: "Lecturer Requests", url: "/officer/request/lecturer" },
         ],
       },
       {
@@ -259,21 +261,29 @@ export default function MainScreen() {
     <SidebarProvider>
       <SideBar data={data} />
       <SidebarInset>
-        <header className={cn("flex h-16 items-center gap-2 border-b px-4 bg-background sticky top-0 z-50 w-full", fixed && "header-fixed peer/header rounded-md", offset > 10 && fixed ? "shadow" : "shadow-none")}>
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <SearchDialog/>
-          <div className="ml-auto flex items-center space-x-4">
-            <NotificationDropdown />
-            <MessageDropdown />
-            <ThemeSwitch />
-            <ProfileDropdown />
-          </div>
-        </header>
+        <SiteHeader fixed={fixed} offset={offset} />
 
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-5">
-          <div className="p-2">
+        {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0 mt-5">
+          <div
+            id="content"
+            className={cn(
+              "ml-auto w-full max-w-full",
+              "peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]",
+              "peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]",
+              "transition-[width] duration-200 ease-linear",
+              "flex h-svh flex-col",
+              "group-data-[scroll-locked=1]/body:h-full",
+              "group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh"
+            )}
+          >
             <Outlet />
+          </div>
+        </div> */}
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <Outlet />
+            </div>
           </div>
         </div>
       </SidebarInset>

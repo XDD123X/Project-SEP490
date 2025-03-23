@@ -20,8 +20,8 @@ import ProfileSchedule from "./pages/profile/profile-schedule";
 import ProfilePassword from "./pages/profile/profile-password";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ProfileAvatar from "./pages/profile/profile-avatar";
-import SessionViewPage from "./pages/dashboard/officer/session-page/session-view";
-import SessionGeneratePage from "./pages/dashboard/officer/session-page/session-generate";
+import SessionViewPage from "./pages/dashboard/officer/session/session-view";
+import SessionGeneratePage from "./pages/dashboard/officer/session/session-generate";
 import LecturerSchedulePage from "./pages/dashboard/lecturer/LecturerSchedulePage";
 import StudentSchedulePage from "./pages/dashboard/student/StudentSchedulePage";
 import StudentClassPage from "./pages/dashboard/student/class-student-page";
@@ -40,6 +40,9 @@ import ViewNotificationPage from "./pages/notification/view-notification-page";
 import ViewAccountDetail from "./pages/dashboard/officer/account/view-account-detail";
 import { EditAccountOfficerPage } from "./pages/dashboard/officer/account/edit-account-page";
 import MaintenanceError from "./pages/Errors/Maintenance";
+import ViewStudentRequest from "./pages/dashboard/officer/request/view-student-request";
+import ViewLecturerRequest from "./pages/dashboard/officer/request/view-lecturer-request";
+import ScrollTest from "./pages/test/Scroll";
 
 function App() {
   return (
@@ -119,6 +122,9 @@ function App() {
                         <Route path="account/add" element={<AddAccountOfficerPage />} />
                         <Route path="account/edit/:id" element={<EditAccountOfficerPage />} />
 
+                        <Route path="request/student" element={<ViewStudentRequest />} />
+                        <Route path="request/lecturer" element={<ViewLecturerRequest />} />
+
                         <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                       </Route>
@@ -128,9 +134,10 @@ function App() {
 
                 <Route path="*" element={<Notfound />} />
                 <Route path="/404" element={<NotFound />} />
-                <Route path='/503' element={<MaintenanceError />} />
+                <Route path="/503" element={<MaintenanceError />} />
                 <Route path="/test">
                   <Route path="refresh-token" element={<RefreshTokenTest />} />
+                  <Route path="scroll" element={<ScrollTest />} />
                 </Route>
               </Routes>
             </Router>

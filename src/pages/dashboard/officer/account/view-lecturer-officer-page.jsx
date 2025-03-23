@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImportAccountsOfficerDialog } from "./components/add-student-import-dialog";
 import { Link } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
-import { AccountBadge } from "@/utils/BadgeComponent";
+import { AccountBadge } from "@/components/BadgeComponent";
 
 export default function ViewLecturerManagementPage() {
   const [lecturers, setLecturers] = useState([]);
@@ -247,18 +247,18 @@ export default function ViewLecturerManagementPage() {
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => setIsImportDialogOpen(true)}>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto" onClick={() => setIsImportDialogOpen(true)}>
             <Upload className="h-4 w-4" />
             Import Lecturers
           </Button>
 
-          <Button variant="outline" className="flex items-center gap-2" onClick={handleExport}>
+          <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto" onClick={handleExport}>
             <Download className="h-4 w-4" />
             Export Lecturers
           </Button>
 
-          <Button variant="outline" className="flex items-center gap-2" onClick={handleDownloadTemplate}>
+          <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto" onClick={handleDownloadTemplate}>
             <FileDown className="h-4 w-4" />
             Download Template
           </Button>

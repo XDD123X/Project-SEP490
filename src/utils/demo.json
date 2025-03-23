@@ -1,0 +1,60 @@
+[
+  {
+    "accountId": "af06cf86-5387-4820-a183-f6659ddcad39",
+    "imgUrlOld": "https://i.imgur.com/McuGRDf.png",
+    "imgUrlNew": "https://i.imgur.com/McuGRDf.png",
+    "approvedBy": null,
+    "description": null,
+    "approvedDate": null,
+    "status": 0,
+    "account": {
+      "email": "student1@gmail.com",
+      "fullName": "Đỗ Quốc Đạt",
+      "phoneNumber": "0123456789",
+      "gender": true
+    },
+    "officer": null
+  },
+  {
+    "accountId": "001bf73e-14b8-4c35-8e2b-e0c4b7fc5cbb",
+    "imgUrlOld": "https://i.imgur.com/McuGRDf.png",
+    "imgUrlNew": "https://i.imgur.com/0dTvSSQ.png",
+    "approvedBy": "80f16f9c-4873-41dc-9655-1153f7cbb9f3",
+    "description": "Accepted",
+    "approvedDate": "2025-03-23T07:03:07.617",
+    "status": 1,
+    "account": {
+      "email": "student3@gmail.com",
+      "fullName": "Nguyễn Hoàng Linh",
+      "phoneNumber": "0123456789",
+      "gender": false
+    },
+    "officer": {
+      "email": "officer1@gmail.com",
+      "fullName": "Trần Thị Mai",
+      "phoneNumber": "0123456789",
+      "gender": false
+    }
+  },
+  {
+    "accountId": "cefc337e-8e6b-448f-b208-d9e03e39ccc1",
+    "imgUrlOld": "https://i.imgur.com/McuGRDf.png",
+    "imgUrlNew": "https://i.imgur.com/McuGRDf.png",
+    "approvedBy": "80f16f9c-4873-41dc-9655-1153f7cbb9f3",
+    "description": "Rejected because student's profile picture is unclear",
+    "approvedDate": "2025-03-23T07:03:07.617",
+    "status": 2,
+    "account": {
+      "email": "student2@gmail.com",
+      "fullName": "Bùi Văn Hiện",
+      "phoneNumber": "0123456789",
+      "gender": true
+    },
+    "officer": {
+      "email": "officer1@gmail.com",
+      "fullName": "Trần Thị Mai",
+      "phoneNumber": "0123456789",
+      "gender": false
+    }
+  }
+]
