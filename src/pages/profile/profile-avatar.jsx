@@ -15,6 +15,11 @@ export default function ProfileAvatar() {
   const { state, dispatch } = useStore();
   const { user, role } = state;
 
+  //Set PreviewURl
+  useEffect(() => {
+    setPreviewUrl(user.imgUrl);
+  }, [user.imgUrl]);
+
   // Fetch last request
   const fetchLastRequest = useCallback(async () => {
     if (!user?.uid || role.toLowerCase() !== "student") return;
@@ -23,21 +28,46 @@ export default function ProfileAvatar() {
       const response = await GetStudentLastRequest(user.uid);
       if (response.status === 200 && response.data) {
         setLastRequest(response.data);
+
+        //Check Request Status
+        if (response.data.status === 1) {
+          //fetch User Data
+          const userResponse = await authMe();
+          console.log('auth me: ', userResponse);
+          
+          const { imgUrl: fetchAvatar, ...userData } = userResponse.data;
+          console.log('fetch img:', fetchAvatar);
+          
+
+          //compare current with api
+          if (fetchAvatar !== previewUrl) {
+            setPreviewUrl(fetchAvatar);
+
+            //Set_User with newest data
+            const updatedUser = {
+              uid: userData.accountId,
+              email: userData.email,
+              name: userData.fullname,
+              phone: userData.phone,
+              dob: userData.dob,
+              imgUrl: fetchAvatar,
+              role: userData.role,
+              schedule: userData.schedule,
+            };
+
+            const updatedRole = userData.role;
+            dispatch({ type: "SET_USER", payload: { user: updatedUser, role: updatedRole } });
+          }
+        }
       }
     } catch (error) {
-      console.error(error);
-      console.log("b");
       toast.error(error.message || "Request Failed.");
     }
-  }, [role, user?.uid]);
+  }, [role, user?.uid, previewUrl, dispatch]);
 
   useEffect(() => {
     fetchLastRequest();
   }, [fetchLastRequest]);
-
-  useEffect(() => {
-    setPreviewUrl(user.imgUrl);
-  }, [user.imgUrl]);
 
   //upload avatar
   const handleAvatarChange = async (file) => {
@@ -104,8 +134,7 @@ export default function ProfileAvatar() {
 
       // Upload ảnh lên Cloudinary
       const uploadedImageUrl = await UploadImageToStorage(file);
-      console.log('upload image: ', uploadedImageUrl);
-      
+      console.log("upload image: ", uploadedImageUrl);
 
       if (!uploadedImageUrl) {
         throw new Error("Không thể tải ảnh lên, vui lòng thử lại!");
@@ -118,8 +147,7 @@ export default function ProfileAvatar() {
         imgUrlNew: uploadedImageUrl,
       });
 
-      console.log('addRequest Response: ', response);
-      
+      console.log("addRequest Response: ", response);
 
       if (response.status === 200) {
         toast.success("Yêu cầu đổi avatar đã được gửi!");

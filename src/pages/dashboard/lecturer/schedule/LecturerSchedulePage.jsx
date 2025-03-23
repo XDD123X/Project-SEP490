@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, isSameDay } from "date-fns";
-import { Moon, Sun, ChevronLeft, ChevronRight } from "lucide-react";
+import { Moon, Sun, ChevronLeft, ChevronRight, Calendar1, CalendarSearch, CalendarDays, CalendarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,46 +9,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-// Helper function to generate mock data for a specific week
-const generateMockSessions = (startDate) => {
-  const endDate = endOfWeek(startDate);
-  const weekDays = eachDayOfInterval({ start: startDate, end: endDate });
-
-  const mockSessions = [];
-  const classes = ["Mathematics", "Physics", "Chemistry", "Biology", "Computer Science", "History", "Literature", "Art", "Music", "Physical Education"];
-  const teachers = ["Dr. Smith", "Prof. Johnson", "Dr. Williams", "Prof. Davis", "Dr. Miller", "Prof. Wilson", "Dr. Moore", "Prof. Taylor", "Dr. Anderson", "Coach Thomas"];
-  const statuses = ["Confirmed", "Pending", "Cancelled"];
-
-  weekDays.forEach((day) => {
-    for (let slot = 1; slot <= 4; slot++) {
-      if (Math.random() > 0.8) {
-        // 70% chance of having a class
-        mockSessions.push({
-          id: `${format(day, "yyyyMMdd")}-${slot}`,
-          date: day,
-          slot: slot,
-          class: classes[Math.floor(Math.random() * classes.length)],
-          teacher: teachers[Math.floor(Math.random() * teachers.length)],
-          status: statuses[Math.floor(Math.random() * statuses.length)],
-          note: Math.random() > 0.7 ? "Some note about the class" : undefined,
-        });
-      }
-    }
-  });
-
-  return mockSessions;
-};
+import { getAllSession, getSessionByStudentId } from "@/services/sessionService";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useStore } from "@/services/StoreContext";
+import ClassCard from "@/components/session-card";
+import { Link } from "react-router-dom";
+import CalendarSelector from "@/components/CalendarSelector";
 
 export default function LecturerSchedulePage() {
-  const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date()));
+  const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { state } = useStore();
+  const { user } = state;
 
   useEffect(() => {
-    setSessions(generateMockSessions(selectedWeek));
-  }, [selectedWeek]);
+    const fetchSessions = async () => {
+      try {
+        const response = await getSessionByStudentId(user.uid);
+        setSessions(response.data);
+        // setSessions(generateMockSessions(selectedWeek));
+      } catch (error) {
+        console.error("Error fetching sessions:", error);
+      }
+    };
+
+    fetchSessions();
+  }, [user.uid]);
 
   const handleSessionClick = (session) => {
     setSelectedSession(session);
@@ -57,48 +46,75 @@ export default function LecturerSchedulePage() {
 
   // Time slots definition
   const timeSlots = [
-    { id: 1, time: "9:00 - 10:00" },
-    { id: 2, time: "10:00 - 11:00" },
-    { id: 3, time: "14:00 - 15:00" },
-    { id: 4, time: "16:00 - 17:00" },
+    { id: 1, time: "9:00 - 10:30" },
+    { id: 2, time: "11:00 - 12:30" },
+    { id: 3, time: "14:00 - 15:30" },
+    { id: 4, time: "16:00 - 17:30" },
   ];
 
   // Weekdays for the selected week
   const weekDays = eachDayOfInterval({
-    start: selectedWeek,
-    end: endOfWeek(selectedWeek),
+    start: startOfWeek(selectedWeek, { weekStartsOn: 1 }),
+    end: endOfWeek(selectedWeek, { weekStartsOn: 1 }),
   });
 
   const goToPreviousWeek = () => {
-    setSelectedWeek((prev) => addWeeks(prev, -1));
+    setSelectedWeek((prev) => {
+      const newWeek = addWeeks(prev, -1);
+      setSelectedDate(newWeek); // Đặt selectedDate là ngày đầu tuần mới
+      return newWeek;
+    });
   };
 
   const goToNextWeek = () => {
-    setSelectedWeek((prev) => addWeeks(prev, 1));
+    setSelectedWeek((prev) => {
+      const newWeek = addWeeks(prev, 1);
+      setSelectedDate(newWeek); // Đặt selectedDate là ngày đầu tuần mới
+      return newWeek;
+    });
+  };
+
+  const getSessionForDayAndSlot = (day, slotId) => {
+    return sessions.find((session) => isSameDay(new Date(session.sessionDate), day) && session.slot === slotId);
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 pt-0">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Class Schedule</h1>
+        <h1 className="text-2xl font-bold">My Schedule</h1>
       </div>
 
       <div className="mb-6">
         <div className="hidden md:flex items-center justify-between mb-4">
-          <Button onClick={goToPreviousWeek} variant="outline" size="icon">
+          <Button onClick={goToPreviousWeek} variant="outline" className="w-28 flex justify-center">
             <ChevronLeft className="h-4 w-4" />
+            Previous
           </Button>
-          <Popover>
+          {/* <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline">
-                {format(selectedWeek, "d")} - {format(endOfWeek(selectedWeek), "d MMM yyyy")}
+              <Button variant="outline" className="w-64 flex justify-between items-center px-4">
+                <span className="mx-auto">{format(selectedDate, "d/MM/yyyy")}</span>
+                <CalendarIcon className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              <Calendar mode="single" selected={selectedWeek} onSelect={(date) => date && setSelectedWeek(startOfWeek(date))} initialFocus />
+              <Calendar
+                mode="single"
+                selected={selectedDate} // Giữ ngày hiển thị trên nút
+                onSelect={(date) => {
+                  if (date) {
+                    setSelectedDate(date); // Cập nhật ngày hiển thị trên nút
+                    setSelectedWeek(startOfWeek(date, { weekStartsOn: 1 })); // Cập nhật tuần
+                  }
+                }}
+                weekStartsOn={1} // Bắt đầu tuần từ thứ 2
+                initialFocus
+              />
             </PopoverContent>
-          </Popover>
-          <Button onClick={goToNextWeek} variant="outline" size="icon">
+          </Popover> */}
+           <CalendarSelector className='min-w-[400px] flex justify-between items-center px-4' selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} selectedDate={new Date()}/>
+          <Button onClick={goToNextWeek} variant="outline" className="w-28 flex justify-center">
+            Next
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -123,6 +139,7 @@ export default function LecturerSchedulePage() {
               <Calendar mode="single" selected={selectedWeek} onSelect={(date) => date && setSelectedWeek(startOfWeek(date))} initialFocus />
             </PopoverContent>
           </Popover>
+           {/* <CalendarSelector selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} /> */}
         </div>
       </div>
 
@@ -131,7 +148,7 @@ export default function LecturerSchedulePage() {
         <DesktopSchedule sessions={sessions} onSessionClick={handleSessionClick} weekDays={weekDays} timeSlots={timeSlots} />
       </div>
 
-      {/* Desktop Layout */}
+      {/* Mobile Layout */}
       <div className="block md:hidden">
         <MobileSchedule sessions={sessions} onSessionClick={handleSessionClick} weekDays={weekDays} timeSlots={timeSlots} />
       </div>
@@ -145,20 +162,21 @@ export default function LecturerSchedulePage() {
 // Desktop Schedule Component
 function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
   const getSessionForDayAndSlot = (day, slotId) => {
-    return sessions.find((session) => isSameDay(session.date, day) && session.slot === slotId);
+    const session = sessions.find((session) => isSameDay(new Date(session.sessionDate), day) && session.slot === slotId);
+    return session;
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
+    <div className="overflow-hidden rounded-xl border">
+      <table className="w-full border-collapse table-fixed">
         <thead>
-          <tr>
-            <th className="p-2 border dark:border-gray-700 bg-muted"></th>
+          <tr className="dark:bg-secondary">
+            <th className=" p-2 border dark:border-gray-700 "></th>
             {weekDays.map((day) => (
-              <th key={day.toISOString()} className="p-2 border dark:border-gray-700 bg-muted text-center">
-                {format(day, "EEE")}
+              <th key={day.toISOString()} className="p-2 border dark:border-gray-700 text-center text-sm font-normal">
+                {format(day, "EEEE")}
                 <br />
-                {format(day, "d/M")}
+                <span>({format(day, "d/M")})</span>
               </th>
             ))}
           </tr>
@@ -166,26 +184,14 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
         <tbody>
           {timeSlots.map((slot) => (
             <tr key={slot.id}>
-              <td className="p-2 border dark:border-gray-700 font-medium text-center whitespace-nowrap">Slot {slot.id}</td>
+              <td className="p-0 border font-normal text-sm text-center whitespace-nowrap">
+                Slot {slot.id} <br /> ({slot.time})
+              </td>
               {weekDays.map((day) => {
                 const session = getSessionForDayAndSlot(day, slot.id);
                 return (
-                  <td key={`${day.toISOString()}-${slot.id}`} className="p-2 border dark:border-gray-700">
-                    {session ? (
-                      <Card className="cursor-pointer hover:bg-muted/50 transition-colors w-40 h-40 flex flex-col" onClick={() => onSessionClick(session)}>
-                        <CardContent className="p-3 flex flex-col justify-between flex-grow">
-                          <div className="flex flex-col gap-1">
-                            <div className="font-medium truncate">{session.class}</div>
-                            <div className="text-sm text-muted-foreground truncate">Teacher: {session.teacher}</div>
-                          </div>
-                          <Badge variant={session.status === "Confirmed" ? "default" : session.status === "Cancelled" ? "destructive" : "outline"} className="w-fit mt-1">
-                            {session.status}
-                          </Badge>
-                        </CardContent>
-                      </Card>
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">-</div>
-                    )}
+                  <td key={`${day.toISOString()}-${slot.id}`} className="p-1 border max-w-xs">
+                    {session ? <ClassCard session={session} style={{ width: "100%" }} /> : <div className="h-full flex items-center justify-center text-muted-foreground">-</div>}
                   </td>
                 );
               })}
@@ -199,21 +205,25 @@ function DesktopSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
 
 // Mobile Schedule Component
 function MobileSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
-  const [activeDay, setActiveDay] = useState(weekDays[0]);
+  const [activeDay, setActiveDay] = useState(weekDays[0]); // Luôn lấy ngày đầu tuần
+
+  useEffect(() => {
+    setActiveDay(weekDays[0]); // Cập nhật ngày khi tuần thay đổi
+  }, [weekDays]);
 
   const getSessionsForDay = (day) => {
-    return sessions.filter((session) => isSameDay(session.date, day)).sort((a, b) => a.slot - b.slot);
+    return sessions.filter((session) => isSameDay(new Date(session.sessionDate), day)).sort((a, b) => a.slot - b.slot);
   };
 
   return (
     <div className="min-w-2">
-      <Tabs defaultValue={activeDay.toISOString()} onValueChange={(value) => setActiveDay(new Date(value))}>
-        <TabsList className="w-full overflow-x-auto flex-nowrap justify-start">
+      <Tabs value={activeDay.toISOString()} onValueChange={(value) => setActiveDay(new Date(value))}>
+        <TabsList className="w-full p-2 overflow-x-auto flex-nowrap justify-start">
           {weekDays.map((day) => (
             <TabsTrigger key={day.toISOString()} value={day.toISOString()} className="flex-shrink-0">
               {format(day, "EEE")}
               <br />
-              {format(day, "MMM d")}
+              {format(day, "dd/MM")}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -226,14 +236,14 @@ function MobileSchedule({ sessions, onSessionClick, weekDays, timeSlots }) {
                 getSessionsForDay(day).map((session) => {
                   const timeSlot = timeSlots.find((slot) => slot.id === session.slot);
                   return (
-                    <Card key={session.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onSessionClick(session)}>
+                    <Card key={session.sessionId} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onSessionClick(session)}>
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <div className="font-medium text-lg">{session.class}</div>
+                            <div className="font-medium text-lg">{session.class.classCode}</div>
                             <div className="text-sm text-muted-foreground mt-1">{timeSlot?.time}</div>
-                            <div className="text-sm mt-2">Teacher: {session.teacher}</div>
-                            {session.note && <div className="text-sm mt-1 text-muted-foreground">Note: {session.note}</div>}
+                            <div className="text-sm mt-2">Lecturer: {session.lecturer.fullName}</div>
+                            {session.description && <div className="text-sm mt-1 text-muted-foreground">Note: {session.description}</div>}
                           </div>
                           <Badge variant={session.status === "Confirmed" ? "default" : session.status === "Cancelled" ? "destructive" : "outline"}>{session.status}</Badge>
                         </div>
@@ -262,18 +272,28 @@ function SessionModal({ session, isOpen, onClose, timeSlots }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{session.class}</DialogTitle>
-          <DialogDescription>{format(session.date, "EEEE, MMMM d, yyyy")}</DialogDescription>
+          <DialogTitle>{session.class.classCode}</DialogTitle>
+          <DialogDescription>{format(session.sessionDate, "dd/MM/yyyy")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <span className="text-sm font-medium">Time:</span>
-            <span className="col-span-3">{timeSlot?.time}</span>
+            <span className="text-sm font-medium">Slot:</span>
+            <span className="col-span-3">
+              {session.slot}({timeSlot?.time})
+            </span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <span className="text-sm font-medium">Teacher:</span>
-            <span className="col-span-3">{session.teacher}</span>
+            <span className="text-sm font-medium">Lecturer:</span>
+            <span className="col-span-3">{session.lecturer.fullName}</span>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <span className="text-sm font-medium">Meet Url:</span>
+            <span className="col-span-3">
+              <Link to={session.class.classUrl} target="_blank" className="text-blue-500 underline underline-offset-4">
+                {session.class.classUrl}
+              </Link>
+            </span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="text-sm font-medium">Status:</span>
@@ -284,7 +304,7 @@ function SessionModal({ session, isOpen, onClose, timeSlots }) {
           {session.note && (
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Note:</span>
-              <span className="col-span-3">{session.note}</span>
+              <span className="col-span-3">{session.description}</span>
             </div>
           )}
         </div>

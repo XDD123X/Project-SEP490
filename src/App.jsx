@@ -22,7 +22,6 @@ import ForgotPassword from "./pages/auth/forgot-password";
 import ProfileAvatar from "./pages/profile/profile-avatar";
 import SessionViewPage from "./pages/dashboard/officer/session/session-view";
 import SessionGeneratePage from "./pages/dashboard/officer/session/session-generate";
-import LecturerSchedulePage from "./pages/dashboard/lecturer/LecturerSchedulePage";
 import StudentSchedulePage from "./pages/dashboard/student/StudentSchedulePage";
 import StudentClassPage from "./pages/dashboard/student/class-student-page";
 import ClassViewPage from "./pages/dashboard/officer/classroom/class-view-page";
@@ -43,6 +42,7 @@ import MaintenanceError from "./pages/Errors/Maintenance";
 import ViewStudentRequest from "./pages/dashboard/officer/request/view-student-request";
 import ViewLecturerRequest from "./pages/dashboard/officer/request/view-lecturer-request";
 import ScrollTest from "./pages/test/Scroll";
+import LecturerSchedulePage from "./pages/dashboard/lecturer/schedule/LecturerSchedulePage";
 
 function App() {
   return (

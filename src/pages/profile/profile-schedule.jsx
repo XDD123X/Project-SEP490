@@ -39,7 +39,6 @@ export default function ProfileSchedule() {
       try {
         const response = await getLecturerScheduleByLecturerId(user.uid);
         if (response.status === 200 && response.data) {
-          console.log(response.data);
 
           setExist(response.data.scheduleId);
           const { weekdayAvailable, slotAvailable } = response.data;

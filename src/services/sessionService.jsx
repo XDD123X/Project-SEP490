@@ -42,7 +42,25 @@ export const getAllSession = async () => {
 
 export const getSessionByStudentId = async (studentId) => {
   try {
-    const response = await axiosClient.get(`student/student-schedule?id=${studentId}`);
+    const response = await axiosClient.get(`student/student-schedule/${studentId}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.message || "Request failed!",
+    };
+  }
+};
+
+export const getSessionByLecturerId = async (lecturerId) => {
+  try {
+    const response = await axiosClient.get(`/Lecturer/lecturer-schedule/${lecturerId}`);
 
     return {
       status: response.status,
