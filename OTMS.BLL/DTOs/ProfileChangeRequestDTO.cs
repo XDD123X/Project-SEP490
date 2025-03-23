@@ -9,6 +9,7 @@ namespace OTMS.BLL.DTOs
 {
     public class ProfileChangeRequestDTO
     {
+        public Guid RequestChangeId { get; set; }
         public Guid AccountId { get; set; }
 
         public string ImgUrlOld { get; set; } = null!;

@@ -290,9 +290,11 @@ GO
 
 --data mẫu cho ProfileChangeRequest
 INSERT INTO ProfileChangeRequest (account_id, img_url_old, img_url_new, approved_by, description, approved_date, status, created_at) VALUES
-((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://scontent.fhan2-3.fna.fbcdn.net/v/t39.30808-6/426239673_3546373639026826_4770505595665812582_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEdyjFVQy8l0brvB7Z8XZB_tS9oGeeQ2i-1L2gZ55DaL-LNZBlKwHPip_4m7pY0Z3ormwLn2wqftGyo0qt_1qnH&_nc_ohc=9f0dpgDQNWEQ7kNvgEcIYp8&_nc_oc=Admw-1vLaeHRLXbu3nQcWK5pghvloNNlHk71848dXJ8yP1Tl67qYKl_LkHJgu8sJxnc&_nc_zt=23&_nc_ht=scontent.fhan2-3.fna&_nc_gid=OtplOUMdyqcEG-S_XWEMFA&oh=00_AYG2v6OqDPUhg9dbn4BYZQ4UtoEEEDWnf213sWZ4IWEMbA&oe=67E51552',NULL,NULL,NULL,0,GETDATE()),
-((SELECT account_id FROM Account WHERE email = 'student2@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://scontent.fhan2-3.fna.fbcdn.net/v/t39.30808-6/426239673_3546373639026826_4770505595665812582_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEdyjFVQy8l0brvB7Z8XZB_tS9oGeeQ2i-1L2gZ55DaL-LNZBlKwHPip_4m7pY0Z3ormwLn2wqftGyo0qt_1qnH&_nc_ohc=9f0dpgDQNWEQ7kNvgEcIYp8&_nc_oc=Admw-1vLaeHRLXbu3nQcWK5pghvloNNlHk71848dXJ8yP1Tl67qYKl_LkHJgu8sJxnc&_nc_zt=23&_nc_ht=scontent.fhan2-3.fna&_nc_gid=OtplOUMdyqcEG-S_XWEMFA&oh=00_AYG2v6OqDPUhg9dbn4BYZQ4UtoEEEDWnf213sWZ4IWEMbA&oe=67E51552',(SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'),N'Rejected because student''s profile picture is unclear',GETDATE(),2,GETDATE()),
-((SELECT account_id FROM Account WHERE email = 'student3@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',(SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'),N'Accepted',GETDATE(),1,GETDATE());
+((SELECT account_id FROM Account WHERE email = 'student1@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',NULL,NULL,NULL,0,GETDATE()),
+((SELECT account_id FROM Account WHERE email = 'student2@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',NULL,NULL,NULL,0,GETDATE()),
+((SELECT account_id FROM Account WHERE email = 'student3@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',NULL,NULL,NULL,0,GETDATE()),
+((SELECT account_id FROM Account WHERE email = 'student4@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',(SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'),N'Rejected because student''s profile picture is unclear',GETDATE(),2,GETDATE()),
+((SELECT account_id FROM Account WHERE email = 'student5@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',(SELECT account_id FROM Account WHERE email = 'officer2@gmail.com'),N'Accepted',GETDATE(),1,GETDATE());
 GO
 
 -- Thêm Data mẫu cho notification
