@@ -11,7 +11,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 {
     [Route("api/officer/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : OfficerPolicyController
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;

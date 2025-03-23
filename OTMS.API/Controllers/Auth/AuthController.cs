@@ -270,7 +270,7 @@ namespace OTMS.API.Controllers.Auth
             var otp = GenerateOtp();
 
             // Lấy danh sách keys hiện có
-            if (!_cache.TryGetValue("CacheKeys", out List<string> keys))
+            if (!_cache.TryGetValue("CacheKeys", out List<string>? keys))
             {
                 keys = new List<string>();
             }
@@ -294,7 +294,7 @@ namespace OTMS.API.Controllers.Auth
         public IActionResult VerifyOtp(string email, string otp)
         {
             // Kiểm tra xem cache có chứa email không
-            if (!_cache.TryGetValue(email, out string cachedOtp))
+            if (!_cache.TryGetValue(email, out string? cachedOtp))
             {
                 return BadRequest(new { message = "OTP is Invalid or Expired" });
             }
@@ -318,7 +318,7 @@ namespace OTMS.API.Controllers.Auth
             }
 
             // Kiểm tra xem cache có chứa email không
-            if (!_cache.TryGetValue(model.Email, out string cachedOtp))
+            if (!_cache.TryGetValue(model.Email, out string? cachedOtp))
             {
                 return BadRequest(new { message = "OTP is Invalid or Expired" });
             }

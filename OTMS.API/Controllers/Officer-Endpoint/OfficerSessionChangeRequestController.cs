@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OTMS.API.Controllers.Officer_Endpoint;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.BLL.Repositories;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 [Route("officer/request/change-session")]
 [ApiController]
-public class OfficerSessionChangeRequestController : ControllerBase
+public class OfficerSessionChangeRequestController : OfficerPolicyController
 {
     private readonly ISessionChangeRequestRepository _sessionChangeRequestRepository;
 
