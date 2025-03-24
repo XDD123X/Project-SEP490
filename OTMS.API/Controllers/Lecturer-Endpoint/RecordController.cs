@@ -34,7 +34,7 @@ namespace OTMS.API.Controllers
             try
             {
                 Record r = _mapper.Map<Record>(newRecord);
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var userIdClaim = User.FindFirst("uid");;
                 if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid createdBy))
                 {
                     r.UploadedBy = createdBy;

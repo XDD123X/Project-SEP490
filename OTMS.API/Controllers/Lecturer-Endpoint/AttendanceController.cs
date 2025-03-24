@@ -39,13 +39,13 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             var session = await _sessionRepository.GetByIdAsync(sessionId);
             if (session == null)
                 return NotFound("Session not found.");
-            //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            //if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid lecturerId))
-            //    return Unauthorized("Invalid lecturer authentication.");
-            //if (session.LecturerId != lecturerId)
-            //    return Forbid("You are not authorized to take attendance for this session.");
-            //if ((DateTime.UtcNow - session.SessionDate).TotalDays > 1)
-            //    return BadRequest("Attendance can only be taken within 1 day of the session.");
+            var userIdClaim = User.FindFirst("uid");;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid lecturerId))
+                return Unauthorized("Invalid lecturer authentication.");
+            if (session.LecturerId != lecturerId)
+                return Forbid("You are not authorized to take attendance for this session.");
+            if ((DateTime.UtcNow - session.SessionDate).TotalDays > 1)
+                return BadRequest("Attendance can only be taken within 1 day of the session.");
 
             var classStudents = await _accountRepository.GetByStudentByClass(session.ClassId);
             var classStudentIds = classStudents.Select(s => s.AccountId).ToHashSet();
@@ -67,7 +67,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             if (students == null || students.Count == 0)
                 return BadRequest("Student attendance list is required.");
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst("uid");;
             if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid lecturerId))
                 return Unauthorized("Invalid lecturer authentication.");
 
