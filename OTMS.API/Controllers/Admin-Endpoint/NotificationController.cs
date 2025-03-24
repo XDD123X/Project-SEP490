@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace OTMS.API.Controllers.Admin_Endpoint
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
     public class NotificationController : ControllerBase
     {

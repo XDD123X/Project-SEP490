@@ -55,45 +55,6 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             return Ok(new { lecturerClass });
         }
 
-        [HttpPost("take-attendance")]
-        public async Task<IActionResult> TakeAttendance(Guid sessionId, [FromBody] List<AttendanceDTO> students)
-        {
-            if (students == null || students.Count == 0)
-                return BadRequest("Student attendance list is required.");
-
-            await _attendanceRepository.TakeListAttendance(sessionId, students);
-            return Ok("Attendance taken successfully.");
-        }
-
-        [HttpPut("edit-attendance")]
-        public async Task<IActionResult> EditAttendance(Guid sessionId, [FromBody] List<AttendanceDTO> students)
-        {
-            if (students == null || students.Count == 0)
-                return BadRequest("Student attendance list is required.");
-
-            await _attendanceRepository.EditAttendance(sessionId, students);
-            return Ok("Attendance updated successfully.");
-        }
-
-        [HttpGet("get-student-by-session")]
-        public async Task<IActionResult> GetStudentBySession(Guid sessionId)
-        {
-            var session = await _scheduleRepository.GetByIdAsync(sessionId);
-            if (session == null)
-                return NotFound("Session not found.");
-
-            var students = await _accountRepository.GetByStudentByClass(session.ClassId);
-            return Ok(new { students });
-        }
-
-        [HttpGet("get-attendance-by-session")]
-        public async Task<IActionResult> GetAttendanceBySession(Guid sessionId)
-        {
-            var attendanceList = await _attendanceRepository.GetBySessionAsync(sessionId);
-            if (attendanceList == null || attendanceList.Count == 0)
-                return NotFound("No attendance records found for this session.");
-
-            return Ok(new { attendanceList });
-        }
+       
     }
 }
