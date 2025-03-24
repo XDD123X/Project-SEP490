@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ChevronLeft, Pencil, Plus, Save, X } from "lucide-react";
+import { ChevronLeft, Pencil, Plus, Save } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate, useParams } from "react-router-dom";
 import { getAccountById, updateAccount } from "@/services/accountService";
@@ -196,6 +196,8 @@ export function EditAccountOfficerPage() {
   const handleSave = async () => {
     if (!account) return;
 
+    console.log(account);
+
     // Validate student information
     const isStudentValid = validateStudentInfo();
 
@@ -238,13 +240,11 @@ export function EditAccountOfficerPage() {
           phoneNumber: parent.phoneNumber,
           email: parent.email,
         })),
+        meetUrl: account.meetUrl,
       };
-
-      console.log("json object:", jsonObject);
 
       // Mock API call
       const response = await updateAccount(jsonObject);
-      console.log(response);
 
       if (response.status === 200) {
         setAccount(updatedAccount);
@@ -424,10 +424,10 @@ export function EditAccountOfficerPage() {
               <Label htmlFor="dob">Date of Birth</Label>
               <CalendarSelector
                 className="w-full"
-                selectedDate={date} // Dùng state 'date'
+                selectedDate={new Date(date)}
                 setSelectedDate={(newDate) => {
-                  setDate(newDate); // Cập nhật state 'date'
-                  setAccount((prev) => ({ ...prev, dob: newDate.toISOString().split("T")[0] })); // Cập nhật 'dob' trong account
+                  setDate(newDate);
+                  setAccount((prev) => ({ ...prev, dob: newDate.toISOString().split("T")[0] }));
                 }}
               />
             </div>

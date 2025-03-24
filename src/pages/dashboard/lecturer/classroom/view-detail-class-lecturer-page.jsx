@@ -130,11 +130,16 @@ export default function ViewClassDetailLecturerPage() {
                   <div>{classData.totalSession}</div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 items-center">
                   <div className="font-semibold">Meet URL:</div>
-                  <div>
-                    <Link className="underline underline-offset-4 text-blue-500 text-xs" to={classData.classUrl} target="_blank">
-                      {classData.classUrl}
+                  <div className="truncate max-w-[200px]">
+                    <Link
+                      className="underline underline-offset-4 text-blue-500 block truncate"
+                      to={classData.classUrl}
+                      target="_blank"
+                      title={classData.classUrl} // Hiển thị full URL khi hover
+                    >
+                      {classData.classUrl.split("/").pop()} {/* Lấy phần sau cùng của URL */}
                     </Link>
                   </div>
                 </div>

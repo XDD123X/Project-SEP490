@@ -34,9 +34,9 @@ export function SideBar(props) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGeneral items={data.general} />
-        <SideBarMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {data?.general?.length > 0 && <SidebarGeneral items={data.general} />}
+        {data?.navMain?.length > 0 && <SideBarMain items={data.navMain} />}
+        {data?.navSecondary?.length > 0 && <NavSecondary items={data.navSecondary} className="mt-auto" />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

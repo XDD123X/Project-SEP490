@@ -9,12 +9,33 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
+import { useStore } from "@/services/StoreContext";
 
 export default function StudentClassCard({ session }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const { state } = useStore();
+  const { user } = state;
+  const uid = user.uid;
+
   return (
     <>
-      <Card className={cn('w-full max-w-xs overflow-hidden')}>
+      <Card
+        className={cn(
+          "w-full max-w-xs overflow-hidden transition-shadow duration-500",
+          (() => {
+            const attendance = session.attendances.find((a) => a.studentId === uid);
+            const status = attendance ? attendance.status : null;
+
+            return status === null
+              ? "shadow-[0_0_4px_2px_#e5e7eb] hover:shadow-[0_0_10px_3px_#e5e7eb]"
+              : status === 1
+              ? "shadow-[0_0_4px_2px_#4ade80] hover:shadow-[0_0_10px_3px_#4ade80]"
+              : status === 0
+              ? "shadow-[0_0_4px_2px_#ef4444] hover:shadow-[0_0_10px_3px_#ef4444]"
+              : "";
+          })()
+        )}
+      >
         <CardContent className="p-0">
           {/* Row 1: Class Name and Status Badge */}
           <div className="flex items-center justify-between px-3 py-2">
@@ -51,11 +72,17 @@ export default function StudentClassCard({ session }) {
             <div className="flex items-center">{session.sessionRecord ? <Video className={`h-4 w-4 text-green-500 `} /> : <VideoOff className={`h-4 w-4 text-red-500 `} />}</div>
             <div className="h-4 border-r mx-2"></div>
             <Badge
-              variant={session.attendances === "attended" ? "success" : session.attendances === "absent" ? "destructive" : "outline"}
-              className={`text-xs px-1.5 py-0 ${session.attendances === "attended" ? "bg-green-100 text-green-800 hover:bg-green-100" : session.attendances === "absent" ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                }`}
+              variant={session.attendances.find((a) => a.studentId === uid)?.status === 1 ? "success" : session.attendances.find((a) => a.studentId === uid)?.status === 2 ? "destructive" : "outline"}
+              className={cn(
+                "text-xs px-1.5 py-0",
+                session.attendances.find((a) => a.studentId === uid)?.status === 1
+                  ? "bg-green-100 text-green-800 hover:bg-green-100"
+                  : session.attendances.find((a) => a.studentId === uid)?.status === 0
+                  ? "bg-red-100 text-red-800 hover:bg-red-100"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+              )}
             >
-              {session.attendances === "attended" ? "Attended" : session.attendances === "absent" ? "Absent" : "Not yet"}
+              {session.attendances.find((a) => a.studentId === uid)?.status === 1 ? "Attended" : session.attendances.find((a) => a.studentId === uid)?.status === 0 ? "Absent" : "Not yet"}
             </Badge>
           </div>
 
@@ -86,23 +113,27 @@ export default function StudentClassCard({ session }) {
                 {session.lecturer.gender ? "Mr." : "Ms."} {session.lecturer.fullName}
               </span>
             </div>
-            
+
             <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Session number:</span>
-              <span className="col-span-3">
-                {session.sessionNumber ?? "-"}
-              </span>
+              <span className="text-sm font-medium">Number:</span>
+              <span className="col-span-3">{session.sessionNumber ?? "-"}</span>
             </div>
-           
 
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Attendance:</span>
               <span className="col-span-3">
                 <Badge
-                  variant={session.attendances === "attended" ? "success" : session.attendances === "absent" ? "destructive" : "outline"}
-                  className={session.attendances === "attended" ? "bg-green-100 text-green-800 hover:bg-green-100" : session.attendances === "absent" ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"}
+                  variant={session.attendances.find((a) => a.studentId === uid)?.status === 1 ? "success" : session.attendances.find((a) => a.studentId === uid)?.status === 2 ? "destructive" : "outline"}
+                  className={cn(
+                    "text-xs px-1.5 py-0",
+                    session.attendances.find((a) => a.studentId === uid)?.status === 1
+                      ? "bg-green-100 text-green-800 hover:bg-green-100"
+                      : session.attendances.find((a) => a.studentId === uid)?.status === 0
+                      ? "bg-red-100 text-red-800 hover:bg-red-100"
+                      : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                  )}
                 >
-                  {session.attendances === "attended" ? "Attended" : session.attendances === "absent" ? "Absent" : "Not yet"}
+                  {session.attendances.find((a) => a.studentId === uid)?.status === 1 ? "Attended" : session.attendances.find((a) => a.studentId === uid)?.status === 0 ? "Absent" : "Not yet"}
                 </Badge>
               </span>
             </div>

@@ -75,3 +75,21 @@ export const getSessionByLecturerId = async (lecturerId) => {
     };
   }
 };
+
+export const getSessionsByClassId = async (classId) => {
+  try {
+    const response = await axiosClient.get(`/Lecturer/Session/class/${classId}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.message || "Request failed!",
+    };
+  }
+};

@@ -249,11 +249,11 @@ export default function AddAccountOfficerPage() {
               <p className="font-medium">Phone:</p>
               <p>{formData.phoneNumber}</p>
 
-              <p className="font-medium">Gender:</p>
-              <p>{formData.gender === "true" ? "Male" : "Female"}</p>
+              <p className="font-medium ">Gender:</p>
+              <p className="capitalize">{formData.gender}</p>
 
               <p className="font-medium">Date of Birth:</p>
-              <p>{formData.dob}</p>
+              <p>{formData.dob ? format(new Date(formData.dob), "dd/MM/yyyy") : "-"}</p>
 
               <p className="font-medium">Role:</p>
               <p>{formData.role.charAt(0).toUpperCase() + formData.role.slice(1)}</p>

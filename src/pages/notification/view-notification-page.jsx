@@ -6,179 +6,59 @@ import { NotificationDetail } from "@/components/notification/notification-detai
 import { NotificationPagination } from "@/components/notification/notification-pagination";
 import { useSearchParams } from "react-router-dom";
 
-const initialNotifications = [
-  {
-    id: "1",
-    title: "Welcome to the platform",
-    content: "<h1>What’s a Rich Text element H1?</h1><h2>What’s a Rich Text element H2?</h2><h3>What’s a Rich Text element H3?</h3><h4>What’s a Rich Text element H4?</h4><h5>What’s a Rich Text element H5?</h5><h6>What’s a Rich Text element H6?</h6><p>The rich text element allows you to create and format headings, paragraphs, blockquotes, images, and video all in one place instead of having to add and format them individually. Just double-click and easily create content.</p><blockquote>Quote A rich text element can be used with static or dynamic content. For static content, just drop it into any page and begin editing. For dynamic content, add a rich text field to any collection and then connect a rich text element to that field in the settings panel. Voila!</blockquote><h4>How to customize formatting for each rich text</h4><p>Headings, paragraphs, blockquotes, figures,&nbsp;<a href=`procyrion.com` target=`_blank/`>images</a>, and figure captions can all be styled after a class is added to the rich text element using the `When inside of` nested selector system.</p><blockquote>Quote A rich text element can be used with static or dynamic content. For static content, just drop it into any page and begin editing. For dynamic content, add a rich text field to any collection and then connect a rich text element to that field in the settings panel. Voila!</blockquote><p><br></p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    createdBy: "System Admin",
-    read: false,
-  },
-  {
-    id: "2",
-    title: "New feature available",
-    content: "<p>We've just released a <em>new feature</em> that allows you to:</p><ul><li>Create rich text notifications</li><li>Track read/unread status</li><li>View on mobile and desktop</li></ul>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    createdBy: "Product Team",
-    read: false,
-  },
-  {
-    id: "3",
-    title: "Your account has been updated",
-    content: "<p>Your account settings have been updated successfully.</p><p>If you didn't make these changes, please contact support.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    createdBy: "Account Management",
-    read: false,
-  },
-  {
-    id: "4",
-    title: "Security alert",
-    content: "<p>We noticed a login from a new device. If this was you, you can ignore this message.</p><p>If not, please change your password immediately.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    createdBy: "Security Team",
-    read: false,
-  },
-  {
-    id: "5",
-    title: "Weekly summary",
-    content: "<p>Here's your weekly activity summary:</p><ul><li>3 new messages received</li><li>2 tasks completed</li><li>1 new connection made</li></ul>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
-    createdBy: "Analytics",
-    read: false,
-  },
-  {
-    id: "6",
-    title: "Upcoming maintenance",
-    content: "<p>We'll be performing scheduled maintenance this weekend. The system may be unavailable for a short period.</p><p>We apologize for any inconvenience.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 120).toISOString(),
-    createdBy: "Operations Team",
-    read: false,
-  },
-  {
-    id: "7",
-    title: "IELTS Mock Test Registration Open",
-    content: "<p>Our <strong>IELTS mock test</strong> registration is now open! Test your skills under real exam conditions.</p><p>Sign up before <em>Friday</em> to secure your spot.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-    createdBy: "Academic Team",
-    read: false,
-  },
-  {
-    id: "8",
-    title: "SAT Writing Workshop",
-    content: "<p>Join our expert-led <strong>SAT Writing Workshop</strong> this Saturday.</p><p>Learn strategies to improve your essay scores.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    createdBy: "Training Department",
-    read: false,
-  },
-  {
-    id: "9",
-    title: "New Speaking Practice Sessions",
-    content: "<p>We have added <em>extra speaking practice sessions</em> this week!</p><p>Book your slot now to practice with our tutors.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
-    createdBy: "Student Support",
-    read: false,
-  },
-  {
-    id: "10",
-    title: "IELTS Writing Tips: Task 2",
-    content: "<p>Check out our latest guide on <strong>how to write high-scoring IELTS essays</strong> for Task 2.</p><p>Includes sample essays and key strategies.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
-    createdBy: "IELTS Instructor",
-    read: false,
-  },
-  {
-    id: "11",
-    title: "SAT Vocabulary Challenge",
-    content: "<p>Want to boost your <strong>SAT Reading score</strong>? Join our weekly SAT vocabulary challenge!</p><p>Test your knowledge and win prizes.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    createdBy: "SAT Coach",
-    read: false,
-  },
-  {
-    id: "12",
-    title: "Exclusive IELTS Listening Tips",
-    content: "<p>Improve your listening score with our latest <strong>IELTS Listening Guide</strong>.</p><p>Includes top mistakes and how to avoid them.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 52).toISOString(),
-    createdBy: "Listening Trainer",
-    read: false,
-  },
-  {
-    id: "13",
-    title: "New Study Materials Available",
-    content: "<p>We've added <strong>new SAT and IELTS study resources</strong> to the learning portal.</p><p>Log in to access exclusive practice tests and lessons.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 60).toISOString(),
-    createdBy: "Academic Support",
-    read: false,
-  },
-  {
-    id: "14",
-    title: "One-on-One IELTS Speaking Coaching",
-    content: "<p>Need personalized coaching? Book a <strong>one-on-one speaking session</strong> with our IELTS experts.</p><p>Limited slots available!</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    createdBy: "Speaking Coach",
-    read: false,
-  },
-  {
-    id: "15",
-    title: "Free SAT Diagnostic Test",
-    content: "<p>Not sure where you stand? Take our <strong>free SAT diagnostic test</strong> to assess your skills.</p><p>Find out your strengths and weaknesses.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 84).toISOString(),
-    createdBy: "SAT Test Prep Team",
-    read: false,
-  },
-  {
-    id: "16",
-    title: "Upcoming IELTS Bootcamp",
-    content: "<p>Our <strong>intensive IELTS Bootcamp</strong> starts next month!</p><p>Register now to get structured training from our top instructors.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
-    createdBy: "Bootcamp Coordinator",
-    read: false,
-  },
-  {
-    id: "17",
-    title: "Scholarship Opportunities",
-    content: "<p>We are offering <strong>exclusive scholarships</strong> for top-performing IELTS and SAT students!</p><p>Apply now and reduce your tuition fees.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 108).toISOString(),
-    createdBy: "Admin Team",
-    read: false,
-  },
-  {
-    id: "18",
-    title: "Practice Test Updates",
-    content: "<p>We've updated our <strong>IELTS & SAT practice tests</strong> with new questions.</p><p>Log in now and try them out.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 120).toISOString(),
-    createdBy: "Test Prep Center",
-    read: false,
-  },
-  {
-    id: "19",
-    title: "Exclusive Webinar: Mastering IELTS Writing",
-    content: "<p>Join our free <strong>IELTS Writing Webinar</strong> this Sunday.</p><p>Learn key techniques from our expert tutors.</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 132).toISOString(),
-    createdBy: "Webinar Team",
-    read: false,
-  },
-  {
-    id: "20",
-    title: "New Batch Enrollment Open",
-    content: "<p>Enrollment is now open for our <strong>new IELTS & SAT training batches</strong>.</p><p>Secure your seat now before spots fill up!</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 144).toISOString(),
-    createdBy: "Admissions Office",
-    read: false,
-  },
-  {
-    id: "21",
-    title: "Daily Practice Questions Available",
-    content: "<p>Don't forget to check our <strong>daily SAT & IELTS practice questions</strong> in the learning portal.</p><p>Consistent practice leads to better scores!</p>",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 156).toISOString(),
-    createdBy: "Study Coach",
-    read: false,
-  },
-];
+function initNotifications() {
+  return [
+    {
+      id: 1,
+      title: "🚀 Introducing Dark Mode!",
+      content: `
+        <h2>New Feature: Dark Mode</h2><p>Now available in <a href="/settings" style="color:blue;">Settings</a>. Experience a <b>sleek new design</b> that is easy on your eyes.</p><blockquote>“Dark mode reduces eye strain and improves focus.” - UI Experts</blockquote><img src="https://dummyimage.com/600x300" alt="Dark Mode Preview" style="max-width:100%; border-radius:10px;"/>
+      `,
+      timestamp: new Date(2024, 2, 10, 14, 30).toISOString(),
+      createdBy: "System",
+      read: false,
+    },
+    {
+      id: 2,
+      title: "📹 How to Use Our Platform - Video Guide",
+      content: `<h3>Watch our tutorial</h3><p>Learn the basics of our platform in this quick video.</p><iframe width="560" height="315" src="https://www.youtube.com/watch?v=RF7Nc5ZCOoA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      `,
+      timestamp: new Date(2024, 2, 12, 9, 0).toISOString(),
+      createdBy: "Support Team",
+      read: false,
+    },
+    {
+      id: 3,
+      title: "📍 Check Out Our New Location!",
+      content: `<h4>We’ve moved to a new office</h4><p>Visit us at our new headquarters.</p><iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreensrc="https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API&q=Googleplex,Mountain+View,CA"></iframe>
+      `,
+      timestamp: new Date(2024, 2, 8, 16, 45).toISOString(),
+      createdBy: "Admin Team",
+      read: true,
+    },
+    {
+      id: 4,
+      title: "🛠️ New Development Tips",
+      content: `<h5>Writing Efficient JavaScript</h5><p>Optimize your code with best practices:</p><ul>  <li>Use <code>const</code> and <code>let</code> instead of <code>var</code>.</li>  <li>Avoid synchronous requests in loops.</li>  <li>Leverage <b>ES6 features</b> for cleaner code.</li></ul><pre><code class="language-js">console.log("Hello, optimized world!");</code></pre>
+      `,
+      timestamp: new Date(2024, 2, 5, 10, 15).toISOString(),
+      createdBy: "Developer Team",
+      read: true,
+    },
+    {
+      id: 5,
+      title: "🎶 Featured Audio - SoundCloud",
+      content: `<h6>Listen to this week’s top track</h6><p>Enjoy our latest music recommendations.</p><iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/873409793"></iframe>
+      `,
+      timestamp: new Date(2024, 2, 3, 18, 20).toISOString(),
+      createdBy: "Music Team",
+      read: false,
+    },
+  ];
+}
 
 export default function ViewNotificationPage() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState(initNotifications);
   const [selectedNotificationId, setSelectedNotificationId] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);

@@ -5,15 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, TriangleAlert } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -44,66 +39,8 @@ const formSchema = z.object({
       { message: "Start date cannot be in the past" }
     ),
   endDate: z.string().datetime().nullable().optional(),
-  classUrl: z.string(),
   status: z.coerce.number(),
 });
-
-// Confirmation Dialog Component
-function ConfirmationDialog({ open, onClose, onConfirm, data, lecturerName, course, classCodeExist }) {
-  // Find the lecturer and course names based on their IDs
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Confirm Class Creation</DialogTitle>
-          <DialogDescription>Please review the class information before confirming.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className={`font-medium ${classCodeExist === true ? "text-red-500" : ""}`}>Class Code:</div>
-            <div className={`${classCodeExist === true ? "text-red-500" : ""}`}>
-              {data.classCode}
-              <p className={classCodeExist === true ? "font-bold" : "hidden"}>( Class Code Already Exists )</p>
-            </div>
-
-            <div className="font-medium">Class Name:</div>
-            <div>{data.className}</div>
-
-            <div className="font-medium">Lecturer:</div>
-            <div>{lecturerName}</div>
-
-            <div className="font-medium">Course:</div>
-            <div>
-              {course.courseName} - {course.description}
-            </div>
-
-            <div className="font-medium">Total Sessions:</div>
-            <div>{data.totalSession}</div>
-
-            <div className="font-medium">Start Date:</div>
-            <div>{format(data.startDate, "dd/MM/yyy")}</div>
-
-            <div className="font-medium">End Date:</div>
-            <div>{data.endDate ? format(data.endDate, "dd/MM/yyy") : "Not specified"}</div>
-
-            <div className="font-medium">Class URL:</div>
-            <div className="truncate">{data.classUrl}</div>
-
-            <div className="font-medium">Status:</div>
-            <div>{data.status === 0 ? "Upcoming" : "Studying"}</div>
-          </div>
-        </div>
-        <DialogFooter className="flex space-x-2 sm:justify-end">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={onConfirm}>Confirm</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default function ClassFormPage() {
   const [lecturers, setLecturers] = useState([]);
@@ -114,6 +51,7 @@ export default function ClassFormPage() {
   const [classCodeExist, setClassCodeExist] = useState(false);
   const navigate = useNavigate();
 
+  //fetch data from api
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -141,13 +79,13 @@ export default function ClassFormPage() {
       totalSession: classSetting.sessionTotal || 0,
       classUrl: "",
       status: 1, // ✅ Để số thay vì string
-      startDate: new Date().toISOString(), // ✅ Fix lỗi startDate
+      startDate: new Date().toISOString(),
       endDate: null,
     },
   });
 
   // Watch lecturer changes to update classUrl
-  const watchLecturer = form.watch("lecturer");
+  const watchLecturer = form.watch("lecturerId");
 
   useEffect(() => {
     if (classSetting.sessionTotal) {
@@ -254,7 +192,7 @@ export default function ClassFormPage() {
                           <SelectContent>
                             {lecturers.map((lecturer) => (
                               <SelectItem key={lecturer.accountId} value={lecturer.accountId.toString()}>
-                                {lecturer.gender === false ? 'Ms.' : 'Mr.'} {lecturer.fullName}
+                                {lecturer.gender === false ? "Ms." : "Mr."} {lecturer.fullName}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -290,16 +228,16 @@ export default function ClassFormPage() {
                   />
                 </div>
 
-                {/* Third row: totalSession and status */}
+                {/* row 4 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="totalSession"
+                    name="classUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Total Sessions</FormLabel>
+                        <FormLabel>Class URL</FormLabel>
                         <FormControl>
-                          <Input type="number" disabled value={classSetting?.sessionTotal ?? "-"} />
+                          <Input disabled {...field} value={field.value ?? ""} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -332,7 +270,7 @@ export default function ClassFormPage() {
                   />
                 </div>
 
-                {/* Fourth row: startDate and classUrl */}
+                {/*row 5*/}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -340,68 +278,31 @@ export default function ClassFormPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Start Date</FormLabel>
-                        <CalendarSelector className="w-full"
-                          date={field.value ? new Date(field.value) : undefined}
-                          setDate={(date) => field.onChange(date?.toISOString())}
-                        />
+                        <CalendarSelector className="w-full" selectedDate={field.value ? new Date(field.value) : undefined} setSelectedDat={(date) => field.onChange(date?.toISOString())} />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="classUrl"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Class URL</FormLabel>
-                        <FormControl>
-                          <Input disabled {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Fifth row: endDate only */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
                     name="endDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>End Date (Optional)</FormLabel>
-                        {/* <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value || undefined} onSelect={(date) => field.onChange(date?.toISOString())} initialFocus />
-                          </PopoverContent>
-                        </Popover> */}
-                        <CalendarSelector className="w-full"
-                          date={field.value ? new Date(field.value) : undefined}
-                          setDate={(date) => field.onChange(date?.toISOString())}
-                        />
+                        <CalendarSelector className="w-full" date={field.value ? new Date(field.value) : undefined} setDate={(date) => field.onChange(date?.toISOString())} />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div></div> {/* Empty div to maintain grid alignment */}
                 </div>
-              </div>
 
-              <CardFooter className="px-0 pt-6">
-                <Button type="submit" className="ml-auto">
-                  Create New Class
-                </Button>
-              </CardFooter>
+                <CardFooter className="px-0 pt-6">
+                  <Button type="submit" className="ml-auto">
+                    Create New Class
+                  </Button>
+                </CardFooter>
+              </div>
             </form>
           </Form>
         </CardContent>
@@ -419,5 +320,62 @@ export default function ClassFormPage() {
         />
       )}
     </main>
+  );
+}
+
+// Confirmation Dialog Component
+function ConfirmationDialog({ open, onClose, onConfirm, data, lecturerName, course, classCodeExist }) {
+  // Find the lecturer and course names based on their IDs
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Confirm Class Creation</DialogTitle>
+          <DialogDescription>Please review the class information before confirming.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className={`font-medium ${classCodeExist === true ? "text-red-500" : ""}`}>Class Code:</div>
+            <div className={`${classCodeExist === true ? "text-red-500" : ""}`}>
+              {data.classCode}
+              <p className={classCodeExist === true ? "font-bold" : "hidden"}>( Class Code Already Exists )</p>
+            </div>
+
+            <div className="font-medium">Class Name:</div>
+            <div>{data.className}</div>
+
+            <div className="font-medium">Lecturer:</div>
+            <div>{lecturerName}</div>
+
+            <div className="font-medium">Course:</div>
+            <div>
+              {course.courseName} - {course.description}
+            </div>
+
+            <div className="font-medium">Total Sessions:</div>
+            <div>{data.totalSession}</div>
+
+            <div className="font-medium">Start Date:</div>
+            <div>{format(data.startDate, "dd/MM/yyy")}</div>
+
+            <div className="font-medium">End Date:</div>
+            <div>{data.endDate ? format(data.endDate, "dd/MM/yyy") : "Not specified"}</div>
+
+            <div className="font-medium">Class URL:</div>
+            <div className="truncate">{data.classUrl ? data.classUrl : 'Not specified'}</div>
+
+            <div className="font-medium">Status:</div>
+            <div>{data.status === 1 ? "Upcoming" : "Studying"}</div>
+          </div>
+        </div>
+        <DialogFooter className="flex space-x-2 sm:justify-end">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={onConfirm}>Confirm</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

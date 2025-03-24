@@ -45,7 +45,6 @@ export function LoginForm() {
       ...prevData,
       rememberMe: checked,
     }));
-    console.log(formData);
   };
 
   const validateForm = () => {

@@ -11,7 +11,6 @@ import Notfound from "./pages/Errors/notfound";
 import LogoutPage from "./pages/LogoutPage";
 import PrivateRoute from "./pages/private/PrivateRoute";
 import { Toaster } from "./components/ui/sonner";
-import DemoPage from "./pages/dashboard/DemoPage";
 import MainScreen from "./pages/dashboard/MainScreen";
 import DashboardPage from "./pages/dashboard/admin/Dashboard";
 import ProfilePage from "./pages/profile/profilePage";
@@ -45,6 +44,8 @@ import ScrollTest from "./pages/test/Scroll";
 import LecturerSchedulePage from "./pages/dashboard/lecturer/schedule/LecturerSchedulePage";
 import ViewClassLecturerPage from "./pages/dashboard/lecturer/classroom/view-class-lecturer-page";
 import ViewClassDetailLecturerPage from "./pages/dashboard/lecturer/classroom/view-detail-class-lecturer-page";
+import { ViewAttendanceLecturerPage } from "./pages/dashboard/lecturer/attendance/view-attendance-lecturer";
+import ViewAttendanceDetailLecturerPage from "./pages/dashboard/lecturer/attendance/view-attendance-detail-lecturer";
 
 function App() {
   return (
@@ -77,41 +78,42 @@ function App() {
                       <Route path="password" element={<ProfilePassword />} />
                       <Route path="avatar" element={<ProfileAvatar />} />
                     </Route>
-
                     {/* Notification */}
                     <Route path="/notification">
                       <Route path="" element={<ViewNotificationPage />} />
                       <Route path="add" element={<AddNotificationPage />} />
                     </Route>
-
                     {/* account information */}
                     <Route path="account/:id" element={<ViewAccountDetail />} />
-
-                    {/* Dashboard by Role */}
+                    {/* Student Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
                       <Route path="/Student">
-                        <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="my-schedule" element={<StudentSchedulePage />} />
                         <Route path="my-class" element={<StudentClassPage />} />
                       </Route>
                     </Route>
+                    {/* Admin Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["administrator"]} />}>
                       <Route path="/Administrator">
-                        <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                       </Route>
                     </Route>
+                    {/* Lecturer Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["lecturer"]} />}>
                       <Route path="/Lecturer">
-                        <Route path="demo" element={<DemoPage />} />
                         <Route path="my-schedule" element={<LecturerSchedulePage />} />
 
                         <Route path="my-class" element={<ViewClassLecturerPage />} />
                         <Route path="class/detail/:id" element={<ViewClassDetailLecturerPage />} />
+                        
+                        <Route path="attendance" element={<ViewAttendanceLecturerPage />} />
+                        {/* navigate(`/lecturer/attendance/${classId}/${sessionId}`); */}
+                        <Route path="attendance/:classId/:sessionId" element={<ViewAttendanceDetailLecturerPage />} />
 
                       </Route>
                     </Route>
+                    {/* Officer Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["officer"]} />}>
                       <Route path="/Officer">
                         <Route path="session" element={<SessionViewPage />} />
@@ -131,7 +133,6 @@ function App() {
                         <Route path="request/student" element={<ViewStudentRequest />} />
                         <Route path="request/lecturer" element={<ViewLecturerRequest />} />
 
-                        <Route path="demo" element={<DemoPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                       </Route>
                     </Route>

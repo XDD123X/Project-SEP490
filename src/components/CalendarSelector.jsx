@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,9 +13,14 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
   const [currentMonth, setCurrentMonth] = useState(safeSelectedDate.getMonth());
   const [currentYear, setCurrentYear] = useState(safeSelectedDate.getFullYear());
 
-
-
   const years = Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => 1900 + i);
+
+  // Cập nhật `date` khi `selectedDate` thay đổi
+  useEffect(() => {
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  }, [selectedDate]);
 
   // Month names
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -109,7 +114,13 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
       <PopoverTrigger asChild>
         <Button variant="outline" className={cn("flex items-center justify-between font-normal", className || "w-[200px]")}>
           <CalendarIcon className="h-4 w-4 ml-2" />
-          <span className="flex-1 text-center">{selectedWeek ? format(selectedWeek, "dd/MM/yyyy") : "Select date"}</span>
+          <span className="flex-1 text-center">
+            {date
+              ? format(date, "dd/MM/yyyy") // Hiển thị ngày đã chọn thay vì `selectedDate`
+              : selectedWeek
+              ? format(selectedWeek, "dd/MM/yyyy")
+              : "Select date"}
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-4" align="start">
