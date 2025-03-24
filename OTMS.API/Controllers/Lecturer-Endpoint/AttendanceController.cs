@@ -37,7 +37,15 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 return BadRequest("Student attendance list is required.");
 
             var session = await _sessionRepository.GetByIdAsync(sessionId);
-            if (session == null) return NotFound("Session not found.");
+            if (session == null)
+                return NotFound("Session not found.");
+            var userIdClaim = User.FindFirst("uid");;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid lecturerId))
+                return Unauthorized("Invalid lecturer authentication.");
+            if (session.LecturerId != lecturerId)
+                return Forbid("You are not authorized to take attendance for this session.");
+            if ((DateTime.UtcNow - session.SessionDate).TotalDays > 1)
+                return BadRequest("Attendance can only be taken within 1 day of the session.");
 
             await _attendanceRepository.AddAttendance(sessionId, students);
 
@@ -56,6 +64,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
 
             var userIdClaim = User.FindFirst("uid")?.Value;
             if (userIdClaim == null || !Guid.TryParse(userIdClaim, out Guid lecturerId))
+
                 return Unauthorized("Invalid lecturer authentication.");
 
             var session = await _sessionRepository.GetByIdAsync(sessionId);
