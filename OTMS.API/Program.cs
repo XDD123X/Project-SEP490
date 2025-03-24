@@ -11,6 +11,7 @@ using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
 using OTMS.DAL.Repository;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IParentRepository, ParentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
 builder.Services.AddScoped<IProfileChangeRequestRepository, ProfileChangeRequestRepository>();
+builder.Services.AddScoped<OTMS.DAL.Interface.ISessionChangeRequestRepository, OTMS.DAL.Repository.SessionChangeRequestRepository>();
 
 
 //Service
@@ -84,6 +86,7 @@ builder.Services.AddScoped<ParentDAO>();
 builder.Services.AddScoped<NotificationDAO>();
 builder.Services.AddScoped<RecordDAO>();
 builder.Services.AddScoped<ProfileChangeRequestDAO>();
+builder.Services.AddScoped<SessionChangeRequestDAO>();
 
 
 //SignalR
