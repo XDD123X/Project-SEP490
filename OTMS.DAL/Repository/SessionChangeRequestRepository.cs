@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.DAL;
-using OTMS.BLL.Repositories;
+using OTMS.DAL.Interface;
 using OTMS.DAL.DAO;
-using OTMS.DAL.Repository;
 
-namespace OTMS.DAL.Repositories
+namespace OTMS.DAL.Repository
 {
     public class SessionChangeRequestRepository : Repository<SessionChangeRequest>, ISessionChangeRequestRepository
     {
@@ -30,14 +29,29 @@ namespace OTMS.DAL.Repositories
             return await _sessionChangeRequestDAO.GetRequestByIdAsync(id);
         }
 
-        public async Task AddRequestAsync(AddSessionChangeRequestDTO model)
+        public async Task<(bool isSuccess, string message)> AddRequestAsync(AddSessionChangeRequestDTO model)
         {
-            await _sessionChangeRequestDAO.AddRequestAsync(model);
+            return await _sessionChangeRequestDAO.AddRequestAsync(model);
         }
 
-        public async Task UpdateRequestAsync(UpdateSessionChangeRequestDTO model)
+        public async Task<(bool isSuccess, string message)> UpdateRequestAsync(UpdateSessionChangeRequestDTO model)
         {
-            await _sessionChangeRequestDAO.UpdateRequestAsync(model);
+            return await _sessionChangeRequestDAO.UpdateRequestAsync(model);
+        }
+
+        public async Task<IEnumerable<SessionChangeRequest>> GetRequestsByLecturerIdAsync(Guid lecturerId)
+        {
+            return await _sessionChangeRequestDAO.GetRequestsByLecturerIdAsync(lecturerId);
+        }
+
+        public async Task<IEnumerable<SessionChangeRequest>> GetPendingRequestsAsync()
+        {
+            return await _sessionChangeRequestDAO.GetPendingRequestsAsync();
+        }
+
+        public async Task<(bool isConflict, string message)> CheckScheduleConflictAsync(Guid lecturerId, DateTime newDate, int newSlot, Guid? excludeSessionId = null)
+        {
+            return await _sessionChangeRequestDAO.CheckScheduleConflictAsync(lecturerId, newDate, newSlot, excludeSessionId);
         }
     }
 }
