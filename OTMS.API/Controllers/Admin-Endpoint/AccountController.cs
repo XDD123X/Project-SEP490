@@ -126,6 +126,27 @@ namespace OTMS.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while edit account " + id);
             }
         }
-        
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var user = await _accountRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            try
+            {
+                await _accountRepository.DeleteAsync(id);
+                return Ok("Account deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the account.");
+            }
+        }
+
+
     }
 }

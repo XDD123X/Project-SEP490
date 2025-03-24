@@ -8,7 +8,7 @@ using OTMS.DAL.Interface;
 
 namespace OTMS.API.Controllers.Admin_Endpoint
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
     public class ClassSettingController : ControllerBase
     {
