@@ -117,7 +117,7 @@ export function AttendanceForm({ classId, sessionId }) {
 
       if (response.status === 200) {
         toast.success("Attendance saved successfully!");
-        navigate("/lecturer/attendance");
+        navigate(`/lecturer/attendance/${classId}`);
       } else {
         toast.error("Failed to save attendance!");
       }
@@ -284,7 +284,7 @@ export function AttendanceForm({ classId, sessionId }) {
               )}
             </Button>
           ) : (
-            <Button variant="outline" onClick={() => navigate("/lecturer/attendance")}>
+            <Button variant="outline" onClick={() => navigate("/lecturer/attendance/")}>
               Back to Dashboard
             </Button>
           )}

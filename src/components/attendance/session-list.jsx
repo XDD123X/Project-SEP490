@@ -93,7 +93,7 @@ export function AttendanceSessionList({ classId, onTakeAttendance }) {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Sessions</h3>
-        <Button onClick={() => onTakeAttendance(classId, "new")}>Create New Session</Button>
+        <Button disabled>Create New Session</Button>
       </div>
 
       <div className="border rounded-md">

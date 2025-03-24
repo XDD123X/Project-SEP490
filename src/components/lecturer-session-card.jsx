@@ -61,12 +61,12 @@ export default function LecturerClassCard({ session }) {
             <div className="flex items-center">{session.sessionRecord ? <Video className={`h-4 w-4 text-green-500 `} /> : <VideoOff className={`h-4 w-4 text-red-500 `} />}</div>
             <div className="h-4 border-r mx-2"></div>
             <Badge
-              variant={session.attendances === "attended" ? "success" : session.attendances === "absent" ? "destructive" : "outline"}
+              variant={session.status === 2 ? "success" : session.status === 3 ? "destructive" : "outline"}
               className={`text-xs px-1.5 py-0 ${
-                session.attendances === "attended" ? "bg-green-100 text-green-800 hover:bg-green-100" : session.attendances === "absent" ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                session.status === 2 ? "bg-green-100 text-green-800 hover:bg-green-100" : session.status === 3 ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"
               }`}
             >
-              {session.attendances === "attended" ? "Attended" : session.attendances === "absent" ? "Absent" : "Not yet"}
+              {session.status === 2 ? "Finished" : session.status === 3 ? "Cancelled" : "Not yet"}
             </Badge>
           </div>
 

@@ -108,7 +108,7 @@ function App() {
                         <Route path="class/detail/:id" element={<ViewClassDetailLecturerPage />} />
                         
                         <Route path="attendance" element={<ViewAttendanceLecturerPage />} />
-                        {/* navigate(`/lecturer/attendance/${classId}/${sessionId}`); */}
+                        <Route path="attendance/:classId" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId/:sessionId" element={<ViewAttendanceDetailLecturerPage />} />
 
                       </Route>

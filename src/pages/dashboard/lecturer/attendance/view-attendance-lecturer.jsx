@@ -5,13 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Calendar, Users, Clock } from "lucide-react";
 import { useStore } from "@/services/StoreContext";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { GetLecturerClassList } from "@/services/classService";
 import { AttendanceClassList } from "@/components/attendance/class-list";
 import { AttendanceSessionList } from "@/components/attendance/session-list";
 import { getSessionsByClassId } from "@/services/sessionService";
 
 export function ViewAttendanceLecturerPage() {
+  const { classId } = useParams();
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("classes");
@@ -65,9 +66,19 @@ export function ViewAttendanceLecturerPage() {
     fetchClasses();
   }, [lecturerId]);
 
+  //get from url
+  useEffect(() => {
+    if (classId) {
+      setSelectedClass(classId);
+      setActiveTab("sessions");
+    }
+  }, [classId]);
+  
+
   const handleClassSelect = (classId) => {
     setSelectedClass(classId);
     setActiveTab("sessions");
+    navigate(`/lecturer/attendance/${classId}`);
   };
 
   const handleCreateSession = (classId) => {
@@ -123,8 +134,8 @@ export function ViewAttendanceLecturerPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
-          <TabsTrigger value="classes">My Classes</TabsTrigger>
-          <TabsTrigger value="sessions" disabled={!selectedClass}>
+          <TabsTrigger value="classes" onClick={() => navigate("/lecturer/attendance")}>My Classes</TabsTrigger>
+          <TabsTrigger value="sessions" disabled={!classId}>
             Sessions
           </TabsTrigger>
         </TabsList>
