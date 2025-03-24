@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace OTMS.API.Controllers.Lecturer_Endpoint
 {
-    [Route("api/lecturer/[controller]")]
+    [Route("api/Lecturer/[controller]")]
     [ApiController]
     public class AttendanceController : ControllerBase
     {
@@ -30,45 +30,32 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             _accountRepository = accountRepository;
             _attendanceRepository = attendanceRepository;
         }
-        [HttpPost("take-attendance")]
+        [HttpPost("add")]
         public async Task<IActionResult> TakeAttendance(Guid sessionId, [FromBody] List<AttendanceDTO> students)
         {
             if (students == null || students.Count == 0)
                 return BadRequest("Student attendance list is required.");
 
             var session = await _sessionRepository.GetByIdAsync(sessionId);
-            if (session == null)
-                return NotFound("Session not found.");
-            //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            //if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid lecturerId))
-            //    return Unauthorized("Invalid lecturer authentication.");
-            //if (session.LecturerId != lecturerId)
-            //    return Forbid("You are not authorized to take attendance for this session.");
-            //if ((DateTime.UtcNow - session.SessionDate).TotalDays > 1)
-            //    return BadRequest("Attendance can only be taken within 1 day of the session.");
+            if (session == null) return NotFound("Session not found.");
 
-            var classStudents = await _accountRepository.GetByStudentByClass(session.ClassId);
-            var classStudentIds = classStudents.Select(s => s.AccountId).ToHashSet();
+            await _attendanceRepository.AddAttendance(sessionId, students);
 
-            foreach (var student in students)
-            {
-                if (!classStudentIds.Contains(student.StudentId))
-                    return BadRequest($"Student {student.StudentId} is not in the class.");
-            }
+            session.Status = 2;
+            await _sessionRepository.UpdateAsync(session);
 
-            await _attendanceRepository.TakeListAttendance(sessionId, students);
             return Ok("Attendance taken successfully.");
         }
 
 
-        [HttpPut("edit-attendance/{sessionId}")]
+        [HttpPut("edit/{sessionId}")]
         public async Task<IActionResult> EditAttendance(Guid sessionId, [FromBody] List<AttendanceDTO> students)
         {
             if (students == null || students.Count == 0)
                 return BadRequest("Student attendance list is required.");
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid lecturerId))
+            var userIdClaim = User.FindFirst("uid")?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out Guid lecturerId))
                 return Unauthorized("Invalid lecturer authentication.");
 
             var session = await _sessionRepository.GetByIdAsync(sessionId);

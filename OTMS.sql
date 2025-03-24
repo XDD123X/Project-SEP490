@@ -67,7 +67,7 @@ CREATE TABLE Class (
     total_session INT NOT NULL,
     start_date DATETIME NULL,
     end_date DATETIME NULL,
-	class_url NVARCHAR(100) NULL DEFAULT 'https://meet.google.com/abc-defg-hjk',
+	class_url NVARCHAR(100) NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1,
@@ -123,7 +123,7 @@ CREATE TABLE Attendance (
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
     student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     status INT NULL DEFAULT 0,
-    img_url NVARCHAR(500),
+	note NVARCHAR(255) NULL,
     attendance_time DATETIME DEFAULT GETDATE(),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL

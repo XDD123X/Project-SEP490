@@ -185,8 +185,10 @@ Phong Linh Class Center";
             account.Dob = update.Dob;
             account.Gender = update.Gender;
             account.Status = update.Status;
+            account.MeetUrl = update.MeetUrl;
             account.UpdatedAt = DateTime.UtcNow;
 
+            await _accountRepository.UpdateAsync(account);
 
             if (update.Parents != null)
             {

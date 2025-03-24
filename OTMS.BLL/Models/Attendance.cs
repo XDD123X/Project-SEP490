@@ -13,7 +13,7 @@ public partial class Attendance
 
     public int? Status { get; set; }
 
-    public string? ImgUrl { get; set; }
+    public string? Note { get; set; }
 
     public DateTime? AttendanceTime { get; set; }
 
