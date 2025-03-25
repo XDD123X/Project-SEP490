@@ -19,11 +19,11 @@ namespace OTMS.BLL.Services
         public EmailService(IConfiguration configuration)
         {
             var emailSettings = configuration.GetSection("EmailSettings");
-            _host = emailSettings["Host"] ?? "smtp.gmail.com";
-            _port = int.TryParse(emailSettings["Port"], out int port) ? port : 587;
-            _userName = emailSettings["UserName"] ?? "";
+            _host = emailSettings["SmtpServer"] ?? "smtp.gmail.com"; // Đúng key
+            _port = int.TryParse(emailSettings["SmtpPort"], out int port) ? port : 587; // Đúng key
+            _userName = emailSettings["Email"] ?? ""; // Đúng key
             _password = emailSettings["Password"] ?? "";
-            _fromAddress = emailSettings["FromAddress"] ?? _userName;
+            _fromAddress = emailSettings["Email"] ?? _userName; // Đồng bộ với Email
             _fromName = emailSettings["FromName"] ?? "OTMS System";
         }
 
