@@ -47,7 +47,7 @@ GO
 
 -- 3. Tạo bảng Course
 CREATE TABLE Course (
-    course_id INT PRIMARY KEY IDENTITY(1,1),
+    course_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     course_name NVARCHAR(100) NOT NULL UNIQUE,
     description NVARCHAR(255),
     created_by uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
@@ -63,7 +63,7 @@ CREATE TABLE Class (
     class_code NVARCHAR(50) NOT NULL UNIQUE,
     class_name NVARCHAR(100) NOT NULL,
 	lecturer_id uniqueidentifier FOREIGN KEY REFERENCES Account(account_id),
-    course_id INT NOT NULL FOREIGN KEY REFERENCES Course(course_id),
+    course_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Course(course_id),
     total_session INT NOT NULL,
     start_date DATETIME NULL,
     end_date DATETIME NULL,
@@ -351,8 +351,8 @@ GO
 -- 19. Thêm lớp IELTS02-25 và SAT02-25
 INSERT INTO Class (class_code, class_name, lecturer_id, course_id, total_session, start_date, end_date, status, created_at)
 VALUES 
-(N'IELTS25-03/25', N'Lớp IELTS25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer1@gmail.com'), 1, 32, GETDATE(), null, 1, GETDATE()),
-(N'SAT25-03/25', N'Lớp SAT25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer2@gmail.com'), 2, 32, GETDATE(), null, 1, GETDATE());
+(N'IELTS25-03/25', N'Lớp IELTS25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer1@gmail.com'), (select course_id from course where course_name = 'IELTS'), 0, GETDATE(), null, 1, GETDATE()),
+(N'SAT25-03/25', N'Lớp SAT25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer2@gmail.com'), (select course_id from course where course_name = 'SAT'), 0, GETDATE(), null, 1, GETDATE());
 GO
 
 -- 20. Xếp học viên vào lớp IELTS01-25
