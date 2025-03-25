@@ -33,8 +33,6 @@ import ClassEditPage from "./pages/dashboard/officer/classroom/class-edit-page";
 import ViewStudentManagementPage from "./pages/dashboard/officer/account/view-student-officer-page";
 import ViewLecturerManagementPage from "./pages/dashboard/officer/account/view-lecturer-officer-page";
 import AddAccountOfficerPage from "./pages/dashboard/officer/account/add-account-page";
-import AddNotificationPage from "./pages/notification/add-notification-page";
-import ViewNotificationPage from "./pages/notification/view-notification-page";
 import ViewAccountDetail from "./pages/dashboard/officer/account/view-account-detail";
 import { EditAccountOfficerPage } from "./pages/dashboard/officer/account/edit-account-page";
 import MaintenanceError from "./pages/Errors/Maintenance";
@@ -50,8 +48,15 @@ import ViewCourseListpage from "./pages/dashboard/officer/course/view-course-lis
 import AddCoursePage from "./pages/dashboard/officer/course/add-course-page";
 import CourseDetailPage from "./pages/dashboard/officer/course/detail-course-page";
 import CourseEditPage from "./pages/dashboard/officer/course/edit-course-page";
+import { useTheme } from "next-themes";
+import ViewAttendanceStudentPage from "./pages/dashboard/student/attendance/view-attendance-student";
+import ViewAttendanceClassStudentPage from "./pages/dashboard/student/attendance/view-attendance-detail-student";
+import AttendanceComplain from "./pages/dashboard/student/attendance/complain-attendance-page";
+import NotificationPage from "./pages/notification/view-notification-page";
+import AddNotificationPage from "./pages/notification/add-notification";
 
 function App() {
+  const { theme } = useTheme();
   return (
     <>
       <HelmetProvider>
@@ -84,7 +89,7 @@ function App() {
                     </Route>
                     {/* Notification */}
                     <Route path="/notification">
-                      <Route path="" element={<ViewNotificationPage />} />
+                      <Route path="" element={<NotificationPage />} />
                       <Route path="add" element={<AddNotificationPage />} />
                     </Route>
                     {/* account information */}
@@ -95,6 +100,10 @@ function App() {
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="my-schedule" element={<StudentSchedulePage />} />
                         <Route path="my-class" element={<StudentClassPage />} />
+
+                        <Route path="attendance" element={<ViewAttendanceStudentPage />} />
+                        <Route path="attendance/class/:id" element={<ViewAttendanceClassStudentPage />} />
+                        <Route path="attendance/complain" element={<AttendanceComplain />} />
                       </Route>
                     </Route>
                     {/* Admin Routes */}
@@ -114,7 +123,6 @@ function App() {
                         <Route path="attendance" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId/:sessionId" element={<ViewAttendanceDetailLecturerPage />} />
-
                       </Route>
                     </Route>
                     {/* Officer Routes */}
@@ -157,7 +165,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="top-right" expand={false} theme="light" />
+            <Toaster richColors position="top-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={10000} />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>

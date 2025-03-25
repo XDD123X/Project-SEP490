@@ -2,30 +2,32 @@ import { Bell, BookOpen, Calendar, ClipboardList, FileText, LayoutDashboard, Lif
 
 const roleBasedData = {
   student: {
-    navMain: [
-      {
-        title: "Class",
-        url: "class",
-        icon: BookOpen,
-        items: [{ title: "My Class", url: "/student/my-class" }],
-      },
-      {
-        title: "Attendance",
-        url: "attendance",
-        icon: ClipboardList,
-        items: [
-          { title: "View Attendance", url: "view-attendance" },
-          { title: "Attendance Complain", url: "attendance-complain" },
-        ],
-      },
-    ],
+    // navMain: [
+    //   {
+    //     title: "Class",
+    //     url: "class",
+    //     icon: BookOpen,
+    //     items: [{ title: "My Class", url: "/student/my-class" }],
+    //   },
+    //   {
+    //     title: "Attendance",
+    //     url: "attendance",
+    //     icon: ClipboardList,
+    //     items: [
+    //       { title: "View Attendance", url: "view-attendance" },
+    //       { title: "Attendance Complain", url: "attendance-complain" },
+    //     ],
+    //   },
+    // ],
     navSecondary: [
       { title: "Support", url: "/support", icon: LifeBuoy },
       { title: "Feedback", url: "/feedback", icon: FileText },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "My Schedule", url: "Student/my-schedule", icon: Calendar },
+      { title: "Schedule", url: "Student/my-schedule", icon: Calendar },
+      { title: "Class", url: "Student/my-class", icon: School },
+      { title: "Attendance", url: "Student/attendance", icon: Calendar },
     ],
   },
   administrator: {

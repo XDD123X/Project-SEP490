@@ -8,11 +8,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
-
-const API_URL = import.meta.env.VITE_API_URL;
 import { format } from "date-fns";
+import { useStore } from "@/services/StoreContext";
+import CalendarSelector from "@/components/CalendarSelector";
 
 export default function ProfileForm() {
+  const { state } = useStore();
+  const { role } = state;
   const form = useForm({
     mode: "onChange",
     defaultValues: {
@@ -20,6 +22,7 @@ export default function ProfileForm() {
       fullname: "",
       phone: "",
       dob: "",
+      meetUrl: "",
     },
   });
 
@@ -34,6 +37,7 @@ export default function ProfileForm() {
             fullname: response.data.fullname,
             phone: response.data.phone || "",
             dob: response.data.dob || "",
+            meetUrl: response.data.meetUrl || "",
           });
         }
       } catch (error) {
@@ -56,7 +60,7 @@ export default function ProfileForm() {
 
   async function onSubmit(data) {
     try {
-      const response = await updateProfile(data.fullname, data.phone, data.dob, "");
+      const response = await updateProfile(data.fullname, data.phone, data.dob, "", data.meetUrl);
       if (response.status === 200) {
         toast.success("Profile updated successfully!");
       } else {
@@ -119,6 +123,22 @@ export default function ProfileForm() {
           )}
         />
 
+        {role?.toLowerCase() === "lecturer" && (
+          <FormField
+            control={form.control}
+            name="meetUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Meet URL</FormLabel>
+                <FormControl>
+                  <Input className="resize-none" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <FormField
           control={form.control}
           name="dob"
@@ -126,23 +146,8 @@ export default function ProfileForm() {
             <FormItem className="flex flex-col">
               <FormLabel>Date Of Birth</FormLabel>
               <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className={`w-[240px] pl-3 text-left font-normal ${!field.value ? "text-muted-foreground" : ""}`}>
-                      {field.value ? format(new Date(field.value), "dd/MM/yyyy") : "Pick a date"}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")} // Lưu chuẩn "YYYY-MM-DD"
-                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <CalendarSelector className="w-full" selectedDate={field.value ? new Date(field.value) : null} 
+                setSelectedDate={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")} />
               </FormControl>
               <FormMessage />
             </FormItem>

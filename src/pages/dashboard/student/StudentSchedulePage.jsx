@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useStore } from "@/services/StoreContext";
 import CalendarSelector from "@/components/CalendarSelector";
 import StudentClassCard from "@/components/student-session-card";
+import { Link } from "react-router-dom";
 
 export default function StudentSchedulePage() {
   const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -111,7 +112,7 @@ export default function StudentSchedulePage() {
               />
             </PopoverContent>
           </Popover> */}
-           <CalendarSelector className='min-w-[400px] flex justify-between items-center px-4' selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} selectedDate={new Date()}/>
+          <CalendarSelector className="min-w-[400px] flex justify-between items-center px-4" selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} selectedDate={new Date()} />
           <Button onClick={goToNextWeek} variant="outline" className="w-28 flex justify-center">
             Next
             <ChevronRight className="h-4 w-4" />
@@ -138,7 +139,7 @@ export default function StudentSchedulePage() {
               <Calendar mode="single" selected={selectedWeek} onSelect={(date) => date && setSelectedWeek(startOfWeek(date))} initialFocus />
             </PopoverContent>
           </Popover>
-           {/* <CalendarSelector selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} /> */}
+          {/* <CalendarSelector selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} /> */}
         </div>
       </div>
 

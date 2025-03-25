@@ -43,8 +43,13 @@ export default function MainScreen() {
       localStorage.setItem("isFirstTime", "false");
     }
 
-    if (role === "Lecturer" && user.schedule === 0) {
-      toast.warning("Your personal schedule is currently empty. Please update it in your profile.");
+    if (role === "Lecturer") {
+      if (user.schedule === 0) {
+        toast.warning("Your personal schedule is currently empty. Please update it in your profile.");
+      }
+      if (!user.meetUrl) {
+        toast.warning("Your online class link is missing. Please update it in your profile.");
+      }
     }
   }, []);
 

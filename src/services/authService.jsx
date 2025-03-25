@@ -77,13 +77,14 @@ export const authMe = async () => {
   }
 };
 
-export const updateProfile = async (fullName, phone, dob, imgUrl) => {
+export const updateProfile = async (fullName, phone, dob, imgUrl, meetUrl) => {
   try {
     const response = await axiosClient.put("/auth/profile", {
       fullName,
       phone,
       dob,
       imgUrl,
+      meetUrl,
     });
 
     return {
@@ -195,6 +196,45 @@ export const forgotPassword = async (requestModel) => {
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message || "Request Failed!",
+    };
+  }
+};
+
+export const loginWithGoogleEmail = async (email) => {
+  try {
+    // Gửi email lên backend dưới dạng JSON
+    const response = await axiosClient.post("/auth/google-login", email);
+
+    // Lưu accessToken vào storage
+    setAccessToken(response.data.accessToken);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Login error:", error);
+
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data?.message || "Login failed!";
+
+      if (status === 400) {
+        return { status, data: "Email cannot be empty." };
+      } else if (status === 401) {
+        return { status, data: "No account found with this email." };
+      } else if (status === 403) {
+        return { status, data: "Your account has been suspended." };
+      } else if (status === 500) {
+        return { status, data: "Server error! Please try again later." };
+      } else {
+        return { status, data: message };
+      }
+    }
+
+    return {
+      status: 500,
+      data: "Network error! Please check your connection.",
     };
   }
 };
