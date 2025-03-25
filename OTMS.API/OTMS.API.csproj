@@ -21,6 +21,7 @@
 		<PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
 		<PackageReference Include="ClosedXML" Version="0.104.2" />
 		<PackageReference Include="Google.OrTools" Version="9.12.4544" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.14" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.14" />

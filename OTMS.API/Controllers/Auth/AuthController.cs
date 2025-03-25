@@ -1,4 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +12,7 @@ using OTMS.BLL.Models;
 using OTMS.BLL.Services;
 using OTMS.DAL.Interface;
 using OTMS.DAL.Repository;
+using System.Security.Claims;
 
 namespace OTMS.API.Controllers.Auth
 {
@@ -166,6 +170,7 @@ namespace OTMS.API.Controllers.Auth
                     Phone = user.PhoneNumber,
                     Dob = user.Dob,
                     ImgUrl = user.ImgUrl,
+                    MeetUrl  = user.MeetUrl ?? "",
                     Role = user.Role.Name,
                     Schedule = (user.LecturerSchedules.Any() &&
                                 !string.IsNullOrEmpty(user.LecturerSchedules.First().WeekdayAvailable) &&
@@ -195,6 +200,7 @@ namespace OTMS.API.Controllers.Auth
                 user.FullName = updateProfileDTO.FullName;
                 user.PhoneNumber = updateProfileDTO.Phone;
                 user.Dob = updateProfileDTO.Dob;
+                user.MeetUrl = updateProfileDTO.MeetUrl;
 
                 await _accountRepository.UpdateAsync(user);
 
@@ -350,11 +356,59 @@ namespace OTMS.API.Controllers.Auth
             return Ok(new { message = "Password Updated Successfully" });
         }
 
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] string email)
+        {
+            try
+            {
+                // Valid
+                if (string.IsNullOrEmpty(email))
+                {
+                    return BadRequest("Email cannot be empty.");
+                }
+
+                // Find account by email
+                var account = await _accountRepository.GetByEmailAsync(email);
+
+                if (account == null)
+                {
+                    return Unauthorized("No account found with this email.");
+                }
+
+                if (account.Status == 0)
+                {
+                    return StatusCode(403, "Your account has been suspended.");
+                }
+
+                // Tạo access token
+                var accessToken = _tokenService.GenerateAccessToken(account);
+
+                return Ok(new
+                {
+                    accessToken = accessToken,
+                    user = new
+                    {
+                        uid = account.AccountId,
+                        email = account.Email,
+                        role = account.Role.Name,
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi server: {ex.Message}");
+            }
+        }
+
+
+        //NON ACTION
         private string GenerateOtp()
         {
             var random = new Random();
             return random.Next(100000, 999999).ToString();
         }
+
+
 
     }
 }
