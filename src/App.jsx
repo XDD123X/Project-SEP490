@@ -46,6 +46,10 @@ import ViewClassLecturerPage from "./pages/dashboard/lecturer/classroom/view-cla
 import ViewClassDetailLecturerPage from "./pages/dashboard/lecturer/classroom/view-detail-class-lecturer-page";
 import { ViewAttendanceLecturerPage } from "./pages/dashboard/lecturer/attendance/view-attendance-lecturer";
 import ViewAttendanceDetailLecturerPage from "./pages/dashboard/lecturer/attendance/view-attendance-detail-lecturer";
+import ViewCourseListpage from "./pages/dashboard/officer/course/view-course-list";
+import AddCoursePage from "./pages/dashboard/officer/course/add-course-page";
+import CourseDetailPage from "./pages/dashboard/officer/course/detail-course-page";
+import CourseEditPage from "./pages/dashboard/officer/course/edit-course-page";
 
 function App() {
   return (
@@ -106,7 +110,7 @@ function App() {
 
                         <Route path="my-class" element={<ViewClassLecturerPage />} />
                         <Route path="class/detail/:id" element={<ViewClassDetailLecturerPage />} />
-                        
+
                         <Route path="attendance" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId/:sessionId" element={<ViewAttendanceDetailLecturerPage />} />
@@ -129,6 +133,11 @@ function App() {
                         <Route path="account/lecturers" element={<ViewLecturerManagementPage />} />
                         <Route path="account/add" element={<AddAccountOfficerPage />} />
                         <Route path="account/edit/:id" element={<EditAccountOfficerPage />} />
+
+                        <Route path="course" element={<ViewCourseListpage />} />
+                        <Route path="course/add" element={<AddCoursePage />} />
+                        <Route path="course/detail/:id" element={<CourseDetailPage />} />
+                        <Route path="course/edit/:id" element={<CourseEditPage />} />
 
                         <Route path="request/student" element={<ViewStudentRequest />} />
                         <Route path="request/lecturer" element={<ViewLecturerRequest />} />

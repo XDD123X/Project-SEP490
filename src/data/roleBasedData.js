@@ -180,7 +180,10 @@ const roleBasedData = {
         title: "Course",
         url: "courses",
         icon: BookOpen,
-        items: [{ title: "View Courses", url: "view" }],
+        items: [
+          { title: "View Courses", url: "/officer/course" },
+          { title: "Add Course", url: "/officer/course/add" },
+        ],
       },
       {
         title: "Record",
