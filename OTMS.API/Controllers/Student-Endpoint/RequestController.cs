@@ -63,6 +63,7 @@ namespace OTMS.API.Controllers.Student_Endpoint
             if (!Guid.TryParse(userIdClaim.Value, out Guid studentId))
                 return BadRequest("Invalid User ID format");
 
+            Console.WriteLine(studentId.ToString());
 
             model.AccountId = studentId;
             Console.WriteLine(studentId.ToString());

@@ -98,7 +98,7 @@ CREATE TABLE Record (
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
     video_url NVARCHAR(500),
     description NVARCHAR(255),
-    uploaded_by uniqueidentifier DEFAULT NULL,
+uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1
