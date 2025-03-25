@@ -8,8 +8,8 @@ lerna-debug.log*
 .pnpm-debug.log*
 
 #SSL Certificates
-localhost.pem
-localhost-key.pem
+localhost+2.pem
+localhost+2-key.pem
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -132,3 +132,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#mkcert
+localhost+2.pem
+localhost+2-key.pem
