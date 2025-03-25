@@ -24,7 +24,7 @@ const formSchema = z.object({
   classCode: z.string().min(3, "Class code must be at least 3 characters"),
   className: z.string().min(3, "Class name must be at least 3 characters"),
   lecturerId: z.string().min(1, "Please select a lecturer"),
-  courseId: z.coerce.number().min(1, "Please select a course"),
+  courseId: z.string().min(1, "Please select a course"),
   totalSession: z.coerce.number(),
   startDate: z
     .string()

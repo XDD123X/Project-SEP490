@@ -17,7 +17,7 @@ export const getAllLecturerSchedule = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -39,7 +39,7 @@ export const getLecturerScheduleById = async (scheduleId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -61,7 +61,7 @@ export const getLecturerScheduleByLecturerId = async (lecturerId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };

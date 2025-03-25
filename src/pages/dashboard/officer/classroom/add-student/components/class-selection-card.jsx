@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { GetClassList } from "@/services/classService";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 // Sample data for demonstration
 const sampleClasses = [
@@ -157,10 +158,7 @@ export function ClassSelectionCard({ onClassSelect }) {
       return;
     }
 
-    const filtered = sampleClasses.filter(
-      (c) => c.classCode.toLowerCase().includes(term.toLowerCase()) 
-      || c.className.toLowerCase().includes(term.toLowerCase()) 
-      || c.lecturer.fullName.toLowerCase().includes(term.toLowerCase()));
+    const filtered = sampleClasses.filter((c) => c.classCode.toLowerCase().includes(term.toLowerCase()) || c.className.toLowerCase().includes(term.toLowerCase()) || c.lecturer.fullName.toLowerCase().includes(term.toLowerCase()));
 
     setClasses(filtered);
   };
@@ -240,9 +238,9 @@ export function ClassSelectionCard({ onClassSelect }) {
                   Lecturer {sortConfig.key === "lecturer" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </TableHead>
                 <TableHead className="cursor-pointer" onClick={() => requestSort("startDate")}>
-                  Start Date {sortConfig.key === "startDate" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  Start{sortConfig.key === "startDate" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </TableHead>
-                <TableHead>End Date</TableHead>
+                <TableHead>End</TableHead>
                 <TableHead>Students</TableHead>
               </TableRow>
             </TableHeader>
@@ -262,8 +260,8 @@ export function ClassSelectionCard({ onClassSelect }) {
                     <TableCell>{classItem.classCode}</TableCell>
                     <TableCell>{classItem.className}</TableCell>
                     <TableCell>{classItem.lecturer.fullName}</TableCell>
-                    <TableCell>{new Date(classItem.startDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{classItem.endDate ? new Date(classItem.endDate).toLocaleDateString() : "N/A"}</TableCell>
+                    <TableCell>{classItem.startDate ? format(classItem.startDate, "dd/MM/yyyy") : "N/A"}</TableCell>
+                    <TableCell>{classItem.endDate ? format(classItem.endDate, "dd/MM/yyyy") : "N/A"}</TableCell>
                     <TableCell>{classItem.classStudents.length}</TableCell>
                   </TableRow>
                 ))

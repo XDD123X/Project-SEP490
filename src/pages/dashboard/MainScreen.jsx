@@ -6,17 +6,15 @@ import { useStore } from "@/services/StoreContext";
 import SiteHeader from "@/components/dashboard/site-header";
 import Cookies from "js-cookie";
 import roleBasedData from "@/data/roleBasedData";
-
-
+import { toast } from "sonner";
 
 export default function MainScreen() {
   const { state } = useStore();
   const navigate = useNavigate();
-  const { role } = state;
+  const { user, role } = state;
   const data = roleBasedData[role.toLowerCase()];
   const [offset, setOffset] = useState(0);
   const fixed = true;
-  // const defaultOpen = localStorage.getItem("sidebar_state") ?? (localStorage.setItem("sidebar_state", "true"), "true") === "true";
   const defaultOpen = Cookies.get("sidebar_state") !== "false";
 
   //check current role
@@ -36,6 +34,18 @@ export default function MainScreen() {
 
     // Clean up the event listener on unmount
     return () => document.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    // Hiển thị thông báo chào mừng lần đầu tiên
+    if (localStorage.getItem("isFirstTime") !== "false") {
+      toast.info("Welcome to the OTMS!");
+      localStorage.setItem("isFirstTime", "false");
+    }
+
+    if (role === "Lecturer" && user.schedule === 0) {
+      toast.warning("Your personal schedule is currently empty. Please update it in your profile.");
+    }
   }, []);
 
   return (

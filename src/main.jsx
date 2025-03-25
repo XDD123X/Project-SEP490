@@ -6,11 +6,11 @@ import App from "./App.jsx";
 import { StoreProvider } from "./services/StoreContext";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  // <StrictMode>
     <StoreProvider>
       <ThemeProvider>
         <App />
       </ThemeProvider>
     </StoreProvider>
-  </StrictMode>
+  // </StrictMode>
 );

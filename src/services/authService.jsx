@@ -72,7 +72,7 @@ export const authMe = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Get User Failed!",
+      message: error.response?.data?.message || error.message?.message || error.message || "Get User Failed!",
     };
   }
 };
@@ -95,7 +95,7 @@ export const updateProfile = async (fullName, phone, dob, imgUrl) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data || "Update Profile Failed!",
+      message: error.response?.data?.message || error.message?.message || error.message || "Update Profile Failed!",
     };
   }
 };
@@ -117,7 +117,7 @@ export const changePassword = async (oldPassword, newPassword, reNewPassword) =>
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data || "Change Password Failed!",
+      message: error.response?.data?.message || error.message?.message || error.message || "Change Password Failed!",
     };
   }
 };
@@ -140,7 +140,7 @@ export const updateAvatar = async (fullName, phone, dob, imgUrl) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data || "Update Profile Failed!",
+      message: error.response?.data?.message || error.message?.message || error.message || "Update Profile Failed!",
     };
   }
 };
@@ -158,7 +158,7 @@ export const requestOtp = async (email) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data || "Request Failed!",
+      message: error.response?.data?.message || error.message?.message || error.message || "Request Failed!",
     };
   }
 };
@@ -176,7 +176,7 @@ export const verifyOtp = async (email, otp) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data || "Request Failed!",
+      message: error.response?.data?.message || error.message?.message || error.message || "Request Failed!",
     };
   }
 };
@@ -194,7 +194,7 @@ export const forgotPassword = async (requestModel) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data || "Request Failed!",
+      message: error.response?.data?.message || error.message || "Request Failed!",
     };
   }
 };

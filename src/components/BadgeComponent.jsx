@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Check, Clock, X } from "lucide-react";
+import { AlertTriangle, Check, Clock, X } from "lucide-react";
 import React from "react";
 
 export function AccountBadge({ status }) {
@@ -107,6 +107,37 @@ export function ClassBadge({ status }) {
       return (
         <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
           <Clock className="w-3 h-3 mr-1" /> Finished
+        </Badge>
+      );
+    default:
+      return <Badge variant="outline">Unknown</Badge>;
+  }
+}
+
+export function CourseBadge({ status }) {
+  switch (status) {
+    case 0:
+      return (
+        <Badge variant="outline" className="bg-red-200 text-red-900 border-red-300">
+          <X className="w-3 h-3 mr-1" /> Cancelled
+        </Badge>
+      );
+    case 1:
+      return (
+        <Badge variant="outline" className="bg-green-200 text-green-900 border-green-300">
+          <Check className="w-3 h-3 mr-1" /> Active
+        </Badge>
+      );
+    case 2:
+      return (
+        <Badge variant="outline" className="bg-yellow-200 text-yellow-900 border-yellow-300">
+          <Clock className="w-3 h-3 mr-1" /> Pending
+        </Badge>
+      );
+    case 3:
+      return (
+        <Badge variant="outline" className="bg-gray-200 text-gray-900 border-gray-400">
+          <AlertTriangle className="w-3 h-3 mr-1" /> Obsolete
         </Badge>
       );
     default:

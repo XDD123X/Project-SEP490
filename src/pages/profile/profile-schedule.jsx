@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useStore } from "@/services/StoreContext";
 import { toast } from "sonner";
 import { AddLecturerSchedule, getLecturerScheduleByLecturerId, UpdateLecturerSchedule } from "@/services/lecturerScheduleService";
+import { authMe } from "@/services/authService";
 
 const timeSlots = [
   { label: "Slot 1", value: 1 },
@@ -30,7 +31,7 @@ export default function ProfileSchedule() {
   const [exist, setExist] = useState(null);
   const [selectedDays, setSelectedDays] = useState({});
   const [selectedSlots, setSelectedSlots] = useState({});
-  const { state } = useStore();
+  const { state, dispatch } = useStore();
   const { user } = state;
 
   //Fetch Data
@@ -39,7 +40,6 @@ export default function ProfileSchedule() {
       try {
         const response = await getLecturerScheduleByLecturerId(user.uid);
         if (response.status === 200 && response.data) {
-
           setExist(response.data.scheduleId);
           const { weekdayAvailable, slotAvailable } = response.data;
 
@@ -112,7 +112,6 @@ export default function ProfileSchedule() {
           .map(Number)
           .join(","),
       };
-      console.log("Submitted schedule:", create);
 
       try {
         const response = await AddLecturerSchedule(create);
@@ -137,7 +136,6 @@ export default function ProfileSchedule() {
           .map(Number)
           .join(","),
       };
-      console.log("Submitted schedule:", update);
       try {
         const response = await UpdateLecturerSchedule(update);
 
@@ -148,6 +146,20 @@ export default function ProfileSchedule() {
         toast.error(error);
       }
     }
+    const userResponse = await authMe();
+    const updatedUser = {
+      uid: userResponse.data.accountId,
+      email: userResponse.data.email,
+      name: userResponse.data.fullname,
+      phone: userResponse.data.phone,
+      dob: userResponse.data.dob,
+      imgUrl: userResponse.data.imgUrl,
+      role: userResponse.data.role,
+      schedule: userResponse.data.schedule,
+    };
+
+    const updatedRole = userResponse.data.role;
+    dispatch({ type: "SET_USER", payload: { user: updatedUser, role: updatedRole } });
   };
 
   return (

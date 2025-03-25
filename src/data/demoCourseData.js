@@ -23,7 +23,7 @@ const courses = [
             fullName: "Nguyễn Thị Mai",
             phoneNumber: "0123123123",
             gender: false,
-            Role: {
+            role: {
                 name: "Officer",
                 description: "Officer Of System",
             },

@@ -36,30 +36,9 @@ export default function ClassAddStudentPage() {
     setSelectedClass(classData);
     //get ids list
     const classStudentIds = new Set(classData.classStudents.map((cs) => cs.studentId));
-
+    
     //filter
     const filteredStudents = students.filter((student) => !classStudentIds.has(student.accountId));
-
-    // In a real app, you would fetch all students here
-    // For now, we'll create some dummy data
-    const studentsNotInClassSample = Array(10)
-      .fill(0)
-      .map((_, i) => ({
-        accountId: `student-${i + 10}`,
-        email: `student${i + 10}@gmail.com`,
-        fullName: `Student ${i + 10}`,
-        roleId: "b5ec52be-e7ea-442c-927e-f023416f2202",
-        fulltime: true,
-        phoneNumber: "0123456789",
-        dob: "2000-01-01",
-        gender: i % 2 === 0,
-        imgUrl: "https://ui.shadcn.com/avatars/shadcn.jpg",
-        meetUrl: "https://example.com/meet/euf-nwbu-cet",
-        status: 1,
-        createdAt: "2025-03-18T20:52:54.453",
-        updatedAt: null,
-        role: null,
-      }));
 
     setAllStudents(filteredStudents);
   };

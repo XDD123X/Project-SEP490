@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Upload, Check, X, ZoomIn, ZoomOut } from "lucide-react";
 import Cropper from "react-easy-crop";
 import { Slider } from "@/components/ui/slider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function AvatarUploadCard({ currentAvatarUrl , onAvatarChange }) {
+export default function AvatarUploadCard({ currentAvatarUrl, onAvatarChange, user }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -149,7 +150,11 @@ export default function AvatarUploadCard({ currentAvatarUrl , onAvatarChange }) 
           </div>
         ) : (
           <div className="relative h-44 w-44 rounded-full overflow-hidden border-2 border-border m-10">
-            <img src={currentAvatarUrl || "/placeholder.svg"} alt="Current avatar" className="object-cover h-full w-full" width={128} height={128} />
+            {/* <img src={currentAvatarUrl || "/placeholder.svg"} alt="Current avatar" className="object-cover h-full w-full" width={128} height={128} /> */}
+            <Avatar className="object-cover h-full w-full">
+              <AvatarImage src={currentAvatarUrl} alt="@shadcn" />
+              <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
           </div>
         )}
       </CardContent>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Pencil } from "lucide-react";
 import { CardFooter } from "react-bootstrap";
+import { format } from 'date-fns';
 
 export function ClassInfoCard({ classData , setSelectedClass}) {
   return (
@@ -30,12 +31,12 @@ export function ClassInfoCard({ classData , setSelectedClass}) {
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground">Start Date</p>
-            <p className="font-medium">{new Date(classData.startDate).toLocaleDateString()}</p>
+            <p className="text-xs font-medium text-muted-foreground">Start</p>
+            <p className="font-medium">{classData.startDate ? format(classData.startDate, 'dd/MM/yyyy') : 'TBD'}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground">End Date</p>
-            <p className="font-medium">{classData.endDate ? new Date(classData.endDate).toLocaleDateString() : "TBD"}</p>
+            <p className="text-xs font-medium text-muted-foreground">End</p>
+            <p className="font-medium">{classData.endDate ? format(classData.endDate, 'dd/MM/yyyy') : 'TBD'}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Total Sessions</p>

@@ -77,8 +77,6 @@ export default function SessionGeneratePage() {
     // Parse the input value to an integer
     const newSessionTotal = parseInt(tempTotalSessions, 10);
 
-    console.log("temp: ", tempTotalSessions);
-    console.log("new: ", newSessionTotal);
     // Validate input: not NaN and not empty
     if (!isNaN(newSessionTotal) && tempTotalSessions.trim() !== "") {
       if (setting) {
@@ -134,25 +132,6 @@ export default function SessionGeneratePage() {
     setPreferredDays((prev) => (prev.includes(day.id) ? prev.filter((d) => d !== day.id) : [...prev, day.id]));
   };
 
-  //toggle the disabled state
-  const toggleSelectEnabled = () => {
-    if (!isEditingLecturer) {
-      // Enter edit mode
-      setIsEditingLecturer(true);
-      setIsSelectDisabled(false);
-      setOriginalLecturer(selectedLecturer);
-    } else {
-      // If saving, show confirmation dialog if lecturer changed
-      if (originalLecturer !== selectedLecturer) {
-        setIsConfirmOpen(true);
-      } else {
-        // If no change, just exit edit mode
-        setIsEditingLecturer(false);
-        setIsSelectDisabled(true);
-      }
-    }
-  };
-
   //Confirm
   const confirmChange = () => {
     // Save the changes
@@ -198,7 +177,6 @@ export default function SessionGeneratePage() {
       slotNumber: setting.slotNumber,
       preferredDays: preferredDays,
     };
-
     try {
       setisLoading(true);
       const response = await generateSession(submissionData);
@@ -207,13 +185,14 @@ export default function SessionGeneratePage() {
         setisLoading(false);
         setSessions(response.data.data);
         toast.success("Session generated successfully!");
-      } else {
-        toast.error("Failed to generate session");
+      } else if (response.status === 400) {
+        toast.warning(response.message);
+        setisLoading(false);
       }
     } catch (error) {
-      console.error("Error generating session:", error);
+      console.log("ac");
+      toast.error("Error generating session:", error);
       setisLoading(false);
-      toast.error("An error occurred while generating the session");
     }
   };
 

@@ -13,7 +13,7 @@ export const generateSession = async (request) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -35,7 +35,7 @@ export const getAllSession = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -53,7 +53,7 @@ export const getSessionByStudentId = async (studentId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -71,7 +71,8 @@ export const getSessionByLecturerId = async (lecturerId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.response?.data?.message || error.message || "Request failed!",
+      // message: error.response?.data?.message || error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -89,7 +90,7 @@ export const getSessionsByClassId = async (classId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };

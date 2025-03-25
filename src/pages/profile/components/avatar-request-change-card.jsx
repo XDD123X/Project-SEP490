@@ -322,8 +322,6 @@ export default function AvatarRequestChangeCard({ currentAvatarUrl, lastRequest,
       </div>
     );
   };
-
-  console.log('last request: ', lastRequest);
   
   // Determine what to show in the card header
   const renderCardHeader = () => {

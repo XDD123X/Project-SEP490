@@ -54,10 +54,10 @@ axiosClient.interceptors.response.use(
   }
 );
 
-// ✅ Hàm lưu accessToken vào cookie với thời gian hết hạn 30 phút
+// ✅ Hàm lưu accessToken vào cookie
 export const setAccessToken = (token) => {
   const expiryDate = new Date();
-  expiryDate.setMinutes(expiryDate.getMinutes() + 30); // Set hết hạn sau 30 phút
+  expiryDate.setMinutes(expiryDate.getMinutes() + 15);
   Cookies.set("access_token", token, { expires: expiryDate, path: "/" });
 };
 

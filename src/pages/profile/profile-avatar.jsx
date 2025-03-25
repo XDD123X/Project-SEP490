@@ -105,11 +105,10 @@ export default function ProfileAvatar() {
         // Cập nhật Redux state
         dispatch({ type: "SET_USER", payload: { user: userData, role: userData.role } });
 
-        toast.success("Avatar đã được cập nhật!");
+        toast.success("Avatar updated successfully!");
       }
     } catch (error) {
-      console.error("Lỗi cập nhật avatar:", error);
-      toast.error("Có lỗi xảy ra khi cập nhật avatar!");
+      toast.error("Errors occur when uploading avatar!");
     } finally {
       setIsUploading(false);
     }
@@ -161,12 +160,10 @@ export default function ProfileAvatar() {
     }
   };
 
-  // Hàm upload ảnh lên Cloudinary
-
   return (
     <div className="max-w-md mx-auto sm:mx-0">
       {role.toLowerCase() !== "student" ? (
-        <AvatarUploadCard currentAvatarUrl={previewUrl} onAvatarChange={handleAvatarChange} />
+        <AvatarUploadCard currentAvatarUrl={previewUrl} onAvatarChange={handleAvatarChange} user={user}/>
       ) : (
         <AvatarRequestChangeCard currentAvatarUrl={previewUrl} onRequestChange={handleAvatarChangeRequest} lastRequest={lastRequest} />
       )}

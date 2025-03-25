@@ -13,7 +13,7 @@ export const GetClassList = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -42,7 +42,7 @@ export const GetClassById = async (classId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -60,7 +60,7 @@ export const GetLecturerClassList = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -85,7 +85,7 @@ export const GetLecturerClassById = async (classId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -103,7 +103,7 @@ export const GetClassListByStudentId = async (studentId) => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };

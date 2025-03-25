@@ -13,7 +13,7 @@ export const getStudentList = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -31,7 +31,7 @@ export const getOfficerList = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
@@ -49,7 +49,7 @@ export const getLecturerList = async () => {
 
     return {
       status: error.response?.status || 500,
-      message: error.message || "Request failed!",
+      message: error.response?.data?.message || error.message || "Request failed!",
     };
   }
 };
