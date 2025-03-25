@@ -54,6 +54,29 @@ namespace OTMS.API.Controllers
             }
         }
 
-       
+
+
+        [HttpDelete("delete/{recordId}")]
+        public async Task<IActionResult> DeleteRecord(Guid recordId)
+        {
+            try
+            {
+                var record = await _recordRepository.GetByIdAsync(recordId);
+                if (record == null)
+                {
+                    return NotFound(new { message = "Record not found" });
+                }
+
+                await _recordRepository.DeleteAsync(recordId);
+                return Ok(new { message = "Record deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                new { message = $"An error occurred while deleting the record: {ex.Message}" });
+            }
+        }
+
+
     }
 }
