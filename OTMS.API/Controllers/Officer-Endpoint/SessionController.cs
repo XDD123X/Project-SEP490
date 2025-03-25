@@ -124,6 +124,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             try
             {
                 var sessions = await _sessionRepository.GenerateAndSaveScheduleAsync(scheduleParams);
+
+                //update class total session
+                classInfo.TotalSession = sessions.Count();
+                classInfo.Status = 2;
+                await _classRepository.UpdateAsync(classInfo);
+
                 var lecturer = await _accountRepository.GetByIdAsync(request.LecturerId);
                 var classInfor = await _classRepository.GetByIdAsync(request.ClassId);
 
