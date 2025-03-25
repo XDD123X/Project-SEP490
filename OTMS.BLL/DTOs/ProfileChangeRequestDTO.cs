@@ -27,6 +27,6 @@ namespace OTMS.BLL.DTOs
 
         public virtual AccountDTO Account { get; set; } = null!;
 
-        public virtual AccountDTO? Officer { get; set; }
+        public virtual AccountDTO? ApprovedByNavigation { get; set; }
     }
 }

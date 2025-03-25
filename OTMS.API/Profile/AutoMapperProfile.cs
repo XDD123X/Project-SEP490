@@ -41,12 +41,12 @@ namespace OTMS.API.Profile
                     Gender = src.Account.Gender,
                     PhoneNumber = src.Account.PhoneNumber
                 }))
-                .ForMember(dest => dest.Officer, opt => opt.MapFrom(src => src.Officer == null ? null : new AccountDTO
+                .ForMember(dest => dest.ApprovedByNavigation, opt => opt.MapFrom(src => src.ApprovedByNavigation == null ? null : new AccountDTO
                 {
-                    Email = src.Officer.Email,
-                    FullName = src.Officer.FullName,
-                    Gender = src.Officer.Gender,
-                    PhoneNumber = src.Officer.PhoneNumber
+                    Email = src.ApprovedByNavigation.Email,
+                    FullName = src.ApprovedByNavigation.FullName,
+                    Gender = src.ApprovedByNavigation.Gender,
+                    PhoneNumber = src.ApprovedByNavigation.PhoneNumber
                 }))
                 .ReverseMap();
 

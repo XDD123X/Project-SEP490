@@ -22,7 +22,7 @@ namespace OTMS.DAL.DAO
         {
             return await _context.ProfileChangeRequests
                 .Include(r => r.Account)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .ToListAsync();
         }
 
@@ -31,7 +31,7 @@ namespace OTMS.DAL.DAO
             return await _context.ProfileChangeRequests
                 .Where(r => r.AccountId == studentId)
                 .Include(r => r.Account)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .ToListAsync();
         }
 
@@ -41,7 +41,7 @@ namespace OTMS.DAL.DAO
                 .Where(r => r.AccountId == studentId)
                 .OrderByDescending(r => r.CreatedAt)
                 .Include(r => r.Account)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .FirstOrDefaultAsync();
         }
 
@@ -81,7 +81,7 @@ namespace OTMS.DAL.DAO
             return await _context.ProfileChangeRequests
                 .Where(r => r.RequestChangeId == requestChangeId)
                 .Include(r => r.Account)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .FirstOrDefaultAsync();
         }
 

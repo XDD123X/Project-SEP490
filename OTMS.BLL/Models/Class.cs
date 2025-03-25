@@ -13,7 +13,7 @@ public partial class Class
 
     public Guid? LecturerId { get; set; }
 
-    public int CourseId { get; set; }
+    public Guid CourseId { get; set; }
 
     public int TotalSession { get; set; }
 

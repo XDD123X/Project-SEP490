@@ -104,7 +104,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteCourse(int id)
+        public async Task<IActionResult> DeleteCourse(Guid id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null)

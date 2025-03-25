@@ -5,7 +5,7 @@ namespace OTMS.BLL.Models;
 
 public partial class Course
 {
-    public int CourseId { get; set; }
+    public Guid CourseId { get; set; }
 
     public string CourseName { get; set; } = null!;
 

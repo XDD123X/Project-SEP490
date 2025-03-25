@@ -91,7 +91,7 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
         }
 
-        public async Task<bool> checkCouresHasAnyClass(int id)
+        public async Task<bool> checkCouresHasAnyClass(Guid id)
         {
             return await _dbSet.AnyAsync(c => c.CourseId == id);
         }

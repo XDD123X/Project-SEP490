@@ -22,7 +22,7 @@ namespace OTMS.DAL.DAO
         {
             return await _context.SessionChangeRequests
                 .Include(r => r.Lecturer)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .Include(r => r.Session)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
@@ -32,7 +32,7 @@ namespace OTMS.DAL.DAO
         {
             return await _context.SessionChangeRequests
                 .Include(r => r.Lecturer)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .Include(r => r.Session)
                 .FirstOrDefaultAsync(r => r.RequestChangeId == requestChangeId);
         }
@@ -190,7 +190,7 @@ namespace OTMS.DAL.DAO
         {
             return await _context.SessionChangeRequests
                 .Include(r => r.Session)
-                .Include(r => r.Officer)
+                .Include(r => r.ApprovedByNavigation)
                 .Where(r => r.LecturerId == lecturerId)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
