@@ -64,7 +64,7 @@ namespace OTMS.DAL.Repository
                 SessionDate = item.ActualDate,
                 Slot = item.Slot,
                 Status = 1,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             }).ToList();
 
             await _sessionDAO.AddSessionsAsync(newSessions);

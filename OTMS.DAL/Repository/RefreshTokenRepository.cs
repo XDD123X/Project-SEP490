@@ -39,7 +39,7 @@ namespace OTMS.DAL.Repository
         public async Task<bool> ValidateRefreshToken(string token)
         {
             var refreshToken = await _refreshTokenDAO.GetByTokenAsync(token);
-            return refreshToken != null && refreshToken.ExpiresAt > DateTime.UtcNow;
+            return refreshToken != null && refreshToken.ExpiresAt > DateTime.Now;
         }
 
     }

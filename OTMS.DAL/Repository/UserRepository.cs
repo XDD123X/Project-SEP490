@@ -46,7 +46,7 @@ namespace OTMS.DAL.Repository
             };
 
             int expiryMinutes = rememberMe ? 60 * 24 * 7 : _configuration.GetValue("Jwt:ExpiryInMinutes", 15);
-            var expire = DateTime.UtcNow.AddMinutes(expiryMinutes);
+            var expire = DateTime.Now.AddMinutes(expiryMinutes);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

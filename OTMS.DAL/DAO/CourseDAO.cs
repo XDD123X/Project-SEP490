@@ -29,13 +29,13 @@ namespace OTMS.DAL.DAO
 
             return await query.CountAsync();
         }
-        public async Task<Course?> GetCourseByIdAsync(int id)
+        public async Task<Course?> GetCourseByIdAsync(Guid id)
         {
             var course = await _dbSet.FindAsync(id);
             return course ?? throw new KeyNotFoundException($"Course with ID {id} not found.");
         }
 
-        public async Task DeleteCourseAsync(int id)
+        public async Task DeleteCourseAsync(Guid id)
         {
             Course? course = await _dbSet.FindAsync(id);
             if (course != null)
@@ -48,6 +48,21 @@ namespace OTMS.DAL.DAO
             {
                 return;
             }
+        }
+
+        public async Task<List<Course>> GetCourses()
+        {
+            return await _context.Courses
+                .Include(c => c.CreatedByNavigation)
+                .ToListAsync();
+        }
+
+        public async Task<List<Course>> GetCourseById(Guid id)
+        {
+            return await _context.Courses
+                .Include(c => c.CreatedByNavigation)
+                .Where(c => c.CourseId == id)
+                .ToListAsync();
         }
     }
 }

@@ -18,12 +18,16 @@ namespace OTMS.DAL.Repository
             _courseDAO = courseDAO;
         }
 
-        public Task DeleteAsync(int id) => _courseDAO.DeleteCourseAsync(id);
+        public Task DeleteAsync(Guid id) => _courseDAO.DeleteCourseAsync(id);
 
         public Task<List<Course>> GetAllActiveCourseAsync() => _courseDAO.GetAllActiveCourseAsync();
 
-        public Task<Course?> GetByIdAsync(int id) => _courseDAO.GetCourseByIdAsync(id);
+        public Task<Course?> GetByIdAsync(Guid id) => _courseDAO.GetCourseByIdAsync(id);
 
         public Task<int> GetTotalCourseAsync(string? search) => _courseDAO.GetTotalCourseAsync(search);
+
+        public Task<List<Course>> GetCourses() => _courseDAO.GetCourses();
+
+        public Task<Course> GetCourseByIdAsync(Guid id) => _courseDAO.GetCourseByIdAsync(id);
     }
 }

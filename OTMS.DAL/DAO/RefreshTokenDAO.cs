@@ -27,7 +27,7 @@ namespace OTMS.DAL.DAO
             {
                 Token = refreshToken,
                 AccountId = accountId,
-                ExpiresAt = DateTime.UtcNow.AddDays(7)
+                ExpiresAt = DateTime.Now.AddDays(7)
 
             };
 
@@ -35,7 +35,7 @@ namespace OTMS.DAL.DAO
             if (exist != null)
             {
                 exist.Status = 0;
-                exist.RevokedAt = DateTime.UtcNow;
+                exist.RevokedAt = DateTime.Now;
             }
 
             await _context.RefreshTokens.AddAsync(token);

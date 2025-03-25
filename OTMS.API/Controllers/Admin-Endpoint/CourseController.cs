@@ -31,7 +31,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(courses);
         }
         [HttpGet("find/{id}")]
-        public async Task<IActionResult> GetCourseById(int id)
+        public async Task<IActionResult> GetCourseById(Guid id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null) return NotFound("Course not found");
@@ -70,7 +70,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
 
 
         [HttpPut("edit/{id}")]
-        public async Task<IActionResult> EditCourse(int id, CourseDTO courseDTO)
+        public async Task<IActionResult> EditCourse(Guid id, CourseDTO courseDTO)
         {
             var c = await _courseRepository.GetByIdAsync(id);
             if (c == null)

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OTMS.API.Controllers.Admin_Endpoint;
 using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -12,19 +13,20 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     public class CourseController : ControllerBase
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly IClassRepository _classRepository;
         private readonly IMapper _mapper;
 
-        public CourseController(ICourseRepository courseRepository, IMapper mapper)
+        public CourseController(ICourseRepository courseRepository, IClassRepository classRepository, IMapper mapper)
         {
             _courseRepository = courseRepository;
+            _classRepository = classRepository;
             _mapper = mapper;
         }
-
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var courses = await _courseRepository.GetAllAsync();
+            var courses = await _courseRepository.GetCourses();
             if (courses == null) return NotFound();
 
             var mappedCourses = _mapper.Map<List<CourseDTO>>(courses);
@@ -49,7 +51,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (courseDTO == null) return BadRequest("Invalid data");
 
             var courseEntity = _mapper.Map<Course>(courseDTO);
-            //courseEntity.CourseId = I
+            courseEntity.CourseId = Guid.NewGuid();
 
             await _courseRepository.AddAsync(courseEntity);
             return Ok(courseEntity.CourseId);
@@ -77,8 +79,26 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             var existingCourse = await _courseRepository.GetByIdAsync(id);
             if (existingCourse == null) return NotFound();
 
-            //await _courseRepository.DeleteAsync(existingCourse);
+            await _courseRepository.DeleteAsync(existingCourse.CourseId);
             return Ok("Deleted successfully");
         }
+
+        //Check Exist Class By CourseId
+        [HttpGet("check-usage/{courseId}")]
+        public async Task<IActionResult> CheckCourseUsage(Guid courseId)
+        {
+            try
+            {
+                var classes = await _classRepository.GetAllAsync();
+                int classCount = classes.Count(c => c.CourseId == courseId);
+
+                return Ok(new { courseId, classCount });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server", error = ex.Message });
+            }
+        }
+
     }
 }

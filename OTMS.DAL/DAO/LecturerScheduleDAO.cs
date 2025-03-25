@@ -46,7 +46,7 @@ namespace OTMS.DAL.DAO
             try
             {
                 model.ScheduleId = Guid.NewGuid(); // New GUID
-                model.UpdatedAt = DateTime.UtcNow; // Update time
+                model.UpdatedAt = DateTime.Now; // Update time
 
                 await _context.LecturerSchedules.AddAsync(model);
                 await _context.SaveChangesAsync();
@@ -69,7 +69,7 @@ namespace OTMS.DAL.DAO
 
                 existingSchedule.SlotAvailable = update.SlotAvailable;
                 existingSchedule.WeekdayAvailable = update.WeekdayAvailable;
-                existingSchedule.UpdatedAt = DateTime.UtcNow;
+                existingSchedule.UpdatedAt = DateTime.Now;
 
                 _context.LecturerSchedules.Update(existingSchedule);
                 await _context.SaveChangesAsync();

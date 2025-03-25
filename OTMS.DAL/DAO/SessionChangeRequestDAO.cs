@@ -119,7 +119,7 @@ namespace OTMS.DAL.DAO
                 SessionId = model.SessionId,
                 LecturerId = model.LecturerId,
                 Description = model.Description,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
                 Status = 0,
                 NewDate = DateOnly.FromDateTime(model.NewDate),
                 NewSlot = model.NewSlot,
@@ -156,7 +156,7 @@ namespace OTMS.DAL.DAO
             // Cập nhật trạng thái yêu cầu
             request.Status = model.Status;
             request.ApprovedBy = model.ApprovedBy;
-            request.ApprovedDate = DateTime.UtcNow;
+            request.ApprovedDate = DateTime.Now;
 
             // Nếu yêu cầu được duyệt, cập nhật buổi học
             if (model.Status == 1)
@@ -165,7 +165,7 @@ namespace OTMS.DAL.DAO
                 var session = request.Session;
                 session.SessionDate = request.NewDate.ToDateTime(TimeOnly.MinValue);
                 session.Slot = request.NewSlot;
-                session.UpdatedAt = DateTime.UtcNow;
+                session.UpdatedAt = DateTime.Now;
                 
                 _context.Sessions.Update(session);
             }

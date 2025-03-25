@@ -38,10 +38,11 @@ namespace OTMS.DAL.DAO
         public async Task<ProfileChangeRequest?> GetLastRequestByStudentIdAsync(Guid studentId)
         {
             return await _context.ProfileChangeRequests
-                .Where(r => r.AccountId == studentId)
-                .OrderByDescending(r => r.CreatedAt)
+                .AsNoTracking()
                 .Include(r => r.Account)
                 .Include(r => r.ApprovedByNavigation)
+                .Where(r => r.AccountId == studentId)
+                .OrderByDescending(r => r.CreatedAt)
                 .FirstOrDefaultAsync();
         }
 
@@ -53,7 +54,7 @@ namespace OTMS.DAL.DAO
                 AccountId = model.AccountId,
                 ImgUrlOld = model.ImgUrlOld,
                 ImgUrlNew = model.ImgUrlNew,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
                 Status = 0
             };
 

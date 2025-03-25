@@ -31,8 +31,8 @@ namespace OTMS.DAL.DAO
                     StudentId = student.StudentId,
                     Status = student.Status ?? 0,
                     Note = student.Note,
-                    AttendanceTime = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow,
+                    AttendanceTime = DateTime.Now,
+                    CreatedAt = DateTime.Now,
                 };
                 attendances.Add(attendance);
             }
@@ -40,7 +40,7 @@ namespace OTMS.DAL.DAO
             await _dbSet.AddRangeAsync(attendances);
 
             session.Status = 2;
-            session.UpdatedAt = DateTime.UtcNow;
+            session.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
         }
@@ -66,10 +66,10 @@ namespace OTMS.DAL.DAO
 
                         if (isStatusChanged)
                         {
-                            attendance.AttendanceTime = DateTime.UtcNow;
+                            attendance.AttendanceTime = DateTime.Now;
                         }
 
-                        attendance.UpdatedAt = DateTime.UtcNow; // Update timestamp only when there's a change
+                        attendance.UpdatedAt = DateTime.Now; // Update timestamp only when there's a change
                     }
                 }
             }

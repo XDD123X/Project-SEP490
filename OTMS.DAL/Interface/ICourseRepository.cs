@@ -10,9 +10,11 @@ namespace OTMS.DAL.Interface
 {
     public interface ICourseRepository : IRepository<Course>
     {
-        Task<Course?> GetByIdAsync(int id);
-        Task DeleteAsync(int id);
+        new Task<Course?> GetByIdAsync(Guid id);
+        new Task DeleteAsync(Guid id);
         Task<List<Course>> GetAllActiveCourseAsync();
         Task<int> GetTotalCourseAsync(string? search);
+        Task<List<Course>> GetCourses();
+        Task<Course> GetCourseByIdAsync(Guid id);
     }
 }

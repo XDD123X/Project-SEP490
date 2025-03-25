@@ -5,6 +5,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
 {
     public class CourseDTO
     {
+        public Guid CourseId { get; set; }
         public string CourseName { get; set; } = null!;
 
         public string? Description { get; set; }
