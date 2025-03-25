@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using System;
 using System.Collections.Generic;
@@ -24,5 +25,14 @@ namespace OTMS.DAL.DAO
                 .Where(r => _context.Sessions.Any(s => s.SessionId == r.SessionId && s.ClassId == classId) && r.Status == 1)
                 .ToListAsync();
         }
+
+        public async Task addNewRecord(Record record)
+        {
+
+            _context.Records.Add(record);
+            _context.SaveChanges();
+
+        }
+
     }
 }

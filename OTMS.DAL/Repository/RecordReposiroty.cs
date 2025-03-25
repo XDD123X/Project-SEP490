@@ -21,5 +21,10 @@ namespace OTMS.DAL.Repository
         public Task<List<Record>> GetListRecordByClassAsync(Guid classId) => _recordDAO.GetListRecordByClassAsync(classId);
 
         public Task<Record> GetRecordBySessionAsync(Guid sessionId) => _recordDAO.GetRecordBySessionAsync(sessionId);
+
+        public  Task addNewRecord(Record record) => _recordDAO.addNewRecord(record);
+
+
+
     }
 }
