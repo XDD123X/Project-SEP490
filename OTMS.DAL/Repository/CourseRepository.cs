@@ -28,6 +28,6 @@ namespace OTMS.DAL.Repository
 
         public Task<List<Course>> GetCourses() => _courseDAO.GetCourses();
 
-        public Task<Course> GetCourseByIdAsync(Guid id) => _courseDAO.GetCourseByIdAsync(id);
+        public Task<Course?> GetCourseByIdAsync(Guid id) => _courseDAO.GetCourseById(id);
     }
 }

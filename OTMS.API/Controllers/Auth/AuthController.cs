@@ -167,7 +167,11 @@ namespace OTMS.API.Controllers.Auth
                     Dob = user.Dob,
                     ImgUrl = user.ImgUrl,
                     Role = user.Role.Name,
-                    Schedule = user.LecturerSchedules.Count()
+                    Schedule = (user.LecturerSchedules.Any() &&
+                                !string.IsNullOrEmpty(user.LecturerSchedules.First().WeekdayAvailable) &&
+                                !string.IsNullOrEmpty(user.LecturerSchedules.First().SlotAvailable))
+                                ? user.LecturerSchedules.Count()
+                : 0
                 });
             }
             catch (Exception ex)

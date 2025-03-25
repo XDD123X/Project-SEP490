@@ -15,6 +15,6 @@ namespace OTMS.DAL.Interface
         Task<List<Course>> GetAllActiveCourseAsync();
         Task<int> GetTotalCourseAsync(string? search);
         Task<List<Course>> GetCourses();
-        Task<Course> GetCourseByIdAsync(Guid id);
+        Task<Course?> GetCourseByIdAsync(Guid id);
     }
 }

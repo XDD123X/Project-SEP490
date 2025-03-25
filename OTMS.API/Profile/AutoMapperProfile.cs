@@ -31,6 +31,7 @@ namespace OTMS.API.Profile
             CreateMap<LecturerSchedule, LecturerScheduleDTO>().ReverseMap();
             CreateMap<Parent, ParentDTO>().ReverseMap();
             CreateMap<Attendance, AttendanceDTO>().ReverseMap();
+            CreateMap<Account, ByNavigationDTO>().ReverseMap();
 
             //Profile Mapper Config
             CreateMap<ProfileChangeRequest, ProfileChangeRequestDTO>()

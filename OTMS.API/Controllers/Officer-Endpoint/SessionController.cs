@@ -21,9 +21,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IMapper _mapper;
 
         public SessionController(
-            ISessionRepository sessionRepository, 
-            IAccountRepository accountRepository, 
-            IClassRepository classRepository, 
+            ISessionRepository sessionRepository,
+            IAccountRepository accountRepository,
+            IClassRepository classRepository,
             IClassSettingRepository classSettingRepository,
             ILecturerScheduleRepository lecturerScheduleRepository,
             IMapper mapper)
@@ -41,11 +41,11 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         {
             // Validate request
             if (request.StartDate.Date < DateTime.UtcNow.Date)
-                return BadRequest(new { Success = false, Message = "StartDate không được trước thời gian hiện tại." });
+                return BadRequest(new { Success = false, Message = "StartDate cannot be before the current date." });
 
             // Validate preferred days
             if (request.PreferredDays == null || !request.PreferredDays.Any())
-                return BadRequest(new { Success = false, Message = "Vui lòng chọn ít nhất một ngày trong tuần cho lớp học." });
+                return BadRequest(new { Success = false, Message = "Please select at least one preferred day for the class." });
 
             // Chuyển đổi preferred days sang DayOfWeek (0-6)
             var preferredDaysOfWeek = request.PreferredDays
@@ -55,15 +55,15 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             // Lấy thông tin class setting hiện tại
             var classSettings = await _classSettingRepository.GetAllAsync();
             var classSetting = classSettings.LastOrDefault();
-            
+
             if (classSetting == null)
-                return BadRequest(new { Success = false, Message = "Không tìm thấy cấu hình lớp học." });
+                return BadRequest(new { Success = false, Message = "Class settings not found." });
 
             // Lấy thông tin lịch rảnh của giảng viên
             var lecturerSchedule = await _lecturerScheduleRepository.GetByLecturerId(request.LecturerId);
-            
+
             if (lecturerSchedule == null)
-                return BadRequest(new { Success = false, Message = "Không tìm thấy lịch rảnh của giảng viên." });
+                return BadRequest(new { Success = false, Message = "Lecturer's schedule not found. Please contact the lecturer to update their personal teaching schedule." });
 
             // Lấy danh sách ngày trong tuần mà giảng viên có thể dạy
             var weekdayAvailable = lecturerSchedule.WeekdayAvailable?.Split(',')
@@ -72,13 +72,13 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 .ToList();
 
             if (weekdayAvailable == null || !weekdayAvailable.Any())
-                return BadRequest(new { Success = false, Message = "Giảng viên không có ngày nào trong tuần có thể dạy." });
+                return BadRequest(new { Success = false, Message = "The lecturer is not available on any day of the week." });
 
             // Kiểm tra xem ngày mong muốn học có nằm trong lịch rảnh của giảng viên không
             var validDays = preferredDaysOfWeek.Intersect(weekdayAvailable).ToList();
-            
+
             if (!validDays.Any())
-                return BadRequest(new { Success = false, Message = "Không có ngày nào thỏa mãn cả yêu cầu của lớp và lịch rảnh của giảng viên." });
+                return BadRequest(new { Success = false, Message = "No days match both the class requirements and the lecturer's availability." });
 
             // Lấy danh sách slot giảng viên có thể dạy
             var slotAvailable = lecturerSchedule.SlotAvailable?.Split(',')
@@ -86,12 +86,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 .ToList();
 
             if (slotAvailable == null || !slotAvailable.Any())
-                return BadRequest(new { Success = false, Message = "Giảng viên không có slot nào có thể dạy." });
+                return BadRequest(new { Success = false, Message = "The lecturer has no available time slots." });
 
             // Lấy class info để kiểm tra tổng số buổi
             var classInfo = await _classRepository.GetByIdAsync(request.ClassId);
             if (classInfo == null)
-                return BadRequest(new { Success = false, Message = "Không tìm thấy thông tin lớp học." });
+                return BadRequest(new { Success = false, Message = "Class information not found." });
 
             // Thiết lập các tham số cho việc lập lịch
             var scheduleParams = new ScheduleParameters
@@ -108,7 +108,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             };
 
             // Thông báo cho user các thông tin đã được điều chỉnh
-            var scheduleInfo = new {
+            var scheduleInfo = new
+            {
                 StartDate = scheduleParams.StartDate,
                 EndDate = scheduleParams.EndDate,
                 TotalSessions = scheduleParams.TotalSessions,
@@ -132,7 +133,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return Ok(new
                 {
                     Success = true,
-                    Message = "Lập lịch thành công",
+                    Message = "Scheduled Successfully",
                     Data = sessions.Select(s => new
                     {
                         s.SessionId,

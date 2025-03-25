@@ -54,15 +54,16 @@ namespace OTMS.DAL.DAO
         {
             return await _context.Courses
                 .Include(c => c.CreatedByNavigation)
+                .ThenInclude(a => a.Role)
                 .ToListAsync();
         }
 
-        public async Task<List<Course>> GetCourseById(Guid id)
+        public async Task<Course?> GetCourseById(Guid id)
         {
             return await _context.Courses
                 .Include(c => c.CreatedByNavigation)
-                .Where(c => c.CourseId == id)
-                .ToListAsync();
+                .ThenInclude(a => a.Role)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
         }
     }
 }
