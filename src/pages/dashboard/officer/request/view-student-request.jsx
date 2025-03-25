@@ -163,7 +163,7 @@ export default function StudentRequestManagement() {
       approvedBy: user.uid,
       description: actionDescription,
       status: actionType === "accept" ? 1 : 2,
-      officer: currentRequest.ApprovedByNavigation,
+      officer: currentRequest.approvedByNavigation,
     };
 
     try {
@@ -323,7 +323,7 @@ export default function StudentRequestManagement() {
                   <TableCell>
                     <RequestBadge status={request.status} />
                   </TableCell>
-                  <TableCell>{request.ApprovedByNavigation?.fullName || "-"}</TableCell>
+                  <TableCell>{request.approvedByNavigation?.fullName || "-"}</TableCell>
                   <TableCell>
                     <div className="max-w-[200px] truncate">{request.description || "-"}</div>
                   </TableCell>
@@ -432,7 +432,7 @@ export default function StudentRequestManagement() {
                       <>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Processed by:</span>
-                          <span>{currentRequest.ApprovedByNavigation?.fullName || "-"}</span>
+                          <span>{currentRequest.approvedByNavigation?.fullName || "-"}</span>
                         </div>
 
                         {currentRequest.approvedDate && (

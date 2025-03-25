@@ -267,7 +267,7 @@ export default function AvatarRequestChangeCard({ currentAvatarUrl, lastRequest,
 
             <div className="mt-2 space-y-1 text-xs">
               <p>
-                <span className="font-medium">Processed by:</span> {lastRequest.officer?.fullName || "Unknown"}
+                <span className="font-medium">Processed by:</span> {lastRequest.approvedByNavigation?.fullName || "Unknown"}
               </p>
               <p>
                 <span className="font-medium">Date:</span> {formatDate(lastRequest.approvedDate)}
@@ -323,6 +323,8 @@ export default function AvatarRequestChangeCard({ currentAvatarUrl, lastRequest,
     );
   };
 
+  console.log('last request: ', lastRequest);
+  
   // Determine what to show in the card header
   const renderCardHeader = () => {
     if (lastRequest) {
