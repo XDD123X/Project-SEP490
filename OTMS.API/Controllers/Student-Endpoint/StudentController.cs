@@ -26,19 +26,14 @@ namespace OTMS.API.Controllers.Student_Endpoint
             _classStudentRepository = classStudentRepository;
         }
 
-        [HttpGet("student-schedule")]
+        [HttpGet("student-schedule/{id}")]
         public async Task<IActionResult> GetStudentSchedule(Guid id)
         {
             var studentSchedule = await _scheduleRepository.GetByStudentIdAsync(id);
             var response = _mapper.Map<List<SessionDTO>>(studentSchedule);
             return Ok(response);
         }
-        [HttpGet("student-attendance")]
-        public async Task<IActionResult> GetStudentAttendance(Guid studentId, Guid classId)
-        {
-            var attendance = await _attendanceRepository.GetByStudentAndClassAsync(studentId, classId);
-            return Ok(attendance);
-        }
+
         [HttpGet("student-class")]
         public async Task<IActionResult> GetStudentClass(Guid studentId)
         {

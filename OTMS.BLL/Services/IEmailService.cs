@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS.BLL.Services
+namespace OTMS.DAL.Interface
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string to, string subject, string body);
+        Task SendEmailAsync(string to, string subject, string htmlMessage);
+        Task SendEmailToMultipleRecipientsAsync(string[] toAddresses, string subject, string htmlMessage);
     }
 }

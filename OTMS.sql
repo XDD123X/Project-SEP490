@@ -47,7 +47,7 @@ GO
 
 -- 3. Tạo bảng Course
 CREATE TABLE Course (
-    course_id INT PRIMARY KEY IDENTITY(1,1),
+    course_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     course_name NVARCHAR(100) NOT NULL UNIQUE,
     description NVARCHAR(255),
     created_by uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
@@ -63,11 +63,11 @@ CREATE TABLE Class (
     class_code NVARCHAR(50) NOT NULL UNIQUE,
     class_name NVARCHAR(100) NOT NULL,
 	lecturer_id uniqueidentifier FOREIGN KEY REFERENCES Account(account_id),
-    course_id INT NOT NULL FOREIGN KEY REFERENCES Course(course_id),
+    course_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Course(course_id),
     total_session INT NOT NULL,
     start_date DATETIME NULL,
     end_date DATETIME NULL,
-	class_url NVARCHAR(100) NULL DEFAULT 'https://meet.google.com/abc-defg-hjk',
+	class_url NVARCHAR(100) NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1,
@@ -123,7 +123,7 @@ CREATE TABLE Attendance (
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
     student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     status INT NULL DEFAULT 0,
-    img_url NVARCHAR(500),
+	note NVARCHAR(255) NULL,
     attendance_time DATETIME DEFAULT GETDATE(),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL
@@ -207,10 +207,16 @@ CREATE TABLE SessionChangeRequest (
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
     lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
     approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
-	description NVARCHAR(MAX) NULL,
+    description NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
     status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
-    created_at DATETIME DEFAULT GETDATE()
+    created_at DATETIME DEFAULT GETDATE(),
+    
+    -- Thêm thông tin ngày và slot mới
+    new_date DATE NOT NULL,  -- Ngày yêu cầu đổi
+    new_slot INT NOT NULL CHECK (new_slot BETWEEN 1 AND 4), -- Slot mới yêu cầu đổi
+    old_date DATE NULL, -- Ngày cũ của buổi học
+    old_slot INT NULL -- Slot cũ của buổi học
 );
 GO
 
@@ -345,8 +351,8 @@ GO
 -- 19. Thêm lớp IELTS02-25 và SAT02-25
 INSERT INTO Class (class_code, class_name, lecturer_id, course_id, total_session, start_date, end_date, status, created_at)
 VALUES 
-(N'IELTS25-03/25', N'Lớp IELTS25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer1@gmail.com'), 1, 32, GETDATE(), null, 1, GETDATE()),
-(N'SAT25-03/25', N'Lớp SAT25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer2@gmail.com'), 2, 32, GETDATE(), null, 1, GETDATE());
+(N'IELTS25-03/25', N'Lớp IELTS25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer1@gmail.com'), (select course_id from course where course_name = 'IELTS'), 0, GETDATE(), null, 1, GETDATE()),
+(N'SAT25-03/25', N'Lớp SAT25 Khai Giảng 03-25',(select account_id from account where email = 'lecturer2@gmail.com'), (select course_id from course where course_name = 'SAT'), 0, GETDATE(), null, 1, GETDATE());
 GO
 
 -- 20. Xếp học viên vào lớp IELTS01-25

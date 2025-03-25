@@ -38,16 +38,24 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(course);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCourse(CourseDTO course, Guid UserId)
+        public async Task<IActionResult> CreateCourse(CourseDTO course)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var userIdClaim = User.FindFirst("uid");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Unauthorized("User ID not found or invalid");
+            }
+
             var newCourse = _mapper.Map<Course>(course);
             newCourse.Status = 1;
-            newCourse.CreatedBy = UserId;
+            newCourse.CreatedBy = userId;
             newCourse.CreatedAt = DateTime.Now;
+
             try
             {
                 await _courseRepository.AddAsync(newCourse);
@@ -60,13 +68,19 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             }
         }
 
+
         [HttpPut("edit/{id}")]
-        public async Task<IActionResult> EditCourse(int id, Guid userId, CourseDTO courseDTO)
+        public async Task<IActionResult> EditCourse(int id, CourseDTO courseDTO)
         {
             var c = await _courseRepository.GetByIdAsync(id);
             if (c == null)
             {
                 return NotFound();
+            }
+            var userIdClaim = User.FindFirst("uid");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Unauthorized("User ID not found or invalid");
             }
             if (!c.CreatedBy.Equals(userId))
             {
@@ -90,7 +104,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteCourse(int id)
+        public async Task<IActionResult> DeleteCourse(Guid id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null)

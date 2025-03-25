@@ -11,7 +11,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SessionController : ControllerBase
+    public class SessionController : OfficerPolicyController
     {
         private readonly ISessionRepository _sessionRepository;
         private readonly IAccountRepository _accountRepository;

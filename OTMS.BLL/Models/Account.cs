@@ -51,13 +51,13 @@ public partial class Account
 
     public virtual ICollection<ProfileChangeRequest> ProfileChangeRequestAccounts { get; set; } = new List<ProfileChangeRequest>();
 
-    public virtual ICollection<ProfileChangeRequest> ProfileChangeRequestOfficers { get; set; } = new List<ProfileChangeRequest>();
+    public virtual ICollection<ProfileChangeRequest> ProfileChangeRequestApprovedByNavigations { get; set; } = new List<ProfileChangeRequest>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public virtual Role Role { get; set; } = null!;
 
-    public virtual ICollection<SessionChangeRequest> SessionChangeRequestOfficers { get; set; } = new List<SessionChangeRequest>();
+    public virtual ICollection<SessionChangeRequest> SessionChangeRequestApprovedByNavigations { get; set; } = new List<SessionChangeRequest>();
 
     public virtual ICollection<SessionChangeRequest> SessionChangeRequestLecturers { get; set; } = new List<SessionChangeRequest>();
 

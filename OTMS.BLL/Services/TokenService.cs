@@ -33,14 +33,14 @@ namespace OTMS.BLL.Services
             {
                 new Claim("uid", account.AccountId.ToString()), // account ID
                 new Claim("ue", account.Email), // email
-                new Claim("ur", account.Role.Name) // role
+                new Claim("ur", account.Role.Name.ToLower()) // role
             };
 
             var token = new JwtSecurityToken(
                 issuer: _jwtIssuer,
                 audience: _jwtAudience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: credentials
             );
 

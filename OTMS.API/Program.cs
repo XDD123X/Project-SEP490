@@ -11,6 +11,7 @@ using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
 using OTMS.DAL.Repository;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IParentRepository, ParentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
 builder.Services.AddScoped<IProfileChangeRequestRepository, ProfileChangeRequestRepository>();
+builder.Services.AddScoped<OTMS.DAL.Interface.ISessionChangeRequestRepository, OTMS.DAL.Repository.SessionChangeRequestRepository>();
 
 
 //Service
@@ -84,6 +86,7 @@ builder.Services.AddScoped<ParentDAO>();
 builder.Services.AddScoped<NotificationDAO>();
 builder.Services.AddScoped<RecordDAO>();
 builder.Services.AddScoped<ProfileChangeRequestDAO>();
+builder.Services.AddScoped<SessionChangeRequestDAO>();
 
 
 //SignalR
@@ -93,9 +96,9 @@ builder.Services.AddScoped<ProfileChangeRequestDAO>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+//builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 
 //Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]
@@ -120,12 +123,54 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //Authorization
 builder.Services.AddAuthorization(options =>
 {
+    // 1. AdminOnly
     options.AddPolicy("AdminOnly", policy =>
         policy.RequireAssertion(context =>
-        {
-            var user = context.User;
-            return user.HasClaim(c => c.Type == "role" && c.Value == "admin");
-        }));
+            context.User.HasClaim(c => c.Type == "ur" && c.Value == "admin")
+        )
+    );
+
+    // 2. OfficerOnly
+    options.AddPolicy("OfficerOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "ur" && c.Value == "officer")
+        )
+    );
+
+    // 3. StudentOnly
+    options.AddPolicy("StudentOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "ur" && c.Value == "student")
+        )
+    );
+
+    // 4. LecturerOnly
+    options.AddPolicy("LecturerOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "ur" && c.Value == "lecturer")
+        )
+    );
+
+    // 5. ExceptStudent (cho phép tất cả trừ student)
+    options.AddPolicy("ExceptStudent", policy =>
+        policy.RequireAssertion(context =>
+            !context.User.HasClaim(c => c.Type == "ur" && c.Value == "student")
+        )
+    );
+
+    // 6. Admin và Officer
+    options.AddPolicy("AdminAndOfficer", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "ur" && (c.Value == "admin" || c.Value == "officer"))
+        )
+    );
+
+    // 7. Officer và Lecturer
+    options.AddPolicy("OfficerAndLecturer", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "ur" && (c.Value == "officer" || c.Value == "lecturer"))
+        )
+    );
 });
 
 builder.Services.AddSwaggerGen(c =>
@@ -169,7 +214,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    //app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace OTMS.API.Controllers.Admin_Endpoint
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
     public class NotificationController : ControllerBase
     {
@@ -71,7 +71,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             newNotification.NotificationId = Guid.NewGuid();
             newNotification.CreatedAt = DateTime.UtcNow;
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst("uid");;
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid createdBy))
             {
                 newNotification.CreatedBy = createdBy;

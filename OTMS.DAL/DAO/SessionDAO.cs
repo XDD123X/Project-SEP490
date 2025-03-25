@@ -49,7 +49,7 @@ namespace OTMS.DAL.DAO
         }
 
         public async Task<List<Session>> GetSessionByStudentId(Guid studentId)
-        {   
+        {
 
             var classList = await _context.Classes
                 .Include(c => c.ClassStudents)
@@ -88,6 +88,17 @@ namespace OTMS.DAL.DAO
             _context.Sessions.Remove(session);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<Session>> GetSessionsByClassId(Guid classId)
+        {
+            var session = await _context.Sessions
+                .Where(s => s.ClassId == classId)
+                .Include(s => s.Attendances)
+                .OrderBy(s => s.SessionDate)
+                .ToListAsync();
+
+            return session;
         }
 
     }

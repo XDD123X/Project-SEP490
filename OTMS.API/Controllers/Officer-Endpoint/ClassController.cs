@@ -9,7 +9,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 {
     [Route("api/officer/[controller]")]
     [ApiController]
-    public class ClassController : ControllerBase
+    public class ClassController : OfficerPolicyController
     {
         private readonly IClassRepository _classRepository;
         private readonly IClassStudentRepository _classStudentRepository;

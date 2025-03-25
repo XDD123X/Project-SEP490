@@ -16,5 +16,7 @@ namespace OTMS.DAL.Interface
         Task<bool> UpdateSession(SessionUpdateModel session);
         Task DeleteSessionAsync(Guid sessionId);
 
+        Task<List<Session>> GetSessionsByClassId(Guid classId);
+
     }
 }

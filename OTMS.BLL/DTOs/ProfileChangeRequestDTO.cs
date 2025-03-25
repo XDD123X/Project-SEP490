@@ -21,11 +21,12 @@ namespace OTMS.BLL.DTOs
         public string? Description { get; set; }
 
         public DateTime? ApprovedDate { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public int? Status { get; set; }
 
         public virtual AccountDTO Account { get; set; } = null!;
 
-        public virtual AccountDTO? Officer { get; set; }
+        public virtual AccountDTO? ApprovedByNavigation { get; set; }
     }
 }

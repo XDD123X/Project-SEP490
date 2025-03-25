@@ -16,7 +16,7 @@ namespace OTMS.BLL.DTOs
 
         public Guid? LecturerId { get; set; }
 
-        public int CourseId { get; set; }
+        public Guid CourseId { get; set; }
 
         public int TotalSession { get; set; }
 

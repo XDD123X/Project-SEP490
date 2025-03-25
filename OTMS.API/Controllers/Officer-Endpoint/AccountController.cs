@@ -11,7 +11,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 {
     [Route("api/officer/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : OfficerPolicyController
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
@@ -185,8 +185,10 @@ Phong Linh Class Center";
             account.Dob = update.Dob;
             account.Gender = update.Gender;
             account.Status = update.Status;
+            account.MeetUrl = update.MeetUrl;
             account.UpdatedAt = DateTime.UtcNow;
 
+            await _accountRepository.UpdateAsync(account);
 
             if (update.Parents != null)
             {
