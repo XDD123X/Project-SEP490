@@ -169,7 +169,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="top-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} />
+            <Toaster richColors position="bottom-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>
