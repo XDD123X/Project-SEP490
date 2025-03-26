@@ -76,6 +76,15 @@ namespace OTMS.DAL.DAO
         }
 
 
+        public async Task isRead(Guid notificationId, Guid accountId)
+        {
+            NotificationAccount notification = _context.NotificationAccounts.FirstOrDefault(nr => nr.NotificationId == notificationId && nr.AccountId == accountId);
+
+            notification.IsRead = true;
+            _context.NotificationAccounts.Update(notification);
+            await _context.SaveChangesAsync();
+        }
+
 
     }
 }
