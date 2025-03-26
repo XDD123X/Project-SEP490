@@ -41,5 +41,8 @@ namespace OTMS.DAL.Repository
         {
             return _notificationDAO.GetNotificationsByAccountOrRole(accountId, roleName);
         }
+
+        public async Task isRead(Guid notificationId, Guid accountId) => await _notificationDAO.isRead(notificationId, accountId);
+
     }
 }

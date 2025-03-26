@@ -153,13 +153,20 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
 
-        //get cả notification của cả account và role tránh mất thông báo 
         [HttpGet("getNotificationAsRoleOrAccountId")]
         public async Task<IActionResult> GetNotificationAsRoleOrAccountId([FromQuery] Guid? accountId, [FromQuery] string? roleName)
         {
             var notifications = await _notificationRepository.GetNotificationsByAccountOrRole(accountId, roleName);
             return Ok(notifications);
         }
+
+        [HttpPut("isRead")]
+
+        public async Task isRead(Guid notificationId, Guid accountId)
+        {
+            await _notificationRepository.isRead(notificationId, accountId);
+        }
+
 
     }
 }
