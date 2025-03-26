@@ -7,7 +7,6 @@ import StatusCheck from "@/components/course/status-check";
 import AddCourseForm from "@/components/course/course-form";
 import { deleteCourseByIdOfficer, getCourseByIdOfficer, updateCourseOfficer, updateCourseStatusOfficer } from "@/services/courseService";
 import { toast } from "sonner";
-import { updateCourseStatus } from "@/data/demoCourseData";
 import { useStore } from "@/services/StoreContext";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 

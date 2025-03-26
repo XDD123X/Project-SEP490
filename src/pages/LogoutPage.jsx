@@ -1,16 +1,15 @@
 import { Spinner } from "@/components/ui/spinner";
-import { logout } from "@/services/authService";
 import { useStore } from "@/services/StoreContext";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { logout } from "@/services/authService";
 
 export default function LogoutPage() {
   const { dispatch } = useStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch({ type: "LOGOUT" });
-    // logout();
+    logout(dispatch);
     navigate("/login");
   }, [navigate, dispatch]);
 

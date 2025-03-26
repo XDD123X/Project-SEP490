@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Bold, Italic, Underline, Heading1, Heading2, Quote, AlignLeft, AlignCenter, AlignRight, LinkIcon, ImageIcon, Video, Palette } from "lucide-react";
 
 export function RichTextEditor({ value, onChange, placeholder = "Enter content...", className = "", minHeight = "200px" }) {
-  const textareaRef = useRef < HTMLTextAreaElement > null;
+  const textareaRef = useRef();
   const [selectionStart, setSelectionStart] = useState(0);
   const [selectionEnd, setSelectionEnd] = useState(0);
   const [linkUrl, setLinkUrl] = useState("");
@@ -233,7 +234,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Enter content..
         </Popover>
       </div>
 
-      <Textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} onSelect={saveSelection} onClick={saveSelection} onKeyUp={saveSelection} placeholder={placeholder} className={`min-h-[${minHeight}]`} />
+      <Textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} onSelect={saveSelection} onClick={saveSelection} onKeyUp={saveSelection} placeholder={placeholder} className={`min-h-[${minHeight}]`}/>
 
       {value && (
         <div className="mt-4">

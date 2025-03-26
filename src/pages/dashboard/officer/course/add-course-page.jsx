@@ -1,6 +1,5 @@
 import AddCourseForm from "@/components/course/course-form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { addCourse } from "@/data/demoCourseData";
 import { addCourseOfficer } from "@/services/courseService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";

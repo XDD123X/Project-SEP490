@@ -16,7 +16,7 @@ export function getReadStatus(notificationId) {
 }
 
 // Function to mark all notifications in a category as read
-export function markAllAsRead(notifications, category) {
+export function markAllAsRead(notifications) {
   const savedReadStatus = localStorage.getItem("notificationReadStatus") ? JSON.parse(localStorage.getItem("notificationReadStatus") || "{}") : {};
 
   notifications.forEach((notification) => {
@@ -24,6 +24,7 @@ export function markAllAsRead(notifications, category) {
   });
 
   localStorage.setItem("notificationReadStatus", JSON.stringify(savedReadStatus));
+  return savedReadStatus;
 }
 
 // Parse CSV data
@@ -49,4 +50,23 @@ export function generateCSVTemplate() {
   const headers = "email,name";
   const csvContent = `data:text/csv;charset=utf-8,${headers}`;
   return csvContent;
+}
+
+// Clear all read statuses from localStorage
+export function clearAllReadStatus() {
+  localStorage.removeItem("notificationReadStatus");
+}
+
+// Get all notifications that have been read
+export function getAllReadNotifications() {
+  const savedReadStatus = localStorage.getItem("notificationReadStatus") ? JSON.parse(localStorage.getItem("notificationReadStatus") || "{}") : {};
+
+  return Object.keys(savedReadStatus)
+    .filter((id) => savedReadStatus[id] === true)
+    .map((id) => Number.parseInt(id));
+}
+
+// Get all read statuses
+export function getAllReadStatuses() {
+  return localStorage.getItem("notificationReadStatus") ? JSON.parse(localStorage.getItem("notificationReadStatus") || "{}") : {};
 }

@@ -7,29 +7,45 @@ export const login = async (email, password, rememberMe) => {
   try {
     // Gửi yêu cầu login
     const response = await axiosClient.post("/auth/login", { email, password, rememberMe });
+
+    // Kiểm tra xem có accessToken hay không
+    if (!response.data?.accessToken) {
+      return {
+        status: 400,
+        data: "Login response is invalid. Please try again.",
+      };
+    }
+
+    // Lưu token
     setAccessToken(response.data.accessToken);
+
     return {
       status: response.status,
       data: response.data,
     };
   } catch (error) {
     if (error.response) {
-      if (error.response.status === 404) {
+      const status = error.response.status;
+      const errorMessage = error.response.data?.message || "An error occurred.";
+
+      if (status === 404) {
         return {
           status: 404,
           data: "Invalid Email Or Password. Please Try Again.",
         };
-      } else if (error.response.status >= 500) {
+      }
+
+      if (status >= 500) {
         return {
-          status: error.response.status,
-          data: "Server error! Please try again later.",
-        };
-      } else {
-        return {
-          status: error.response.status,
-          data: error.response.data?.message || "Login failed!",
+          status: status,
+          data: errorMessage, // Trả về thông báo lỗi từ server nếu có
         };
       }
+
+      return {
+        status: status,
+        data: errorMessage,
+      };
     }
 
     return {
@@ -40,22 +56,19 @@ export const login = async (email, password, rememberMe) => {
 };
 
 // 🔒 Gửi yêu cầu logout
-export const logout = async () => {
-  const user = localStorage.getItem("user");
-
-  if (!user) {
-    toast.error("User not found!");
-    return;
-  }
-
+export const logout = async (dispatch) => {
   try {
-    const jsonUser = JSON.parse(user);
-    const uid = jsonUser.uid;
+    const response = await axiosClient.post("/auth/logout", {}, { withCredentials: true });
 
-    await axiosClient.post("/auth/logout", { uid });
-    handleLogout();
+    console.log(response.data.message); // "Logged out successfully"
+
+    // Dispatch action để xóa state
+    dispatch({ type: "LOGOUT" });
+
+    // Chuyển hướng về trang đăng nhập
+    window.location.href = "/login";
   } catch (error) {
-    toast.error("Logout failed:", error);
+    console.error("Logout failed", error);
   }
 };
 
