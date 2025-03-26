@@ -95,28 +95,6 @@ namespace OTMS.API.Controllers.Notification_endpoint
             return Ok(notifications);
         }
 
-        [HttpGet("common")]
-        public async Task<IActionResult> GetCommonNotification()
-        {
-            var notifications = await _notificationRepository.GetAllCommonNotificationAsync();
-            return Ok(notifications);
-        }
-
-
-        [HttpGet("account/{accountId}")]
-        public async Task<IActionResult> GetNotificationByAccount(Guid accountId)
-        {
-            var notifications = await _notificationRepository.GetAllAccountNotificationAsync(accountId);
-            return Ok(notifications);
-        }
-
-        [HttpGet("role/{roleName}")]
-        public async Task<IActionResult> GetNotificationByRole(string roleName)
-        {
-            var notifications = await _notificationRepository.GetAllRoleNotificationAsync(roleName);
-            return Ok(notifications);
-        }
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetNotificationById(Guid id)
@@ -220,21 +198,6 @@ namespace OTMS.API.Controllers.Notification_endpoint
             }
             await _notificationRepository.DeleteAsync(id);
             return Ok("Notification deleted successfully.");
-        }
-
-
-        [HttpGet("getNotificationAsRoleOrAccountId")]
-        public async Task<IActionResult> GetNotificationAsRoleOrAccountId([FromQuery] Guid? accountId, [FromQuery] string? roleName)
-        {
-            var notifications = await _notificationRepository.GetNotificationsByAccountOrRole(accountId, roleName);
-            return Ok(notifications);
-        }
-
-        [HttpPut("isRead")]
-
-        public async Task isRead(Guid notificationId, Guid accountId)
-        {
-            await _notificationRepository.isRead(notificationId, accountId);
         }
     }
 }
