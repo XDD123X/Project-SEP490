@@ -11,7 +11,7 @@ namespace OTMS.DAL.Interface
         Task<List<Notification>> GetAllCommonNotificationAsync();
         Task<List<Notification>> GetAllRoleNotificationAsync(string roleName);
         Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds);
-        Task AssignToRolesAsync(Guid notificationId, List<string> roleNames);
+        Task AssignToRolesAsync(Guid notificationId, string roleName);
 
         Task<List<Notification>> GetNotificationsByAccountOrRole(Guid? accountId, string? roleName);
         public  Task isRead(Guid notificationId, Guid accountId);

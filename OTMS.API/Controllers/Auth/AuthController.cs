@@ -126,24 +126,28 @@ namespace OTMS.API.Controllers.Auth
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Logout()
         {
-
             var email = User.FindFirst("ue")?.Value;
             if (string.IsNullOrEmpty(email))
             {
-                return Unauthorized("Email not found in token");
-
+                return Unauthorized("Invalid token");
             }
 
             var user = await _accountRepository.GetByEmailAsync(email);
             if (user == null) return NotFound("User Not Found");
 
-            //delete cookies
-            Response.Cookies.Delete("refreshToken");
-
-            //revoke token
+            // Xóa refreshToken trong database
             await _refreshTokenRepository.RevokeByUserIdAsync(user.AccountId);
 
-            return Ok("Logged out successfully");
+            // Xóa refreshToken trong cookie (Cách đúng)
+            Response.Cookies.Append("refresh_token", "", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddDays(-1)
+            });
+
+            return Ok(new { message = "Logged out successfully" });
         }
 
         [HttpGet("Me")]
@@ -170,7 +174,7 @@ namespace OTMS.API.Controllers.Auth
                     Phone = user.PhoneNumber,
                     Dob = user.Dob,
                     ImgUrl = user.ImgUrl,
-                    MeetUrl  = user.MeetUrl ?? "",
+                    MeetUrl = user.MeetUrl ?? "",
                     Role = user.Role.Name,
                     Schedule = (user.LecturerSchedules.Any() &&
                                 !string.IsNullOrEmpty(user.LecturerSchedules.First().WeekdayAvailable) &&

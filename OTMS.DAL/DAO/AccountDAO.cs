@@ -218,7 +218,6 @@ namespace OTMS.DAL.DAO
         }
 
 
-
         public async Task<bool> updateImageAccount(Guid accountId, string newImgUrl)
         {
             Account account = await _context.Accounts
@@ -232,6 +231,24 @@ namespace OTMS.DAL.DAO
             _context.Update(account);
             return true;
         }
+
+        public async Task<List<Account>> GetAccountsByRoleNameAsync(string roleName)
+        => await _context.Accounts
+                        .Include(a => a.Role)
+                        .Where(a => a.Role.Name == roleName)
+                        .ToListAsync();
+
+        public async Task<List<Guid>> GetAccountsByCourseAsync(string courseName)
+        => await _context.Courses
+                .Where(c => c.CourseName.ToLower() == courseName.ToLower())
+                .SelectMany(c => c.Classes.SelectMany(cl => cl.ClassStudents.Select(cs => cs.Student.AccountId)))
+                .ToListAsync();
+
+        public async Task<List<Guid>> GetAccountsByClassAsync(string classCode)
+        => await _context.Classes
+                .Where(c => c.ClassCode.ToLower() == classCode.ToLower())
+                .SelectMany(c => c.ClassStudents.Select(cs => cs.Student.AccountId))
+                .ToListAsync();
 
     }
 }

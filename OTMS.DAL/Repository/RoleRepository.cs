@@ -16,5 +16,9 @@ namespace OTMS.DAL.Repository
         }
 
         public async Task<Role> GetRoleByNameAsync(string roleName) => await _roleDAO.GetRoleByNameAsync(roleName);
+
+        public async Task<List<Role>> GetAllRolesAsync() => await _roleDAO.GetAll();
+
+        public Task<bool> ExistsAsync(string roleName) => _roleDAO.ExistsAsync(roleName);
     }
 }

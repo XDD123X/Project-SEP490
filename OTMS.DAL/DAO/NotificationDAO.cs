@@ -17,6 +17,7 @@ namespace OTMS.DAL.DAO
                 .Where(n => !_context.NotificationRoles.Any(nr => nr.NotificationId == n.NotificationId) &&
                             !_context.NotificationAccounts.Any(na => na.NotificationId == n.NotificationId))
                 .Include(n => n.CreatedByNavigation)
+                .ThenInclude(u => u.Role)
                 .ToListAsync();
         }
         public async Task<List<Notification>> GetAllAccountNotificationAsync(Guid accountId)
@@ -35,25 +36,24 @@ namespace OTMS.DAL.DAO
         }
         public async Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds)
         {
-            var notificationAccounts = accountIds.Select(aid => new NotificationAccount
+            var notificationAccounts = accountIds.Select(accountId => new NotificationAccount
             {
                 NotificationId = notificationId,
-                AccountId = aid,
-                IsRead = false
+                AccountId = accountId
             }).ToList();
 
             await _context.NotificationAccounts.AddRangeAsync(notificationAccounts);
             await _context.SaveChangesAsync();
         }
-        public async Task AssignToRolesAsync(Guid notificationId, List<string> roleNames)
+        public async Task AssignToRolesAsync(Guid notificationId,string roleName)
         {
-            var notificationRoles = roleNames.Select(role => new NotificationRole
+            var notificationRole = new NotificationRole
             {
                 NotificationId = notificationId,
-                RoleName = role
-            }).ToList();
+                RoleName = roleName
+            };
 
-            await _context.NotificationRoles.AddRangeAsync(notificationRoles);
+            await _context.NotificationRoles.AddAsync(notificationRole);
             await _context.SaveChangesAsync();
         }
 

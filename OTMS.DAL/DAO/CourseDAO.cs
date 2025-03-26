@@ -65,5 +65,10 @@ namespace OTMS.DAL.DAO
                 .ThenInclude(a => a.Role)
                 .FirstOrDefaultAsync(c => c.CourseId == id);
         }
+
+        public async Task<bool> ExistsAsync(string courseName)
+        {
+            return await _context.Courses.AnyAsync(c => c.CourseName.ToLower() == courseName.ToLower());
+        }
     }
 }

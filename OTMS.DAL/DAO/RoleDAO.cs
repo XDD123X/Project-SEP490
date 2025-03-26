@@ -13,5 +13,15 @@ namespace OTMS.DAL.DAO
         {
             return await _context.Roles.FirstOrDefaultAsync(a => a.Name.ToLower() == roleName.ToLower());
         }
+
+        public async Task<List<Role>> GetAll()
+        {
+            return await _context.Roles.ToListAsync();
+        }
+
+        public async Task<bool> ExistsAsync(string roleName)
+        {
+            return await _context.Roles.AnyAsync(r => r.Name.ToLower() == roleName.ToLower());
+        }
     }
 }

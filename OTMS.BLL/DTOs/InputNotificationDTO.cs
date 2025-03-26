@@ -12,6 +12,7 @@ namespace OTMS.BLL.DTOs
 
         public string Content { get; set; } = null!;
 
-        public int? Type { get; set; }
+        public int? Type { get; set; } = null!;
+        public string Value { get; set; } = null!;
     }
 }

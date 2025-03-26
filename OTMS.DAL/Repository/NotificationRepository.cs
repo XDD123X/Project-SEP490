@@ -28,14 +28,10 @@ namespace OTMS.DAL.Repository
         {
             return _notificationDAO.GetAllRoleNotificationAsync(roleName);
         }
-        public async Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds)
-        {
-            await _notificationDAO.AssignToAccountsAsync(notificationId, accountIds);
-        }
-        public async Task AssignToRolesAsync(Guid notificationId, List<string> roleNames)
-        {
-            await _notificationDAO.AssignToRolesAsync(notificationId, roleNames);
-        }
+        public async Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds) => await _notificationDAO.AssignToAccountsAsync(notificationId, accountIds);
+
+        public async Task AssignToRolesAsync(Guid notificationId, string roleName) => await _notificationDAO.AssignToRolesAsync(notificationId, roleName);
+
 
         public Task<List<Notification>> GetNotificationsByAccountOrRole(Guid? accountId, string? roleName)
         {

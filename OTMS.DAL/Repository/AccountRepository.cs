@@ -1,4 +1,5 @@
-﻿using OTMS.BLL.Models;
+﻿using Microsoft.Identity.Client;
+using OTMS.BLL.Models;
 using OTMS.DAL.DAO;
 using OTMS.DAL.Interface;
 using System;
@@ -31,7 +32,7 @@ namespace OTMS.DAL.Repository
 
         public Task<Account?> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
         public Task<List<Account>> GetByStudentByClass(Guid classId) => _accountDAO.GetStudentByClass(classId);
-     
+
         public new Task UpdateAsync(Account account) => _accountDAO.UpdateAsync(account);
 
         public Task<Role?> GetRoleByRoleName(string RoleName) => _accountDAO.GetRoleByRoleName(RoleName);
@@ -48,6 +49,10 @@ namespace OTMS.DAL.Repository
         public Task<bool> AddAccount(Account account) => _accountDAO.AddAccount(account);
 
         public Task<bool> updateImageAccount(Guid accountId, string newImgUrl) => _accountDAO.updateImageAccount(accountId, newImgUrl);
-       
+
+        public async Task<List<Account>> GetAccountByRoleNameAsync(string roleName) => await _accountDAO.GetAccountsByRoleNameAsync(roleName);
+        public async Task<List<Guid>> GetAccountsByCourseAsync(string courseName) => await _accountDAO.GetAccountsByCourseAsync(courseName);
+
+        public async Task<List<Guid>> GetAccountsByClassAsync(string classCode) => await _accountDAO.GetAccountsByClassAsync(classCode);
     }
 }

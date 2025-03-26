@@ -13,5 +13,6 @@ namespace OTMS.DAL.Interface
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(Guid id);
+
     }
 }

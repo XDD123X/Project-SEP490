@@ -10,5 +10,7 @@ namespace OTMS.DAL.Interface
     public interface IRoleRepository : IRepository<Role>
     {
         Task<Role> GetRoleByNameAsync(string roleName);
+        Task<List<Role>> GetAllRolesAsync();
+        Task<bool> ExistsAsync(string roleName);
     }
 }

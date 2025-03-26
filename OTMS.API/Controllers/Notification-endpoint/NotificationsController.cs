@@ -14,14 +14,20 @@ namespace OTMS.API.Controllers.Notification_endpoint
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationRepository _notificationRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly ICourseRepository _courseRepository;
+        private readonly IClassRepository _classRepository;
         private readonly IMapper _mapper;
 
-        public NotificationsController(IAccountRepository accountRepository, INotificationRepository notificationRepository, IMapper mapper)
+        public NotificationsController(INotificationRepository notificationRepository, IRoleRepository roleRepository, IAccountRepository accountRepository, ICourseRepository courseRepository, IClassRepository classRepository, IMapper mapper)
         {
             _notificationRepository = notificationRepository;
-            _mapper = mapper;
+            _roleRepository = roleRepository;
             _accountRepository = accountRepository;
+            _courseRepository = courseRepository;
+            _classRepository = classRepository;
+            _mapper = mapper;
         }
 
         [HttpGet("me")]
@@ -64,10 +70,14 @@ namespace OTMS.API.Controllers.Notification_endpoint
                     .Union(roleNotifications)
                     .Distinct();
 
+                // 8. Map
+                var mappedMergedNotifications = _mapper.Map<List<NotificationDTO>>(mergedNotifications);
+                var mappedPrivateNotifications = _mapper.Map<List<NotificationDTO>>(privateNotifications);
+
                 var result = new
                 {
-                    Common = mergedNotifications,
-                    Private = privateNotifications
+                    Common = mappedMergedNotifications,
+                    Private = mappedPrivateNotifications
                 };
 
                 return Ok(result);
@@ -117,61 +127,70 @@ namespace OTMS.API.Controllers.Notification_endpoint
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> CreateNotification([FromBody] InputNotificationDTO newNotificationDTO, [FromQuery] List<Guid>? accountIds, [FromQuery] List<string>? roleNames)
+        public async Task<IActionResult> CreateNotification([FromBody] InputNotificationDTO newNotificationDTO)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(newNotificationDTO.Title) || string.IsNullOrWhiteSpace(newNotificationDTO.Content))
+                return BadRequest("Title and Content are required.");
+
+            var uid = User.FindFirst("uid")?.Value;
+            if (string.IsNullOrEmpty(uid))
+                return Unauthorized("Invalid token");
+
+            var role = User.FindFirst("ur")?.Value;
+            if (role == null || role.ToLower() == "student")
+                return Unauthorized("Invalid role");
+
+            var createdAccount = await _accountRepository.GetByIdAsync(Guid.Parse(uid));
+            if (createdAccount == null)
+                return Unauthorized("Invalid account");
+
+
+            List<Guid> recipientIds = new();
+
+            switch (newNotificationDTO.Type)
             {
-                return BadRequest(ModelState);
+                case 0:
+                    break;
+                case 1:
+                    if (!await _roleRepository.ExistsAsync(newNotificationDTO.Value))
+                        return NotFound("Role not found.");
+                    recipientIds = (await _accountRepository.GetAccountByRoleNameAsync(newNotificationDTO.Value))
+                                   .Select(a => a.AccountId).ToList();
+                    break;
+                case 2:
+                    if (!await _courseRepository.ExistsAsync(newNotificationDTO.Value))
+                        return NotFound("Course not found.");
+                    recipientIds = await _accountRepository.GetAccountsByCourseAsync(newNotificationDTO.Value);
+                    break;
+                case 3:
+                    if (!await _classRepository.ExistsAsync(newNotificationDTO.Value))
+                        return NotFound("Class not found.");
+                    recipientIds = await _accountRepository.GetAccountsByClassAsync(newNotificationDTO.Value);
+                    break;
+                default:
+                    return BadRequest("Invalid notification type.");
             }
 
-            var newNotification = _mapper.Map<Notification>(newNotificationDTO);
-            newNotification.NotificationId = Guid.NewGuid();
-            newNotification.CreatedAt = DateTime.UtcNow;
-
-            var userIdClaim = User.FindFirst("uid"); ;
-            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid createdBy))
+            var notification = new Notification
             {
-                newNotification.CreatedBy = createdBy;
-            }
-            else
-            {
-                return Unauthorized("User not authenticated.");
-            }
+                Title = newNotificationDTO.Title,
+                Content = newNotificationDTO.Content,
+                CreatedBy = createdAccount.AccountId,
+                CreatedAt = DateTime.Now,
+                Type = newNotificationDTO.Type switch { 0 => 0, 1 => 1, 2 or 3 => 2, _ => throw new ArgumentException("Invalid notification type") }
+            };
 
-            try
-            {
-                await _notificationRepository.AddAsync(newNotification);
+            await _notificationRepository.AddAsync(notification);
 
-                switch (newNotification.Type)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        if (roleNames != null)
-                        {
-                            await _notificationRepository.AssignToRolesAsync(newNotification.NotificationId, roleNames);
-                        }
-                        break;
-                    case 2:
-                        if (accountIds != null)
-                        {
-                            await _notificationRepository.AssignToAccountsAsync(newNotification.NotificationId, accountIds);
-                        }
-                        break;
-                }
+            if (newNotificationDTO.Type == 1)
+                await _notificationRepository.AssignToRolesAsync(notification.NotificationId, newNotificationDTO.Value);
 
-                return Ok(new
-                {
-                    message = "Notification created successfully",
-                    notificationId = newNotification.NotificationId,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = $"An error occurred while creating notification: {ex.Message}" });
-            }
+            if (newNotificationDTO.Type is 2 or 3)
+                await _notificationRepository.AssignToAccountsAsync(notification.NotificationId, recipientIds);
+
+            return Ok(new { message = "Notification created successfully" });
         }
+
         [HttpPut("edit/{id}")]
         public async Task<IActionResult> EditNotification(Guid id, [FromBody] InputNotificationDTO notificationDTO)
         {
@@ -184,19 +203,13 @@ namespace OTMS.API.Controllers.Notification_endpoint
             {
                 return BadRequest(ModelState);
             }
-            try
-            {
-                _mapper.Map(notificationDTO, notification);
-                notification.UpdatedAt = DateTime.UtcNow;
-                await _notificationRepository.UpdateAsync(notification);
-                return Ok("Notification updated successfully");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"An error occurred while updating notification {id}: {ex.Message}");
-            }
+            _mapper.Map(notificationDTO, notification);
+            notification.UpdatedAt = DateTime.UtcNow;
+            await _notificationRepository.UpdateAsync(notification);
+            return Ok("Notification updated successfully");
+
         }
+
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteNotification(Guid id)
         {
@@ -210,13 +223,13 @@ namespace OTMS.API.Controllers.Notification_endpoint
         }
 
 
+
         [HttpGet("getNotificationAsRoleOrAccountId")]
         public async Task<IActionResult> GetNotificationAsRoleOrAccountId([FromQuery] Guid? accountId, [FromQuery] string? roleName)
         {
             var notifications = await _notificationRepository.GetNotificationsByAccountOrRole(accountId, roleName);
             return Ok(notifications);
         }
-<<<<<<< Updated upstream:OTMS.API/Controllers/Admin-Endpoint/NotificationController.cs
 
         [HttpPut("isRead")]
 
@@ -224,9 +237,5 @@ namespace OTMS.API.Controllers.Notification_endpoint
         {
             await _notificationRepository.isRead(notificationId, accountId);
         }
-
-
-=======
->>>>>>> Stashed changes:OTMS.API/Controllers/Notification-endpoint/NotificationsController.cs
     }
 }

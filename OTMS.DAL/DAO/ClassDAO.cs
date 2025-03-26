@@ -122,5 +122,9 @@ namespace OTMS.DAL.DAO
             }
         }
 
+        public async Task<bool> ExistsAsync(string classCode)
+        {
+            return await _context.Classes.AnyAsync(c => c.ClassCode.ToLower() == classCode.ToLower());
+        }
     }
 }

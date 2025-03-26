@@ -20,24 +20,27 @@ namespace OTMS.DAL.Interface
         Task AddMultipleAsync(List<Account> accounts);
 
         Task<Account?> GetByLogin(string email, string password);
-        public Task<List<Account>> GetByStudentByClass(Guid classId);
+        Task<List<Account>> GetByStudentByClass(Guid classId);
 
 
-        public new Task UpdateAsync(Account account);
+        new Task UpdateAsync(Account account);
 
 
 
-        public Task<Role?> GetRoleByRoleName(string RoleName);
-        public Task<List<Account>> getAllStudentAccount(string roleId);
-        public Task ImportParent(Parent parent);
+        Task<Role?> GetRoleByRoleName(string RoleName);
+        Task<List<Account>> getAllStudentAccount(string roleId);
+        Task ImportParent(Parent parent);
 
-        public Task<List<Account>> GetStudentList();
-        public Task<List<Account>> GetLecturerList();
-        public Task<List<Account>> GetOfficerList();
-        public Task<List<Account>> GetAccountListAsync();
-        public Task<bool> AddAccount(Account account);
+        Task<List<Account>> GetStudentList();
+        Task<List<Account>> GetLecturerList();
+        Task<List<Account>> GetOfficerList();
+        Task<List<Account>> GetAccountListAsync();
+        Task<List<Account>> GetAccountByRoleNameAsync(string roleName);
+        Task<List<Guid>> GetAccountsByCourseAsync(string courseName);
+        Task<List<Guid>> GetAccountsByClassAsync(string classCode);
+        Task<bool> AddAccount(Account account);
 
-        public Task<bool> updateImageAccount(Guid accountId, string newImgUrl);
+        Task<bool> updateImageAccount(Guid accountId, string newImgUrl);
 
 
     }
