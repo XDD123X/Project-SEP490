@@ -31,15 +31,26 @@ builder.Services.AddMemoryCache();
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-
+    //AllowLocalhost
     options.AddPolicy("AllowLocalhost",
         policy =>
         {
-            policy.WithOrigins(allowedOrigins ?? new string[0]) // Tránh lỗi null
-                  .AllowCredentials()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            policy.SetIsOriginAllowed(origin =>
+            {
+                return new Uri(origin).Host.EndsWith("ngrok-free.app") || allowedOrigins.Contains(origin);
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         });
+    //options.AddPolicy("AllowLocalhost",
+    //    policy =>
+    //    {
+    //        policy.WithOrigins(allowedOrigins ?? new string[0]) // Tránh lỗi null
+    //              .AllowCredentials()
+    //              .AllowAnyHeader()
+    //              .AllowAnyMethod();
+    //    });
 });
 
 //DI
