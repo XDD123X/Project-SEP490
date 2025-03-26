@@ -223,7 +223,6 @@ namespace OTMS.API.Controllers.Notification_endpoint
         }
 
 
-
         [HttpGet("getNotificationAsRoleOrAccountId")]
         public async Task<IActionResult> GetNotificationAsRoleOrAccountId([FromQuery] Guid? accountId, [FromQuery] string? roleName)
         {
