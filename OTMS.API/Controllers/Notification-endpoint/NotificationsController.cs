@@ -4,31 +4,88 @@ using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using OTMS.DAL.Repository;
 using System.Security.Claims;
 
-namespace OTMS.API.Controllers.Admin_Endpoint
+namespace OTMS.API.Controllers.Notification_endpoint
 {
-    [Route("api/admin/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class NotificationController : ControllerBase
+    public class NotificationsController : ControllerBase
     {
         private readonly INotificationRepository _notificationRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
 
-        public NotificationController(INotificationRepository notificationRepository, IMapper mapper)
+        public NotificationsController(IAccountRepository accountRepository, INotificationRepository notificationRepository, IMapper mapper)
         {
             _notificationRepository = notificationRepository;
             _mapper = mapper;
+            _accountRepository = accountRepository;
         }
 
-        [HttpGet("notification-list")]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyNotification()
+        {
+            try
+            {
+                //ID
+                var uid = User.FindFirst("uid")?.Value;
+                if (string.IsNullOrEmpty(uid))
+                {
+                    return Unauthorized("Invalid token");
+                }
+
+                // 2. get acount by id
+                var account = await _accountRepository.GetByIdAsync(Guid.Parse(uid));
+                if (account == null)
+                {
+                    return NotFound("Account not found");
+                }
+
+                // 3. get role
+                var role = account.Role?.Name;
+                if (string.IsNullOrEmpty(role))
+                {
+                    return BadRequest("Role not assigned to account");
+                }
+
+                // 4. get common
+                var commonNotifications = await _notificationRepository.GetAllCommonNotificationAsync();
+
+                // 5. get by role
+                var roleNotifications = await _notificationRepository.GetAllRoleNotificationAsync(role);
+
+                // 6. get by account id
+                var privateNotifications = await _notificationRepository.GetAllAccountNotificationAsync(account.AccountId);
+
+                // 7. Merge
+                var mergedNotifications = commonNotifications
+                    .Union(roleNotifications)
+                    .Distinct();
+
+                var result = new
+                {
+                    Common = mergedNotifications,
+                    Private = privateNotifications
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("list")]
         public async Task<IActionResult> GetNotification()
         {
             var notifications = await _notificationRepository.GetAllAsync();
             return Ok(notifications);
         }
 
-        [HttpGet("common-notification-list")]
+        [HttpGet("common")]
         public async Task<IActionResult> GetCommonNotification()
         {
             var notifications = await _notificationRepository.GetAllCommonNotificationAsync();
@@ -36,14 +93,14 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
 
-        [HttpGet("account-notification-list/{accountId}")]
+        [HttpGet("account/{accountId}")]
         public async Task<IActionResult> GetNotificationByAccount(Guid accountId)
         {
             var notifications = await _notificationRepository.GetAllAccountNotificationAsync(accountId);
             return Ok(notifications);
         }
 
-        [HttpGet("role-notification-list/{roleName}")]
+        [HttpGet("role/{roleName}")]
         public async Task<IActionResult> GetNotificationByRole(string roleName)
         {
             var notifications = await _notificationRepository.GetAllRoleNotificationAsync(roleName);
@@ -51,7 +108,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
 
-        [HttpGet("find-notification/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetNotificationById(Guid id)
         {
             var notification = await _notificationRepository.GetByIdAsync(id);
@@ -59,7 +116,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(notification);
         }
 
-        [HttpPost("create")]
+        [HttpPost("add")]
         public async Task<IActionResult> CreateNotification([FromBody] InputNotificationDTO newNotificationDTO, [FromQuery] List<Guid>? accountIds, [FromQuery] List<string>? roleNames)
         {
             if (!ModelState.IsValid)
@@ -71,7 +128,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             newNotification.NotificationId = Guid.NewGuid();
             newNotification.CreatedAt = DateTime.UtcNow;
 
-            var userIdClaim = User.FindFirst("uid");;
+            var userIdClaim = User.FindFirst("uid"); ;
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid createdBy))
             {
                 newNotification.CreatedBy = createdBy;
@@ -87,7 +144,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
 
                 switch (newNotification.Type)
                 {
-                    case 0: 
+                    case 0:
                         break;
                     case 1:
                         if (roleNames != null)
@@ -95,7 +152,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
                             await _notificationRepository.AssignToRolesAsync(newNotification.NotificationId, roleNames);
                         }
                         break;
-                    case 2: 
+                    case 2:
                         if (accountIds != null)
                         {
                             await _notificationRepository.AssignToAccountsAsync(newNotification.NotificationId, accountIds);
@@ -159,6 +216,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             var notifications = await _notificationRepository.GetNotificationsByAccountOrRole(accountId, roleName);
             return Ok(notifications);
         }
+<<<<<<< Updated upstream:OTMS.API/Controllers/Admin-Endpoint/NotificationController.cs
 
         [HttpPut("isRead")]
 
@@ -168,5 +226,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
         }
 
 
+=======
+>>>>>>> Stashed changes:OTMS.API/Controllers/Notification-endpoint/NotificationsController.cs
     }
 }

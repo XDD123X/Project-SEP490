@@ -303,33 +303,6 @@ INSERT INTO ProfileChangeRequest (account_id, img_url_old, img_url_new, approved
 ((SELECT account_id FROM Account WHERE email = 'student5@gmail.com'),'https://i.imgur.com/McuGRDf.png','https://i.imgur.com/0dTvSSQ.png',(SELECT account_id FROM Account WHERE email = 'officer2@gmail.com'),N'Accepted',GETDATE(),1,GETDATE());
 GO
 
--- Thêm Data mẫu cho notification
-INSERT INTO Notification (title, content, type, created_by) VALUES
-('System Announcement 1', '<b>Important:</b> Please update your account details.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('System Announcement 2', '<i>Reminder:</i> The server will be under maintenance from <u>10 PM to 12 AM</u>.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('System Announcement 3', 'New feature: <span style="color:blue">Dark Mode</span> is now available in settings.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('System Announcement 4', 'Check out our latest <a href="https://example.com">user guide</a> for better experience.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('System Announcement 5', '<b>Security Alert:</b> Please change your password regularly to ensure safety.', 0, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('Lecturer Notice', '<b>Attention lecturers:</b> Please submit the <i>final grades</i> by <u>March 25th</u>.', 1, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('Student Notice', '<b>Dear students,</b> the next semester starts on <u>April 1st</u>. Please check your schedule.', 1, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('Private Message', '<b>Hi Student,</b> Your assignment deadline is extended to <i>March 30th</i>.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('Private Message', '<b>Hi Lecturer,</b> Your meeting with the admin is scheduled for <u>March 20th at 10 AM</u>.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com')),
-('Private Message', '<b>Hi Officer,</b> Please review the new policy updates and provide feedback.', 2, (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
-GO
--- Thông báo cho Student
-INSERT INTO NotificationRole (notification_id, role_name) VALUES
-((SELECT notification_id FROM Notification WHERE title = 'Student Notice'), 'student');
--- Thông báo cho Lecturer
-INSERT INTO NotificationRole (notification_id, role_name) VALUES
-((SELECT notification_id FROM Notification WHERE title = 'Lecturer Notice'), 'lecturer');
-GO
--- Liên kết thông báo với từng tài khoản cụ thể
-INSERT INTO NotificationAccount (notification_id, account_id) VALUES
-((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Student%'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com')),
-((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Lecturer%'), (SELECT account_id FROM Account WHERE email = 'lecturer1@gmail.com')),
-((SELECT notification_id FROM Notification WHERE title = 'Private Message' AND content LIKE '%Hi Officer%'), (SELECT account_id FROM Account WHERE email = 'officer1@gmail.com'));
-GO
-
 --update avatar for user as gender male and female
 UPDATE Account
 SET img_url = 
@@ -378,4 +351,60 @@ FROM (
 ) AS subquery
 WHERE row_num BETWEEN 9 AND 16;
 GO
+
+
+
+--Notification
+-- 1. Thêm dữ liệu vào bảng Notification
+INSERT INTO Notification (title, content, type, created_by, created_at) VALUES
+('Welcome to Phong Linh''s Class', '<b>Welcome!</b> We are excited to have you join our IELTS & SAT courses.', 0, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-22'),
+('New SAT Preparation Class', '<b>New class alert:</b> Our SAT preparation course starts next Monday!', 0, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-21'),
+('IELTS Speaking Workshop', '<i>Improve your speaking skills!</i> Join our free IELTS Speaking Workshop this weekend.', 0, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-20'),
+('Holiday Announcement', '<b>Notice:</b> The center will be closed during the national holiday from April 30 to May 1.', 0, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-19'),
+('Discount on Course Fees', '<b>Special Offer:</b> Get a 10% discount if you register before the end of this month.', 0, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-18'),
+('Student Orientation', '<b>Dear students,</b> Don’t forget to attend the orientation session this Friday!', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-17'),
+('Exam Schedule Update', '<b>Important:</b> The final exam schedule has been updated. Check the portal.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-16'),
+('Mock Test Registration', '<b>Practice makes perfect!</b> Register now for our free mock test.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-15'),
+('Lecturer Meeting', '<b>Reminder:</b> There will be a staff meeting this Thursday.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-14'),
+('New Teaching Resources', '<b>Lecturers:</b> New teaching resources have been uploaded.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-13'),
+('Lecture Recording Policy', '<b>Update:</b> Please review the new policy on lecture recordings.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-12'),
+('Officer Training Session', '<b>Mandatory training:</b> All officers must attend the system training.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-11'),
+('New Administrative Guidelines', '<b>Policy Update:</b> Please review the new administrative guidelines.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-10'),
+('Work Schedule Update', '<b>Officers:</b> The new work schedule has been published.', 1, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-09');
+GO
+
+-- 2. Thêm dữ liệu vào bảng NotificationRole
+INSERT INTO NotificationRole (notification_id, role_name) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Student Orientation'), 'Student'),
+((SELECT notification_id FROM Notification WHERE title = 'Exam Schedule Update'), 'Student'),
+((SELECT notification_id FROM Notification WHERE title = 'Mock Test Registration'), 'Student'),
+((SELECT notification_id FROM Notification WHERE title = 'Lecturer Meeting'), 'Lecturer'),
+((SELECT notification_id FROM Notification WHERE title = 'New Teaching Resources'), 'Lecturer'),
+((SELECT notification_id FROM Notification WHERE title = 'Lecture Recording Policy'), 'Lecturer'),
+((SELECT notification_id FROM Notification WHERE title = 'Officer Training Session'), 'Officer'),
+((SELECT notification_id FROM Notification WHERE title = 'New Administrative Guidelines'), 'Officer'),
+((SELECT notification_id FROM Notification WHERE title = 'Work Schedule Update'), 'Officer');
+Go
+
+-- 3. Thêm dữ liệu vào bảng NotificationAccount
+INSERT INTO Notification (title, content, type, created_by, created_at) VALUES
+('Your Course Materials', '<b>Dear Student,</b> Your course materials are now available online.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-08'),
+('Assignment Reminder', '<b>Reminder:</b> Your assignment is due this Sunday.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-07'),
+('New Class Schedule', '<b>Update:</b> Your class schedule has been updated.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-06'),
+('Personalized Tutoring Session', '<b>Exclusive:</b> You have been selected for a one-on-one tutoring session.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-05'),
+('Payment Confirmation', '<b>Payment received:</b> Your course fee has been successfully processed.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-04'),
+('Exam Registration Successful', '<b>Success:</b> You have successfully registered for the upcoming exam.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-03'),
+('Your Performance Report', '<b>Analysis:</b> Your performance report is now available.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-02'),
+('Feedback Request', '<b>We value your feedback:</b> Please take a moment to fill out the survey.', 2, (SELECT account_id FROM Account WHERE email = 'admin@gmail.com'), '2025-03-01');
+GO
+
+INSERT INTO NotificationAccount (notification_id, account_id, is_read) VALUES
+((SELECT notification_id FROM Notification WHERE title = 'Your Course Materials'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'Assignment Reminder'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'New Class Schedule'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'Personalized Tutoring Session'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'Payment Confirmation'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'Exam Registration Successful'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'Your Performance Report'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0),
+((SELECT notification_id FROM Notification WHERE title = 'Feedback Request'), (SELECT account_id FROM Account WHERE email = 'student1@gmail.com'), 0);
 
