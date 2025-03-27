@@ -132,6 +132,28 @@ export const changePassword = async (oldPassword, newPassword, reNewPassword) =>
   }
 };
 
+export const changePasswordFirstTime = async (oldPassword = "", newPassword, reNewPassword) => {
+  try {
+    const response = await axiosClient.post("/auth/first-time-login", {
+      oldPassword,
+      newPassword,
+      reNewPassword,
+    });
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    toast.error("Change Password Failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || error.message?.message || error.message || "Change Password Failed!",
+    };
+  }
+};
+
 export const updateAvatar = async (fullName, phone, dob, imgUrl) => {
   try {
     const response = await axiosClient.put("/auth/avatar", {

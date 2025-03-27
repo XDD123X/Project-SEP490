@@ -58,6 +58,7 @@ import ViewNotificationListPage from "./pages/notification/view-notification-pag
 import ManageNotificationPage from "./pages/notification/manage/manage-notification-page";
 import DetailNotificationManagementPage from './pages/notification/manage/detail-notification-manage-page';
 import EditNotificationManagementPage from "./pages/notification/manage/edit-notification-management-page";
+import FirstTimeLoginPage from "./pages/FirstTimeLoginPage";
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
                   }
                 />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/first-time" element={<FirstTimeLoginPage />} />
                 <Route path="/logout" element={<LogoutPage />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
 

@@ -87,7 +87,6 @@ export function LoginForm() {
 
       // Call login API
       const response = await login(email, password, formData.rememberMe);
-      console.log("Login Response:", response);
 
       if (!response || typeof response.status === "undefined") {
         toast.error("Unexpected error! Please try again.");
@@ -107,6 +106,7 @@ export function LoginForm() {
           meetUrl: userResponse.data.meetUrl,
           role: userResponse.data.role,
           schedule: userResponse.data.schedule,
+          isNew: userResponse.data.isNew
         };
 
         const role = userResponse.data.role;
@@ -171,6 +171,7 @@ export function LoginForm() {
           meetUrl: userData.data.meetUrl,
           role: userData.data.role,
           schedule: userData.data.schedule,
+          isNew: userData.data.isNew,
         };
 
         const role = userData.data.role;

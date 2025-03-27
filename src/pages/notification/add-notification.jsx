@@ -14,6 +14,7 @@ import { AddNotification } from "@/services/notificationService";
 import { useStore } from "@/services/StoreContext";
 import { Badge } from "@/components/ui/badge";
 import { ClassBadge, CourseBadge } from "@/components/BadgeComponent";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AddNotificationPage() {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export default function AddNotificationPage() {
   const [notificationType, setNotificationType] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [emailSend, setEmailSend] = useState(false);
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
@@ -114,6 +116,7 @@ export default function AddNotificationPage() {
       title,
       content,
       type: Number.parseInt(notificationType),
+      emailSend: emailSend,
     };
 
     switch (notificationData.type) {
@@ -264,6 +267,14 @@ export default function AddNotificationPage() {
               </Label>
 
               <RichTextEditor value={content} onChange={setContent} placeholder="Enter notification content (supports rich text formatting)" minHeight="200px" />
+            </div>
+
+            {/* CheckBox Send Email */}
+            <div className="flex items-center justify-end space-x-2">
+              <Checkbox id="emailSend" checked={emailSend} onCheckedChange={(checked) => setEmailSend(checked)} />
+              <label htmlFor="emailSend" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Send Email
+              </label>
             </div>
 
             {/* Submit Button */}
