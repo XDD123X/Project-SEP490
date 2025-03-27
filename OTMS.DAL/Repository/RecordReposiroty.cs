@@ -24,6 +24,7 @@ namespace OTMS.DAL.Repository
 
         public  Task addNewRecord(Record record) => _recordDAO.addNewRecord(record);
 
+        Task IRecordRepository.updateRecord(Record record) => _recordDAO.UpdateAsync(record);
 
 
     }

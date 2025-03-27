@@ -14,5 +14,7 @@ namespace OTMS.DAL.Interface
         Task<Record> GetRecordBySessionAsync(Guid sessionId);
         Task addNewRecord(Record record); 
 
+        Task updateRecord(Record record);
+
     }
 }
