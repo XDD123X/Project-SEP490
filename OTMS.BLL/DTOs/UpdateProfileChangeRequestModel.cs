@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OTMS.BLL.Models
+namespace OTMS.BLL.DTOs
 {
     public class UpdateProfileChangeRequestModel
     {

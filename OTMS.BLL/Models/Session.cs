@@ -37,5 +37,7 @@ public partial class Session
 
     public virtual ICollection<Record> Records { get; set; } = new List<Record>();
 
+    public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
+
     public virtual ICollection<SessionChangeRequest> SessionChangeRequests { get; set; } = new List<SessionChangeRequest>();
 }

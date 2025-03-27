@@ -98,10 +98,21 @@ CREATE TABLE Record (
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
     video_url NVARCHAR(500),
     description NVARCHAR(255),
-uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
+	uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1
+);
+GO
+
+CREATE TABLE Report (
+    report_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    record_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Record(record_id),
+    session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id),
+    analysis_data NVARCHAR(MAX) NOT NULL, -- Lưu dữ liệu phân tích dưới dạng JSON
+    generated_at DATETIME DEFAULT GETDATE(),
+    generated_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id), -- Người tạo báo cáo (AI hoặc con người)
+    status INT DEFAULT 1 -- 1: Active, 0: Inactive (hoặc có thể mở rộng trạng thái khác)
 );
 GO
 

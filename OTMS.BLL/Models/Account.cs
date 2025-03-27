@@ -53,7 +53,11 @@ public partial class Account
 
     public virtual ICollection<ProfileChangeRequest> ProfileChangeRequestApprovedByNavigations { get; set; } = new List<ProfileChangeRequest>();
 
+    public virtual ICollection<Record> Records { get; set; } = new List<Record>();
+
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
 
     public virtual Role Role { get; set; } = null!;
 

@@ -21,5 +21,9 @@ public partial class Record
 
     public int? Status { get; set; }
 
+    public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
+
     public virtual Session Session { get; set; } = null!;
+
+    public virtual Account? UploadedByNavigation { get; set; }
 }
