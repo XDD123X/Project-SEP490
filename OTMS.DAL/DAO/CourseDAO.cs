@@ -18,7 +18,7 @@ namespace OTMS.DAL.DAO
 
         public async Task<List<Course>> GetAllActiveCourseAsync()
         {
-            return await _dbSet.Where(c => c.Status == 1).ToListAsync();
+            return await _dbSet.Where(c => c.Status != 0).ToListAsync();
         }
         public async Task<int> GetTotalCourseAsync(string? search)
         {

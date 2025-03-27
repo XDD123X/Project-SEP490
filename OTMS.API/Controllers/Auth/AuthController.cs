@@ -138,7 +138,7 @@ namespace OTMS.API.Controllers.Auth
             // Xóa refreshToken trong database
             await _refreshTokenRepository.RevokeByUserIdAsync(user.AccountId);
 
-            // Xóa refreshToken trong cookie (Cách đúng)
+            // Xóa refreshToken trong cookie
             Response.Cookies.Append("refresh_token", "", new CookieOptions
             {
                 HttpOnly = true,

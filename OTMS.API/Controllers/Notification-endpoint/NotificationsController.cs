@@ -76,8 +76,8 @@ namespace OTMS.API.Controllers.Notification_endpoint
 
                 var result = new
                 {
-                    Common = mappedMergedNotifications,
-                    Private = mappedPrivateNotifications
+                    Common = mappedMergedNotifications ?? new List<NotificationDTO>(),
+                    Private = mappedPrivateNotifications ?? new List<NotificationDTO>()
                 };
 
                 return Ok(result);
@@ -88,11 +88,12 @@ namespace OTMS.API.Controllers.Notification_endpoint
             }
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetNotification()
+        [HttpPost("list")]
+        public async Task<IActionResult> GetNotification([FromBody] Guid accountId)
         {
-            var notifications = await _notificationRepository.GetAllAsync();
-            return Ok(notifications);
+            var notifications = await _notificationRepository.GetNotificationManagementAsync(accountId);
+            var result = _mapper.Map<List<NotificationDTO>>(notifications);
+            return Ok(result);
         }
 
 
@@ -101,7 +102,8 @@ namespace OTMS.API.Controllers.Notification_endpoint
         {
             var notification = await _notificationRepository.GetByIdAsync(id);
             if (notification == null) return NotFound("Notification not found");
-            return Ok(notification);
+            var result = _mapper.Map<NotificationDTO>(notification);
+            return Ok(result);
         }
 
         [HttpPost("add")]
@@ -181,11 +183,14 @@ namespace OTMS.API.Controllers.Notification_endpoint
             {
                 return BadRequest(ModelState);
             }
-            _mapper.Map(notificationDTO, notification);
+
+            // Chỉ cập nhật 3 thuộc tính: notificationId, title, content
+            notification.Title = notificationDTO.Title;
+            notification.Content = notificationDTO.Content;
             notification.UpdatedAt = DateTime.UtcNow;
+
             await _notificationRepository.UpdateAsync(notification);
             return Ok("Notification updated successfully");
-
         }
 
         [HttpDelete("delete/{id}")]

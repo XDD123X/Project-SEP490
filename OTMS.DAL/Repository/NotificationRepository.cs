@@ -40,5 +40,6 @@ namespace OTMS.DAL.Repository
 
         public async Task isRead(Guid notificationId, Guid accountId) => await _notificationDAO.isRead(notificationId, accountId);
 
+        public Task<List<Notification>> GetNotificationManagementAsync(Guid accountId) => _notificationDAO.GetNotificationManagementAsync(accountId);
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OTMS.DAL.DAO
 {
-    public class NotificationDAO : GenericDAO<Notification>, INotificationRepository
+    public class NotificationDAO : GenericDAO<Notification>
     {
         public NotificationDAO(OtmsContext context) : base(context) { }
         public async Task<List<Notification>> GetAllCommonNotificationAsync()
@@ -34,6 +34,44 @@ namespace OTMS.DAL.DAO
                     .Any(nr => nr.NotificationId == n.NotificationId && nr.RoleName == roleName))
                 .ToListAsync();
         }
+        public async Task<List<Notification>> GetNotificationManagementAsync(Guid accountId)
+        {
+            //get from db
+            var account = await _context.Accounts
+                .Include(a => a.Role)
+                .FirstOrDefaultAsync(a => a.AccountId == accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Invalid accountId.");
+            }
+
+            string role = account.Role.Name.ToLower();
+
+            //all
+            var notifications = await _context.Notifications
+                .Include(n => n.CreatedByNavigation)
+                .ThenInclude(a => a.Role)
+                .ToListAsync();
+
+            //filter by role
+            if (role == "administrator")
+            {
+                return notifications;
+            }
+            else if (role == "officer")
+            {
+                return notifications.Where(n => n.CreatedByNavigation.Role.Name != "administrator").ToList();
+            }
+            else if (role == "lecturer")
+            {
+                return notifications.Where(n => n.CreatedByNavigation.AccountId == accountId).ToList();
+            }
+            else
+            {
+                return new List<Notification> { };
+            }
+        }
         public async Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds)
         {
             var notificationAccounts = accountIds.Select(accountId => new NotificationAccount
@@ -45,7 +83,7 @@ namespace OTMS.DAL.DAO
             await _context.NotificationAccounts.AddRangeAsync(notificationAccounts);
             await _context.SaveChangesAsync();
         }
-        public async Task AssignToRolesAsync(Guid notificationId,string roleName)
+        public async Task AssignToRolesAsync(Guid notificationId, string roleName)
         {
             var notificationRole = new NotificationRole
             {
@@ -56,9 +94,6 @@ namespace OTMS.DAL.DAO
             await _context.NotificationRoles.AddAsync(notificationRole);
             await _context.SaveChangesAsync();
         }
-
-
-
         public async Task<List<Notification>> GetNotificationsByAccountOrRole(Guid? accountId, string? roleName)
         {
             using (var context = new OtmsContext())
@@ -75,8 +110,6 @@ namespace OTMS.DAL.DAO
                 return await query.Distinct().ToListAsync();
             }
         }
-
-
         public async Task isRead(Guid notificationId, Guid accountId)
         {
             NotificationAccount notification = _context.NotificationAccounts.FirstOrDefault(nr => nr.NotificationId == notificationId && nr.AccountId == accountId);

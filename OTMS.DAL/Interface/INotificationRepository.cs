@@ -9,6 +9,7 @@ namespace OTMS.DAL.Interface
     {
         Task<List<Notification>> GetAllAccountNotificationAsync(Guid accountId);
         Task<List<Notification>> GetAllCommonNotificationAsync();
+        Task<List<Notification>> GetNotificationManagementAsync(Guid accountId);
         Task<List<Notification>> GetAllRoleNotificationAsync(string roleName);
         Task AssignToAccountsAsync(Guid notificationId, List<Guid> accountIds);
         Task AssignToRolesAsync(Guid notificationId, string roleName);
