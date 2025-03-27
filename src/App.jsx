@@ -55,7 +55,9 @@ import AttendanceComplain from "./pages/dashboard/student/attendance/complain-at
 import NotificationPage from "./pages/notification/view-notification-page";
 import AddNotificationPage from "./pages/notification/add-notification";
 import ViewNotificationListPage from "./pages/notification/view-notification-page";
-import ManageNotificationPage from "./pages/notification/manage-notification-page";
+import ManageNotificationPage from "./pages/notification/manage/manage-notification-page";
+import DetailNotificationManagementPage from './pages/notification/manage/detail-notification-manage-page';
+import EditNotificationManagementPage from "./pages/notification/manage/edit-notification-management-page";
 
 function App() {
   return (
@@ -95,6 +97,8 @@ function App() {
                       <Route path=":tab/:notificationId" element={<NotificationPage />} />
                       <Route path="list" element={<ManageNotificationPage />} />
                       <Route path="add" element={<AddNotificationPage />} />
+                      <Route path="detail/:id" element={<DetailNotificationManagementPage />} />
+                      <Route path="edit/:id" element={<EditNotificationManagementPage />} />
                     </Route>
                     {/* account information */}
                     <Route path="account/:id" element={<ViewAccountDetail />} />
@@ -169,7 +173,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="bottom-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} />
+            <Toaster richColors position="top-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>

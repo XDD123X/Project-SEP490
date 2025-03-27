@@ -9,7 +9,8 @@ export default function LogoutPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    logout(dispatch);
+    logout();
+    dispatch({ type: "LOGOUT" });
     navigate("/login");
   }, [navigate, dispatch]);
 

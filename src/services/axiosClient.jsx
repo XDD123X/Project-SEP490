@@ -37,11 +37,6 @@ axiosClient.interceptors.response.use(
       return Promise.reject(error); // Trả lỗi ngay, không thử refresh token
     }
 
-    // ✅ Nếu chưa có accessToken mà bị 401 → Không gọi refresh token, chỉ báo lỗi
-    if (!getAccessToken() && error.response?.status === 401) {
-      return Promise.reject(error);
-    }
-
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 

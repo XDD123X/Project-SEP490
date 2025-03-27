@@ -1,11 +1,8 @@
-import React from "react";
-import { AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, LifeBuoy, Map, PieChart, Send, Settings2, SquareTerminal } from "lucide-react";
-
+import { Command} from "lucide-react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail } from "@/components/ui/sidebar";
 import { NavUser } from "./SideBarUser";
 import { SideBarMain } from "./SideBarMain";
 import { NavSecondary } from "./SideBarSecondary";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SidebarGeneral } from "@/components/dashboard/SidebarGeneral";
 

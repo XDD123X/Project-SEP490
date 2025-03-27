@@ -56,15 +56,11 @@ export const login = async (email, password, rememberMe) => {
 };
 
 // 🔒 Gửi yêu cầu logout
-export const logout = async (dispatch) => {
+export const logout = async () => {
   try {
     const response = await axiosClient.post("/auth/logout", {}, { withCredentials: true });
 
     console.log(response.data.message); // "Logged out successfully"
-
-    // Dispatch action để xóa state
-    dispatch({ type: "LOGOUT" });
-
     // Chuyển hướng về trang đăng nhập
     window.location.href = "/login";
   } catch (error) {

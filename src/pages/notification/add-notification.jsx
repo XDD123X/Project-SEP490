@@ -4,9 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Download, Upload } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { RichTextEditor } from "./rich-text-editor";
 import { getRoleList } from "@/services/roleService";
@@ -14,13 +11,19 @@ import { getAllCourse } from "@/services/courseService";
 import { GetClassList } from "@/services/classService";
 import { toast } from "sonner";
 import { AddNotification } from "@/services/notificationService";
+import { useStore } from "@/services/StoreContext";
+import { Badge } from "@/components/ui/badge";
+import { ClassBadge, CourseBadge } from "@/components/BadgeComponent";
 
 export default function AddNotificationPage() {
   const navigate = useNavigate();
+  const { state } = useStore();
+  const { role, user } = state;
+  const [options, setOptions] = useState([]);
   const [courses, setCourses] = useState([]);
   const [roles, setRoles] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [notificationType, setNotificationType] = useState("0");
+  const [notificationType, setNotificationType] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -32,24 +35,51 @@ export default function AddNotificationPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const roleList = await getRoleList();
-        const classList = await GetClassList();
-        const courseList = await getAllCourse();
+        const [roleRes, classRes, courseRes] = await Promise.all([getRoleList(), GetClassList(), getAllCourse()]);
 
-        if (roleList.status === 200 || classList.status === 200 || courseList.status === 200) {
-          setRoles(roleList.data);
-          setClasses(classList.data);
-          setCourses(courseList.data);
+        if (roleRes.status === 200 || classRes.status === 200 || courseRes.status === 200) {
+          // const filteredCourses = courseRes.data.filter((course) => course.status !== 0);
+          setCourses(courseRes.data);
+
+          let filteredRoles = roleRes.data;
+          let filteredClasses = classRes.data;
+
+          //role
+          if (role.toLowerCase() === "officer") {
+            filteredRoles = roleRes.data.filter((r) => r === "Lecturer" || r === "Student");
+          }
+
+          //class
+          if (role.toLowerCase() === "lecturer") {
+            filteredClasses = classRes.data.filter((cls) => cls.lecturerId === user.uid && cls.status !== 0);
+          }
+
+          setRoles(filteredRoles);
+          setClasses(filteredClasses);
         }
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
-  }, []);
+  }, [role, user]);
+
+  //option by role
+  useEffect(() => {
+    let newOptions = [];
+
+    if (role.toLowerCase() === "admin") {
+      newOptions.push({ value: "0", label: "All" }, { value: "1", label: "Role" }, { value: "2", label: "Course" }, { value: "3", label: "Class" });
+    } else if (role.toLowerCase() === "officer") {
+      newOptions.push({ value: "0", label: "All" }, { value: "1", label: "Role" }, { value: "2", label: "Course" }, { value: "3", label: "Class" });
+    } else if (role.toLowerCase() === "lecturer") {
+      newOptions.push({ value: "3", label: "Class" });
+    }
+
+    setOptions(newOptions);
+  }, [role]);
 
   const handleSelectClass = (value) => {
-    console.log("Selected class:", value);
     setSelectedClass(value);
   };
 
@@ -108,7 +138,7 @@ export default function AddNotificationPage() {
     try {
       const response = await AddNotification(notificationData);
       console.log(response);
-      
+
       if (response.status === 200) {
         toast.success("Notification Created Successfully!");
         // navigate("/notification/list");
@@ -145,10 +175,11 @@ export default function AddNotificationPage() {
                   <SelectValue placeholder="Select notification type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">All</SelectItem>
-                  <SelectItem value="1">Role</SelectItem>
-                  <SelectItem value="2">Course</SelectItem>
-                  <SelectItem value="3">Class</SelectItem>
+                  {options.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -184,7 +215,10 @@ export default function AddNotificationPage() {
                   <SelectContent>
                     {courses.map((course) => (
                       <SelectItem key={course.courseId} value={course.courseName.toString()}>
-                        {course.courseName} - {course.description}
+                        <span className="mr-4">
+                          {course.courseName} - {course.description}
+                        </span>
+                        <CourseBadge status={course.status} />
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -204,7 +238,10 @@ export default function AddNotificationPage() {
                   <SelectContent>
                     {classes.map((classItem) => (
                       <SelectItem key={classItem.classId} value={classItem.classCode.toString()}>
-                        {classItem.classCode} - {classItem.className}
+                        <span className="mr-4">
+                          {classItem.classCode} - {classItem.className}
+                        </span>
+                        <ClassBadge status={classItem.status} />
                       </SelectItem>
                     ))}
                   </SelectContent>

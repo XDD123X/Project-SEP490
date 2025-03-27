@@ -6,80 +6,6 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { GetLecturerClassList } from "@/services/classService";
 
-// Using mock data for demonstration
-const mockData = [
-  {
-    classId: "5d1ea9e9-d471-412b-9169-c8f93555adb6",
-    classCode: "IELTS25-03/25",
-    className: "Lớp IELTS25 Khai Giảng 03-25",
-    lecturerId: "97f10668-37ae-4488-9029-aad76f842cb9",
-    courseId: 1,
-    totalSession: 32,
-    startDate: "2025-03-23T20:49:53.447",
-    endDate: null,
-    classUrl: "https://meet.google.com/abc-defg-hjk",
-    scheduled: false,
-    status: 1,
-    course: {
-      courseName: "IELTS",
-      description: "Khóa Học IETLS 2025",
-    },
-    lecturer: {
-      accountId: "97f10668-37ae-4488-9029-aad76f842cb9",
-      email: "lecturer1@gmail.com",
-      fullName: "Lê Thanh Hải",
-      roleId: "7a6d031a-11f0-4b44-9ad2-712d037a781e",
-      fulltime: true,
-      phoneNumber: "0123456789",
-      dob: "2000-01-01",
-      gender: true,
-      imgUrl: "https://i.imgur.com/McuGRDf.png",
-      meetUrl: null,
-      status: 1,
-      createdAt: "2025-03-23T20:49:53.38",
-      updatedAt: null,
-      parents: [],
-      role: null,
-    },
-    classStudents: [],
-  },
-  {
-    classId: "9c4139c9-e3f1-4df1-a7d2-e9a2f33dcaaa",
-    classCode: "SAT25-03/25",
-    className: "Lớp SAT25 Khai Giảng 03-25",
-    lecturerId: "97d520b6-796a-4ace-8ca6-b36f7104c8aa",
-    courseId: 2,
-    totalSession: 32,
-    startDate: "2025-03-23T20:49:53.447",
-    endDate: null,
-    classUrl: "https://meet.google.com/abc-defg-hjk",
-    scheduled: true,
-    status: 1,
-    course: {
-      courseName: "SAT",
-      description: "Khóa học SAT 2025",
-    },
-    lecturer: {
-      accountId: "97d520b6-796a-4ace-8ca6-b36f7104c8aa",
-      email: "lecturer2@gmail.com",
-      fullName: "Nguyễn Thị Lan",
-      roleId: "7a6d031a-11f0-4b44-9ad2-712d037a781e",
-      fulltime: true,
-      phoneNumber: "0123456789",
-      dob: "2000-01-01",
-      gender: false,
-      imgUrl: "https://i.imgur.com/0dTvSSQ.png",
-      meetUrl: null,
-      status: 1,
-      createdAt: "2025-03-23T20:49:53.38",
-      updatedAt: null,
-      parents: [],
-      role: null,
-    },
-    classStudents: [],
-  },
-];
-
 export default function ViewClassLecturerPage() {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -170,7 +96,7 @@ function ClassCard({ classItem }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col sm:flex-row items-center w-full gap-2">
+      <CardFooter className="flex flex-col items-center w-full gap-2">
         <Link to={classItem.classUrl} className="w-full" target="_blank" rel="noopener noreferrer">
           <Button className="flex-1 w-full">
             <ExternalLink className="mr-2 h-4 w-4" />

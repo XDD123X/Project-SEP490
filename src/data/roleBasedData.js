@@ -201,8 +201,8 @@ const roleBasedData = {
         url: "notifications",
         icon: Bell,
         items: [
-          { title: "View Notifications", url: "/officer/notification" },
-          { title: "Create New", url: "/officer/notification/add" },
+          { title: "View Notifications", url: "/notification/list" },
+          { title: "Create New", url: "/notification/add" },
         ],
       },
       {

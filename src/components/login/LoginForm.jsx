@@ -150,7 +150,7 @@ export function LoginForm() {
     const email = decoded.email;
 
     if (!email) {
-      toast.error("Không lấy được email từ Google");
+      toast.error("Can Not Get Email From Google");
       return;
     }
 

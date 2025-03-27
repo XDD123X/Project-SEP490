@@ -234,7 +234,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Enter content..
         </Popover>
       </div>
 
-      <Textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} onSelect={saveSelection} onClick={saveSelection} onKeyUp={saveSelection} placeholder={placeholder} className={`min-h-[${minHeight}]`}/>
+      <Textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} onSelect={saveSelection} onClick={saveSelection} onKeyUp={saveSelection} placeholder={placeholder} className={`min-h-[${minHeight}px]`}/>
 
       {value && (
         <div className="mt-4">
