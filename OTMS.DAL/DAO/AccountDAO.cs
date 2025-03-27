@@ -80,6 +80,16 @@ namespace OTMS.DAL.DAO
             return accounts;
         }
 
+        public async Task<List<Account>> GetStudentByClassCode(string classCode)
+        {
+            var accounts = await _context.Accounts
+                .Where(a => a.Classes.Any(cs => cs.ClassCode == classCode))
+                .Include(a => a.ClassStudents)
+                .ToListAsync();
+            return accounts;
+        }
+
+
 
         public new async Task UpdateAsync(Account account)
         {

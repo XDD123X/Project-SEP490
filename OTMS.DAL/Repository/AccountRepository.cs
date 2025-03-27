@@ -32,7 +32,7 @@ namespace OTMS.DAL.Repository
 
         public Task<Account?> GetByLogin(string email, string password) => _accountDAO.GetByLogin(email, password);
         public Task<List<Account>> GetByStudentByClass(Guid classId) => _accountDAO.GetStudentByClass(classId);
-
+        public Task<List<Account>> GetByStudentByClassCode(string code) => _accountDAO.GetStudentByClassCode(code);
         public new Task UpdateAsync(Account account) => _accountDAO.UpdateAsync(account);
 
         public Task<Role?> GetRoleByRoleName(string RoleName) => _accountDAO.GetRoleByRoleName(RoleName);

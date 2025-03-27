@@ -91,6 +91,26 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
         }
 
+        public async Task<Class?> GetClassByCode(string code)
+        {
+
+            return await _context.Classes
+                .Where(c => c.ClassCode.ToLower() == code.ToLower())
+                .Include(c => c.ClassStudents)
+                .ThenInclude(cs => cs.Student)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Class>> GetClassListByCourseName(string name)
+        {
+            return await _context.Classes
+                .Include(c => c.Course)
+                .Include(c => c.Lecturer)
+                .Include(c => c.ClassStudents)
+                .ThenInclude(cs => cs.Student)
+                .Where(c => c.Course.CourseName.ToLower() == name.ToLower())
+                .ToListAsync();
+        }
         public async Task<bool> checkCouresHasAnyClass(Guid id)
         {
             return await _dbSet.AnyAsync(c => c.CourseId == id);

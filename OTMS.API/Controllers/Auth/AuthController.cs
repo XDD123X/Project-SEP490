@@ -179,8 +179,8 @@ namespace OTMS.API.Controllers.Auth
                     Schedule = (user.LecturerSchedules.Any() &&
                                 !string.IsNullOrEmpty(user.LecturerSchedules.First().WeekdayAvailable) &&
                                 !string.IsNullOrEmpty(user.LecturerSchedules.First().SlotAvailable))
-                                ? user.LecturerSchedules.Count()
-                : 0
+                                ? user.LecturerSchedules.Count() : 0,
+                    IsNew = user.Status == 3
                 });
             }
             catch (Exception ex)
@@ -244,6 +244,42 @@ namespace OTMS.API.Controllers.Auth
                 await _accountRepository.UpdateAsync(user);
 
                 return Ok("Password changed successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost("first-time-login")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> FirstTimeLogin(ChangePasswordDTO changePasswordDTO)
+        {
+            try
+            {
+                var email = User.FindFirst("ue")?.Value;
+                if (string.IsNullOrEmpty(email)) return Unauthorized("Email not found in token");
+
+                var user = await _accountRepository.GetByEmailAsync(email);
+                if (user == null) return NotFound("User not found");
+
+                // Kiểm tra nếu user là tài khoản mới
+                if (user.Status != 3)
+                {
+                    return BadRequest("This endpoint is only for first-time login users.");
+                }
+
+                if (changePasswordDTO.NewPassword != changePasswordDTO.ReNewPassword)
+                {
+                    return BadRequest("New passwords do not match");
+                }
+
+                user.Password = _passwordService.HashPassword(changePasswordDTO.NewPassword);
+                user.Status = 1;
+
+                await _accountRepository.UpdateAsync(user);
+
+                return Ok("Password changed successfully. You can now log in.");
             }
             catch (Exception ex)
             {

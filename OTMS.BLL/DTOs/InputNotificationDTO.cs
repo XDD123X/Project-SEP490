@@ -14,5 +14,6 @@ namespace OTMS.BLL.DTOs
 
         public int? Type { get; set; } = null!;
         public string? Value { get; set; } = null!;
+        public bool? EmailSend { get; set; } = false;
     }
 }

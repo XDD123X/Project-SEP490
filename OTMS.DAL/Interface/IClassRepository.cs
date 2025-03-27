@@ -16,6 +16,8 @@ namespace OTMS.DAL.Interface
         Task<List<Class>> getClassByStudent(Guid studentId);
         Task<bool> checkLeturerInAnyClass(Guid id);
         Task<List<Class>> GetClassList();
+        Task<List<Class>> GetClassListByCourseName(string name);
+        Task<Class?> GetClassByCode(string code);
         Task<bool> checkCouresHasAnyClass(Guid id);
 
         Task<bool> ExistsAsync(string classCode);

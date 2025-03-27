@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
+using OTMS.BLL.Services;
 using OTMS.DAL.Interface;
 using OTMS.DAL.Repository;
+using System.Linq;
 using System.Security.Claims;
 
 namespace OTMS.API.Controllers.Notification_endpoint
@@ -19,8 +21,9 @@ namespace OTMS.API.Controllers.Notification_endpoint
         private readonly ICourseRepository _courseRepository;
         private readonly IClassRepository _classRepository;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public NotificationsController(INotificationRepository notificationRepository, IRoleRepository roleRepository, IAccountRepository accountRepository, ICourseRepository courseRepository, IClassRepository classRepository, IMapper mapper)
+        public NotificationsController(INotificationRepository notificationRepository, IRoleRepository roleRepository, IAccountRepository accountRepository, ICourseRepository courseRepository, IClassRepository classRepository, IMapper mapper, IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
             _roleRepository = roleRepository;
@@ -28,6 +31,7 @@ namespace OTMS.API.Controllers.Notification_endpoint
             _courseRepository = courseRepository;
             _classRepository = classRepository;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         [HttpGet("me")]
@@ -160,7 +164,57 @@ namespace OTMS.API.Controllers.Notification_endpoint
                 Type = newNotificationDTO.Type switch { 0 => 0, 1 => 1, 2 or 3 => 2, _ => throw new ArgumentException("Invalid notification type") }
             };
 
+            //add
             await _notificationRepository.AddAsync(notification);
+
+            //EmailSend = true
+            List<Guid> recipientIdList = new();
+            List<string> recipientEmails = new();
+            if (newNotificationDTO.EmailSend == true)
+            {
+
+
+                switch (newNotificationDTO.Type)
+                {
+                    case 0:
+                        var accountType0 = await _accountRepository.GetAllAsync();
+                        recipientEmails = accountType0.Select(a => a.Email).ToList();
+                        break;
+                    case 1: // Gửi theo role
+                        var accountType1 = await _accountRepository.GetAllAsync();
+                        recipientEmails = (await _accountRepository.GetAccountByRoleNameAsync(newNotificationDTO.Value)).Select(a => a.Email).ToList();
+                        break;
+                    case 2: // Gửi theo course
+                        var classListbyCourse = await _classRepository.GetClassListByCourseName(newNotificationDTO.Value);
+                        recipientEmails = classListbyCourse
+                            .SelectMany(c => c.ClassStudents)
+                            .Select(cs => cs.Student.Email)
+                            .Distinct()
+                            .ToList();
+                        break;
+                    case 3: // Gửi theo class
+                        var classListbyClass = await _classRepository.GetByClassCodeAsync("PRN231-03/25");
+                        recipientEmails = classListbyClass.ClassStudents
+                                .Select(cs => cs.Student.Email)
+                                .Distinct()
+                                .ToList();
+                        break;
+                    default:
+                        return BadRequest("Invalid notification type.");
+                }
+
+                if (recipientEmails.Any())
+                {
+                    string subject = $"New Notification: {newNotificationDTO.Title}";
+                    string message = newNotificationDTO.Content;
+
+                    foreach (var email in recipientEmails)
+                    {
+                        EmailBackgroundService.EnqueueEmail(email, subject, message);
+                    }
+                }
+            }
+
 
             if (newNotificationDTO.Type == 1)
                 await _notificationRepository.AssignToRolesAsync(notification.NotificationId, newNotificationDTO.Value);

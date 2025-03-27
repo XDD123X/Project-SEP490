@@ -55,6 +55,7 @@ namespace OTMS.BLL.Services
 
                     await client.SendMailAsync(mail);
                 }
+                Console.WriteLine($"Email send successfully to: {to}");
             }
             catch (Exception ex)
             {

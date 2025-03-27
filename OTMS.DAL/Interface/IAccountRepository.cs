@@ -21,7 +21,7 @@ namespace OTMS.DAL.Interface
 
         Task<Account?> GetByLogin(string email, string password);
         Task<List<Account>> GetByStudentByClass(Guid classId);
-
+        public Task<List<Account>> GetByStudentByClassCode(string code);
 
         new Task UpdateAsync(Account account);
 
