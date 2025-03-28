@@ -68,6 +68,46 @@ namespace OTMS.DAL.DAO
                 return (true, "Đã có yêu cầu thay đổi sang thời gian này đang chờ duyệt.");
             }
 
+            // Nếu có SessionId (tức là đang kiểm tra cho một session cụ thể), thì kiểm tra xung đột với lịch học của sinh viên
+            if (excludeSessionId.HasValue)
+            {
+                // Lấy thông tin về session hiện tại
+                var currentSession = await _context.Sessions
+                    .FirstOrDefaultAsync(s => s.SessionId == excludeSessionId);
+
+                if (currentSession != null)
+                {
+                    // Lấy dsach svien trong lớp của session hiện tại
+                    var studentsInClass = await _context.ClassStudents
+                        .Where(cs => cs.ClassId == currentSession.ClassId)
+                        .Select(cs => cs.StudentId)
+                        .ToListAsync();
+
+                    if (studentsInClass.Any())
+                    {
+                        // Lấy danh sách các lớp học khác mà những sinh viên này tham gia
+                        var otherClassIds = await _context.ClassStudents
+                            .Where(cs => studentsInClass.Contains(cs.StudentId))
+                            .Select(cs => cs.ClassId)
+                            .Distinct()
+                            .ToListAsync();
+
+                        // Kiểm tra xem có session nào của các lớp này vào cùng thời điểm với thời gian mới không
+                        var hasStudentConflict = await _context.Sessions
+                            .AnyAsync(s => 
+                                otherClassIds.Contains(s.ClassId) && 
+                                s.SessionDate.Date == newDate.Date && 
+                                s.Slot == newSlot &&
+                                s.SessionId != excludeSessionId);
+
+                        if (hasStudentConflict)
+                        {
+                            return (true, "Sinh viên trong lớp đã có lịch học vào thời gian này.");
+                        }
+                    }
+                }
+            }
+
             return (false, "");
         }
 
@@ -76,7 +116,7 @@ namespace OTMS.DAL.DAO
         /// </summary>
         public async Task<(bool isSuccess, string message)> AddRequestAsync(AddSessionChangeRequestDTO model)
         {
-            // Lấy thông tin buổi học hiện tại
+            // Lấy session hiện tại
             var session = await _context.Sessions
                 .FirstOrDefaultAsync(s => s.SessionId == model.SessionId);
 
@@ -91,7 +131,7 @@ namespace OTMS.DAL.DAO
                 return (false, "Giảng viên không phụ trách buổi học này.");
             }
 
-            // Kiểm tra xem đã có yêu cầu thay đổi nào cho buổi học này chưa (chưa được duyệt)
+            // Kiểm tra xem đã có yêu cầu thay đổi nào cho buổi học này chưa
             var hasPendingRequest = await _context.SessionChangeRequests
                 .AnyAsync(r => r.SessionId == model.SessionId && r.Status == 0);
 
@@ -100,7 +140,7 @@ namespace OTMS.DAL.DAO
                 return (false, "Đã có yêu cầu thay đổi cho buổi học này đang chờ duyệt.");
             }
 
-            // Kiểm tra trùng lịch
+            // check trùng lịch
             var (isConflict, conflictMessage) = await CheckScheduleConflictAsync(
                 model.LecturerId, 
                 model.NewDate, 
@@ -112,7 +152,7 @@ namespace OTMS.DAL.DAO
                 return (false, conflictMessage);
             }
 
-            // Tạo yêu cầu thay đổi mới
+            // tạo change rq add to db
             var request = new SessionChangeRequest
             {
                 RequestChangeId = Guid.NewGuid(),
