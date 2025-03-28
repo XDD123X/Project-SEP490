@@ -83,7 +83,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 string emailBody = $@"
                     <h3>Kính gửi {request.Lecturer.FullName},</h3>
                     <p>Yêu cầu thay đổi lịch học của bạn cho buổi học ngày {request.OldDate} (Slot {request.OldSlot}) sang ngày {request.NewDate} (Slot {request.NewSlot}) {statusText}.</p>
-                    <p>Lý do: {model.Description ?? "Lý do thì hỏi lại officer"}</p>
+                    <p>Lý do: {model.Description ?? "Lý do vui lòng hỏi lại officer"}</p>
                     <p>Trân trọng,</p>
                     <p>Future Me Center</p>
                 ";
