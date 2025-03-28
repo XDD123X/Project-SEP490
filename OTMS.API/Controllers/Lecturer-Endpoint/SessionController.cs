@@ -19,6 +19,15 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             _mapper = mapper;
         }
 
+        [HttpGet("{sessionId}")]
+        public async Task<IActionResult> GetSessionsBySessionId(Guid sessionId)
+        {
+            var session = await _sessionRepository.GetSessionsBySessionId(sessionId);
+            if (session == null) return NotFound();
+            var mappedSession = _mapper.Map<SessionDTO>(session);
+            return Ok(mappedSession);
+        }
+
         [HttpGet("class/{classId}")]
         public async Task<IActionResult> GetSessionsByClassId(Guid classId)
         {

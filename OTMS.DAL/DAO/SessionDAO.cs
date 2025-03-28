@@ -101,5 +101,18 @@ namespace OTMS.DAL.DAO
             return session;
         }
 
+        public async Task<Session?> GetSessionsBySessionId(Guid sessionId)
+        {
+            var session = await _context.Sessions
+                .Where(s => s.SessionId == sessionId)
+                .Include(s => s.Attendances)
+                .Include(s => s.Lecturer)
+                .Include(s => s.Class)
+                .OrderBy(s => s.SessionDate)
+                .FirstOrDefaultAsync();
+
+            return session;
+        }
+
     }
 }
