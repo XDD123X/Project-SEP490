@@ -10,123 +10,10 @@ import { GetClassList } from "@/services/classService";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
-// Sample data for demonstration
-const sampleClasses = [
-  {
-    classId: "e6c59b7f-0bc5-4fe0-ad9e-0e6eea3cba18",
-    classCode: "IELTS25-03/25",
-    className: "Lớp IELTS25 Khai Giảng 03-25",
-    lecturerId: "8ee77ef5-aa1b-4a6e-ac80-86c4f62e7f00",
-    courseId: 1,
-    totalSession: 32,
-    startDate: "2025-03-18T20:52:54.467",
-    endDate: null,
-    classUrl: "https://example.com/meet/euf-nwbu-cet",
-    scheduled: false,
-    status: 0,
-    classStudents: [
-      {
-        classStudentId: 1,
-        classId: "e6c59b7f-0bc5-4fe0-ad9e-0e6eea3cba18",
-        studentId: "00211a26-1617-47c3-b00e-02f2e06a9f8c",
-        student: {
-          accountId: "00211a26-1617-47c3-b00e-02f2e06a9f8c",
-          email: "student6@gmail.com",
-          fullName: "Cao Văn Linh",
-          roleId: "b5ec52be-e7ea-442c-927e-f023416f2202",
-          fulltime: true,
-          phoneNumber: "0123456789",
-          dob: "2000-01-01",
-          gender: true,
-          imgUrl: "https://ui.shadcn.com/avatars/shadcn.jpg",
-          meetUrl: "https://example.com/meet/euf-nwbu-cet",
-          status: 1,
-          createdAt: "2025-03-18T20:52:54.453",
-          updatedAt: null,
-          role: null,
-        },
-      },
-      {
-        classStudentId: 2,
-        classId: "e6c59b7f-0bc5-4fe0-ad9e-0e6eea3cba18",
-        studentId: "ace11161-60ae-4dfb-ae5a-36b3c0feb037",
-        student: {
-          accountId: "ace11161-60ae-4dfb-ae5a-36b3c0feb037",
-          email: "student7@gmail.com",
-          fullName: "Tôn Nữ Minh",
-          roleId: "b5ec52be-e7ea-442c-927e-f023416f2202",
-          fulltime: true,
-          phoneNumber: "0123456789",
-          dob: "2000-01-01",
-          gender: false,
-          imgUrl: "https://ui.shadcn.com/avatars/shadcn.jpg",
-          meetUrl: "https://example.com/meet/euf-nwbu-cet",
-          status: 1,
-          createdAt: "2025-03-18T20:52:54.453",
-          updatedAt: null,
-          role: null,
-        },
-      },
-    ],
-    course: {
-      courseName: "IELTS",
-      description: "Khóa Học IETLS 2025",
-    },
-    lecturer: {
-      accountId: "8ee77ef5-aa1b-4a6e-ac80-86c4f62e7f00",
-      email: "lecturer1@gmail.com",
-      fullName: "Lê Thanh Hải",
-      roleId: "10292866-5f52-4356-9150-cf75dc453c83",
-      fulltime: true,
-      phoneNumber: "0123456789",
-      dob: "2000-01-01",
-      gender: true,
-      imgUrl: "https://ui.shadcn.com/avatars/shadcn.jpg",
-      meetUrl: "https://example.com/meet/euf-nwbu-cet",
-      status: 1,
-      createdAt: "2025-03-18T20:52:54.453",
-      updatedAt: null,
-      role: null,
-    },
-  },
-  {
-    classId: "f7d59b7f-0bc5-4fe0-ad9e-0e6eea3cba19",
-    classCode: "TOEIC25-04/25",
-    className: "Lớp TOEIC25 Khai Giảng 04-25",
-    lecturerId: "9fe77ef5-aa1b-4a6e-ac80-86c4f62e7f01",
-    courseId: 2,
-    totalSession: 24,
-    startDate: "2025-04-15T10:00:00.000",
-    endDate: null,
-    classUrl: "https://example.com/meet/abc-defg-hij",
-    scheduled: false,
-    status: 0,
-    classStudents: [],
-    course: {
-      courseName: "TOEIC",
-      description: "Khóa Học TOEIC 2025",
-    },
-    lecturer: {
-      accountId: "9fe77ef5-aa1b-4a6e-ac80-86c4f62e7f01",
-      email: "lecturer2@gmail.com",
-      fullName: "Nguyễn Văn An",
-      roleId: "10292866-5f52-4356-9150-cf75dc453c83",
-      fulltime: true,
-      phoneNumber: "0987654321",
-      dob: "1995-05-15",
-      gender: true,
-      imgUrl: "https://ui.shadcn.com/avatars/shadcn.jpg",
-      meetUrl: "https://example.com/meet/abc-defg-hij",
-      status: 1,
-      createdAt: "2025-03-10T15:30:00.000",
-      updatedAt: null,
-      role: null,
-    },
-  },
-];
+
 
 export function ClassSelectionCard({ onClassSelect }) {
-  const [classes, setClasses] = useState(sampleClasses);
+  const [classes, setClasses] = useState();
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" });
@@ -152,14 +39,11 @@ export function ClassSelectionCard({ onClassSelect }) {
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-
     if (term.trim() === "") {
-      setClasses(sampleClasses);
+      setClasses(classes);
       return;
     }
-
-    const filtered = sampleClasses.filter((c) => c.classCode.toLowerCase().includes(term.toLowerCase()) || c.className.toLowerCase().includes(term.toLowerCase()) || c.lecturer.fullName.toLowerCase().includes(term.toLowerCase()));
-
+    const filtered = classes.filter((c) => c.classCode.toLowerCase().includes(term.toLowerCase()) || c.className.toLowerCase().includes(term.toLowerCase()) || c.lecturer.fullName.toLowerCase().includes(term.toLowerCase()));
     setClasses(filtered);
   };
 
@@ -245,14 +129,14 @@ export function ClassSelectionCard({ onClassSelect }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {classes.length === 0 ? (
+              {classes?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center">
                     No classes found
                   </TableCell>
                 </TableRow>
               ) : (
-                classes.map((classItem) => (
+                classes && classes.map((classItem) => (
                   <TableRow key={classItem.classId} className={selectedClassId === classItem.classId ? "bg-muted" : ""} onClick={() => setSelectedClassId(classItem.classId)}>
                     <TableCell>
                       <input type="radio" checked={selectedClassId === classItem.classId} onChange={() => setSelectedClassId(classItem.classId)} className="h-4 w-4" />

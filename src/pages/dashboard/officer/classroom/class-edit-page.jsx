@@ -1,9 +1,5 @@
-import React from "react";
-
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, ChevronLeft, ChevronRight, Pencil, Save, Wrench } from "lucide-react";
-
+import {  ChevronLeft, Pencil, Save, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,9 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { GetClassById, UpdateClass } from "@/services/classService";
 import { getLecturerList } from "@/services/accountService";
@@ -26,6 +19,7 @@ export default function ClassEditPage() {
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedLecturer, setSelectedLecturer] = useState();
+  const [meetUrl ,setMeetUrl] = useState("");
   const [editLecturer, setEditLecturer] = useState(false);
   const classId = searchParams.get("classId") || "";
   const navigate = useNavigate();
@@ -60,7 +54,8 @@ export default function ClassEditPage() {
 
           if (classData.status === 200 && classData.data != null) {
             setClassItem(classData.data);
-            setSelectedLecturer(classData.data.lecturer);
+            setSelectedLecturer(classData.data.lecturer.accountId);
+            setMeetUrl(classData.data.classUrl)
           }
           if (lecturerData.status === 200 && lecturerData.data != null) {
             setLecturers(lecturerData.data);
@@ -90,9 +85,11 @@ export default function ClassEditPage() {
       ...prev,
       [name]: name === "status" ? Number.parseInt(value) : value,
     }));
+
     if (name === "lecturerId") {
-      const lecturer = lecturers.find((l) => l.accountId === value);
-      setSelectedLecturer(lecturer);
+      const meetUrl = lecturers.filter(l => l.accountId  === value);
+      setMeetUrl(meetUrl[0].meetUrl)
+      setSelectedLecturer(value);
     }
   };
 
@@ -125,13 +122,11 @@ export default function ClassEditPage() {
         totalSession: classItem.totalSession,
         startDate: classItem.startDate,
         endDate: classItem.endDate,
-        classUrl: classItem.classUrl,
+        classUrl: meetUrl,
         scheduled: classItem.scheduled,
         status: classItem.status,
       };
-
-      // console.log(classItem);
-      //console.log("Saving class data:", JSON.stringify(updatedClass, null, 2));
+      
 
       try {
         const response = await UpdateClass(updatedClass);
@@ -210,7 +205,11 @@ export default function ClassEditPage() {
               <div className="space-y-2">
                 <Label htmlFor="lecturerId">Lecturer</Label>
                 <div className="flex gap-2">
-                  <Select value={classItem.lecturer.accountId} onValueChange={(value) => handleSelectChange("lecturerId", value)} disabled={!editLecturer}>
+                  <Select
+                    value={selectedLecturer} // Kiểm tra nếu lecturer tồn tại
+                    onValueChange={(value) => handleSelectChange("lecturerId", value)}
+                    disabled={!editLecturer}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select lecturer" />
                     </SelectTrigger>
@@ -247,10 +246,10 @@ export default function ClassEditPage() {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Disabled</SelectItem>
+                    <SelectItem value="0">Cancelled</SelectItem>
                     <SelectItem value="1">Upcoming</SelectItem>
                     <SelectItem value="2">Studying</SelectItem>
-                    <SelectItem value="2">Finished</SelectItem>
+                    <SelectItem value="3">Finished</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -258,30 +257,8 @@ export default function ClassEditPage() {
               {/* Start Date */}
               <div className="space-y-2">
                 <Label htmlFor="startDate">Start Date</Label>
-                {/* <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !classItem.startDate && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={classItem.startDate ? new Date(classItem.startDate) : undefined}
-                    onSelect={(date) =>
-                      date &&
-                      setClassItem((prev) => ({
-                        ...prev,
-                        startDate: date.toISOString().split("T")[0],
-                      }))
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover> */}
                 <CalendarSelector
-                  className={'w-full'}
+                  className={"w-full"}
                   selectedDate={classItem.startDate ? new Date(classItem.startDate) : undefined}
                   setSelectedDate={(date) =>
                     date &&
@@ -296,30 +273,8 @@ export default function ClassEditPage() {
               {/* End Date */}
               <div className="space-y-2">
                 <Label htmlFor="endDate">End Date</Label>
-                {/* <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !classItem.endDate && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={classItem.endDate ? new Date(classItem.endDate) : undefined}
-                    onSelect={(date) =>
-                      date &&
-                      setClassItem((prev) => ({
-                        ...prev,
-                        endDate: date.toISOString().split("T")[0],
-                      }))
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover> */}
                 <CalendarSelector
-                  className={'w-full'}
+                  className={"w-full"}
                   selectedDate={classItem.endDate ? new Date(classItem.endDate) : undefined}
                   setSelectedDate={(date) =>
                     date &&
@@ -334,7 +289,7 @@ export default function ClassEditPage() {
               {/* Class URL - Disabled */}
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="classUrl">Class URL</Label>
-                <Input id="classUrl" name="classUrl" value={selectedLecturer.meetUrl} disabled />
+                <Input id="classUrl" name="classUrl" value={meetUrl || ""} disabled />
               </div>
 
               {/* Scheduled - Disabled with button */}

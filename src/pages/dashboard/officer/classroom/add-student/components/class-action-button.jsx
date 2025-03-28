@@ -72,6 +72,7 @@ export function ClassActionButtons({ classData, onImportStudents, studentsData }
         onClose={() => setIsImportDialogOpen(false)}
         onImport={onImportStudents}
         studentsData = {studentsData}
+        classData={classData}
       />
     </div>
   )

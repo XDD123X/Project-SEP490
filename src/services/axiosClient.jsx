@@ -62,7 +62,7 @@ axiosClient.interceptors.response.use(
 // ✅ Hàm lưu accessToken vào cookie
 export const setAccessToken = (token) => {
   const expiryDate = new Date();
-  expiryDate.setMinutes(expiryDate.getMinutes() + 15);
+  expiryDate.setMinutes(expiryDate.getMinutes() + 30);
   Cookies.set("access_token", token, { expires: expiryDate, path: "/" });
 };
 

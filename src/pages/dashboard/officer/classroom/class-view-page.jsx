@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Edit, Trash2, ChevronDown, ChevronUp, Video, VideoOff, Eye, Link2, Link2Off } from "lucide-react";
+import { Search, Edit, Trash2, ChevronDown, ChevronUp, Video, VideoOff, Eye, Link2, Link2Off, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,8 +27,6 @@ export default function ClassViewPage() {
   const [selectedYear, setSelectedYear] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentClass, setCurrentClass] = useState(null);
 
   // Add state for pagination in the SessionsPage component
@@ -298,6 +296,11 @@ export default function ClassViewPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                    <Link  to={`/officer/class/add-student/${classItem.classId}`}>
+                        <Button variant="outline" size="icon">
+                          <UserPlus className="h-4 w-4" />
+                        </Button>
+                      </Link>
                       <Link  to={`/officer/class/detail?classId=${classItem.classId}`}>
                         <Button variant="outline" size="icon">
                           <Eye className="h-4 w-4" />

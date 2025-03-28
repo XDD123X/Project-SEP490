@@ -10,18 +10,6 @@ import { useStore } from "@/services/StoreContext";
 import { authMe, changePasswordFirstTime } from "@/services/authService";
 import { toast } from "sonner";
 
-async function firstTimeLogin(password, repassword) {
-  // This would be your actual API call in a real application
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (password === repassword && password.length >= 8) {
-        resolve({ status: 200, message: "Password updated successfully" });
-      } else {
-        resolve({ status: 400, message: "Passwords don't match or are too short" });
-      }
-    }, 1000);
-  });
-}
 
 export default function FirstTimeLoginPage() {
   const navigate = useNavigate();
@@ -100,7 +88,7 @@ export default function FirstTimeLoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create New Password</CardTitle>

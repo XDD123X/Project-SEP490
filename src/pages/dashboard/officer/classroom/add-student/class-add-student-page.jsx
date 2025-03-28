@@ -7,8 +7,13 @@ import { SubmitSection } from "./components/submit-section";
 import { AllStudentsCard } from "./components/all-student-card";
 import { getStudentList } from "@/services/accountService";
 import { toast } from "sonner";
+import { useNavigate, useParams } from "react-router-dom";
+import { GetClassById } from "@/services/classService";
+import { set } from "date-fns";
 
 export default function ClassAddStudentPage() {
+  const navigate = useNavigate();
+  const { classId, setClassId } = useParams("");
   const [selectedClass, setSelectedClass] = useState(null);
   const [allStudents, setAllStudents] = useState([]);
   const [students, setStudents] = useState([]);
@@ -33,15 +38,58 @@ export default function ClassAddStudentPage() {
 
   // Function to handle class selection
   const handleClassSelect = (classData) => {
-    setSelectedClass(classData);
-    //get ids list
-    const classStudentIds = new Set(classData.classStudents.map((cs) => cs.studentId));
-    
-    //filter
-    const filteredStudents = students.filter((student) => !classStudentIds.has(student.accountId));
+    navigate(`/officer/class/add-student/${classData.classId}`);
+    // setClassId(classData.classId);
+    // setSelectedClass(classData);
+    // //get ids list
+    // const classStudentIds = new Set(classData.classStudents.map((cs) => cs.studentId));
 
-    setAllStudents(filteredStudents);
+    // //filter
+    // const filteredStudents = students.filter((student) => !classStudentIds.has(student.accountId));
+
+    // setAllStudents(filteredStudents);
   };
+
+  //handle classId
+  useEffect(() => {
+    // Kiểm tra định dạng GUID hợp lệ
+    const isValidGuid = (guid) => {
+      const guidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+      return guidPattern.test(guid);
+    };
+
+    // Kiểm tra nếu classId không hợp lệ
+    if (!classId || !isValidGuid(classId)) {
+      return; // Nếu không hợp lệ, không làm gì cả
+    }
+
+    // Hàm lấy dữ liệu lớp học từ API
+    const fetchClassData = async () => {
+      try {
+        const classData = await GetClassById(classId); // Giả sử GetClassById là hàm gọi API
+
+        // Kiểm tra nếu lớp học có dữ liệu hợp lệ
+        if (classData.status === 200 && classData.data) {
+          // Cập nhật lớp học vào state
+          setSelectedClass(classData.data);
+
+          // Lọc danh sách sinh viên không thuộc lớp học
+          const classStudentIds = new Set(classData.data.classStudents.map((cs) => cs.studentId));
+          const filteredStudents = students.filter((student) => !classStudentIds.has(student.accountId));
+
+          // Cập nhật danh sách tất cả sinh viên
+          setAllStudents(filteredStudents);
+        } else {
+          toast.error("Class data not found.");
+        }
+      } catch (error) {
+        toast.error("Error fetching class data.");
+      }
+    };
+
+    // Gọi hàm fetch dữ liệu lớp học
+    fetchClassData();
+  }, [classId, students]);
 
   // Function to remove student from class
   const handleRemoveStudent = (studentId) => {

@@ -132,7 +132,6 @@ export default function ViewRequestByClassLecturerPage() {
     const fetchData = async () => {
       try {
         const response = await GetLecturerClassList();
-        console.log(response);
 
         if (response.status === 200) {
           setClasses(response.data);

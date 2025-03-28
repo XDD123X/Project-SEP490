@@ -68,6 +68,22 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
     });
   };
 
+  //normalize email
+  const normalizeEmail = (email) => {
+    // Loại bỏ ký tự không hợp lệ, chỉ giữ lại a-z, A-Z, 0-9, @ và .
+    email = email.replace(/[^a-zA-Z0-9@.]/g, "");
+
+    // Đảm bảo không có nhiều hơn một @ và ít nhất một .
+    const atCount = (email.match(/@/g) || []).length;
+    const dotCount = (email.match(/\./g) || []).length;
+
+    if (atCount !== 1 || dotCount < 1) {
+      return null; // Không thể sửa thành email hợp lệ
+    }
+
+    return email;
+  };
+
   // Process data after mapping
   const handleProcessData = () => {
     // Kiểm tra cột email có được map không
@@ -80,49 +96,52 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
     const existingEmails = new Set(accountsData.map((account) => account.email));
 
     // Lọc danh sách fileData, chỉ giữ lại các email chưa tồn tại
-    const newAccounts = fileData
-      .map((row) => {
-        const email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+    const newAccounts = fileData.map((row) => {
+      let email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+      // Valid email
+      email = normalizeEmail(email);
+      if (!email) {
+        return null;
+      }
 
-        // Nếu email đã tồn tại, bỏ qua
-        if (existingEmails.has(email)) return null;
+      // Kiểm tra email đã tồn tại hay chưa
+      const existed = existingEmails.has(email);
 
-        const fullName = columnMapping.fullName !== -1 && row[columnMapping.fullName]?.trim() ? row[columnMapping.fullName].trim() : null;
+      const fullName = columnMapping.fullName !== -1 && row[columnMapping.fullName]?.trim() ? row[columnMapping.fullName].trim() : null;
 
-        // Xử lý giới tính nếu có
-        let gender = null;
-        if (columnMapping.gender !== -1) {
-          const genderValue = row[columnMapping.gender]?.toLowerCase();
-          gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false");
-        }
+      // Xử lý giới tính nếu có
+      let gender = null;
+      if (columnMapping.gender !== -1) {
+        const genderValue = row[columnMapping.gender]?.toLowerCase();
+        gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false");
+      }
 
-        return {
-          accountId: crypto.randomUUID(),
-          email,
-          fullName,
-          roleId: null,
-          fulltime: null,
-          phoneNumber: columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : null,
-          dob: columnMapping.dob !== -1 && row[columnMapping.dob] ? new Date(row[columnMapping.dob]).toISOString() : new Date().toISOString(),
-          gender,
-          imgUrl: null,
-          meetUrl: null,
-          status: null,
-          createdAt: new Date().toISOString(),
-          updatedAt: null,
-          role: null,
-          available: true,
-        };
-      })
-      .filter(Boolean);
+      return {
+        email,
+        fullName,
+        roleId: null,
+        fulltime: null,
+        phoneNumber: columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : null,
+        dob: columnMapping.dob !== -1 && row[columnMapping.dob] ? new Date(row[columnMapping.dob]).toISOString() : new Date().toISOString(),
+        gender,
+        imgUrl: null,
+        meetUrl: null,
+        status: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: null,
+        role: null,
+        available: true,
+        existed,
+      };
+    });
 
     setParsedAccounts(newAccounts.sort((a, b) => b.email.localeCompare(a.email)));
     setStep("preview");
   };
 
-  // Handle import
   const handleImport = () => {
-    onImport(parsedAccounts);
+    const filteredAccounts = parsedAccounts.filter(account => account.existed === false || account.existed === undefined);
+    onImport(filteredAccounts); // Chỉ import tài khoản chưa tồn tại
     resetDialog();
     onClose();
   };
@@ -281,29 +300,43 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
 
         {step === "preview" && (
           <div className="space-y-4 py-4">
-            <p className="text-sm font-medium">Preview: {parsedAccounts.length} {type} found</p>
+            <p className="text-sm font-medium">
+              Preview: {parsedAccounts.length} {type} found
+            </p>
 
             <ScrollArea className="h-[300px] rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead> # </TableHead>
+                    <TableHead>#</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Date Of Birth</TableHead>
-                    <TableHead>Gender</TableHead>
+                    {parsedAccounts.some((account) => account.existed) ? (
+                      <TableHead>Exist</TableHead>
+                    ) : (
+                      <>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Date Of Birth</TableHead>
+                        <TableHead>Gender</TableHead>
+                      </>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {parsedAccounts.map((account, index) => (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{account.email}</TableCell>
-                      <TableCell>{account.fullName || "-"}</TableCell>
-                      <TableCell>{account.phoneNumber || "-"}</TableCell>
-                      <TableCell>{format(account.dob, "dd/MM/yyy") || "-"}</TableCell>
-                      <TableCell>{account.gender ? "Male" : "Female"}</TableCell>
+                      <TableCell className={account.existed ? "text-red-500" : ""}>{account.email}</TableCell>
+                      {account.existed ? (
+                        <TableCell className="text-red-500">Already Added</TableCell>
+                      ) : (
+                        <>
+                          <TableCell>{account.fullName || "-"}</TableCell>
+                          <TableCell>{account.phoneNumber || "-"}</TableCell>
+                          <TableCell>{format(account.dob, "dd/MM/yyyy") || "-"}</TableCell>
+                          <TableCell>{account.gender ? "Male" : "Female"}</TableCell>
+                        </>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

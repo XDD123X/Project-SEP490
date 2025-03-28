@@ -2,9 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Pencil } from "lucide-react";
 import { CardFooter } from "react-bootstrap";
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
-export function ClassInfoCard({ classData , setSelectedClass}) {
+export function ClassInfoCard({ classData, setSelectedClass }) {
+  const navigate = useNavigate();
+  const handleResetClass = () => {
+    setSelectedClass(null); // Đặt selectedClass thành null
+    navigate("/officer/class/add-student"); // Điều hướng đến trang add-student
+  };
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
@@ -32,11 +38,11 @@ export function ClassInfoCard({ classData , setSelectedClass}) {
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Start</p>
-            <p className="font-medium">{classData.startDate ? format(classData.startDate, 'dd/MM/yyyy') : 'TBD'}</p>
+            <p className="font-medium">{classData.startDate ? format(classData.startDate, "dd/MM/yyyy") : "TBD"}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">End</p>
-            <p className="font-medium">{classData.endDate ? format(classData.endDate, 'dd/MM/yyyy') : 'TBD'}</p>
+            <p className="font-medium">{classData.endDate ? format(classData.endDate, "dd/MM/yyyy") : "TBD"}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Total Sessions</p>
@@ -49,8 +55,8 @@ export function ClassInfoCard({ classData , setSelectedClass}) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="ml-4 mb-4 flex items-center gap-2" onClick={() => setSelectedClass(null)}>
-          <Pencil className="w-5 h-5"/>
+        <Button className="ml-4 mb-4 flex items-center gap-2" onClick={handleResetClass}>
+          <Pencil className="w-5 h-5" />
           Change Class
         </Button>
       </CardFooter>

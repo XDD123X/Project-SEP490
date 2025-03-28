@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { format, isPast, isSameDay, isToday, parseISO } from "date-fns";
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MailPlus, MailX, MailWarning } from "lucide-react";
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MailPlus, MailX, MailWarning, MailCheck } from "lucide-react";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,13 +27,11 @@ export default function ViewRequestBySessionLecturerPage() {
     const fetchData = async () => {
       try {
         const responseClass = await GetClassById(classId);
-        console.log(responseClass);
 
         if (responseClass.status === 200) {
           setClassData(responseClass.data);
           const responseSession = await getSessionsByClassId(responseClass.data.classId);
           setSessions(responseSession.data);
-          console.log(responseSession);
         }
       } catch (error) {
         toast.error("Failed to fetch Session By Class Id");
@@ -157,22 +155,19 @@ export default function ViewRequestBySessionLecturerPage() {
               <TableCell>
                 <SessionBadge status={session.status} />
               </TableCell>
-              <TableCell>
-                {session.type === 1 ? "-" : 'Submitted'}
-              </TableCell>
+              <TableCell>{session.type === 1 ? (session.description || "-") : "Submitted"}</TableCell>
               <TableCell className="text-right">
-                {requestable(session) ? (
+                {session.type !== 1 ? (
+                  <Button variant="ghost" size="icon" disabled>
+                    <MailCheck className="w-5 h-5 text-yellow-700" />
+                  </Button>
+                ) : session.type === 1 && requestable(session) ? (
                   <Button variant="outline" size="icon" onClick={() => navigate(`/lecturer/request/${classId}/${session.sessionId}`)}>
-                    <MailPlus className="w-4 h-4 text-green-500" />
+                    <MailPlus className="w-5 h-5 text-green-500" />
                   </Button>
                 ) : (
-                  <Button variant="outline" size="icon" disabled>
-                    <MailX className="w-4 h-4 text-red-500" />
-                  </Button>
-                )}
-                {session.type !== 1 && (
-                  <Button variant="outline" size="icon" disabled>
-                    <MailWarning className="w-4 h-4 text-yellow-600" />
+                  <Button variant="ghost" size="icon" disabled>
+                    <MailX className="w-5 h-5 text-red-500" />
                   </Button>
                 )}
               </TableCell>

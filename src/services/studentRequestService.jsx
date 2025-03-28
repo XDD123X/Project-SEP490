@@ -14,19 +14,6 @@ export const GetStudentLastRequest = async () => {
 };
 
 /**
- * Get all profile change requests (for officers/admins).
- */
-export const GetAllRequest = async () => {
-  try {
-    const response = await axiosClient.get("/Officer/Request/all");
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    console.error("GetAllRequest failed:", error);
-    return handleRequestError(error);
-  }
-};
-
-/**
  * Get all requests of the logged-in student.
  */
 export const GetStudentRequests = async () => {
@@ -35,19 +22,6 @@ export const GetStudentRequests = async () => {
     return { status: response.status, data: response.data };
   } catch (error) {
     console.error("GetStudentRequests failed:", error);
-    return handleRequestError(error);
-  }
-};
-
-/**
- * Get all requests related to lecturers (temporary endpoint).
- */
-export const GetLecturerRequests = async () => {
-  try {
-    const response = await axiosClient.get("/Officer/Request/lecturer/all"); // Temporary endpoint
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    console.error("GetLecturerRequests failed:", error);
     return handleRequestError(error);
   }
 };
@@ -92,24 +66,11 @@ export const AddStudentRequest = async (requestData) => {
 };
 
 /**
- * Submit a new profile change request for a lecturer (temporary endpoint).
- */
-export const AddLecturerRequest = async (requestData) => {
-  try {
-    const response = await axiosClient.post("/Lecturer/Request/add", requestData); // Temporary endpoint
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    console.error("AddLecturerRequest failed:", error);
-    return handleRequestError(error);
-  }
-};
-
-/**
  * Update an existing profile change request.
  */
-export const UpdateRequest = async (updateData) => {
+export const UpdateStudentRequest = async (updateData) => {
   try {
-    const response = await axiosClient.put(`/Officer/Request/update`, updateData);
+    const response = await axiosClient.put(`/Officer/Request/student/update`, updateData);
     return { status: response.status, data: response.data };
   } catch (error) {
     console.error("UpdateRequest failed:", error);

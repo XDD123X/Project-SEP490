@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { format, isSameDay, parse } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,13 +7,23 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getSessionBySessionId } from "@/services/sessionService";
+import { addRequestChangeSession, getSessionBySessionId, requestChangeSessionValid } from "@/services/sessionService";
 import { toast } from "sonner";
+import { useStore } from "@/services/StoreContext";
+import { number } from "zod";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import CalendarSelector from "@/components/CalendarSelector";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function RequestChangeLecturerPage() {
   const navigate = useNavigate();
+  const { state } = useStore();
+  const { user } = state;
   const { classId, sessionId } = useParams();
   const [session, setSession] = useState(null);
   const [newDate, setNewDate] = useState(null);
@@ -21,6 +31,8 @@ export default function RequestChangeLecturerPage() {
   const [checkStatus, setCheckStatus] = useState(null); // null, 'success', 'error'
   const [checkMessage, setCheckMessage] = useState("");
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
+  const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +40,7 @@ export default function RequestChangeLecturerPage() {
         const sessionResponse = await getSessionBySessionId(sessionId);
         if (sessionResponse.status === 200) {
           setSession(sessionResponse.data);
+          setNewSlot(sessionResponse.data.slot.toString());
         }
       } catch (error) {
         toast.error("Failed to fetch session data");
@@ -36,7 +49,18 @@ export default function RequestChangeLecturerPage() {
     fetchData();
   }, [sessionId]);
 
-  const handleCheck = () => {
+  //handle change date
+  const handleDateChange = (date) => {
+    if (date) {
+      const adjustedDate = new Date(date);
+      adjustedDate.setHours(12, 0, 0, 0); // Đặt giữa ngày để tránh lỗi múi giờ
+      setNewDate(adjustedDate);
+    }
+    setIsSubmitEnabled(false);
+    setCheckStatus(null);
+  };
+
+  const handleCheck = async () => {
     if (!newDate) {
       setCheckStatus("error");
       setCheckMessage("Please select a new date");
@@ -50,18 +74,72 @@ export default function RequestChangeLecturerPage() {
       setIsSubmitEnabled(false);
       return;
     }
+    const formattedNewDate = parse(format(newDate, "dd/MM/yyyy"), "dd/MM/yyyy", new Date());
+    const formattedSessionDate = parse(format(session.sessionDate, "dd/MM/yyyy"), "dd/MM/yyyy", new Date());
+    // newSlot === session.slot &&
+    // isSameDay(formattedNewDate, formattedSessionDate)
+    if (newSlot == session.slot && isSameDay(formattedNewDate, formattedSessionDate)) {
+      console.log("111");
 
-    // In a real app, this would check against the database for conflicts
-    // For this demo, we'll simulate a successful check
-    setCheckStatus("success");
-    setCheckMessage("The requested change is available");
-    setIsSubmitEnabled(true);
+      setCheckStatus("error");
+      setCheckMessage("Current Slot - Date!");
+      setIsSubmitEnabled(false);
+      return;
+    }
+
+    try {
+      const responseCheck = await requestChangeSessionValid(user.uid, newDate.toISOString(), Number.parseInt(newSlot), session?.sessionId);
+
+      if (responseCheck.status === 200) {
+        if (responseCheck.data.hasConflict) {
+          setCheckStatus("error");
+          setCheckMessage(responseCheck.data.message || "The requested slot is not available.");
+          setIsSubmitEnabled(false);
+        } else {
+          setCheckStatus("success");
+          setCheckMessage(responseCheck.data.message || "The requested change is available");
+          setIsSubmitEnabled(true);
+        }
+      } else {
+        throw new Error(responseCheck.message);
+      }
+    } catch (error) {
+      setCheckStatus("error");
+      setCheckMessage(error.message || "An error occurred while checking availability");
+      setIsSubmitEnabled(false);
+    }
   };
 
-  const handleSubmit = () => {
-    // In a real app, this would submit the request to the backend
-    alert("Change request submitted successfully!");
-    navigate(`/officer/request/${classId}`);
+  const handleSubmit = async () => {
+    try {
+      setIsOpenDialog(true);
+    } catch (error) {
+      toast.error("Lỗi khi kiểm tra lịch.");
+    }
+  };
+
+  const handleConfirm = async () => {
+    const request = {
+      lecturerId: user.uid,
+      newDate: newDate.toISOString(),
+      newSlot: Number.parseInt(newSlot),
+      sessionId: session.sessionId,
+      description: description,
+    };
+
+    try {
+      const response = await addRequestChangeSession(request);
+      console.log(response);
+
+      if (response.status === 200) {
+        toast.success("Request Submitted Successfully.");
+        navigate(`/lecturer/request/${classId}`);
+        setIsOpenDialog(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setIsOpenDialog(false);
   };
 
   if (!session) return <div className="container mx-auto py-8">Loading...</div>;
@@ -134,11 +212,13 @@ export default function RequestChangeLecturerPage() {
                     <Calendar
                       mode="single"
                       selected={newDate}
-                      onSelect={setNewDate}
-                      className="border rounded-md"
+                      onSelect={handleDateChange}
+                      className="border rounded-md flex justify-center"
                       disabled={(date) => {
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
+                        const sessionDate = new Date(session.sessionDate);
+                        sessionDate.setHours(0, 0, 0, 0);
                         return date <= today;
                       }}
                     />
@@ -159,7 +239,7 @@ export default function RequestChangeLecturerPage() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => navigate(`/officer/request/${classId}`)}>
+          <Button variant="outline" onClick={() => navigate(`/lecturer/request/${classId}`)}>
             Cancel
           </Button>
           <div className="space-x-2">
@@ -172,6 +252,57 @@ export default function RequestChangeLecturerPage() {
           </div>
         </CardFooter>
       </Card>
+
+      {/* Dialog Confirmation */}
+      {isOpenDialog && (
+        <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Request Session Change</DialogTitle>
+              <DialogDescription>Request to change the date and time slot for session #{session.sessionNumber}</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <div className="col-span-4 space-y-2">
+                  <h3 className="text-sm font-medium">Request Details</h3>
+                  <div className="rounded-md bg-muted p-3 text-sm space-y-2">
+                    {/* Date */}
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Date:</span>
+                      <span>{format(new Date(session.sessionDate), "EEEE, dd/MM/yyyy")}</span>
+                      <ArrowRight className="w-4 h-4" />
+                      <span>{format(new Date(newDate), "EEEE, dd/MM/yyyy")}</span>
+                    </div>
+
+                    {/* Slot */}
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Slot:</span>
+                      <span>{session.slot}</span>
+                      <ArrowRight className="w-4 h-4" />
+                      <span>{newSlot}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-4 space-y-2">
+                  <label htmlFor="description" className="text-sm font-medium">
+                    Reason for Change
+                  </label>
+                  <Textarea id="description" name="description" value={description || ""} onChange={(e) => setDescription(e.target.value)} placeholder="Please provide a reason" className="resize-none" rows={3} />
+                  <p className="text-xs text-muted-foreground">Please explain why you need to change this session's date and time.</p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsOpenDialog(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" onClick={handleConfirm}>
+                Submit Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -11,10 +11,31 @@ import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 import { SessionBadge } from "./BadgeComponent";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function LecturerClassCard({ session }) {
+  const navigate = useNavigate();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  //take attendance handle
+  const handleNavigate = () => {
+    if (!session) {
+      toast.error("Missing classId or sessionId");
+      return;
+    }
+    navigate(`/lecturer/attendance/${session.class.classId}/${session.sessionId}`);
+  };
+
+  //take request change handle
+  const handleRequestChange = () => {
+    if (!session) {
+      toast.error("Missing classId or sessionId");
+      return;
+    }
+    navigate(`/lecturer/request/${session.class.classId}/${session.sessionId}`);
+  };
+
   return (
     <>
       <Card
@@ -29,9 +50,6 @@ export default function LecturerClassCard({ session }) {
           {/* Row 1: Class Name and Status Badge */}
           <div className="flex items-center justify-between px-3 py-2">
             <h3 className="text-xs font-medium">{session.class.classCode}</h3>
-            {/* <Badge variant={session.status === 1 ? "outline" : session.status === 2 ? "success" : "destructive"} className="text-xs px-1.5 py-0">
-              {session.status === 1 ? "Not Yet" : session.status === 2 ? "Finished" : "Cancelled"}
-            </Badge> */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -62,13 +80,18 @@ export default function LecturerClassCard({ session }) {
             <div className="h-4 border-r mx-2"></div>
             <Badge
               variant={session.status === 2 ? "success" : session.status === 3 ? "destructive" : "outline"}
-              className={`text-xs px-1.5 py-0 ${
-                session.status === 2 ? "bg-green-100 text-green-800 hover:bg-green-100" : session.status === 3 ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"
-              }`}
+              className={`text-xs px-1.5 py-0 ${session.status === 2 ? "bg-green-100 text-green-800 hover:bg-green-100" : session.status === 3 ? "bg-red-100 text-red-800 hover:bg-red-100" : "bg-gray-100 text-gray-800 hover:bg-gray-100"}`}
             >
               {session.status === 2 ? "Finished" : session.status === 3 ? "Cancelled" : "Not yet"}
             </Badge>
           </div>
+
+          {session.description && (
+            <div className="flex items-center justify-between border-b px-3 py-2">
+              <p className="text-xs text-muted-foreground">Note:</p>
+              <span className="text-xs font-medium text-right text-green-600">{session.description}</span>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 p-2">
             <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center" onClick={() => setIsDetailOpen(true)}>
@@ -186,23 +209,25 @@ export default function LecturerClassCard({ session }) {
             {session.status === 1 && (
               <>
                 {isBefore(new Date(), new Date(session.sessionDate)) && (
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleRequestChange}>
                     Request Change
                   </Button>
                 )}
 
                 {isSameDay(new Date(), new Date(session.sessionDate)) && (
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleNavigate}>
                     Take Attendance
                   </Button>
                 )}
               </>
             )}
 
-            {session.sessionRecord === null ? session.status === 2 &&(
-              <Button variant="default" size="sm">
-                Upload Record
-              </Button>
+            {session.sessionRecord === null ? (
+              session.status === 2 && (
+                <Button variant="default" size="sm">
+                  Upload Record
+                </Button>
+              )
             ) : (
               <Button variant="default" size="sm">
                 Edit Record

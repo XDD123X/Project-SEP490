@@ -8,13 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getStudentList, importStudentList } from "@/services/accountService";
+import { getAccounts, getStudentList, importStudentList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImportAccountsOfficerDialog } from "./components/add-student-import-dialog";
 import { Link } from "react-router-dom";
 import { AccountBadge } from "@/components/BadgeComponent";
 
 export default function ViewStudentManagementPage() {
+  const [accounts, setAccounts] = useState([]);
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,9 +32,10 @@ export default function ViewStudentManagementPage() {
   const fetchData = async () => {
     try {
       const studentList = await getStudentList();
-      if (studentList.status === 200 && studentList.data != null) {
+      const accountList = await getAccounts();
+      if (studentList.status === 200 && accountList.status === 200) {
         const students = studentList?.data || [];
-
+        setAccounts(accountList.data);
         const sortedStudents = students.length > 0 ? [...students].sort((a, b) => b.fullName.localeCompare(a.fullName)) : [];
         setStudents(sortedStudents);
       }
@@ -429,7 +431,7 @@ export default function ViewStudentManagementPage() {
         </div>
       </div>
 
-      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={students} type={"Student"} />
+      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={accounts} type={"Student"} />
       {/* Loading Screen   */}
       {isLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">

@@ -199,7 +199,7 @@ export default function SessionGeneratePage() {
   return (
     <div className="container mx-auto py-10">
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+        <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm z-10">
           <Spinner />
         </div>
       )}

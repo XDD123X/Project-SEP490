@@ -12,7 +12,7 @@ const secondName = import.meta.env.VITE_GLOBAL_NAME_SECOND;
 export function SideBar(props) {
   const { data } = props;
   return (
-    <Sidebar collapsible="icon" variant="floating" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

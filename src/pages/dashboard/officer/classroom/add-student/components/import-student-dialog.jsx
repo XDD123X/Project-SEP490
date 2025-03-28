@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Save } from "lucide-react";
 
-export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }) {
+export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, classData }) {
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [fileData, setFileData] = useState([]);
@@ -24,6 +24,8 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }
   const [parsedStudents, setParsedStudents] = useState([]);
   const [step, setStep] = useState("upload");
   const [importMode, setImportMode] = useState("add");
+
+  const currents = classData.classStudents.map((classStudent) => classStudent.student);
 
   // Handle file selection
   const handleFileChange = (e) => {
@@ -68,6 +70,22 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }
     });
   };
 
+  //normalize email
+  const normalizeEmail = (email) => {
+    // Loại bỏ ký tự không hợp lệ, chỉ giữ lại a-z, A-Z, 0-9, @ và .
+    email = email.replace(/[^a-zA-Z0-9@.]/g, "");
+
+    // Đảm bảo không có nhiều hơn một @ và ít nhất một .
+    const atCount = (email.match(/@/g) || []).length;
+    const dotCount = (email.match(/\./g) || []).length;
+
+    if (atCount !== 1 || dotCount < 1) {
+      return null; // Không thể sửa thành email hợp lệ
+    }
+
+    return email;
+  };
+
   // Process data after mapping
   const handleProcessData = () => {
     // Validate that email column is mapped
@@ -79,10 +97,19 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }
     // Lấy danh sách email từ studentsData để so sánh
     const studentMap = new Map(studentsData.map((student) => [student.email, student]));
 
+    // Map để kiểm tra trùng email trong students
+    const emailSet = new Set();
+
     const students = fileData.map((row, index) => {
-      const email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+      let email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+      email = normalizeEmail(email);
+      if (!email) {
+        return null;
+      }
+
       const fullName = columnMapping.fullName !== -1 ? row[columnMapping.fullName] : "";
       const existingStudent = studentMap.get(email);
+      console.log(`exists ${email}: `, existingStudent);
 
       // Kiểm tra email có trong danh sách studentsData không
       if (!existingStudent) {
@@ -112,6 +139,14 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }
         gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false");
       }
 
+      // Kiểm tra trùng email trong students
+      if (emailSet.has(email)) {
+        existingStudent.available = false; // Nếu trùng email, set available = false
+      } else {
+        existingStudent.available = true; // Nếu không trùng email, set available = true
+        emailSet.add(email); // Thêm email vào Set để kiểm tra sau
+      }
+
       return {
         accountId: existingStudent.accountId || `import-${index}`,
         email: existingStudent.email,
@@ -127,7 +162,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }
         createdAt: existingStudent.createdAt || new Date().toISOString(),
         updatedAt: existingStudent.updatedAt || null,
         role: existingStudent.role || null,
-        available: existingStudent.available
+        available: existingStudent.available,
       };
     });
 
@@ -306,11 +341,11 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData }
                 </TableHeader>
                 <TableBody>
                   {parsedStudents.map((student, index) => (
-                    <TableRow key={index} className={student.accountId ? "text-green-500" : "text-red-500"}>
+                    <TableRow key={index} className={student.accountId ? "text-green-500" : 'text-red-500'}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{student.email}</TableCell>
                       <TableCell>{student.fullName || "-"}</TableCell>
-                      <TableCell className={student.accountId ? "text-green-500 font-semibold" : "text-red-500 font-semibold" }>{student.accountId ? "Available" : "Not Available"}</TableCell>
+                      <TableCell className={student.accountId ? "text-green-500 font-semibold" : "text-red-500 font-semibold"}>{student.accountId ? "Available" : "Not Available"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

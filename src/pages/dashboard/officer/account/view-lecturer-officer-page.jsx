@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getLecturerList, importLecturerList } from "@/services/accountService";
+import { getAccounts, getLecturerList, importLecturerList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImportAccountsOfficerDialog } from "./components/add-student-import-dialog";
 import { Link } from "react-router-dom";
@@ -17,6 +17,7 @@ import { AccountBadge } from "@/components/BadgeComponent";
 
 export default function ViewLecturerManagementPage() {
   const [lecturers, setLecturers] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [filteredLecturers, setFilteredLecturers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
@@ -33,11 +34,12 @@ export default function ViewLecturerManagementPage() {
   const fetchData = async () => {
     try {
       const lecturerList = await getLecturerList();
-      if (lecturerList.status === 200 && lecturerList.data != null) {
+      const accountList = await getAccounts();
+      if (lecturerList.status === 200 && accountList.status === 200) {
         const lecturers = lecturerList?.data || [];
-
         const sortedLecturers = lecturers.length > 0 ? [...lecturers].sort((a, b) => b.fullName.localeCompare(a.fullName)) : [];
         setLecturers(sortedLecturers);
+        setAccounts(accountList.data);
       }
     } catch (error) {
       toast.error(`Failed to load data: ${error.message}`);
@@ -84,7 +86,7 @@ export default function ViewLecturerManagementPage() {
     }
 
     setSortConfig({ key, direction });
-
+    
     const sortedData = [...filteredLecturers].sort((a, b) => {
       let valueA = a[key];
       let valueB = b[key];
@@ -103,6 +105,7 @@ export default function ViewLecturerManagementPage() {
         valueA = a.gender;
         valueB = b.gender;
       }
+
 
       if (key === "status") {
         valueA = a.status;
@@ -288,8 +291,8 @@ export default function ViewLecturerManagementPage() {
               <TableHead className="cursor-pointer" onClick={() => requestSort("dob")}>
                 <div className="flex items-center">Dob {getSortDirectionIcon("dob")}</div>
               </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => requestSort("createAt")}>
-                <div className="flex items-center">Join Date {getSortDirectionIcon("createAt")}</div>
+              <TableHead className="cursor-pointer" onClick={() => requestSort("createdAt")}>
+                <div className="flex items-center">Join Date {getSortDirectionIcon("createdAt")}</div>
               </TableHead>
               <TableHead className="cursor-pointer" onClick={() => requestSort("status")}>
                 <div className="flex items-center">Status {getSortDirectionIcon("status")}</div>
@@ -433,7 +436,7 @@ export default function ViewLecturerManagementPage() {
         </div>
       </div>
 
-      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportLecturers} accountsData={lecturers} type={"Lecturer"} />
+      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportLecturers} accountsData={accounts} type={"Lecturer"} />
       {/* Loading Screen   */}
       {isLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">

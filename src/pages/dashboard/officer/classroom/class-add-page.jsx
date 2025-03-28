@@ -18,6 +18,8 @@ import { getCurrentSetting } from "@/services/classSettingService";
 import { useNavigate } from "react-router-dom";
 import { AddClass } from "@/services/classService";
 import CalendarSelector from "@/components/CalendarSelector";
+import { Badge } from "lucide-react";
+import { AccountBadge } from "@/components/BadgeComponent";
 
 // Form schema with validation
 const formSchema = z.object({
@@ -191,7 +193,7 @@ export default function ClassFormPage() {
                           </FormControl>
                           <SelectContent>
                             {lecturers.map((lecturer) => (
-                              <SelectItem key={lecturer.accountId} value={lecturer.accountId.toString()}>
+                              <SelectItem key={lecturer.accountId} value={lecturer.accountId.toString()} disabled={lecturer.status !== 1 ? true : false}>
                                 {lecturer.gender === false ? "Ms." : "Mr."} {lecturer.fullName}
                               </SelectItem>
                             ))}
@@ -216,7 +218,7 @@ export default function ClassFormPage() {
                           </FormControl>
                           <SelectContent>
                             {courses.map((course) => (
-                              <SelectItem key={course.courseId} value={course.courseId.toString()}>
+                              <SelectItem key={course.courseId} value={course.courseId.toString()} disabled={course.status === 1 ? false : true}>
                                 {course.courseName} - {course.description}
                               </SelectItem>
                             ))}
@@ -363,7 +365,7 @@ function ConfirmationDialog({ open, onClose, onConfirm, data, lecturerName, cour
             <div>{data.endDate ? format(data.endDate, "dd/MM/yyy") : "Not specified"}</div>
 
             <div className="font-medium">Class URL:</div>
-            <div className="truncate">{data.classUrl ? data.classUrl : 'Not specified'}</div>
+            <div className="truncate">{data.classUrl ? data.classUrl : "Not specified"}</div>
 
             <div className="font-medium">Status:</div>
             <div>{data.status === 1 ? "Upcoming" : "Studying"}</div>

@@ -36,7 +36,6 @@ import AddAccountOfficerPage from "./pages/dashboard/officer/account/add-account
 import ViewAccountDetail from "./pages/dashboard/officer/account/view-account-detail";
 import { EditAccountOfficerPage } from "./pages/dashboard/officer/account/edit-account-page";
 import MaintenanceError from "./pages/Errors/Maintenance";
-import ViewStudentRequest from "./pages/dashboard/officer/request/view-student-request";
 import ViewLecturerRequest from "./pages/dashboard/officer/request/view-lecturer-request";
 import ScrollTest from "./pages/test/Scroll";
 import LecturerSchedulePage from "./pages/dashboard/lecturer/schedule/LecturerSchedulePage";
@@ -48,13 +47,11 @@ import ViewCourseListpage from "./pages/dashboard/officer/course/view-course-lis
 import AddCoursePage from "./pages/dashboard/officer/course/add-course-page";
 import CourseDetailPage from "./pages/dashboard/officer/course/detail-course-page";
 import CourseEditPage from "./pages/dashboard/officer/course/edit-course-page";
-import { useTheme } from "next-themes";
 import ViewAttendanceStudentPage from "./pages/dashboard/student/attendance/view-attendance-student";
 import ViewAttendanceClassStudentPage from "./pages/dashboard/student/attendance/view-attendance-detail-student";
 import AttendanceComplain from "./pages/dashboard/student/attendance/complain-attendance-page";
 import NotificationPage from "./pages/notification/view-notification-page";
 import AddNotificationPage from "./pages/notification/add-notification";
-import ViewNotificationListPage from "./pages/notification/view-notification-page";
 import ManageNotificationPage from "./pages/notification/manage/manage-notification-page";
 import DetailNotificationManagementPage from "./pages/notification/manage/detail-notification-manage-page";
 import EditNotificationManagementPage from "./pages/notification/manage/edit-notification-management-page";
@@ -62,6 +59,7 @@ import FirstTimeLoginPage from "./pages/FirstTimeLoginPage";
 import ViewRequestByClassLecturerPage from "./pages/dashboard/lecturer/request/view-request-lecturer-page";
 import ViewRequestBySessionLecturerPage from "./pages/dashboard/lecturer/request/select-class-request-lecturer-page";
 import RequestChangeLecturerPage from "./pages/dashboard/lecturer/request/session-change-request-lecturer-page";
+import StudentRequestManagement from "./pages/dashboard/officer/request/view-student-request";
 
 function App() {
   return (
@@ -150,6 +148,7 @@ function App() {
 
                         <Route path="class" element={<ClassViewPage />} />
                         <Route path="class/add-new" element={<ClassAddNewPage />} />
+                        <Route path="class/add-student/:classId" element={<ClassAddStudentPage />} />
                         <Route path="class/add-student" element={<ClassAddStudentPage />} />
                         <Route path="class/detail" element={<ClassDetailPage />} />
                         <Route path="class/edit" element={<ClassEditPage />} />
@@ -164,7 +163,7 @@ function App() {
                         <Route path="course/detail/:id" element={<CourseDetailPage />} />
                         <Route path="course/edit/:id" element={<CourseEditPage />} />
 
-                        <Route path="request/student" element={<ViewStudentRequest />} />
+                        <Route path="request/student" element={<StudentRequestManagement />} />
                         <Route path="request/lecturer" element={<ViewLecturerRequest />} />
 
                         <Route path="dashboard" element={<DashboardPage />} />

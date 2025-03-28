@@ -16,7 +16,6 @@ export default function PrivateRoute() {
       if (!user) {
         navigate("/login", { replace: true });
       } else if (user.isNew) {
-        localStorage.setItem("theme", "light");
         navigate("/first-time");
       } else {
         setIsLoading(false);

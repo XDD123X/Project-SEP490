@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { getLecturerList } from "@/services/accountService";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-
+import { SessionBadge } from "@/components/BadgeComponent";
 
 // Slot options
 const slotOptions = [1, 2, 3, 4];
@@ -68,7 +68,7 @@ export default function SessionViewPage() {
           const lecturers = lecturerList?.data || [];
 
           // Sắp xếp sessions nếu có dữ liệu
-          const sortedSessions = sessions.length > 0 ? [...sessions].sort((a, b) => new Date(b.sessionDate) - new Date(a.sessionDate)) : [];
+          const sortedSessions = sessions.length > 0 ? [...sessions].sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate)) : [];
 
           setSessions(sortedSessions);
 
@@ -223,9 +223,6 @@ export default function SessionViewPage() {
     //   status: 0,
     // });
   };
-
-  //handle view detail session
-  const handleViewSession = () => {};
 
   // Handle editing a session
   const handleEditSession = () => {
@@ -427,9 +424,6 @@ export default function SessionViewPage() {
               <TableHead className="cursor-pointer" onClick={() => requestSort("date")}>
                 <div className="flex items-center">Date {getSortDirectionIcon("date")}</div>
               </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => requestSort("day")}>
-                <div className="flex items-center">Day {getSortDirectionIcon("day")}</div>
-              </TableHead>
               <TableHead className="cursor-pointer" onClick={() => requestSort("slot")}>
                 <div className="flex items-center">Slot {getSortDirectionIcon("slot")}</div>
               </TableHead>
@@ -449,13 +443,14 @@ export default function SessionViewPage() {
                   <TableCell>{index + 1}</TableCell>
 
                   <TableCell>{session.class.classCode}</TableCell>
-                  <TableCell>{session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}</TableCell>
-                  <TableCell>{format(new Date(session.sessionDate), "dd/MM/yyyy")}</TableCell>
-                  <TableCell>{format(new Date(session.sessionDate), "EEEE")}</TableCell>
+                  <TableCell>
+                    {session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}
+                  </TableCell>
+                  <TableCell>{format(new Date(session.sessionDate), "EEEE, dd/MM/yyyy")}</TableCell>
                   <TableCell>{session.slot}</TableCell>
                   <TableCell>{session.sessionRecord ? <Video className="h-4 w-4 text-green-500" /> : <VideoOff className="h-4 w-4 text-red-500" />}</TableCell>
                   <TableCell>
-                    <Badge variant={session.status === 1 ? "outline" : session.status === 2 ? "success" : "destructive"}>{session.status === 1 ? "Not yet" : session.status === 2 ? "Finished" : "Cancelled"}</Badge>
+                    <SessionBadge status={session.status} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -703,7 +698,7 @@ export default function SessionViewPage() {
               {/* Date */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Date</Label>
-                <Input value={currentSession.sessionDate ? format( (currentSession.sessionDate), 'dd/MM/yyyy') : ""} className="col-span-3" readOnly />
+                <Input value={currentSession.sessionDate ? format(currentSession.sessionDate, "dd/MM/yyyy") : ""} className="col-span-3" readOnly />
               </div>
 
               {/* Slot (Dropdown Select) */}
@@ -774,12 +769,12 @@ export default function SessionViewPage() {
               {/* Description (Textarea) */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Description</Label>
-                <Textarea className="col-span-3" value={currentSession.description || ""}  readOnly/>
+                <Textarea className="col-span-3" value={currentSession.description || ""} readOnly />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button className='w-full' onClick={() => setIsViewDialogOpen(false)}>
+            <Button className="w-full" onClick={() => setIsViewDialogOpen(false)}>
               Cancel
             </Button>
           </DialogFooter>

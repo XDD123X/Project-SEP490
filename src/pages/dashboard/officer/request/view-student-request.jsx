@@ -10,10 +10,9 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { Separator } from "@/components/ui/separator";
 import { RequestBadge } from "@/components/BadgeComponent";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Badge } from "@/components/ui/badge";
-import { GetAllRequest, UpdateRequest } from "@/services/studentRequestService";
 import { useStore } from "@/services/StoreContext";
 import { toast } from "sonner";
+import { GetStudentRequests, UpdateStudentRequest } from "@/services/studentRequestService";
 
 export default function StudentRequestManagement() {
   const [statusFilter, setStatusFilter] = useState("all");
@@ -31,7 +30,7 @@ export default function StudentRequestManagement() {
   //fetch data
   const fetchData = async () => {
     try {
-      const response = await GetAllRequest();
+      const response = await GetStudentRequests();
       if (response.status === 200 && response.data != null) {
         setRequests(response.data);
       }
@@ -168,9 +167,9 @@ export default function StudentRequestManagement() {
 
     try {
       // Gọi hàm UpdateRequest và chờ kết quả
-      const response = await UpdateRequest(updateModel);
+      const response = await UpdateStudentRequest(updateModel);
       console.log(response);
-      
+
       if (response.status === 204) {
         toast.success(`Request ${actionType}ed successfully.`);
         fetchData();
@@ -367,19 +366,21 @@ export default function StudentRequestManagement() {
             </Select>
           </div>
 
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} className={currentPage === 1 ? "pointer-events-none opacity-50" : ""} />
-              </PaginationItem>
+          <div className="flex items-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} className={currentPage === 1 ? "pointer-events-none opacity-50" : ""} />
+                </PaginationItem>
 
-              {generatePaginationItems()}
+                {generatePaginationItems()}
 
-              <PaginationItem>
-                <PaginationNext onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""} />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                <PaginationItem>
+                  <PaginationNext onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""} />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </CardFooter>
       </Card>
 
