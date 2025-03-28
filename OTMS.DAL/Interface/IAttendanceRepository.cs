@@ -14,6 +14,7 @@ namespace OTMS.DAL.Interface
         Task<List<Attendance>> GetByStudentAndClassAsync(Guid studentId, Guid classId);
         Task AddAttendance(Guid sessionId, List<AttendanceDTO> listStudent);
         Task EditAttendance(Guid sessionId, List<AttendanceDTO> listStudent);
+        Task<bool> CheckAbsentAttendance(Guid studentId, Guid classId);
 
     }
 }

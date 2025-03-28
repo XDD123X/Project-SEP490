@@ -25,5 +25,7 @@ namespace OTMS.DAL.Repository
         public Task<List<Attendance>> GetByStudentAndClassAsync(Guid studentId, Guid classId) => _attendanceDAO.GetByStudentAndClassAsync(studentId, classId);
 
         public Task AddAttendance(Guid sessionId, List<AttendanceDTO> listStudent) => _attendanceDAO.AddAttendance(sessionId, listStudent);
+
+        public Task<bool> CheckAbsentAttendance(Guid studentId, Guid classId) => _attendanceDAO.CheckAbsentAttendance(studentId, classId);
     }
 }

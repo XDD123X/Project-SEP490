@@ -28,5 +28,7 @@ namespace OTMS.DAL.Repository
         public Task<Guid> AddParentAsync(Parent parent) => _parentDAO.AddParent(parent);
 
         public Task<bool> DeleteParentsByStudentIdAsync(Guid studentId) => _parentDAO.DeleteParentsByStudentId(studentId);
+
+        public Task<List<Parent>> GetParentsByStudentIdAsync(Guid studentId) => _parentDAO.GetParentsByStudentIdAsync(studentId);
     }
 }
