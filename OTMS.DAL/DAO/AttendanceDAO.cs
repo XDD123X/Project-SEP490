@@ -89,5 +89,17 @@ namespace OTMS.DAL.DAO
                 .ToListAsync();
         }
 
+        public async Task<bool> CheckAbsentAttendance(Guid studentId, Guid classId)
+        {
+            //int maxAbsences = 3;
+            var studentClass = await _context.Classes.FindAsync(classId);
+            int maxAbsences = studentClass.TotalSession / 5;
+            var absencesCount = await _dbSet
+                .Where(a => a.StudentId == studentId && a.Session.ClassId == classId && a.Status == 0)
+                .CountAsync();
+
+            return absencesCount > maxAbsences;
+        }
+
     }
 }

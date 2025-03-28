@@ -49,6 +49,12 @@ namespace OTMS.DAL.DAO
             return parent.ParentId;
         }
 
+        public async Task<List<Parent>> GetParentsByStudentIdAsync(Guid studentId)
+        {
+            return await _dbSet
+                .Where(p => p.StudentId == studentId)
+                .ToListAsync();
+        }
 
     }
 }
