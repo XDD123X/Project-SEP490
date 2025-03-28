@@ -24,6 +24,29 @@ export function RichTextEditor({ value, onChange, placeholder = "Enter content..
     }
   };
 
+  //Handle Keydown
+  const handleKeyDown = (e) => {
+    // Handle Shift+Enter to create a line break
+    if (e.key === "Enter" && e.shiftKey) {
+      e.preventDefault();
+
+      // Get cursor position
+      const cursorPosition = e.currentTarget.selectionStart;
+      const textBeforeCursor = value.substring(0, cursorPosition);
+      const textAfterCursor = value.substring(cursorPosition);
+
+      // Insert a line break at cursor position
+      const newText = textBeforeCursor + "\n" + textAfterCursor;
+      onChange(newText);
+
+      // Set cursor position after the inserted line break
+      setTimeout(() => {
+        const textarea = e.currentTarget;
+        textarea.selectionStart = textarea.selectionEnd = cursorPosition + 1;
+      }, 0);
+    }
+  };
+
   // Apply formatting to selected text
   const applyFormatting = (prefix, suffix) => {
     if (textareaRef.current) {
@@ -234,7 +257,11 @@ export function RichTextEditor({ value, onChange, placeholder = "Enter content..
         </Popover>
       </div>
 
-      <Textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} onSelect={saveSelection} onClick={saveSelection} onKeyUp={saveSelection} placeholder={placeholder} className={`min-h-[${minHeight}px]`}/>
+      <Textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} onSelect={saveSelection} onClick={saveSelection} onKeyUp={saveSelection} onKeyDown={handleKeyDown} placeholder={placeholder} className={`min-h-[${minHeight}px]`} />
+
+      <p>
+        Tip: Press <kbd className="px-1 py-0.5 bg-muted rounded border">Shift</kbd> + <kbd className="px-1 py-0.5 bg-muted rounded border">Enter</kbd> for line break
+      </p>
 
       {value && (
         <div className="mt-4">

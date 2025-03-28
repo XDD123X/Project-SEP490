@@ -56,9 +56,12 @@ import NotificationPage from "./pages/notification/view-notification-page";
 import AddNotificationPage from "./pages/notification/add-notification";
 import ViewNotificationListPage from "./pages/notification/view-notification-page";
 import ManageNotificationPage from "./pages/notification/manage/manage-notification-page";
-import DetailNotificationManagementPage from './pages/notification/manage/detail-notification-manage-page';
+import DetailNotificationManagementPage from "./pages/notification/manage/detail-notification-manage-page";
 import EditNotificationManagementPage from "./pages/notification/manage/edit-notification-management-page";
 import FirstTimeLoginPage from "./pages/FirstTimeLoginPage";
+import ViewRequestByClassLecturerPage from "./pages/dashboard/lecturer/request/view-request-lecturer-page";
+import ViewRequestBySessionLecturerPage from "./pages/dashboard/lecturer/request/select-class-request-lecturer-page";
+import RequestChangeLecturerPage from "./pages/dashboard/lecturer/request/session-change-request-lecturer-page";
 
 function App() {
   return (
@@ -133,6 +136,10 @@ function App() {
                         <Route path="attendance" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId/:sessionId" element={<ViewAttendanceDetailLecturerPage />} />
+
+                        <Route path="request" element={<ViewRequestByClassLecturerPage />} />
+                        <Route path="request/:classId" element={<ViewRequestBySessionLecturerPage />} />
+                        <Route path="request/:classId/:sessionId" element={<RequestChangeLecturerPage />} />
                       </Route>
                     </Route>
                     {/* Officer Routes */}

@@ -15,6 +15,8 @@ import { useStore } from "@/services/StoreContext";
 import { Badge } from "@/components/ui/badge";
 import { ClassBadge, CourseBadge } from "@/components/BadgeComponent";
 import { Checkbox } from "@/components/ui/checkbox";
+import EnhancedRichTextEditor from "./enhanced-rich-text-editor";
+import NewRichTextEditor from "./enhanced-rich-text-editor";
 
 export default function AddNotificationPage() {
   const navigate = useNavigate();
@@ -137,21 +139,20 @@ export default function AddNotificationPage() {
     }
 
     console.log("Notification data:", notificationData);
-
     try {
       const response = await AddNotification(notificationData);
       console.log(response);
 
       if (response.status === 200) {
         toast.success("Notification Created Successfully!");
-        // navigate("/notification/list");
+        navigate("/notification/list");
       }
     } catch (error) {
       toast.error(error);
     }
 
     // Redirect back to notifications page
-    // navigate("/notification/list");
+    navigate("/notification/list");
   };
 
   return (
@@ -266,7 +267,8 @@ export default function AddNotificationPage() {
                 {errors.content && <p className="text-red-500 text-xs">( {errors.content} )</p>}
               </Label>
 
-              <RichTextEditor value={content} onChange={setContent} placeholder="Enter notification content (supports rich text formatting)" minHeight="200px" />
+              {/* <RichTextEditor value={content} onChange={setContent} placeholder="Enter notification content (supports rich text formatting)" minHeight="200px" /> */}
+              <NewRichTextEditor value={content} onChange={setContent} />
             </div>
 
             {/* CheckBox Send Email */}

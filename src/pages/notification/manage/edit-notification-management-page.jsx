@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { RichTextEditor } from "../rich-text-editor";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import NewRichTextEditor from "../enhanced-rich-text-editor";
 
 export default function EditNotificationManagementPage() {
   const { id } = useParams();
@@ -127,7 +128,7 @@ export default function EditNotificationManagementPage() {
                 <span className={errors.content && "text-red-500"}>Content</span>
                 {errors.content && <p className="text-red-500 text-xs">( {errors.content} )</p>}
               </Label>
-              <RichTextEditor value={content} onChange={setContent} placeholder="Enter notification content (supports rich text formatting)" minHeight="250" />
+              <NewRichTextEditor value={content} onChange={setContent} placeholder="Enter notification content (supports rich text formatting)" minHeight="250" />
             </div>
 
             {/* Submit Button */}

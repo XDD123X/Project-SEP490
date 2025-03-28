@@ -102,7 +102,7 @@ export default function NotificationPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex justify-end mb-2 space-x-2">
-                <Button variant="outline" size="sm" onClick={() => markAllAsRead(activeTab)} disabled={getUnreadCount(activeTab) === 0}>
+                <Button variant="outline" size="sm" onClick={() => markAllAsRead(activeTab,notifications)} disabled={getUnreadCount(activeTab) === 0}>
                   <CheckCheck className="h-4 w-4 mr-1" />
                   Mark all as read
                 </Button>
