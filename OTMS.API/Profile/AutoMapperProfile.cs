@@ -32,7 +32,7 @@ namespace OTMS.API.Profile
             CreateMap<Parent, ParentDTO>().ReverseMap();
             CreateMap<Attendance, AttendanceDTO>().ReverseMap();
             CreateMap<Account, ByNavigationDTO>().ReverseMap();
-            CreateMap<Notification,  NotificationDTO>().ReverseMap();
+            CreateMap<Notification, NotificationDTO>().ReverseMap();
 
             //Profile Mapper Config
             CreateMap<ProfileChangeRequest, ProfileChangeRequestDTO>()
@@ -50,6 +50,12 @@ namespace OTMS.API.Profile
                     Gender = src.ApprovedByNavigation.Gender,
                     PhoneNumber = src.ApprovedByNavigation.PhoneNumber
                 }))
+                .ReverseMap();
+
+            //Session Request Config
+            CreateMap<SessionChangeRequest, SessionChangeRequestDTO>()
+                .ForMember(dest => dest.Lecturer, opt => opt.MapFrom(src => src.Lecturer))
+                .ForMember(dest => dest.ApprovedByNavigation, opt => opt.MapFrom(src => src.ApprovedByNavigation))
                 .ReverseMap();
 
         }

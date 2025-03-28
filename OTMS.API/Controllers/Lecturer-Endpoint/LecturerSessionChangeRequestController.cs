@@ -26,7 +26,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
         /// <summary>
         /// Gửi yêu cầu thay đổi lịch học
         /// </summary>
-        [HttpPost]
+        [HttpPost("Add")]
         public async Task<IActionResult> SubmitRequest([FromBody] AddSessionChangeRequestDTO model)
         {
             if (!ModelState.IsValid)

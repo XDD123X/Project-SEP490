@@ -218,7 +218,14 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (students == null) return NotFound();
             return Ok(response);
         }
-
+        [HttpGet("Account/All")]
+        public async Task<IActionResult> GetAllAccountList()
+        {
+            var accounts = await _accountRepository.GetAccountListAsync();
+            var response = _mapper.Map<List<AccountDTO>>(accounts);
+            if (accounts == null) return NotFound();
+            return Ok(response);
+        }
 
 
     }

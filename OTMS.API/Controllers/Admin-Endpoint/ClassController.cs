@@ -68,7 +68,7 @@ namespace OTMS.API.Controllers
                 ClassName = addClass.ClassName,
                 LecturerId = addClass.LecturerId,
                 CourseId = addClass.CourseId,
-                TotalSession = addClass.TotalSession,
+                TotalSession = 0,
                 StartDate = addClass.StartDate,
                 EndDate = addClass.EndDate,
                 ClassUrl = addClass.ClassUrl,

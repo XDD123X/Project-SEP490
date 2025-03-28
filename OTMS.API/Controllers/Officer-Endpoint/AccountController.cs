@@ -68,19 +68,19 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
                     // Nội dung email
                     string subject = "Welcome To Phong Linh Class Center";
-                    string message =
-$@"Chào {student.FullName},
-
-Chào mừng bạn đến với Phong Linh Class Center! 
-Đây là thông tin tài khoản của bạn:
-
-- Email: {student.Email}
-- Mật khẩu: {plainPassword} (vui lòng đổi mật khẩu sau khi đăng nhập)
-
-Truy cập hệ thống tại: https://phonglinhclass.com
-
-Trân trọng,
-Phong Linh Class Center";
+                    string message = $@"<div style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; max-width: 600px; border: 1px solid #ddd; border-radius: 8px;"">
+                                    <h2 style=""color: #2D89EF;"">🎉 Chào <b>{student.FullName}</b>,</h2>
+                                    <p>Chào mừng bạn đến với <b>🌿 Phong Linh Class Center!</b></p>
+                                    <p>🔑 <b>Thông tin tài khoản của bạn:</b></p>
+                                    <ul>
+                                    <li>📧 <b>Email:</b> {student.Email}</li>
+                                    <li>🔒 <b>Mật khẩu:</b> <span style=""color: red;"">{plainPassword}</span> (vui lòng đổi sau khi đăng nhập)</li>
+                                    </ul>
+                                    <p>➡️ <a href=""https://phonglinhclass.com"" style=""color: #2D89EF; text-decoration: none; font-weight: bold;"">Truy cập hệ thống tại đây</a></p>
+                                    <hr style=""border: none; border-top: 1px solid #ddd; margin: 20px 0;"">
+                                    <p>💙 Trân trọng,</p>
+                                    <p><b>🌿 Phong Linh Class Center</b></p>
+                                </div>";
 
                     // Thêm email vào hàng đợi
                     EmailBackgroundService.EnqueueEmail(student.Email, subject, message);
@@ -134,19 +134,19 @@ Phong Linh Class Center";
 
                     // Nội dung email
                     string subject = "Welcome To Phong Linh Class Center";
-                    string message =
-$@"Chào {lecturer.FullName},
-
-Chào mừng bạn đến với Phong Linh Class Center! 
-Đây là thông tin tài khoản của bạn:
-
-- Email: {lecturer.Email}
-- Mật khẩu: {plainPassword} (vui lòng đổi mật khẩu sau khi đăng nhập)
-
-Truy cập hệ thống tại: https://phonglinhclass.com
-
-Trân trọng,
-Phong Linh Class Center";
+                    string message = $@"<div style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; max-width: 600px; border: 1px solid #ddd; border-radius: 8px;"">
+                                    <h2 style=""color: #2D89EF;"">🎉 Chào <b>{lecturer.FullName}</b>,</h2>
+                                    <p>Chào mừng bạn đến với <b>🌿 Phong Linh Class Center!</b></p>
+                                    <p>🔑 <b>Thông tin tài khoản của bạn:</b></p>
+                                    <ul>
+                                    <li>📧 <b>Email:</b> {lecturer.Email}</li>
+                                    <li>🔒 <b>Mật khẩu:</b> <span style=""color: red;"">{plainPassword}</span> (vui lòng đổi sau khi đăng nhập)</li>
+                                    </ul>
+                                    <p>➡️ <a href=""https://phonglinhclass.com"" style=""color: #2D89EF; text-decoration: none; font-weight: bold;"">Truy cập hệ thống tại đây</a></p>
+                                    <hr style=""border: none; border-top: 1px solid #ddd; margin: 20px 0;"">
+                                    <p>💙 Trân trọng,</p>
+                                    <p><b>🌿 Phong Linh Class Center</b></p>
+                                </div>";
 
                     // Thêm email vào hàng đợi
                     EmailBackgroundService.EnqueueEmail(lecturer.Email, subject, message);

@@ -27,7 +27,6 @@ namespace OTMS.DAL.DAO
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
-
         public async Task<SessionChangeRequest?> GetRequestByIdAsync(Guid requestChangeId)
         {
             return await _context.SessionChangeRequests
@@ -36,17 +35,13 @@ namespace OTMS.DAL.DAO
                 .Include(r => r.Session)
                 .FirstOrDefaultAsync(r => r.RequestChangeId == requestChangeId);
         }
-
-        /// <summary>
-        /// Kiểm tra xem ngày và slot mới có bị trùng lịch không
-        /// </summary>
         public async Task<(bool isConflict, string message)> CheckScheduleConflictAsync(Guid lecturerId, DateTime newDate, int newSlot, Guid? excludeSessionId = null)
         {
             // Kiểm tra trùng lịch với các buổi học khác của giảng viên
             var hasLecturerConflict = await _context.Sessions
-                .AnyAsync(s => 
-                    s.LecturerId == lecturerId && 
-                    s.SessionDate.Date == newDate.Date && 
+                .AnyAsync(s =>
+                    s.LecturerId == lecturerId &&
+                    s.SessionDate.Date == newDate.Date &&
                     s.Slot == newSlot &&
                     (excludeSessionId == null || s.SessionId != excludeSessionId));
 
@@ -57,10 +52,10 @@ namespace OTMS.DAL.DAO
 
             // Kiểm tra xem đã có yêu cầu thay đổi nào cho thời gian này chưa (chưa được duyệt)
             var hasPendingRequest = await _context.SessionChangeRequests
-                .AnyAsync(r => 
-                    r.LecturerId == lecturerId && 
-                    r.NewDate == DateOnly.FromDateTime(newDate) && 
-                    r.NewSlot == newSlot && 
+                .AnyAsync(r =>
+                    r.LecturerId == lecturerId &&
+                    r.NewDate == DateOnly.FromDateTime(newDate) &&
+                    r.NewSlot == newSlot &&
                     r.Status == 0);
 
             if (hasPendingRequest)
@@ -94,9 +89,9 @@ namespace OTMS.DAL.DAO
 
                         // Kiểm tra xem có session nào của các lớp này vào cùng thời điểm với thời gian mới không
                         var hasStudentConflict = await _context.Sessions
-                            .AnyAsync(s => 
-                                otherClassIds.Contains(s.ClassId) && 
-                                s.SessionDate.Date == newDate.Date && 
+                            .AnyAsync(s =>
+                                otherClassIds.Contains(s.ClassId) &&
+                                s.SessionDate.Date == newDate.Date &&
                                 s.Slot == newSlot &&
                                 s.SessionId != excludeSessionId);
 
@@ -110,10 +105,6 @@ namespace OTMS.DAL.DAO
 
             return (false, "");
         }
-
-        /// <summary>
-        /// Thêm yêu cầu thay đổi lịch mới
-        /// </summary>
         public async Task<(bool isSuccess, string message)> AddRequestAsync(AddSessionChangeRequestDTO model)
         {
             // Lấy session hiện tại
@@ -142,9 +133,9 @@ namespace OTMS.DAL.DAO
 
             // check trùng lịch
             var (isConflict, conflictMessage) = await CheckScheduleConflictAsync(
-                model.LecturerId, 
-                model.NewDate, 
-                model.NewSlot, 
+                model.LecturerId,
+                model.NewDate,
+                model.NewSlot,
                 model.SessionId);
 
             if (isConflict)
@@ -167,15 +158,12 @@ namespace OTMS.DAL.DAO
                 OldSlot = session.Slot
             };
 
+            session.Type = 2;
             await _context.SessionChangeRequests.AddAsync(request);
             await _context.SaveChangesAsync();
 
             return (true, "Yêu cầu đổi lịch đã được gửi.");
         }
-
-        /// <summary>
-        /// Cập nhật trạng thái yêu cầu thay đổi lịch
-        /// </summary>
         public async Task<(bool isSuccess, string message)> UpdateRequestAsync(UpdateSessionChangeRequestDTO model)
         {
             var request = await _context.SessionChangeRequests
@@ -185,6 +173,13 @@ namespace OTMS.DAL.DAO
             if (request == null)
             {
                 return (false, "Không tìm thấy yêu cầu thay đổi lịch.");
+            }
+
+            var sessionByRequest = await _context.Sessions.Where(s => s.SessionId == request.SessionId).FirstOrDefaultAsync();
+
+            if (sessionByRequest == null)
+            {
+                return (false, "Session By Request not found.");
             }
 
             // Chỉ cho phép cập nhật những yêu cầu chưa được duyệt
@@ -197,6 +192,8 @@ namespace OTMS.DAL.DAO
             request.Status = model.Status;
             request.ApprovedBy = model.ApprovedBy;
             request.ApprovedDate = DateTime.Now;
+            sessionByRequest.Type = 1;
+            sessionByRequest.Description = "Change Date";
 
             // Nếu yêu cầu được duyệt, cập nhật buổi học
             if (model.Status == 1)
@@ -206,7 +203,7 @@ namespace OTMS.DAL.DAO
                 session.SessionDate = request.NewDate.ToDateTime(TimeOnly.MinValue);
                 session.Slot = request.NewSlot;
                 session.UpdatedAt = DateTime.Now;
-                
+
                 _context.Sessions.Update(session);
             }
 
@@ -222,10 +219,6 @@ namespace OTMS.DAL.DAO
 
             return (true, resultMessage);
         }
-
-        /// <summary>
-        /// Lấy danh sách yêu cầu thay đổi lịch của giảng viên
-        /// </summary>
         public async Task<IEnumerable<SessionChangeRequest>> GetRequestsByLecturerIdAsync(Guid lecturerId)
         {
             return await _context.SessionChangeRequests
@@ -235,10 +228,6 @@ namespace OTMS.DAL.DAO
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
-
-        /// <summary>
-        /// Lấy danh sách yêu cầu thay đổi lịch chưa được duyệt
-        /// </summary>
         public async Task<IEnumerable<SessionChangeRequest>> GetPendingRequestsAsync()
         {
             return await _context.SessionChangeRequests
