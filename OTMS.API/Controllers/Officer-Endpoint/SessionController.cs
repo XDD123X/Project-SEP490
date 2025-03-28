@@ -40,7 +40,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         public async Task<IActionResult> GenerateSchedule([FromBody] ClassScheduleRequest request)
         {
             // Validate request
-            if (request.StartDate.Date < DateTime.UtcNow.Date)
+            if (request.StartDate.Date < DateTime.Now.Date)
                 return BadRequest(new { Success = false, Message = "StartDate cannot be before the current date." });
 
             // Validate preferred days
@@ -66,10 +66,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return BadRequest(new { Success = false, Message = "Lecturer's schedule not found. Please contact the lecturer to update their personal teaching schedule." });
 
             // Lấy danh sách ngày trong tuần mà giảng viên có thể dạy
-            var weekdayAvailable = lecturerSchedule.WeekdayAvailable?.Split(',')
-                .Select(int.Parse)
-                .Select(day => (DayOfWeek)((day == 8 ? 0 : day - 1) % 7)) // Chuyển đổi 2-8 sang DayOfWeek (0-6)
-                .ToList();
+            var weekdayAvailable = string.IsNullOrWhiteSpace(lecturerSchedule.WeekdayAvailable)
+                    ? new List<DayOfWeek>() // Nếu null hoặc rỗng, trả về danh sách rỗng
+                    : lecturerSchedule.WeekdayAvailable.Split(',')
+                        .Select(int.Parse)
+                        .Select(day => (DayOfWeek)((day == 8 ? 0 : day - 1) % 7)) // Chuyển đổi 2-8 sang DayOfWeek (0-6)
+                        .ToList();
 
             if (weekdayAvailable == null || !weekdayAvailable.Any())
                 return BadRequest(new { Success = false, Message = "The lecturer is not available on any day of the week." });
