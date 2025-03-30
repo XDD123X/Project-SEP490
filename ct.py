@@ -10,6 +10,7 @@ from deepface import DeepFace
 from collections import defaultdict
 import face_recognition
 
+# Đường dẫn thư mục
 KNOWN_FACES_FOLDER = "C:/Users/nqt00/OneDrive/Desktop/nhandiencamxuc/face"
 UNKNOWN_FACES_FOLDER = "C:/Users/nqt00/OneDrive/Desktop/nhandiencamxuc/unknown_faces"
 RESULT_FOLDER = "C:/Users/nqt00/OneDrive/Desktop/nhandiencamxuc/Result"
@@ -49,6 +50,8 @@ def load_known_faces():
 
 def capture_screen_faces():
     with mss.mss() as sct:
+        global start_time
+        start_time = time.time()
         frame_count = 0
         face_data = defaultdict(lambda: {"count": 0, "first_seen": None, "emotions": defaultdict(int)})
 
@@ -103,12 +106,20 @@ def capture_screen_faces():
 
             frame_count += 1
 
+        total_time = time.time() - start_time
+        total_time_str = time.strftime('%Hh%Mm%Ss', time.gmtime(total_time))
+
         result = {
-            "detected_faces": {name: {"count": data["count"], "emotions": dict(data["emotions"])} for name, data in
-                               face_data.items()},
+            "detected_faces": {name: {
+                "count": data["count"],
+                "first_seen": data["first_seen"],
+                "emotions": dict(data["emotions"]),
+                "presence_ratio": round(data["count"] / frame_count, 2) if frame_count > 0 else 0
+            } for name, data in face_data.items()},
             "overall_emotion_counts": {emotion: sum(data["emotions"].get(emotion, 0) for data in face_data.values()) for
                                        emotion in EMOTION_CATEGORIES},
-            "total_faces": sum(data["count"] for data in face_data.values()),
+            "total_emotions": sum(sum(data["emotions"].values()) for data in face_data.values()),
+            "total_time": total_time_str
         }
 
         print(json.dumps(result, indent=4, ensure_ascii=False))
