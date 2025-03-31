@@ -281,5 +281,5 @@ def process_video(video_path):
 
 if __name__ == "__main__":
     load_known_faces()
-    result = process_video("C:/Users/nqt00/OneDrive/Desktop/WIN_20250319_22_32_57_Pro.mp4")
+    result = process_video("C:/Users/nqt00/OneDrive/Desktop/a.mp4")
     print(json.dumps(result, indent=4, ensure_ascii=False))
