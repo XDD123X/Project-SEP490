@@ -140,4 +140,6 @@ def upload_video():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, threaded=True)
+    app.run(debug=True, port=4000, threaded=True)
+
+    #app.run(debug=True, threaded=True)
