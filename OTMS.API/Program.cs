@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -72,6 +73,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
 builder.Services.AddScoped<IProfileChangeRequestRepository, ProfileChangeRequestRepository>();
 builder.Services.AddScoped<OTMS.DAL.Interface.ISessionChangeRequestRepository, OTMS.DAL.Repository.SessionChangeRequestRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 
 
 //Service
@@ -100,6 +102,7 @@ builder.Services.AddScoped<NotificationDAO>();
 builder.Services.AddScoped<RecordDAO>();
 builder.Services.AddScoped<ProfileChangeRequestDAO>();
 builder.Services.AddScoped<SessionChangeRequestDAO>();
+builder.Services.AddScoped<ReportDAO>();
 
 
 //SignalR
@@ -222,6 +225,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
+
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

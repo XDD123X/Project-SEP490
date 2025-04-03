@@ -9,7 +9,7 @@ using OTMS.DAL.Interface;
 
 namespace OTMS.DAL.Repository
 {
-    class ReportRepository : Repository<Report>, IReportRepository
+    public class ReportRepository : Repository<Report>, IReportRepository
     {
 
         private readonly ReportDAO _reportDAO;
