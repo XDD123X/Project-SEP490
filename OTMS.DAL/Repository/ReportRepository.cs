@@ -25,5 +25,11 @@ namespace OTMS.DAL.Repository
             var reportList = reports.ToList();
             return reportList;
         }
+
+
+        public Task AddReport(Report report) => _reportDAO.AddAsync(report);
+
+
+
     }
 }

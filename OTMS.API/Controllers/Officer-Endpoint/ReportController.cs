@@ -2,7 +2,12 @@
 using AutoMapper;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
+using OTMS.BLL.DTOs;
+using OTMS.BLL.Models;
 using OTMS.DAL.Interface;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -51,7 +56,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 if (httpResponseMessage.IsSuccessStatusCode)
                 {
                     var response = await httpResponseMessage.Content.ReadAsStringAsync();
-                    return Ok(response);  
+                    return Ok(response);
                 }
                 else
                 {
@@ -63,7 +68,28 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
+
+
+
+        //lưu y:json khi test phai
+        [HttpPut("AddReport")]
+        public async Task<IActionResult> AddReport(ReportDTO reportDTO)
+        {
+            Report report = new Report()
+            {
+                RecordId = reportDTO.RecordId,
+                AnalysisData = reportDTO.analysis_data.ToString(),
+                GeneratedAt = DateTime.UtcNow,
+                GeneratedBy = reportDTO.Generated_By,
+                SessionId = reportDTO.SessionId,
+                Status = 1
+            };
+            Console.WriteLine(report.AnalysisData);
+            await _reportRepository.AddReport(report);
+            return Ok("Thêm dữ liệu thành công ");
+        }
+
+
+
     }
-
-
 }
