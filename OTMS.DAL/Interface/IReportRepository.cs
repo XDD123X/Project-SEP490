@@ -8,8 +8,9 @@ using OTMS.BLL.Models;
 
 namespace OTMS.DAL.Interface
 {
-   public interface IReportRepository : IRepository<Report>
+    public interface IReportRepository : IRepository<Report>
     {
-        public  Task<List<Report>> GetAllReports();
+        public Task<List<Report>> GetAllReports();
+        public Task AddReport(Report report);
     }
 }

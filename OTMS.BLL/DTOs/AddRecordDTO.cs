@@ -21,5 +21,8 @@ namespace OTMS.BLL.DTOs
         public DateTime? UpdatedAt { get; set; }
 
         public int? Status { get; set; }
+
+
+
     }
 }
