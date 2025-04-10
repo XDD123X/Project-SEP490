@@ -40,7 +40,7 @@ namespace OTMS.API.Controllers.Material_Endpoint
             var fileExtension = Path.GetExtension(request.File.FileName);
 
             // Tạo tên file mới theo định dạng yêu cầu
-            var newFileName = $"{request.Type}_{request.SessionId}{fileExtension}";
+            var newFileName = $"{request.Type}{fileExtension}";
 
             var filePath = Path.Combine(savePath, newFileName);
 
@@ -70,7 +70,6 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Không thể đọc thời lượng video: {ex.Message}");
-                    // Nếu không đọc được, có thể đặt giá trị mặc định (ví dụ: 0 hoặc null)
                 }
 
 

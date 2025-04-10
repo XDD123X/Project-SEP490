@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using File = OTMS.BLL.Models.File;
 
 namespace OTMS.BLL.DTOs
 {
@@ -39,6 +40,7 @@ namespace OTMS.BLL.DTOs
 
         public virtual ICollection<AttendanceDTO> Attendances { get; set; } = new List<AttendanceDTO>();
         public virtual ICollection<Record> Records { get; set; } = new List<Record>();
+        public virtual ICollection<File> Files { get; set; } = new List<File>();
 
     }
 
