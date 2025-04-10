@@ -65,6 +65,7 @@ import ViewSessionByClassMaterialPage from "./pages/dashboard/lecturer/material/
 import UploadMaterialBySessionPage from "./pages/dashboard/lecturer/material/upload-material-page";
 import ViewClassReportPage from "./pages/dashboard/officer/report/view-class-report-page";
 import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-class-report-page";
+import RecordVideoPage from "./pages/records/view-record-page";
 
 function App() {
   return (
@@ -91,6 +92,8 @@ function App() {
                 {/* Auth route */}
                 <Route element={<PrivateRoute />}>
                   <Route element={<MainScreen />}>
+                    {/* Record */}
+                    <Route path="/record/:sessionId" element={<RecordVideoPage />} />
                     {/* Profile */}
                     <Route path="/profile" element={<ProfilePage />}>
                       <Route path="" element={<ProfileAccount />} />

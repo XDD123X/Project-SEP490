@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Upload, File, Video, Loader2, X } from "lucide-react";
+import { ArrowLeft, Upload, File, Video, Loader2, X, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -116,15 +116,15 @@ export default function UploadMaterialBySessionPage() {
     try {
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
-          if (prev >= 100) {
+          if (prev >= 99) {
             clearInterval(interval);
-            return 100;
+            return 99;
           }
-          if (prev < 50) return prev + 5;
-          else if (prev < 80) return prev + 2;
-          else return prev + 3;
+          if (prev < 50) return prev + 2;
+          else if (prev < 80) return prev + 1;
+          else return prev + 1;
         });
-      }, 300);
+      }, 500);
 
       // 🆙 Upload 1 recording
       await uploadFile(selectedRecording, sessionId, "record");
@@ -181,7 +181,9 @@ export default function UploadMaterialBySessionPage() {
       {sessionDetails && (
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Session #{sessionDetails.sessionNumber}</h1>
-          <p className="text-muted-foreground">{sessionDetails.class.classCode} - {sessionDetails.class.className}</p>
+          <p className="text-muted-foreground">
+            {sessionDetails.class.classCode} - {sessionDetails.class.className}
+          </p>
           <p>
             Slot {sessionDetails.slot}, {sessionDetails.sessionDate ? format(sessionDetails.sessionDate, "dd/MM/yyyy") : "TBD"}
           </p>
@@ -200,7 +202,7 @@ export default function UploadMaterialBySessionPage() {
               <CardHeader>
                 <CardTitle>Upload Recording</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="">
                 <div className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="recording">Select Video Recording</Label>
@@ -244,19 +246,26 @@ export default function UploadMaterialBySessionPage() {
                     </div>
                   )}
 
-                  <Button onClick={handleRecordingUpload} disabled={!selectedRecording || uploading} className="w-full">
-                    {uploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload Recording
-                      </>
-                    )}
-                  </Button>
+                  {sessionDetails?.records.length !== 0 ? (
+                    <Button disabled className="w-full">
+                      <Check className="mr-2 h-4 w-4" />
+                      Already Uploaded
+                    </Button>
+                  ) : (
+                    <Button onClick={handleRecordingUpload} disabled={!selectedRecording || uploading} className="w-full">
+                      {uploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload Recording
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -266,7 +275,7 @@ export default function UploadMaterialBySessionPage() {
                 <CardTitle>Uploaded Recordings</CardTitle>
               </CardHeader>
               <CardContent>
-                {sessionDetails?.records ? (
+                {sessionDetails?.records.length ? (
                   <div className="space-y-4">
                     {sessionDetails.records.map((recording, index) => (
                       <div key={recording.recordId} className="flex items-start justify-between rounded-md border p-3">
@@ -276,15 +285,14 @@ export default function UploadMaterialBySessionPage() {
                             <span className="font-medium">Record {index + 1}</span>
                           </div>
                           <p className="text-xs text-muted-foreground">Duration: {recording.duration}</p>
-                          <p className="text-xs text-muted-foreground">Uploaded: {format(recording.createdAt, 'HH:mm, dd/MM/yyyy')}</p>
+                          <p className="text-xs text-muted-foreground">Uploaded: {format(recording.createdAt, "HH:mm, dd/MM/yyyy")}</p>
                         </div>
                         <div className="space-y-2">
-
-                          <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`https://localhost:5000/files/697b189d-8385-4b86-bd92-6fcfc6c1e72b/record/record_697b189d-8385-4b86-bd92-6fcfc6c1e72b.mp4`)}>
+                          <Button size="sm" className="w-full" onClick={() => navigate(`/record/${sessionDetails.sessionId}`)}>
                             Watch
                           </Button>
-                          <Button variant="outline" size="sm" className="w-full">
-                            Download
+                          <Button size="sm" className="w-full">
+                            Delete
                           </Button>
                         </div>
                       </div>
