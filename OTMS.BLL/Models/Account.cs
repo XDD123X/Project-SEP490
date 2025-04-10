@@ -41,6 +41,8 @@ public partial class Account
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
+    public virtual ICollection<File> Files { get; set; } = new List<File>();
+
     public virtual ICollection<LecturerSchedule> LecturerSchedules { get; set; } = new List<LecturerSchedule>();
 
     public virtual ICollection<NotificationAccount> NotificationAccounts { get; set; } = new List<NotificationAccount>();

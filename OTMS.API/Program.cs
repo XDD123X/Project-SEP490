@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OTMS.API.Middleware;
@@ -233,6 +234,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
+
+//static file middleware
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Files")),
+    RequestPath = "/files" // URL prefix để truy cập
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

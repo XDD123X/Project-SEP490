@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediaToolkit.Model;
+using MediaToolkit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
 using OTMS.BLL.Models;
@@ -54,10 +56,29 @@ namespace OTMS.API.Controllers.Material_Endpoint
 
             if (request.Type.ToLower() == "record")
             {
+                //video duration
+                TimeSpan videoDuration = TimeSpan.Zero;
+                try
+                {
+                    using (var engine = new Engine()) // Engine từ MediaToolkit
+                    {
+                        var inputFile = new MediaFile { Filename = filePath };
+                        engine.GetMetadata(inputFile);
+                        videoDuration = inputFile.Metadata.Duration;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Không thể đọc thời lượng video: {ex.Message}");
+                    // Nếu không đọc được, có thể đặt giá trị mặc định (ví dụ: 0 hoặc null)
+                }
+
+
                 var record = new Record
                 {
                     RecordId = Guid.NewGuid(),
                     SessionId = Guid.Parse(request.SessionId),
+                    Duration = videoDuration.ToString(),
                     VideoUrl = $"/files/{request.SessionId}/{request.Type}/{newFileName}",
                     Description = "Recording for session",
                     UploadedBy = Guid.Parse(uid),

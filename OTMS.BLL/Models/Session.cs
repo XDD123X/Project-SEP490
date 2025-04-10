@@ -33,6 +33,8 @@ public partial class Session
 
     public virtual Class Class { get; set; } = null!;
 
+    public virtual ICollection<File> Files { get; set; } = new List<File>();
+
     public virtual Account? Lecturer { get; set; }
 
     public virtual ICollection<Record> Records { get; set; } = new List<Record>();
