@@ -161,7 +161,7 @@ export default function ViewRequestByClassLecturerPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Select a Class to Request Session Change</h1>
+      <h1 className="text-2xl font-bold mb-6">Session Change Request</h1>
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <Input placeholder="Search classes..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-md" />

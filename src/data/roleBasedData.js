@@ -134,7 +134,7 @@ const roleBasedData = {
       { title: "Class", url: "lecturer/my-class", icon: School },
       { title: "Attendace", url: "lecturer/attendance", icon: ClipboardList },
       { title: "Request", url: "lecturer/request", icon: Mail },
-      { title: "Record", url: "lecturer/record", icon: Video },
+      { title: "Material", url: "lecturer/material", icon: Video },
       { title: "Report", url: "lecturer/report", icon: FileText },
     ],
   },
@@ -188,15 +188,15 @@ const roleBasedData = {
           { title: "Add Course", url: "/officer/course/add" },
         ],
       },
-      {
-        title: "Record",
-        url: "records",
-        icon: ClipboardList,
-        items: [
-          { title: "View Records", url: "/officer/notification" },
-          { title: "Upload Records", url: "/officer/notification/upload" },
-        ],
-      },
+      // {
+      //   title: "Record",
+      //   url: "records",
+      //   icon: ClipboardList,
+      //   items: [
+      //     { title: "View Records", url: "/officer/notification" },
+      //     { title: "Upload Records", url: "/officer/notification/upload" },
+      //   ],
+      // },
       {
         title: "Notification",
         url: "notifications",
@@ -211,8 +211,7 @@ const roleBasedData = {
         url: "reports",
         icon: FileText,
         items: [
-          { title: "View Reports", url: "view" },
-          { title: "Add New", url: "add" },
+          { title: "View Reports", url: "/officer/report" }
         ],
       },
     ],

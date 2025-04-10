@@ -34,7 +34,6 @@ export default function ProfileAvatar() {
           //fetch User Data
           const userResponse = await authMe();
           const { imgUrl: fetchAvatar, ...userData } = userResponse.data;
-          
 
           //compare current with api
           if (fetchAvatar !== previewUrl) {
@@ -163,7 +162,7 @@ export default function ProfileAvatar() {
   return (
     <div className="max-w-md mx-auto sm:mx-0">
       {role.toLowerCase() !== "student" ? (
-        <AvatarUploadCard currentAvatarUrl={previewUrl} onAvatarChange={handleAvatarChange} user={user}/>
+        <AvatarUploadCard currentAvatarUrl={previewUrl} onAvatarChange={handleAvatarChange} user={user} />
       ) : (
         <AvatarRequestChangeCard currentAvatarUrl={previewUrl} onRequestChange={handleAvatarChangeRequest} lastRequest={lastRequest} />
       )}
