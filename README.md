@@ -1,4 +1,4 @@
-B1:cài anaconda bản mới nhất
+B1:cài anaconda bản mới nhất \n
 B2:khởi tạo project sử dụng anaconda 
 B3:chạy các dòng lệnh sau trong terminal
 pip install cmake
