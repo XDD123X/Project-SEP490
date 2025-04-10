@@ -3,6 +3,8 @@ using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -44,14 +46,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowCredentials();
         });
-    //options.AddPolicy("AllowLocalhost",
-    //    policy =>
-    //    {
-    //        policy.WithOrigins(allowedOrigins ?? new string[0]) // Tránh lỗi null
-    //              .AllowCredentials()
-    //              .AllowAnyHeader()
-    //              .AllowAnyMethod();
-    //    });
 });
 
 //DI
@@ -104,6 +98,15 @@ builder.Services.AddScoped<ProfileChangeRequestDAO>();
 builder.Services.AddScoped<SessionChangeRequestDAO>();
 builder.Services.AddScoped<ReportDAO>();
 
+//Config Upload
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 2L * 1024 * 1024 * 1024; // 2GB
+});
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 2L * 1024 * 1024 * 1024; // 2GB
+});
 
 //SignalR
 //builder.Services.AddSignalR();
