@@ -38,56 +38,89 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             var reports = await _reportRepository.GetAllReports();
             return Ok(reports);
         }
-
-
-
         [HttpPost("Analyze")]
-        public async Task<IActionResult> Analyze(IFormFile file)
+        public async Task<IActionResult> Analyze(string sessionId)
         {
-            try
+            client.Timeout = TimeSpan.FromMinutes(20);
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record", $"record_{sessionId}.mp4");
+            Console.WriteLine(filePath);
+            if (!System.IO.File.Exists(filePath))
             {
-                var formContent = new MultipartFormDataContent();
-                var fileContent = new StreamContent(file.OpenReadStream());
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                formContent.Add(fileContent, "video", file.FileName);
-
-                HttpResponseMessage httpResponseMessage = await client.PostAsync(Apianalyze, formContent);
-
-                if (httpResponseMessage.IsSuccessStatusCode)
-                {
-                    var response = await httpResponseMessage.Content.ReadAsStringAsync();
-                    return Ok(response);
-                }
-                else
-                {
-                    return BadRequest($"Request failed with status code: {httpResponseMessage.StatusCode}");
-                }
+                return NotFound("Video file not found.");
             }
-            catch (Exception ex)
+
+            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            var byteArrayContent = new ByteArrayContent(fileBytes);
+            byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue("video/mp4");
+
+            multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(filePath));
+
+            var response = await client.PostAsync(Apianalyze, multipartFormDataContent);
+
+            if (response.IsSuccessStatusCode)
             {
-                return BadRequest($"An error occurred: {ex.Message}");
+                var result = await response.Content.ReadAsStringAsync();
+                return Ok(result);
+            }
+            else
+            {
+                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
             }
         }
 
 
 
-        //lưu y:json khi test phai
-        [HttpPut("AddReport")]
-        public async Task<IActionResult> AddReport(ReportDTO reportDTO)
-        {
-            Report report = new Report()
-            {
-                RecordId = reportDTO.RecordId,
-                AnalysisData = reportDTO.analysis_data.ToString(),
-                GeneratedAt = DateTime.UtcNow,
-                GeneratedBy = reportDTO.Generated_By,
-                SessionId = reportDTO.SessionId,
-                Status = 1
-            };
-            Console.WriteLine(report.AnalysisData);
-            await _reportRepository.AddReport(report);
-            return Ok("Thêm dữ liệu thành công ");
-        }
+
+        //[HttpPost("Analyze")]
+        //public async Task<IActionResult> Analyze(IFormFile file)
+        //{
+        //    client.Timeout = TimeSpan.FromMinutes(20);
+        //    try
+        //    {
+        //        var formContent = new MultipartFormDataContent();
+        //        var fileContent = new StreamContent(file.OpenReadStream());
+        //        fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        //        formContent.Add(fileContent, "video", file.FileName);
+
+        //        HttpResponseMessage httpResponseMessage = await client.PostAsync(Apianalyze, formContent);
+
+        //        if (httpResponseMessage.IsSuccessStatusCode)
+        //        {
+        //            var response = await httpResponseMessage.Content.ReadAsStringAsync();
+        //            return Ok(response);
+        //        }
+        //        else
+        //        {
+        //            return BadRequest($"Request failed with status code: {httpResponseMessage.StatusCode}");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"An error occurred: {ex.Message}");
+        //    }
+        //}
+
+
+
+        //[HttpPut("AddReport")]
+        //public async Task<IActionResult> AddReport(ReportDTO reportDTO)
+        //{
+        //    Report report = new Report()
+        //    {
+        //        RecordId = reportDTO.RecordId,
+        //        AnalysisData = reportDTO.analysis_data.ToString(),
+        //        GeneratedAt = DateTime.UtcNow,
+        //        GeneratedBy = reportDTO.Generated_By,
+        //        SessionId = reportDTO.SessionId,
+        //        Status = 1
+        //    };
+        //    Console.WriteLine(report.AnalysisData);
+        //    await _reportRepository.AddReport(report);
+        //    return Ok("Thêm dữ liệu thành công ");
+        //}
 
 
 
