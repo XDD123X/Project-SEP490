@@ -102,11 +102,11 @@ builder.Services.AddScoped<ReportDAO>();
 //Config Upload
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 2L * 1024 * 1024 * 1024; // 2GB
+    options.Limits.MaxRequestBodySize = 4L * 1024 * 1024 * 1024; // 2GB
 });
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 2L * 1024 * 1024 * 1024; // 2GB
+    options.MultipartBodyLengthLimit = 4L * 1024 * 1024 * 1024; // 2GB
 });
 
 //SignalR
