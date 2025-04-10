@@ -116,6 +116,19 @@ CREATE TABLE Report (
 );
 GO
 
+-- 6. Tạo bảng SessionRecord
+CREATE TABLE [File] (
+    file_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
+    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
+    file_url NVARCHAR(500),
+    description NVARCHAR(255),
+	uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME NULL,
+    status INT DEFAULT 1
+);
+GO
+
 
 -- 7. Tạo bảng ClassStudent
 CREATE TABLE ClassStudent (
