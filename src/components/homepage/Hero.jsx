@@ -11,7 +11,7 @@ export default function Hero() {
       <div className="space-y-4">
         <h1 className="bg-gradient-to-br from-foreground from-30% via-foreground/90 to-foreground/70 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
           Learn Smarter with
-          <p className="text-sky-600">{GLOBAL_NAME}</p>
+          <p className="text-primary">{GLOBAL_NAME}</p>
         </h1>
         <p className="mx-auto max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
           Empowering students with innovative online learning solutions. From AI-driven insights to seamless virtual classrooms, we're shaping the future of IELTS and SAT preparation.

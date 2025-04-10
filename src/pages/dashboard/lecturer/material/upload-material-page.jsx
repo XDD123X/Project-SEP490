@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Upload, File, Video, Loader2, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getSessionBySessionId } from "@/services/sessionService";
 import { uploadFile } from "@/services/uploadFileService";
@@ -134,8 +134,8 @@ export default function UploadMaterialBySessionPage() {
 
       toast.success(`${selectedRecording.name} has been uploaded.`);
 
-      // const details = await GetSessionDetails(sessionId);
-      // setSessionDetails(details);
+      const response = await getSessionBySessionId(sessionId);
+      setSessionDetails(response.data);
       setSelectedRecording(null);
 
       if (recordingInputRef.current) recordingInputRef.current.value = "";
@@ -268,18 +268,19 @@ export default function UploadMaterialBySessionPage() {
               <CardContent>
                 {sessionDetails?.records ? (
                   <div className="space-y-4">
-                    {sessionDetails.records.map((recording) => (
+                    {sessionDetails.records.map((recording, index) => (
                       <div key={recording.recordId} className="flex items-start justify-between rounded-md border p-3">
                         <div className="space-y-1">
                           <div className="flex items-center">
                             <Video className="mr-2 h-4 w-4" />
-                            <span className="font-medium">{recording.name}</span>
+                            <span className="font-medium">Record {index + 1}</span>
                           </div>
                           <p className="text-xs text-muted-foreground">Duration: {recording.duration}</p>
                           <p className="text-xs text-muted-foreground">Uploaded: {format(recording.createdAt, 'HH:mm, dd/MM/yyyy')}</p>
                         </div>
                         <div className="space-y-2">
-                          <Button variant="outline" size="sm" className="w-full">
+
+                          <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`https://localhost:5000/files/697b189d-8385-4b86-bd92-6fcfc6c1e72b/record/record_697b189d-8385-4b86-bd92-6fcfc6c1e72b.mp4`)}>
                             Watch
                           </Button>
                           <Button variant="outline" size="sm" className="w-full">
