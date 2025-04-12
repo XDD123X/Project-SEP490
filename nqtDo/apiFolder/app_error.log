@@ -1,0 +1,46 @@
+2025-04-13 02:18:49,325 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:4000
+2025-04-13 02:18:49,326 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-13 02:18:49,328 - INFO -  * Restarting with stat
+2025-04-13 02:18:57,038 - WARNING -  * Debugger is active!
+2025-04-13 02:18:57,042 - INFO -  * Debugger PIN: 141-339-156
+2025-04-13 02:19:11,268 - INFO - Loaded 1 images for NguyenQuocTien
+2025-04-13 02:19:13,403 - INFO - Loaded 21 images for Nhung
+2025-04-13 02:19:13,487 - INFO - Loaded 1 images for personA
+2025-04-13 02:19:13,585 - INFO - Loaded 1 images for personB
+2025-04-13 02:19:13,665 - INFO - Loaded 1 images for personC
+2025-04-13 02:19:13,797 - INFO - Loaded 1 images for personD
+2025-04-13 02:19:13,863 - INFO - Loaded 1 images for personE
+2025-04-13 02:19:15,555 - DEBUG - Creating converter from 3 to 5
+2025-04-13 02:19:42,652 - INFO - 127.0.0.1 - - [13/Apr/2025 02:19:42] "POST /upload_video HTTP/1.1" 200 -
+2025-04-13 02:26:30,639 - INFO -  * Detected change in 'C:\\Users\\nqt00\\OneDrive\\Desktop\\nhandiencamxuc\\nqtDo\\apiFolder\\APINhandienquavideo.py', reloading
+2025-04-13 02:27:46,449 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:4000
+2025-04-13 02:27:46,449 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-13 02:27:46,454 - INFO -  * Restarting with stat
+2025-04-13 02:27:54,373 - WARNING -  * Debugger is active!
+2025-04-13 02:27:54,378 - INFO -  * Debugger PIN: 141-339-156
+2025-04-13 02:37:37,827 - INFO - Loaded 1 images for NguyenQuocTien
+2025-04-13 02:37:39,160 - INFO - Loaded 21 images for Nhung
+2025-04-13 02:37:39,199 - INFO - Loaded 1 images for personA
+2025-04-13 02:37:39,247 - INFO - Loaded 1 images for personB
+2025-04-13 02:37:39,296 - INFO - Loaded 1 images for personC
+2025-04-13 02:37:39,356 - INFO - Loaded 1 images for personD
+2025-04-13 02:37:39,397 - INFO - Loaded 1 images for personE
+2025-04-13 02:37:40,813 - DEBUG - Creating converter from 3 to 5
+2025-04-13 02:38:04,113 - INFO - 127.0.0.1 - - [13/Apr/2025 02:38:04] "POST /upload_video HTTP/1.1" 200 -
+2025-04-13 02:40:28,574 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:4000
+2025-04-13 02:40:28,574 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-13 02:40:28,576 - INFO -  * Restarting with stat
+2025-04-13 02:40:36,969 - WARNING -  * Debugger is active!
+2025-04-13 02:40:36,985 - INFO -  * Debugger PIN: 141-339-156
+2025-04-13 02:40:39,686 - INFO - Loaded 1 images for NguyenQuocTien
+2025-04-13 02:40:41,850 - INFO - Loaded 21 images for Nhung
+2025-04-13 02:40:41,939 - INFO - Loaded 1 images for personA
+2025-04-13 02:40:42,041 - INFO - Loaded 1 images for personB
+2025-04-13 02:40:42,156 - INFO - Loaded 1 images for personC
+2025-04-13 02:40:42,287 - INFO - Loaded 1 images for personD
+2025-04-13 02:40:42,376 - INFO - Loaded 1 images for personE
+2025-04-13 02:40:44,656 - DEBUG - Creating converter from 3 to 5
+2025-04-13 02:41:34,341 - INFO - 127.0.0.1 - - [13/Apr/2025 02:41:34] "POST /upload_video HTTP/1.1" 200 -
