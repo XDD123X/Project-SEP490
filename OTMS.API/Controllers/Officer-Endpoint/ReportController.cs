@@ -17,19 +17,21 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     public class ReportController : OfficerPolicyController
     {
         private readonly IReportRepository _reportRepository;
-
+        private readonly IRecordRepository _recordRepository;
         private readonly IMapper _mapper;
 
         private readonly HttpClient client = null;
         private string Apianalyze = "http://127.0.0.1:4000/upload_video";
 
-        public ReportController(IMapper mapper, IReportRepository reportRepository)
+        public ReportController(IMapper mapper, IReportRepository reportRepository,IRecordRepository recordRepository)
         {
             _reportRepository = reportRepository;
 
+            _recordRepository = recordRepository;
             client = new HttpClient();
             var contentType = new MediaTypeWithQualityHeaderValue("application/json");
             client.DefaultRequestHeaders.Accept.Add(contentType);
+
         }
 
         [HttpGet("GetAll")]
@@ -39,11 +41,13 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return Ok(reports);
         }
         [HttpPost("Analyze")]
-        public async Task<IActionResult> Analyze(string sessionId)
+        public async Task<IActionResult> Analyze(string sessionId,string generateBy)
         {
             client.Timeout = TimeSpan.FromMinutes(20);
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record", $"record_{sessionId}.mp4");
+            //var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record", $"record_{sessionId}.mp4");
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record", "record.mp4");
+
             Console.WriteLine(filePath);
             if (!System.IO.File.Exists(filePath))
             {
@@ -62,8 +66,25 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
             if (response.IsSuccessStatusCode)
             {
+                Record record=_recordRepository.GetRecordBySessionAsync(Guid.Parse(sessionId)).Result;
+
                 var result = await response.Content.ReadAsStringAsync();
-                return Ok(result);
+
+
+                Report report = new Report()
+                {
+                    RecordId = record.RecordId,
+                    AnalysisData = result,
+                    GeneratedAt = DateTime.UtcNow,
+                    GeneratedBy = Guid.Parse(generateBy),
+                    SessionId = Guid.Parse(sessionId),
+                    Status = 1
+                };
+                Console.WriteLine(report.AnalysisData);
+                await _reportRepository.AddReport(report);
+                return Ok("Thêm dữ liệu thành công,dữ liệu phân tích là: "+ result.ToString() );
+
+// return Ok(result);
             }
             else
             {
