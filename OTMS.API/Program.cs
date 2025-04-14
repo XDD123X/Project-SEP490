@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DotnetGeminiSDK;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,6 +48,12 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowCredentials();
         });
+});
+
+builder.Services.AddGeminiClient(config =>
+{
+    config.ApiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+    
 });
 
 //DI
