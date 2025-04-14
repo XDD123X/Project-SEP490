@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.EntityFrameworkCore;
 using OTMS.BLL.Models;
 
 namespace OTMS.DAL.DAO
@@ -16,6 +18,42 @@ namespace OTMS.DAL.DAO
             _context = context;
         }
 
+        //public List<Report> GetReportsWithSessionClassAndGeneratedBy(Guid reportId)
+        //{
+        //    return _context.Reports
+        //        .Include(r => r.Session)
+        //            .ThenInclude(s => s.Class)
+        //        .Include(r => r.GeneratedByNavigation)
+        //        .Where(r => r.ReportId == reportId)
+        //        .ToList();
+        //}
+        public Report GetReportsWithSessionClassAndGeneratedBy(Guid reportId)
+        {
+            return _context.Reports
+                .Where(r => r.ReportId == reportId)
+                .Include(r => r.Session)
+                    .ThenInclude(s => s.Class)
+                .Include(r => r.GeneratedByNavigation)
+                .Select(r => new Report
+                {
+                    ReportId = r.ReportId,
+                    AnalysisData = r.AnalysisData,
+                    Session = new Session
+                    {
+                        SessionDate = r.Session.SessionDate,
+                        Slot=r.Session.Slot,
+                        Class = new Class
+                        {
+                            ClassName = r.Session.Class.ClassName
+                        }
+                    },
+                    GeneratedByNavigation = new Account
+                    {
+                        FullName = r.GeneratedByNavigation.FullName
+                    }
+                })
+                .FirstOrDefault();
+        }
 
 
     }

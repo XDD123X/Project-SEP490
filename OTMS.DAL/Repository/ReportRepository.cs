@@ -30,6 +30,7 @@ namespace OTMS.DAL.Repository
         public Task AddReport(Report report) => _reportDAO.AddAsync(report);
 
 
-
+        public Report GetReportsWithSessionClassAndGeneratedBy(Guid reportId) =>
+            _reportDAO.GetReportsWithSessionClassAndGeneratedBy(reportId);
     }
 }
