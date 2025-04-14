@@ -27,7 +27,7 @@ namespace OTMS.DAL.DAO
         //        .Where(r => r.ReportId == reportId)
         //        .ToList();
         //}
-        public Report GetReportsWithSessionClassAndGeneratedBy(Guid reportId)
+        public Report GetReportsWithSessionClassAndGeneratedByReportId(Guid reportId)
         {
             return _context.Reports
                 .Where(r => r.ReportId == reportId)
@@ -53,6 +53,42 @@ namespace OTMS.DAL.DAO
                     }
                 })
                 .FirstOrDefault();
+        }
+
+
+        public Report GetReportsWithSessionClassAndGeneratedBySessionId(Guid sessionId)
+        {
+            return _context.Reports
+                .Where(r => r.SessionId == sessionId)
+                .Include(r => r.Session)
+                    .ThenInclude(s => s.Class)
+                .Include(r => r.GeneratedByNavigation)
+                .Select(r => new Report
+                {
+                    ReportId = r.ReportId,
+                    AnalysisData = r.AnalysisData,
+                    Session = new Session
+                    {
+                        SessionDate = r.Session.SessionDate,
+                        Slot = r.Session.Slot,
+                        Class = new Class
+                        {
+                            ClassName = r.Session.Class.ClassName
+                        }
+                    },
+                    GeneratedByNavigation = new Account
+                    {
+                        FullName = r.GeneratedByNavigation.FullName
+                    }
+                })
+                .FirstOrDefault();
+        }
+
+
+        public async Task<Report> GetReportBySessionIdAsync(Guid sessionId)
+        {
+            return await _context.Reports
+                .FirstOrDefaultAsync(r => r.SessionId == sessionId);
         }
 
 
