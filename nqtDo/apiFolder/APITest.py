@@ -12,4 +12,3 @@ else:
     print(f"Yêu cầu không thành công. Mã lỗi: {response.status_code}")
 
 
-#bone

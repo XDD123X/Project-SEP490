@@ -1,46 +1,115 @@
-2025-04-13 02:18:49,325 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-04-15 17:21:48,069 - INFO - Created folder for Cao V\u0103n Linh at C:\Users\nqt00\Desktop\StudentFaces\Cao_Van_Linh
+2025-04-15 17:21:48,072 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:48,987 - DEBUG - https://i.imgur.com:443 "GET /McuGRDf.png HTTP/1.1" 200 519147
+2025-04-15 17:21:49,929 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:50,765 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:50,766 - INFO - Downloaded image for Cao V\u0103n Linh as .png
+2025-04-15 17:21:50,767 - INFO - Created folder for Tô Minh NH\u1eadt at C:\Users\nqt00\Desktop\StudentFaces\To_Minh_NHat
+2025-04-15 17:21:50,768 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:51,692 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:51,693 - INFO - Downloaded image for Tô Minh NH\u1eadt as .png
+2025-04-15 17:21:51,696 - INFO - Created folder for Lý Minh \u01afu at C:\Users\nqt00\Desktop\StudentFaces\Ly_Minh_Uu
+2025-04-15 17:21:51,697 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:52,559 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:52,560 - INFO - Downloaded image for Lý Minh \u01afu as .png
+2025-04-15 17:21:52,561 - INFO - Created folder for Hoàng Minh Quân at C:\Users\nqt00\Desktop\StudentFaces\Hoang_Minh_Quan
+2025-04-15 17:21:52,561 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:53,449 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:53,456 - INFO - Downloaded image for Hoàng Minh Quân as .png
+2025-04-15 17:21:53,457 - INFO - Created folder for Tôn N\u1eef Minh at C:\Users\nqt00\Desktop\StudentFaces\Ton_Nu_Minh
+2025-04-15 17:21:53,457 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:54,437 - DEBUG - https://i.imgur.com:443 "GET /0dTvSSQ.png HTTP/1.1" 200 474391
+2025-04-15 17:21:55,287 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:56,176 - DEBUG - https://i.imgur.com:443 "HEAD /0dTvSSQ.png HTTP/1.1" 429 0
+2025-04-15 17:21:56,179 - INFO - Downloaded image for Tôn N\u1eef Minh as .png
+2025-04-15 17:21:56,184 - INFO - Created folder for Ngô V\u0103n Danh at C:\Users\nqt00\Desktop\StudentFaces\Ngo_Van_Danh
+2025-04-15 17:21:56,185 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:57,041 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:57,044 - INFO - Downloaded image for Ngô V\u0103n Danh as .png
+2025-04-15 17:21:57,044 - INFO - Created folder for Hu\u1ef3nh V\u0103n Tr\u1ecdng at C:\Users\nqt00\Desktop\StudentFaces\Huynh_Van_Trong
+2025-04-15 17:21:57,045 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:57,937 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:57,938 - INFO - Downloaded image for Hu\u1ef3nh V\u0103n Tr\u1ecdng as .png
+2025-04-15 17:21:57,944 - INFO - Created folder for Bùi V\u0103n Hi\u1ec7n at C:\Users\nqt00\Desktop\StudentFaces\Bui_Van_Hien
+2025-04-15 17:21:57,945 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:58,772 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:21:58,775 - INFO - Downloaded image for Bùi V\u0103n Hi\u1ec7n as .png
+2025-04-15 17:21:58,775 - INFO - Created folder for \u0110\u1eb7ng Th\u1ecb Phan at C:\Users\nqt00\Desktop\StudentFaces\ang_Thi_Phan
+2025-04-15 17:21:58,777 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:21:59,609 - DEBUG - https://i.imgur.com:443 "HEAD /0dTvSSQ.png HTTP/1.1" 429 0
+2025-04-15 17:21:59,616 - INFO - Downloaded image for \u0110\u1eb7ng Th\u1ecb Phan as .png
+2025-04-15 17:21:59,616 - INFO - Created folder for L\u01b0\u01a1ng Th\u1ecb Dân at C:\Users\nqt00\Desktop\StudentFaces\Luong_Thi_Dan
+2025-04-15 17:21:59,618 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:00,471 - DEBUG - https://i.imgur.com:443 "HEAD /0dTvSSQ.png HTTP/1.1" 429 0
+2025-04-15 17:22:00,472 - INFO - Downloaded image for L\u01b0\u01a1ng Th\u1ecb Dân as .png
+2025-04-15 17:22:00,473 - INFO - Created folder for V\u0169 Th\u1ecb Sinh at C:\Users\nqt00\Desktop\StudentFaces\Vu_Thi_Sinh
+2025-04-15 17:22:00,474 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:01,318 - DEBUG - https://i.imgur.com:443 "HEAD /0dTvSSQ.png HTTP/1.1" 429 0
+2025-04-15 17:22:01,325 - INFO - Downloaded image for V\u0169 Th\u1ecb Sinh as .png
+2025-04-15 17:22:01,325 - INFO - Created folder for Nguy\u1ec5n Hoàng Linh at C:\Users\nqt00\Desktop\StudentFaces\Nguyen_Hoang_Linh
+2025-04-15 17:22:01,326 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:02,164 - DEBUG - https://i.imgur.com:443 "HEAD /0dTvSSQ.png HTTP/1.1" 429 0
+2025-04-15 17:22:02,166 - INFO - Downloaded image for Nguy\u1ec5n Hoàng Linh as .png
+2025-04-15 17:22:02,166 - INFO - Created folder for Châu V\u0103n Vi\u1ec7t at C:\Users\nqt00\Desktop\StudentFaces\Chau_Van_Viet
+2025-04-15 17:22:02,167 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:03,002 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:22:03,010 - INFO - Downloaded image for Châu V\u0103n Vi\u1ec7t as .png
+2025-04-15 17:22:03,010 - INFO - Created folder for Mai Thanh Tí at C:\Users\nqt00\Desktop\StudentFaces\Mai_Thanh_Ti
+2025-04-15 17:22:03,012 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:03,860 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:22:03,863 - INFO - Downloaded image for Mai Thanh Tí as .png
+2025-04-15 17:22:03,869 - INFO - Created folder for Phan Thanh Khánh at C:\Users\nqt00\Desktop\StudentFaces\Phan_Thanh_Khanh
+2025-04-15 17:22:03,870 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:04,718 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:22:04,720 - INFO - Downloaded image for Phan Thanh Khánh as .png
+2025-04-15 17:22:04,721 - INFO - Created folder for \u0110\u1ed7 Qu\u1ed1c \u0110\u1ea1t at C:\Users\nqt00\Desktop\StudentFaces\o_Quoc_at
+2025-04-15 17:22:04,723 - DEBUG - Starting new HTTPS connection (1): i.imgur.com:443
+2025-04-15 17:22:05,567 - DEBUG - https://i.imgur.com:443 "HEAD /McuGRDf.png HTTP/1.1" 429 0
+2025-04-15 17:22:05,575 - INFO - Downloaded image for \u0110\u1ed7 Qu\u1ed1c \u0110\u1ea1t as .png
+2025-04-15 17:22:05,601 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on http://127.0.0.1:4000
-2025-04-13 02:18:49,326 - INFO - [33mPress CTRL+C to quit[0m
-2025-04-13 02:18:49,328 - INFO -  * Restarting with stat
-2025-04-13 02:18:57,038 - WARNING -  * Debugger is active!
-2025-04-13 02:18:57,042 - INFO -  * Debugger PIN: 141-339-156
-2025-04-13 02:19:11,268 - INFO - Loaded 1 images for NguyenQuocTien
-2025-04-13 02:19:13,403 - INFO - Loaded 21 images for Nhung
-2025-04-13 02:19:13,487 - INFO - Loaded 1 images for personA
-2025-04-13 02:19:13,585 - INFO - Loaded 1 images for personB
-2025-04-13 02:19:13,665 - INFO - Loaded 1 images for personC
-2025-04-13 02:19:13,797 - INFO - Loaded 1 images for personD
-2025-04-13 02:19:13,863 - INFO - Loaded 1 images for personE
-2025-04-13 02:19:15,555 - DEBUG - Creating converter from 3 to 5
-2025-04-13 02:19:42,652 - INFO - 127.0.0.1 - - [13/Apr/2025 02:19:42] "POST /upload_video HTTP/1.1" 200 -
-2025-04-13 02:26:30,639 - INFO -  * Detected change in 'C:\\Users\\nqt00\\OneDrive\\Desktop\\nhandiencamxuc\\nqtDo\\apiFolder\\APINhandienquavideo.py', reloading
-2025-04-13 02:27:46,449 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on http://127.0.0.1:4000
-2025-04-13 02:27:46,449 - INFO - [33mPress CTRL+C to quit[0m
-2025-04-13 02:27:46,454 - INFO -  * Restarting with stat
-2025-04-13 02:27:54,373 - WARNING -  * Debugger is active!
-2025-04-13 02:27:54,378 - INFO -  * Debugger PIN: 141-339-156
-2025-04-13 02:37:37,827 - INFO - Loaded 1 images for NguyenQuocTien
-2025-04-13 02:37:39,160 - INFO - Loaded 21 images for Nhung
-2025-04-13 02:37:39,199 - INFO - Loaded 1 images for personA
-2025-04-13 02:37:39,247 - INFO - Loaded 1 images for personB
-2025-04-13 02:37:39,296 - INFO - Loaded 1 images for personC
-2025-04-13 02:37:39,356 - INFO - Loaded 1 images for personD
-2025-04-13 02:37:39,397 - INFO - Loaded 1 images for personE
-2025-04-13 02:37:40,813 - DEBUG - Creating converter from 3 to 5
-2025-04-13 02:38:04,113 - INFO - 127.0.0.1 - - [13/Apr/2025 02:38:04] "POST /upload_video HTTP/1.1" 200 -
-2025-04-13 02:40:28,574 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on http://127.0.0.1:4000
-2025-04-13 02:40:28,574 - INFO - [33mPress CTRL+C to quit[0m
-2025-04-13 02:40:28,576 - INFO -  * Restarting with stat
-2025-04-13 02:40:36,969 - WARNING -  * Debugger is active!
-2025-04-13 02:40:36,985 - INFO -  * Debugger PIN: 141-339-156
-2025-04-13 02:40:39,686 - INFO - Loaded 1 images for NguyenQuocTien
-2025-04-13 02:40:41,850 - INFO - Loaded 21 images for Nhung
-2025-04-13 02:40:41,939 - INFO - Loaded 1 images for personA
-2025-04-13 02:40:42,041 - INFO - Loaded 1 images for personB
-2025-04-13 02:40:42,156 - INFO - Loaded 1 images for personC
-2025-04-13 02:40:42,287 - INFO - Loaded 1 images for personD
-2025-04-13 02:40:42,376 - INFO - Loaded 1 images for personE
-2025-04-13 02:40:44,656 - DEBUG - Creating converter from 3 to 5
-2025-04-13 02:41:34,341 - INFO - 127.0.0.1 - - [13/Apr/2025 02:41:34] "POST /upload_video HTTP/1.1" 200 -
+2025-04-15 17:22:05,601 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-15 17:22:05,603 - INFO -  * Restarting with stat
+2025-04-15 17:22:13,288 - INFO - Folder for Cao V\u0103n Linh already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Tô Minh NH\u1eadt already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Lý Minh \u01afu already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Hoàng Minh Quân already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Tôn N\u1eef Minh already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Ngô V\u0103n Danh already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Hu\u1ef3nh V\u0103n Tr\u1ecdng already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Bùi V\u0103n Hi\u1ec7n already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for \u0110\u1eb7ng Th\u1ecb Phan already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for L\u01b0\u01a1ng Th\u1ecb Dân already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for V\u0169 Th\u1ecb Sinh already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Nguy\u1ec5n Hoàng Linh already exists. Skipping...
+2025-04-15 17:22:13,289 - INFO - Folder for Châu V\u0103n Vi\u1ec7t already exists. Skipping...
+2025-04-15 17:22:13,290 - INFO - Folder for Mai Thanh Tí already exists. Skipping...
+2025-04-15 17:22:13,290 - INFO - Folder for Phan Thanh Khánh already exists. Skipping...
+2025-04-15 17:22:13,290 - INFO - Folder for \u0110\u1ed7 Qu\u1ed1c \u0110\u1ea1t already exists. Skipping...
+2025-04-15 17:22:13,304 - WARNING -  * Debugger is active!
+2025-04-15 17:22:13,309 - INFO -  * Debugger PIN: 654-335-000
+2025-04-15 17:33:29,362 - INFO - Loaded 1 images for ang_Thi_Phan
+2025-04-15 17:33:29,712 - INFO - Loaded 1 images for Bui_Van_Hien
+2025-04-15 17:33:30,087 - INFO - Loaded 1 images for Cao_Van_Linh
+2025-04-15 17:33:30,444 - INFO - Loaded 1 images for Chau_Van_Viet
+2025-04-15 17:33:30,805 - INFO - Loaded 1 images for Hoang_Minh_Quan
+2025-04-15 17:33:31,158 - INFO - Loaded 1 images for Huynh_Van_Trong
+2025-04-15 17:33:31,548 - INFO - Loaded 1 images for Luong_Thi_Dan
+2025-04-15 17:33:31,921 - INFO - Loaded 1 images for Ly_Minh_Uu
+2025-04-15 17:33:32,282 - INFO - Loaded 1 images for Mai_Thanh_Ti
+2025-04-15 17:33:32,640 - INFO - Loaded 1 images for Ngo_Van_Danh
+2025-04-15 17:33:33,260 - INFO - Loaded 1 images for NguyenQuocTien
+2025-04-15 17:33:33,698 - INFO - Loaded 1 images for Nguyen_Hoang_Linh
+2025-04-15 17:33:35,231 - INFO - Loaded 21 images for Nhung
+2025-04-15 17:33:35,589 - INFO - Loaded 1 images for o_Quoc_at
+2025-04-15 17:33:35,655 - INFO - Loaded 1 images for personA
+2025-04-15 17:33:35,721 - INFO - Loaded 1 images for personB
+2025-04-15 17:33:35,786 - INFO - Loaded 1 images for personC
+2025-04-15 17:33:35,868 - INFO - Loaded 1 images for personD
+2025-04-15 17:33:35,941 - INFO - Loaded 1 images for personE
+2025-04-15 17:33:36,291 - INFO - Loaded 1 images for Phan_Thanh_Khanh
+2025-04-15 17:33:36,728 - INFO - Loaded 1 images for Ton_Nu_Minh
+2025-04-15 17:33:37,106 - INFO - Loaded 1 images for To_Minh_NHat
+2025-04-15 17:33:37,460 - INFO - Loaded 1 images for Vu_Thi_Sinh
+2025-04-15 17:33:43,021 - DEBUG - Creating converter from 3 to 5
+2025-04-15 17:41:04,952 - INFO - 127.0.0.1 - - [15/Apr/2025 17:41:04] "POST /upload_video HTTP/1.1" 200 -

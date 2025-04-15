@@ -10,26 +10,136 @@ import time
 import json
 import tempfile
 import uuid
+import pyodbc
+import requests
+from pathlib import Path
+import platform
 from concurrent.futures import ThreadPoolExecutor
+import unicodedata
+import re
 
-# Set up logging to log errors to a file
+# ========== CONFIG ==========
+
+def get_desktop_path():
+    if platform.system() == "Windows":
+        return os.path.join(os.environ["USERPROFILE"], "Desktop")
+    else:
+        return os.path.join(Path.home(), "Desktop")
+
+KNOWN_FACES_FOLDER = os.path.join(get_desktop_path(), "StudentFaces")
+os.makedirs(KNOWN_FACES_FOLDER, exist_ok=True)
+
+EMOTION_CATEGORIES = ["happy", "sad", "neutral"]
+executor = ThreadPoolExecutor(max_workers=4)
+
+# ========== LOGGING ==========
+
 logging.basicConfig(filename='app_error.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+# ========== FLASK APP ==========
+
 app = Flask(__name__)
 
-executor = ThreadPoolExecutor(max_workers=4)
+# ========== DATABASE ==========
 
-KNOWN_FACES_FOLDER = "C:/Users/nqt00/OneDrive/Desktop/nhandiencamxuc/face"
-EMOTION_CATEGORIES = ["happy", "sad", "neutral"]
+def get_students_from_db():
+    try:
+        conn = pyodbc.connect(
+            "Driver={SQL Server};Server=localhost;Database=OTMS;UID=sa;PWD=sa;"
+        )
+        cursor = conn.cursor()
+        query = """
+        SELECT full_name, img_url FROM Account
+        WHERE role_id = (
+            SELECT role_id FROM Role WHERE name = 'Student'
+        )
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        return [(row.full_name, row.img_url) for row in rows]
+    except Exception as e:
+        logging.error(f"Database error: {str(e)}")
+        return []
 
-os.makedirs(KNOWN_FACES_FOLDER, exist_ok=True)
+# ========== SANITIZE FOLDER NAME ==========
 
-known_encodings = []
-known_names = []
+def sanitize_folder_name(name):
+    normalized = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii')
+    safe_name = re.sub(r'[^\w\s-]', '', normalized).strip().replace(' ', '_')
+    return safe_name
+
+# ========== RETRY MECHANISM ==========
+
+def download_with_retry(url, retries=3, backoff=2):
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
+            })
+            if response.status_code == 200:
+                return response.content
+            elif response.status_code == 429:
+                wait_time = backoff ** attempt
+                logging.warning(f"Rate limited. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+        except Exception as e:
+            logging.error(f"Request failed: {str(e)}")
+    return None
+
+# ========== DOWNLOAD IMAGES ==========
+
+downloaded_images = {}
+
+def download_student_images():
+    students = get_students_from_db()
+    for full_name, img_url in students:
+        if not img_url:
+            continue
+
+        folder_name = sanitize_folder_name(full_name)
+        person_folder = os.path.join(KNOWN_FACES_FOLDER, folder_name)
+
+        if os.path.exists(person_folder):
+            logging.info(f"Folder for {full_name} already exists. Skipping...")
+            continue
+
+        os.makedirs(person_folder, exist_ok=True)
+        logging.info(f"Created folder for {full_name} at {person_folder}")
+
+        file_extension = ".png"
+
+        try:
+            if img_url not in downloaded_images:
+                content = download_with_retry(img_url)
+                downloaded_images[img_url] = content
+            else:
+                content = downloaded_images[img_url]
+
+            if content:
+                response = requests.head(img_url)
+                content_type = response.headers.get('Content-Type', '')
+                if 'jpeg' in content_type:
+                    file_extension = ".jpg"
+                elif 'png' in content_type:
+                    file_extension = ".png"
+                elif 'gif' in content_type:
+                    file_extension = ".gif"
+
+                image_path = os.path.join(person_folder, f"1{file_extension}")
+                with open(image_path, 'wb') as f:
+                    f.write(content)
+                logging.info(f"Downloaded image for {full_name} as {file_extension}")
+            else:
+                logging.warning(f"Failed to download image for {full_name}: {img_url}")
+        except Exception as e:
+            logging.error(f"Error downloading image for {full_name}: {str(e)}")
+
+# ========== LOAD KNOWN FACES ==========
 
 def load_known_faces():
-    global known_encodings, known_names
+    known_encodings = []
+    known_names = []
     try:
         for person_name in os.listdir(KNOWN_FACES_FOLDER):
             person_folder = os.path.join(KNOWN_FACES_FOLDER, person_name)
@@ -57,6 +167,9 @@ def load_known_faces():
     except Exception as e:
         logging.error(f"Error loading known faces: {str(e)}")
         raise e
+    return known_encodings, known_names
+
+# ========== VIDEO PROCESSING ==========
 
 def get_seconds_interval(video_duration, fps):
     min_interval = 1
@@ -64,7 +177,7 @@ def get_seconds_interval(video_duration, fps):
     estimated_interval = max(min_interval, min(max_interval, int(video_duration * 0.01)))
     return int(fps * estimated_interval)
 
-def process_video(video_path):
+def process_video(video_path, known_encodings, known_names):
     try:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
@@ -103,7 +216,6 @@ def process_video(video_path):
                 if name is not None:
                     if face_data[name]["first_seen"] is None:
                         face_data[name]["first_seen"] = timestamp
-
                     face_data[name]["count"] += 1
 
                     try:
@@ -131,6 +243,8 @@ def process_video(video_path):
         logging.error(f"Error processing video {video_path}: {str(e)}")
         return {}
 
+# ========== API ==========
+
 @app.route('/upload_video', methods=['POST'])
 def upload_video():
     file = request.files.get('video')
@@ -138,20 +252,28 @@ def upload_video():
         logging.error("No file uploaded.")
         return jsonify({"error": "No file uploaded"}), 400
 
-    unique_filename = f"{uuid.uuid4().hex}.mp4"
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4", mode="wb") as temp_file:
             temp_file.write(file.read())
             temp_file.close()
-            load_known_faces()
-            future = executor.submit(process_video, temp_file.name)
+
+            # Load known faces only when API is called
+            known_encodings, known_names = load_known_faces()
+
+            # Process video with current encodings
+            future = executor.submit(process_video, temp_file.name, known_encodings, known_names)
             result = future.result()
+
             os.remove(temp_file.name)
+
         return jsonify(result)
     except Exception as e:
         logging.error(f"Error in upload_video: {str(e)}")
         return jsonify({"error": "Internal Server Error"}), 500
 
+# ========== MAIN ==========
+
 if __name__ == "__main__":
-    app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024 * 1024  # 4GB
+    download_student_images()  # Only runs once when app starts
+    app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024 * 1024  # 4GB max upload
     app.run(debug=True, port=4000, threaded=True)
