@@ -27,6 +27,7 @@ namespace OTMS.DAL.DAO
                 .Include(s => s.Lecturer)
                 .Include(s => s.Records)
                 .Include(s => s.Files)
+                .Include(s => s.Reports)
                 .OrderBy(s => s.SessionDate)
                 .ThenBy(s => s.Slot)
                 .ToListAsync();
@@ -37,6 +38,7 @@ namespace OTMS.DAL.DAO
                 .Where(s => s.LecturerId == id)
                 .Include(s => s.Records)
                 .Include(s => s.Files)
+                .Include(s => s.Reports)
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
                 .OrderBy(s => s.SessionDate)
@@ -68,6 +70,7 @@ namespace OTMS.DAL.DAO
                 .Where(s => classList.Contains(s.ClassId) && s.Class.Status != 0)
                 .Include(s => s.Records)
                 .Include(s => s.Files)
+                .Include(s => s.Reports)
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
                 .Include(s => s.Attendances)
