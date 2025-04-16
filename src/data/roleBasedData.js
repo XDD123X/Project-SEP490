@@ -189,15 +189,6 @@ const roleBasedData = {
           { title: "Add Course", url: "/officer/course/add" },
         ],
       },
-      // {
-      //   title: "Record",
-      //   url: "records",
-      //   icon: ClipboardList,
-      //   items: [
-      //     { title: "View Records", url: "/officer/notification" },
-      //     { title: "Upload Records", url: "/officer/notification/upload" },
-      //   ],
-      // },
       {
         title: "Notification",
         url: "notifications",
@@ -212,6 +203,7 @@ const roleBasedData = {
         url: "reports",
         icon: FileText,
         items: [
+          { title: "Analyze", url: "/officer/report/analyze" },
           { title: "View Reports", url: "/officer/report" }
         ],
       },

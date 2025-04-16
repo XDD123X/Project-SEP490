@@ -20,3 +20,15 @@ export const analyzeSession = async (sessionId, generateBy) => {
     console.log(error);
   }
 };
+
+export const downloadReportDetail = async (sessionId) => {
+  try {
+    const response = await axiosClient.post(`/Officer/Report/GetReportBySessionIdUsingGeminiAi?sessionId=${sessionId}`, null, {
+      responseType: "blob",
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

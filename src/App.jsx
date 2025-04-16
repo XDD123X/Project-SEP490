@@ -61,14 +61,16 @@ import ViewRequestBySessionLecturerPage from "./pages/dashboard/lecturer/request
 import RequestChangeLecturerPage from "./pages/dashboard/lecturer/request/session-change-request-lecturer-page";
 import StudentRequestManagement from "./pages/dashboard/officer/request/view-student-request";
 import UploadMaterialBySessionPage from "./pages/dashboard/lecturer/material/upload-material-page";
-import ViewClassReportPage from "./pages/dashboard/officer/report/view-class-report-page";
-import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-class-report-page";
 import RecordVideoPage from "./pages/records/view-record-page";
 import ViewSessionByRecordClassMaterialPage from "./pages/dashboard/lecturer/material/select-session-record-page";
 import ViewSessionByFileClassMaterialPage from "./pages/dashboard/lecturer/material/select-session-file-page";
 import ViewClassRecordMaterialPage from "./pages/dashboard/lecturer/material/select-class-record-page";
 import ViewClassFileMaterialPage from "./pages/dashboard/lecturer/material/select-class-material-page";
 import ViewClassMaterialPage from "./pages/materials/view-material-page";
+import SelectClassReportPage from "./pages/dashboard/officer/report/select-class-report-page";
+import SelectSessionByClassReportPage from "./pages/dashboard/officer/report/select-session-class-report-page";
+import ViewReportByClassPage from "./pages/dashboard/officer/report/view-class-report-page";
+import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-report-list";
 
 function App() {
   return (
@@ -187,8 +189,10 @@ function App() {
                         <Route path="request/student" element={<StudentRequestManagement />} />
                         <Route path="request/lecturer" element={<ViewLecturerRequest />} />
 
-                        <Route path="report" element={<ViewClassReportPage />} />
+                        <Route path="report" element={<ViewReportByClassPage />} />
                         <Route path="report/:classId" element={<ViewSessionByClassReportPage />} />
+                        <Route path="report/analyze" element={<SelectClassReportPage />} />
+                        <Route path="report/analyze/:classId" element={<SelectSessionByClassReportPage />} />
 
                         <Route path="dashboard" element={<DashboardPage />} />
                       </Route>

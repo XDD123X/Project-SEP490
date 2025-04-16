@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useStore } from "@/services/StoreContext";
 import { analyzeSession } from "@/services/reportService";
 
-export default function ViewSessionByClassReportPage() {
+export default function SelectSessionByClassReportPage() {
   const { classId } = useParams();
   const [sessions, setSessions] = useState([]);
   const [classData, setClassData] = useState();
