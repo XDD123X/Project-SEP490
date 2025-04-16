@@ -121,6 +121,7 @@ GO
 CREATE TABLE [File] (
     file_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
+    file_name NVARCHAR(500),
     file_url NVARCHAR(500),
     file_size NVARCHAR(20),
     description NVARCHAR(255),

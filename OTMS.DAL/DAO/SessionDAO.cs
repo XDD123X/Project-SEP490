@@ -96,6 +96,7 @@ namespace OTMS.DAL.DAO
             var session = await _context.Sessions
                 .Where(s => s.ClassId == classId)
                 .Include(s => s.Records)
+                .Include(s => s.Files)
                 .Include(s => s.Attendances)
                 .OrderBy(s => s.SessionDate)
                 .ToListAsync();
@@ -109,6 +110,7 @@ namespace OTMS.DAL.DAO
                 .Where(s => s.SessionId == sessionId)
                 .Include(s => s.Attendances)
                 .Include(s => s.Records)
+                .Include(s => s.Files)
                 .Include(s => s.Lecturer)
                 .Include(s => s.Class)
                 .OrderBy(s => s.SessionDate)

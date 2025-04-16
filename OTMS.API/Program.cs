@@ -69,6 +69,7 @@ builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
 builder.Services.AddScoped<IProfileChangeRequestRepository, ProfileChangeRequestRepository>();
 builder.Services.AddScoped<OTMS.DAL.Interface.ISessionChangeRequestRepository, OTMS.DAL.Repository.SessionChangeRequestRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
 
 
 //Service
@@ -98,6 +99,7 @@ builder.Services.AddScoped<RecordDAO>();
 builder.Services.AddScoped<ProfileChangeRequestDAO>();
 builder.Services.AddScoped<SessionChangeRequestDAO>();
 builder.Services.AddScoped<ReportDAO>();
+builder.Services.AddScoped<FileDAO>();
 
 //Config Upload
 builder.Services.Configure<KestrelServerOptions>(options =>
@@ -234,6 +236,14 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
+
+//valid file folders
+// Kiểm tra và tạo thư mục nếu chưa tồn tại
+var filesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Files");
+if (!Directory.Exists(filesDirectory))
+{
+    Directory.CreateDirectory(filesDirectory);
+}
 
 //static file middleware
 app.UseStaticFiles();
