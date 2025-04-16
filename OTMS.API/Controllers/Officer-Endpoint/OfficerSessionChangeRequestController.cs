@@ -184,6 +184,11 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpGet("{id}")]
         public async Task<ActionResult<SessionChangeRequest>> GetRequestById(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { success = false, message = "ID yêu cầu không hợp lệ." });
+            }
+            
             var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(id);
             if (request == null)
             {
