@@ -6,14 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Upload, File, Video, Loader2, X, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getSessionBySessionId } from "@/services/sessionService";
 import { uploadFile } from "@/services/uploadFileService";
 import { format } from "date-fns";
 
+const API_URL = import.meta.env.VITE_VIDEO_URL;
+
 export default function UploadMaterialBySessionPage() {
   const { classId, sessionId } = useParams();
+  const [searchParams] = useSearchParams();
   const [sessionDetails, setSessionDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -23,6 +26,17 @@ export default function UploadMaterialBySessionPage() {
   const fileInputRef = useRef(null);
   const recordingInputRef = useRef(null);
   const navigate = useNavigate();
+  const [uploadType, setUploadType] = useState("recordings");
+
+  //get upload type
+  useEffect(() => {
+    const typeFromURL = searchParams.get("type");
+    if (typeFromURL === "recordings" || typeFromURL === "files") {
+      setUploadType(typeFromURL);
+    } else {
+      navigate("/*");
+    }
+  }, [searchParams, navigate]);
 
   useEffect(() => {
     async function fetchSessionDetails() {
@@ -67,35 +81,25 @@ export default function UploadMaterialBySessionPage() {
     setUploadProgress(0);
 
     try {
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          if (prev < 50) return prev + 5;
-          else if (prev < 80) return prev + 2;
-          else return prev + 3;
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+
+        await uploadFile(file, classId, sessionId, "file", (percent) => {
+          // Tính toán tổng tiến độ dựa trên số lượng file
+          const overallProgress = ((i + percent / 100) / selectedFiles.length) * 100;
+          setUploadProgress(Math.round(overallProgress));
         });
-      }, 300);
-
-      // 🔁 Upload từng file
-      for (const file of selectedFiles) {
-        await uploadFile(file, sessionId, "file");
-        console.log(uploadFile);
       }
-
-      clearInterval(interval);
-      setUploadProgress(100);
 
       toast.success(`${selectedFiles.length} file(s) have been uploaded.`);
 
-      // Cập nhật lại thông tin buổi học
-      // const details = await GetSessionDetails(sessionId);
-      // setSessionDetails(details);
+      // Reset sau khi upload xong
+      setUploadProgress(100);
       setSelectedFiles([]);
-
       if (fileInputRef.current) fileInputRef.current.value = "";
+      // Nếu cần load lại session sau upload:
+      const response = await getSessionBySessionId(sessionId);
+      setSessionDetails(response.data);
     } catch (error) {
       console.error("Failed to upload files:", error);
       toast.error("There was an error uploading your files. Please try again.");
@@ -114,30 +118,36 @@ export default function UploadMaterialBySessionPage() {
     setUploadProgress(0);
 
     try {
+      // Tiến trình upload
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
-          if (prev >= 99) {
+          if (prev >= 100) {
             clearInterval(interval);
-            return 99;
+            return 100;
           }
-          if (prev < 50) return prev + 2;
-          else if (prev < 80) return prev + 1;
-          else return prev + 1;
+          if (prev < 50) return prev + 5;
+          else if (prev < 80) return prev + 2;
+          else return prev + 3;
         });
-      }, 500);
+      }, 300);
 
-      // 🆙 Upload 1 recording
-      await uploadFile(selectedRecording, sessionId, "record");
+      // Upload video recording (record) file
+      await uploadFile(selectedRecording, classId, sessionId, "record", (percent) => {
+        setUploadProgress(percent);
+      });
 
+      // Sau khi upload xong
       clearInterval(interval);
       setUploadProgress(100);
 
       toast.success(`${selectedRecording.name} has been uploaded.`);
 
+      // Lấy thông tin session sau khi upload xong
       const response = await getSessionBySessionId(sessionId);
       setSessionDetails(response.data);
       setSelectedRecording(null);
 
+      // Clear input field
       if (recordingInputRef.current) recordingInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to upload recording:", error);
@@ -162,6 +172,11 @@ export default function UploadMaterialBySessionPage() {
     if (bytes < 1024) return bytes + " bytes";
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
     else return (bytes / 1048576).toFixed(1) + " MB";
+  };
+
+  const handleFileClick = (fileUrl) => {
+    const fullUrl = `${API_URL}${fileUrl}`;
+    window.open(fullUrl, "_blank");
   };
 
   if (loading) {
@@ -190,10 +205,14 @@ export default function UploadMaterialBySessionPage() {
         </div>
       )}
 
-      <Tabs defaultValue="recordings" className="w-full">
+      <Tabs defaultValue={uploadType} className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="recordings">Recordings</TabsTrigger>
-          <TabsTrigger value="files">Files</TabsTrigger>
+          <TabsTrigger value="recordings" disabled>
+            Recordings
+          </TabsTrigger>
+          <TabsTrigger value="files" disabled>
+            Files
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="recordings">
@@ -385,18 +404,24 @@ export default function UploadMaterialBySessionPage() {
                 {sessionDetails?.files && sessionDetails?.files.length > 0 ? (
                   <div className="space-y-4">
                     {sessionDetails.files.map((file) => (
-                      <div key={file.id} className="flex items-start justify-between rounded-md border p-3">
-                        <div className="space-y-1">
+                      <div key={file.fileId} className="flex items-start justify-between rounded-md border p-3">
+                        <div className="space-y-1 flex-1">
                           <div className="flex items-center">
                             <File className="mr-2 h-4 w-4" />
-                            <span className="font-medium">{file.name}</span>
+                            <span className="font-medium truncate" style={{ maxWidth: "250px" }}>
+                              {file.fileName}
+                            </span>
+                            {/* Truncate tên file */}
                           </div>
-                          <p className="text-xs text-muted-foreground">Size: {file.size}</p>
-                          <p className="text-xs text-muted-foreground">Uploaded: {new Date(file.uploadedAt).toLocaleString()}</p>
+                          <p className="text-xs text-muted-foreground">Size: {formatFileSize(file.fileSize)}</p>
+                          <p className="text-xs text-muted-foreground">Uploaded: {new Date(file.createdAt).toLocaleString()}</p>
                         </div>
-                        <Button variant="outline" size="sm">
-                          Download
-                        </Button>
+
+                        <div className="mt-2">
+                          <Button variant="outline" size="sm" onClick={() => handleFileClick(file.fileUrl)}>
+                            Download
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

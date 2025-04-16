@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, FolderPlus, FolderCog } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSessionsByClassId } from "@/services/sessionService";
 import { format } from "date-fns";
 import { SessionBadge } from "@/components/BadgeComponent";
 
-export default function ViewSessionByClassMaterialPage() {
+export default function ViewSessionByFileClassMaterialPage() {
   const [sessions, setSessions] = useState([]);
   const [classDetails, setClassDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,6 +19,7 @@ export default function ViewSessionByClassMaterialPage() {
       try {
         const sessionsData = await getSessionsByClassId(classId);
         setSessions(sessionsData.data);
+        console.log(sessionsData.data);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -30,7 +31,7 @@ export default function ViewSessionByClassMaterialPage() {
   }, [classId]);
 
   const handleSessionSelect = (sessionId) => {
-    navigate(`/lecturer/material/${classId}/${sessionId}`);
+    navigate(`/lecturer/material/${classId}/${sessionId}?type=files`);
   };
 
   const handleBack = () => {
@@ -58,7 +59,7 @@ export default function ViewSessionByClassMaterialPage() {
         </div>
       )}
 
-      <h2 className="mb-6 text-2xl font-semibold">Sessions</h2>
+      <h2 className="mb-6 text-2xl font-semibold">Upload Material For Sessions</h2>
 
       {sessions.length > 0 ? (
         <div className="rounded-md border">
@@ -67,7 +68,7 @@ export default function ViewSessionByClassMaterialPage() {
               <tr className="border-b bg-muted/50">
                 <th className="p-3 text-left font-medium">Session Number</th>
                 <th className="p-3 text-left font-medium">Date</th>
-                <th className="p-3 text-left font-medium">Recording</th>
+                <th className="p-3 text-left font-medium">Materials</th>
                 <th className="p-3 text-left font-medium">Status</th>
                 <th className="p-3 text-left font-medium">Action</th>
               </tr>
@@ -77,21 +78,28 @@ export default function ViewSessionByClassMaterialPage() {
                 <tr key={session.sessionId} className="border-b">
                   <td className="p-3">
                     <div className="flex items-center">
-                      <Calendar className="mr-1 h-5 w-5" />
-                      {session.sessionNumber}
+                      {/* <Calendar className="mr-1 h-5 w-5" /> */}#{session.sessionNumber}
                     </div>
                   </td>
                   <td className="p-3">
-                    Slot {session.slot}, {format(session.sessionDate, "dd/MM/yyyy")}
+                    Slot {session.slot} - {format(session.sessionDate, "EEEE, dd/MM/yyyy")}
                   </td>
-                  <td className="p-3">{session.sessionRecord ? <Badge variant="outline">Has Recording</Badge> : <span className="text-muted-foreground text-sm">None</span>}</td>
+                  <td className="p-3">{session?.files && session.files.length > 0 ? `${session.files.length} files` : <span className="text-muted-foreground text-sm">N/A</span>}</td>
                   <td className="p-3">
                     <SessionBadge status={session.status} />
                   </td>
                   <td className="p-3">
-                    <Button size="sm" onClick={() => handleSessionSelect(session.sessionId)} disabled={session.status === 0}>
-                      Select
-                    </Button>
+                    {session.files && session.files.length === 0 ? (
+                      <Button size="sm" onClick={() => handleSessionSelect(session.sessionId)} disabled={session.status === 0}>
+                        <FolderPlus className="w-4 h-4 mr-2" />
+                        Upload File
+                      </Button>
+                    ) : (
+                      <Button size="sm" onClick={() => handleSessionSelect(session.sessionId)} disabled={session.status === 0}>
+                        <FolderCog className="w-4 h-4 mr-2" />
+                        Manage
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}

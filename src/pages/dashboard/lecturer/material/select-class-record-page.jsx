@@ -8,7 +8,7 @@ import { GetLecturerClassList } from "@/services/classService";
 import { format } from "date-fns";
 import { ClassBadge } from "@/components/BadgeComponent";
 
-export default function ViewClassFileMaterialPage() {
+export default function ViewClassRecordMaterialPage() {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function ViewClassFileMaterialPage() {
   }, []);
 
   const handleClassSelect = (classId) => {
-    navigate(`/lecturer/material/${classId}`);
+    navigate(`/lecturer/record/${classId}`);
   };
 
   if (loading) {

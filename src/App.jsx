@@ -60,12 +60,14 @@ import ViewRequestByClassLecturerPage from "./pages/dashboard/lecturer/request/v
 import ViewRequestBySessionLecturerPage from "./pages/dashboard/lecturer/request/select-class-request-lecturer-page";
 import RequestChangeLecturerPage from "./pages/dashboard/lecturer/request/session-change-request-lecturer-page";
 import StudentRequestManagement from "./pages/dashboard/officer/request/view-student-request";
-import ViewClassMaterialPage from "./pages/dashboard/lecturer/material/select-class-material-page";
-import ViewSessionByClassMaterialPage from "./pages/dashboard/lecturer/material/select-session-material-page";
 import UploadMaterialBySessionPage from "./pages/dashboard/lecturer/material/upload-material-page";
 import ViewClassReportPage from "./pages/dashboard/officer/report/view-class-report-page";
 import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-class-report-page";
 import RecordVideoPage from "./pages/records/view-record-page";
+import ViewSessionByRecordClassMaterialPage from "./pages/dashboard/lecturer/material/select-session-record-page";
+import ViewSessionByFileClassMaterialPage from "./pages/dashboard/lecturer/material/select-session-file-page";
+import ViewClassRecordMaterialPage from "./pages/dashboard/lecturer/material/select-class-record-page";
+import ViewClassFileMaterialPage from "./pages/dashboard/lecturer/material/select-class-material-page";
 
 function App() {
   return (
@@ -147,8 +149,12 @@ function App() {
                         <Route path="request/:classId" element={<ViewRequestBySessionLecturerPage />} />
                         <Route path="request/:classId/:sessionId" element={<RequestChangeLecturerPage />} />
 
-                        <Route path="material" element={<ViewClassMaterialPage />} />
-                        <Route path="material/:classId" element={<ViewSessionByClassMaterialPage />} />
+                        <Route path="record" element={<ViewClassRecordMaterialPage />} />
+                        <Route path="record/:classId" element={<ViewSessionByRecordClassMaterialPage />} />
+                        <Route path="record/:classId/:sessionId" element={<UploadMaterialBySessionPage />} />
+
+                        <Route path="material" element={<ViewClassFileMaterialPage />} />
+                        <Route path="material/:classId" element={<ViewSessionByFileClassMaterialPage />} />
                         <Route path="material/:classId/:sessionId" element={<UploadMaterialBySessionPage />} />
                       </Route>
                     </Route>

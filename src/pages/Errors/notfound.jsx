@@ -14,7 +14,7 @@ export default function Notfound() {
           does not exist or might have been removed.
         </p>
         <div className="mt-6 flex gap-4">
-          <Button variant="outline" onClick={() => history.go(-1)}>
+          <Button variant="outline" onClick={() => history.go(-2)}>
             Go Back
           </Button>
           <Button onClick={() => navigate("/" )}>Back to Home</Button>
