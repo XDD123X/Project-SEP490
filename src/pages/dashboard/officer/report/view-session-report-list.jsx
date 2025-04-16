@@ -51,7 +51,7 @@ export default function ViewSessionByClassReportPage() {
       const response = await downloadReportDetail(report.session.sessionId);
 
       const disposition = response.headers["content-disposition"];
-      let fileName = `report_${classData.classCode}_session${report.session.sessionNumber}_${format(new Date(), "HH:mm_dd/MM/yyyy")}.txt`;
+      let fileName = `report_${classData.classCode.replace("/", "")}_session${report.session.sessionNumber}_${format(new Date(), "HH-mm_dd/MM/yyyy")}.docx`;
       if (disposition && disposition.includes("filename=")) {
         fileName = disposition.split("filename=")[1].replace(/['"]/g, "").trim();
       }
@@ -110,8 +110,8 @@ export default function ViewSessionByClassReportPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reports.map((report) => {
-                return (
+              {reports && reports.length > 0 ? (
+                reports.map((report) => (
                   <TableRow key={report.reportId}>
                     <TableCell>Session {report.session.sessionNumber}</TableCell>
                     <TableCell>Slot {report.session.slot}</TableCell>
@@ -135,16 +135,22 @@ export default function ViewSessionByClassReportPage() {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("animate-spin")}>
                               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                             </svg>
-                            Downloading...
+                            Generating Report...
                           </>
                         ) : (
-                          "Generate Report"
+                          "Download Report"
                         )}
                       </Button>
                     </TableCell>
                   </TableRow>
-                );
-              })}
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    No record analyzed yet.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>

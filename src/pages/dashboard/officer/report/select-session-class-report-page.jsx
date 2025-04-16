@@ -56,7 +56,7 @@ export default function SelectSessionByClassReportPage() {
 
   return (
     <div className="container py-10">
-      <Button className="mb-6 pl-0 flex items-center gap-2" onClick={() => navigate("/officer/report")}>
+      <Button className="mb-6 pl-0 flex items-center gap-2" onClick={() => navigate("/officer/report/analyze")}>
         <ArrowLeft className="w-4 h-4 mx-2" />
         Back to Classes
       </Button>

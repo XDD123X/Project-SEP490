@@ -64,7 +64,7 @@ export default function SelectClassReportPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Link to={`/officer/report/${classItem.classId}`} className="w-full">
+                <Link to={`/officer/report/analyze/${classItem.classId}`} className="w-full">
                   <Button className="w-full" onClick={() => setSelectedClass(classItem.classId)} disabled={classItem.status !== 2 || classItem.totalSession === 0}>
                     Select Class
                   </Button>

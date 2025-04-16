@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Video, ExternalLink, Info, VideoOff, BookOpen, User, Calendar, Clock, CircleCheck } from "lucide-react";
+import { Video, ExternalLink, Info, VideoOff, BookOpen, User, Calendar, Clock, CircleCheck, File, FileChartColumnIncreasing, FileClock } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { format, isBefore, isSameDay } from "date-fns";
@@ -13,12 +13,12 @@ import { Separator } from "./ui/separator";
 import { SessionBadge } from "./BadgeComponent";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-
+import { downloadReportDetail } from "@/services/reportService";
 
 export default function LecturerClassCard({ session }) {
   const navigate = useNavigate();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [downloadingSessionId, setDownloadingSessionId] = useState(null);
 
   //take attendance handle
   const handleNavigate = () => {
@@ -36,6 +36,34 @@ export default function LecturerClassCard({ session }) {
       return;
     }
     navigate(`/lecturer/request/${session.class.classId}/${session.sessionId}`);
+  };
+
+  const handleDownloadReport = async (classData, report) => {
+    setDownloadingSessionId(report.session.sessionId);
+    try {
+      const response = await downloadReportDetail(report.session.sessionId);
+
+      const disposition = response.headers["content-disposition"];
+      let fileName = `report_${classData.classCode.replace("/", "")}_session${report.session.sessionNumber}_${format(new Date(), "HH-mm_dd/MM/yyyy")}.docx`;
+      if (disposition && disposition.includes("filename=")) {
+        fileName = disposition.split("filename=")[1].replace(/['"]/g, "").trim();
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.success("Report downloaded!");
+    } catch (error) {
+      console.error("Failed to download report:", error);
+      toast.error("Failed to download report.");
+    } finally {
+      setDownloadingSessionId(null);
+    }
   };
 
   return (
@@ -200,6 +228,39 @@ export default function LecturerClassCard({ session }) {
                     <p className="flex items-center gap-2 text-muted-foreground">
                       <VideoOff className="h-5 w-5" />
                       <span>No recording available</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+              {/* Report */}
+              <div>
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="font-semibold">Report:</span>
+                </div>
+                <div className="bg-muted p-3 rounded-md">
+                  {session.reports.length > 0 ? (
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2">
+                        <FileChartColumnIncreasing className="h-5 w-5 text-green-500" />
+                        <span className="text-sm">Generated: {format(session.reports[0].generatedAt, "HH:mm, dd/MM/yyyy")}</span>
+                      </div>
+                      <Button size="sm" onClick={() => handleDownloadReport(session.class, session.reports[0])} disabled={downloadingSessionId === session.sessionId}>
+                        {downloadingSessionId === session.sessionId ? (
+                          <>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin mr-1">
+                              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                            </svg>
+                            Generating Report...
+                          </>
+                        ) : (
+                          "Download"
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="flex items-center gap-2 text-muted-foreground">
+                      <FileClock className="h-5 w-5" />
+                      <span>No report available</span>
                     </p>
                   )}
                 </div>

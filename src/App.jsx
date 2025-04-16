@@ -191,6 +191,7 @@ function App() {
 
                         <Route path="report" element={<ViewReportByClassPage />} />
                         <Route path="report/:classId" element={<ViewSessionByClassReportPage />} />
+                        
                         <Route path="report/analyze" element={<SelectClassReportPage />} />
                         <Route path="report/analyze/:classId" element={<SelectSessionByClassReportPage />} />
 
