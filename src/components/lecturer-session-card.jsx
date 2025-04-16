@@ -14,6 +14,8 @@ import { SessionBadge } from "./BadgeComponent";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+
+
 export default function LecturerClassCard({ session }) {
   const navigate = useNavigate();
   const [isDetailOpen, setIsDetailOpen] = useState(false);

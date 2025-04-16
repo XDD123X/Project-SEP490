@@ -101,30 +101,9 @@ export default function ViewAttendanceStudentPage() {
           <h1 className="text-3xl font-bold tracking-tight">Attendance Overview</h1>
           <p className="text-muted-foreground">View and manage your attendance across all classes</p>
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <div className="relative w-full md:w-auto">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Search classes..." className="w-full md:w-[250px] pl-8" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          </div>
-
-          <Select
-            className="border rounded-md px-3 py-2 bg-background"
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value)} // onChange -> onValueChange
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="classCode">Sort by Code</SelectItem>
-              <SelectItem value="className">Sort by Name</SelectItem>
-              <SelectItem value="lecturerName">Sort by Lecturer</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <Card className="col-span-1 md:col-span-2">
           <CardHeader>
             <CardTitle>Attendance Statistics</CardTitle>
@@ -143,23 +122,20 @@ export default function ViewAttendanceStudentPage() {
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Attended</p>
                 <p className="text-2xl font-bold">{stats.attendedSessions}</p>
-                <p className="text-xs text-muted-foreground">sessions</p>
               </div>
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Absent</p>
                 <p className="text-2xl font-bold">{stats.absentSessions}</p>
-                <p className="text-xs text-muted-foreground">sessions</p>
               </div>
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Total</p>
                 <p className="text-2xl font-bold">{stats.totalCompletedSessions}</p>
-                <p className="text-xs text-muted-foreground">completed sessions</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>Manage your attendance</CardDescription>
@@ -172,7 +148,7 @@ export default function ViewAttendanceStudentPage() {
               Download Attendance Report
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       <Tabs defaultValue="active" className="w-full">

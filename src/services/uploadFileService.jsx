@@ -24,3 +24,23 @@ export const uploadFile = async (file, classId, sessionId, type, onProgress = ()
     throw new Error("Upload thất bại", error);
   }
 };
+
+export const downloadFileService = async (fileId, fileName) => {
+  try {
+    const response = await axiosClient.get(`/files/download/${fileId}`, {
+      responseType: "blob", // Quan trọng để nhận file nhị phân
+    });
+
+    // Tạo URL từ blob và kích hoạt tải
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName || "downloaded_file");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error("Lỗi khi tải file:", error);
+    throw error;
+  }
+};

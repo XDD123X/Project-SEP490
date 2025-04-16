@@ -3,18 +3,22 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ClassBadge, SessionBadge } from "@/components/BadgeComponent";
 import { useEffect, useState } from "react";
 import { GetClassById } from "@/services/classService";
 import { getSessionsByClassId } from "@/services/sessionService";
 import { toast } from "sonner";
+import { useStore } from "@/services/StoreContext";
+import { analyzeSession } from "@/services/reportService";
 
 export default function ViewSessionByClassReportPage() {
   const { classId } = useParams();
   const [sessions, setSessions] = useState([]);
   const [classData, setClassData] = useState();
   const navigate = useNavigate();
+  const { state } = useStore();
+  const { user } = state;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,7 +27,7 @@ export default function ViewSessionByClassReportPage() {
         setClassData(responseClass.data);
         if (responseClass.status === 200) {
           const responseSession = await getSessionsByClassId(classId);
-          console.log(responseSession.data);
+          console.log(responseSession.data[0]);
           setSessions(responseSession.data);
         }
       } catch (error) {
@@ -32,6 +36,19 @@ export default function ViewSessionByClassReportPage() {
     };
     fetchData();
   }, [classId]);
+
+  const handleAnalyze = async (sessionId) => {
+    console.log("analyze sessionId: ", sessionId);
+    console.log("uid:", user.uid);
+
+    try {
+      await analyzeSession(sessionId, user.uid);
+      toast.success(`Report has been analyzing.`);
+    } catch (error) {
+      console.error("Error analyzing session:", error);
+      toast.error(`Failed to analyze session.`);
+    }
+  };
 
   if (!classData) {
     return <div className="container py-10">Class not found</div>;
@@ -83,9 +100,11 @@ export default function ViewSessionByClassReportPage() {
         <TableHeader>
           <TableRow>
             <TableHead>Session #</TableHead>
+            <TableHead>Slot</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Recording</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Report Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -99,13 +118,17 @@ export default function ViewSessionByClassReportPage() {
           ) : (
             sessions.map((session) => (
               <TableRow key={session.sessionId}>
-                <TableCell>{session.sessionNumber}</TableCell>
-                <TableCell>{format(session.sessionDate, "MMM dd, yyyy")}</TableCell>
+                <TableCell>Session{session.sessionNumber}</TableCell>
+                <TableCell>Slot {session.slot}</TableCell>
+                <TableCell>{format(session.sessionDate, "EEEE, dd/MM/yyyy")}</TableCell>
                 <TableCell>
-                  {session.sessionRecording ? (
-                    <a href={session.sessionRecording} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline">
-                      View <ExternalLink size={14} />
-                    </a>
+                  {session.records.length > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <Link to={`/record/${session.sessionId}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline">
+                        View <ExternalLink size={14} />
+                      </Link>
+                      <span>({format(session.sessionRecord, "HH:mm, dd/MM/yyyy")})</span>
+                    </div>
                   ) : (
                     <span className="text-muted-foreground">Not available</span>
                   )}
@@ -113,8 +136,9 @@ export default function ViewSessionByClassReportPage() {
                 <TableCell>
                   <SessionBadge status={session.status} />
                 </TableCell>
+                <TableCell>{session.reports.length === 0 ? "N/A" : "Finished"}</TableCell>
                 <TableCell className="text-right">
-                  <Button size="sm" disabled={session.report} onClick={() => toast.warning(`Analyzing report for session ${session.sessionNumber}`)}>
+                  <Button size="sm" disabled={session.reports.length === 0 && session.records.length === 0} onClick={() => handleAnalyze(session.sessionId)}>
                     Analyze
                   </Button>
                 </TableCell>

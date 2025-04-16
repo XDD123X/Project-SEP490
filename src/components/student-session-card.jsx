@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Video, ExternalLink, Info, VideoOff, Speech } from "lucide-react";
+import { Video, ExternalLink, Info, VideoOff, Speech, Folder } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -10,6 +10,7 @@ import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 import { useStore } from "@/services/StoreContext";
+import { Link } from "react-router-dom";
 
 export default function StudentClassCard({ session }) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -91,12 +92,20 @@ export default function StudentClassCard({ session }) {
               <Info className="mr-1 h-3 w-3" />
               Detail
             </Button>
+            {/* {session.records.length > 0 && (
+              <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center">
+                <ExternalLink className="mr-1 h-3 w-3" />
+                Record
+              </Button>
+            )} */}
           </div>
         </CardContent>
       </Card>
 
       {/* Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        {console.log("session:", session)}
+
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{session.class.classCode}</DialogTitle>
@@ -139,33 +148,40 @@ export default function StudentClassCard({ session }) {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Description:</span>
-              <Textarea className="col-span-3" readOnly>
-                {session.description || ""}
-              </Textarea>
+              <Textarea className="col-span-3" value={session.description || ""} readOnly />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <span className="text-sm font-medium">Recording:</span>
-              <span className="col-span-3 flex items-center">
-                {session.sessionRecord ? <Video className="mr-2 h-4 w-4 text-green-500" /> : <VideoOff className="mr-2 h-4 w-4 text-red-500" />}
-                {session.sessionRecord ? format(new Date(), "dd/MM/yyyy") : "Not available"}
+              <span className="text-sm font-medium">Material:</span>
+              <span className="col-span-3">
+                <Link to={`/material/${session.class.classId}`} target="_blank">
+                  <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center">
+                    <Folder className="mr-1 h-3 w-3" />
+                    Material
+                  </Button>
+                </Link>
               </span>
             </div>
-            {session.sessionRecord ? (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <span className="text-sm font-medium">Record Link:</span>
-                <span className="col-span-3">
-                  <a href="https://facebook.com/abc-xyz" target="_blank">
-                    <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center">
-                      <ExternalLink className="mr-1 h-3 w-3" />
-                      Record Link
-                    </Button>
-                  </a>
-                </span>
-              </div>
-            ) : (
-              ""
-            )}
           </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <span className="text-sm font-medium">Recording:</span>
+            <span className="col-span-3 flex items-center">
+              {session.sessionRecord ? <Video className="mr-2 h-4 w-4 text-green-500" /> : <VideoOff className="mr-2 h-4 w-4 text-red-500" />}
+              {session.sessionRecord ? format(new Date(), "HH:mm:ss, dd/MM/yyyy") : "Not available"}
+            </span>
+          </div>
+          {session.sessionRecord && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <span className="text-sm font-medium">Record Link:</span>
+              <span className="col-span-3">
+                <Link to={`/record/${session.sessionId}`} target="_blank">
+                  <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center">
+                    <ExternalLink className="mr-1 h-3 w-3" />
+                    Record Link
+                  </Button>
+                </Link>
+              </span>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>

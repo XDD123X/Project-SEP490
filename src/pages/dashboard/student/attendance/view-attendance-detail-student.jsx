@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Calendar, Clock, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,99 +8,13 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useParams } from "react-router-dom";
-
-// Mock data - replace with actual API calls
-const classList = [
-  {
-    classId: "d1867509-bd00-4f47-a66b-2f6ca6e10e2c",
-    classCode: "PRN231",
-    className: "Building Cross-Platform Back-End Application With .NET",
-    lecturerId: "a0cc6f1d-3a81-4f2b-bf86-6badc78cce66",
-    courseId: "3a483099-5e2e-4175-9f25-2cec72638aac",
-    totalSession: 64,
-    startDate: "2025-03-25T08:34:08.197",
-    scheduled: true,
-    status: 2,
-    course: {
-      courseId: "28cbf78b-3460-4eb0-bc97-583d96f2fc71",
-      courseName: "SAT",
-      description: "Khóa học SAT 2025",
-      createdBy: "4b046984-7ac4-4910-929c-940acf9234de",
-      createdAt: "2025-03-25T12:28:46.887",
-      updatedAt: null,
-      status: 1,
-      createdByNavigation: null,
-    },
-    lecturer: {
-      accountId: "90251116-519c-4deb-96bd-bc7bc7273208",
-      email: "lecturer2@gmail.com",
-      fullName: "Nguyễn Thị Lan",
-      roleId: "db210ec5-643f-4b27-8873-44d0d7387dc8",
-      fulltime: true,
-      phoneNumber: "0123456789",
-      dob: "2000-01-01",
-      gender: false,
-      imgUrl: "https://i.imgur.com/0dTvSSQ.png",
-      meetUrl: null,
-      status: 1,
-      createdAt: "2025-03-25T12:28:46.793",
-      updatedAt: null,
-      parents: [],
-      role: null,
-    },
-  },
-];
-
-const sessionList = [
-  {
-    sessionId: "2cca9794-cad3-4e46-908b-b26576e852a2",
-    sessionNumber: 1,
-    classId: "d1867509-bd00-4f47-a66b-2f6ca6e10e2c",
-    lecturerId: "a0cc6f1d-3a81-4f2b-bf86-6badc78cce66",
-    sessionDate: "2025-03-25T00:00:00",
-    slot: 3,
-    description: null,
-    sessionRecord: null,
-    type: 1,
-    status: 2,
-    createdAt: "2025-03-25T16:58:31.173",
-    updatedAt: "2025-03-25T17:03:23.2",
-    class: null,
-    lecturer: null,
-    attendances: [
-      {
-        studentId: "47fdc937-32c9-46ed-bf97-a1bb3919a3ca",
-        status: 1,
-        note: "",
-      },
-      {
-        studentId: "ad7b8b28-43d9-4d74-ac6d-6c859bbb52ad",
-        status: 1,
-        note: "",
-      },
-    ],
-  },
-  {
-    sessionId: "26b2dd7d-baa4-4259-90c0-2d5833f10aa9",
-    sessionNumber: 2,
-    classId: "d1867509-bd00-4f47-a66b-2f6ca6e10e2c",
-    lecturerId: "a0cc6f1d-3a81-4f2b-bf86-6badc78cce66",
-    sessionDate: "2025-03-26T00:00:00",
-    slot: 3,
-    description: null,
-    sessionRecord: null,
-    type: 1,
-    status: 1,
-    createdAt: "2025-03-25T16:58:31.173",
-    updatedAt: null,
-    class: null,
-    lecturer: null,
-    attendances: [],
-  },
-];
-
-// Assume current student ID
-const currentStudentId = "47fdc937-32c9-46ed-bf97-a1bb3919a3ca";
+import { GetClassById } from "@/services/classService";
+import { getSessionsByClassId } from "@/services/sessionService";
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
+import { format } from "date-fns";
+import { AttendanceBadge, SessionBadge } from "@/components/BadgeComponent";
+import { useStore } from "@/services/StoreContext";
 
 // Map slot numbers to time ranges
 const slotToTime = {
@@ -111,19 +25,38 @@ const slotToTime = {
 };
 
 export default function ViewAttendanceClassStudentPage() {
-  const { id } = useParams();
+  const { classId } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("sessionNumber");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [classData, setClassData] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const { state } = useStore();
+  const { user } = state;
+  const studentId = user.uid;
 
-  // Get class details
-  const classDetails = classList.find((c) => c.classId === id) || classList[0];
+  //fetch Data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        //class
+        const classResponse = await GetClassById(classId);
+        const sessionResponse = await getSessionsByClassId(classId);
 
-  // Get sessions for this class
-  const classSessions = sessionList.filter((session) => session.classId === id);
+        if (classResponse.status === 200) {
+          setClassData(classResponse.data);
+          setSessions(sessionResponse.data);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error(error);
+      }
+    };
+    fetchData();
+  }, [classId]);
 
   // Filter sessions based on search and filter criteria
-  const filteredSessions = classSessions.filter((session) => {
+  const filteredSessions = sessions.filter((session) => {
     const matchesSearch = session.sessionNumber.toString().includes(searchTerm) || new Date(session.sessionDate).toLocaleDateString().includes(searchTerm);
 
     if (filterStatus === "all") return matchesSearch;
@@ -154,12 +87,12 @@ export default function ViewAttendanceClassStudentPage() {
 
   // Calculate attendance statistics for this class
   const calculateAttendanceStats = () => {
-    const completedSessions = classSessions.filter((session) => session.status === 2);
+    const completedSessions = sessions.filter((session) => session.status === 2);
     const totalCompletedSessions = completedSessions.length;
 
     let attendedSessions = 0;
     completedSessions.forEach((session) => {
-      const studentAttendance = session.attendances.find((attendance) => attendance.studentId === currentStudentId);
+      const studentAttendance = session.attendances.find((attendance) => attendance.studentId === studentId);
       if (studentAttendance && studentAttendance.status === 1) {
         attendedSessions++;
       }
@@ -174,7 +107,7 @@ export default function ViewAttendanceClassStudentPage() {
       attendedSessions,
       totalCompletedSessions,
       absentSessions,
-      upcomingSessions: classSessions.filter((session) => session.status === 1).length,
+      upcomingSessions: sessions.filter((session) => session.status === 1).length,
     };
   };
 
@@ -182,13 +115,23 @@ export default function ViewAttendanceClassStudentPage() {
 
   // Get attendance status for a session
   const getAttendanceStatus = (session) => {
-    if (session.status === 1) return "upcoming";
+    if (session.status === 1) return 2;
+    console.log(session);
 
-    const attendance = session.attendances.find((a) => a.studentId === currentStudentId);
+    const attendance = session.attendances.find((a) => a.studentId === studentId);
+    console.log(attendance);
 
     if (!attendance) return "unknown";
-    return attendance.status === 1 ? "present" : "absent";
+    return attendance.status === 1 ? 1 : 0;
   };
+
+  if (!classData && !sessions) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -198,14 +141,14 @@ export default function ViewAttendanceClassStudentPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">{classDetails.classCode} Attendance</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{classData.classCode} Attendance</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="col-span-1 md:col-span-2">
           <CardHeader>
-            <CardTitle>{classDetails.className}</CardTitle>
-            <CardDescription>Lecturer: {classDetails.lecturer.fullName}</CardDescription>
+            <CardTitle>{classData.className}</CardTitle>
+            <CardDescription>Lecturer: {classData.lecturer?.fullName || "N/A"}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -220,22 +163,18 @@ export default function ViewAttendanceClassStudentPage() {
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Attended</p>
                 <p className="text-2xl font-bold">{stats.attendedSessions}</p>
-                <p className="text-xs text-muted-foreground">sessions</p>
               </div>
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Absent</p>
                 <p className="text-2xl font-bold">{stats.absentSessions}</p>
-                <p className="text-xs text-muted-foreground">sessions</p>
               </div>
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Completed</p>
                 <p className="text-2xl font-bold">{stats.totalCompletedSessions}</p>
-                <p className="text-xs text-muted-foreground">sessions</p>
               </div>
               <div className="bg-muted rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Upcoming</p>
                 <p className="text-2xl font-bold">{stats.upcomingSessions}</p>
-                <p className="text-xs text-muted-foreground">sessions</p>
               </div>
             </div>
           </CardContent>
@@ -249,25 +188,21 @@ export default function ViewAttendanceClassStudentPage() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Course:</span>
-                <span className="font-medium">{classDetails.course.courseName}</span>
+                <span className="font-medium">{classData.course?.courseName || "N/A"}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Sessions:</span>
-                <span className="font-medium">{classDetails.totalSession}</span>
+                <span className="font-medium">{classData.totalSession}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Start Date:</span>
-                <span className="font-medium">{new Date(classDetails.startDate).toLocaleDateString()}</span>
+                <span className="font-medium">{new Date(classData.startDate).toLocaleDateString()}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Status:</span>
-                <Badge variant={classDetails.status === 2 ? "default" : "secondary"}>{classDetails.status === 2 ? "Active" : "Inactive"}</Badge>
+                <Badge variant={classData.status === 2 ? "default" : "secondary"}>{classData.status === 2 ? "Active" : "Inactive"}</Badge>
               </div>
             </div>
-
-            <Button className="w-full" asChild>
-              <Link to={`/student/attendance/complain?classId=${classDetails.classId}`}>Submit Attendance Complaint</Link>
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -306,10 +241,10 @@ export default function ViewAttendanceClassStudentPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Session</TableHead>
+                      <TableHead>Slot</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead>Time</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      {/* <TableHead className="text-right">Actions</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -320,28 +255,22 @@ export default function ViewAttendanceClassStudentPage() {
                           <TableCell className="font-medium">Session {session.sessionNumber}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              {new Date(session.sessionDate).toLocaleDateString()}
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              Slot {session.slot} ({slotToTime[session.slot]})
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4 text-muted-foreground" />
-                              {slotToTime[session.slot]}
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
+                              {format(session.sessionDate, "EEEE, dd/MM/yyyy")}
                             </div>
                           </TableCell>
+
                           <TableCell>
-                            {attendanceStatus === "present" && (
-                              <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-100">
-                                Present
-                              </Badge>
-                            )}
-                            {attendanceStatus === "absent" && <Badge variant="destructive">Absent</Badge>}
-                            {attendanceStatus === "upcoming" && <Badge variant="outline">Upcoming</Badge>}
-                            {attendanceStatus === "unknown" && <Badge variant="secondary">Unknown</Badge>}
+                            <AttendanceBadge status={getAttendanceStatus(session)} />
                           </TableCell>
-                          <TableCell className="text-right">
-                            {attendanceStatus === "absent" && (
+                          {/* <TableCell className="text-right">
+                            {attendanceStatus === 0 && (
                               <Button size="sm" variant="outline" asChild>
                                 <Link to={`/student/attendance/complain?sessionId=${session.sessionId}`}>Submit Complaint</Link>
                               </Button>
@@ -351,7 +280,7 @@ export default function ViewAttendanceClassStudentPage() {
                                 Upcoming
                               </Button>
                             )}
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       );
                     })}
@@ -367,8 +296,8 @@ export default function ViewAttendanceClassStudentPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Session</TableHead>
+                      <TableHead>Slot</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead>Time</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -383,23 +312,19 @@ export default function ViewAttendanceClassStudentPage() {
                             <TableCell className="font-medium">Session {session.sessionNumber}</TableCell>
                             <TableCell>
                               <div className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                {new Date(session.sessionDate).toLocaleDateString()}
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                Slot {session.slot} ({slotToTime[session.slot]})
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                                {slotToTime[session.slot]}
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                {format(session.sessionDate, "EEEE, dd/MM/yyyy")}
                               </div>
                             </TableCell>
+
                             <TableCell>
-                              {attendanceStatus === "present" && (
-                                <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-100">
-                                  Present
-                                </Badge>
-                              )}
-                              {attendanceStatus === "absent" && <Badge variant="destructive">Absent</Badge>}
+                              <AttendanceBadge status={getAttendanceStatus(session)} />
                             </TableCell>
                             <TableCell className="text-right">
                               {attendanceStatus === "absent" && (
@@ -423,10 +348,10 @@ export default function ViewAttendanceClassStudentPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Session</TableHead>
-                      <TableHead>Date</TableHead>
                       <TableHead>Time</TableHead>
+                      <TableHead>Date</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      {/* <TableHead className="text-right">Actions</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -438,23 +363,23 @@ export default function ViewAttendanceClassStudentPage() {
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4 text-muted-foreground" />
-                              {new Date(session.sessionDate).toLocaleDateString()}
+                              {format(session.sessionDate, 'dd/MM/yyyy')}
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <Clock className="h-4 w-4 text-muted-foreground" />
-                              {slotToTime[session.slot]}
+                              Slot {session.slot} ({slotToTime[session.slot]})
                             </div>
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline">Upcoming</Badge>
                           </TableCell>
-                          <TableCell className="text-right">
+                          {/* <TableCell className="text-right">
                             <Button size="sm" variant="outline" disabled>
                               Upcoming
                             </Button>
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       ))}
                   </TableBody>

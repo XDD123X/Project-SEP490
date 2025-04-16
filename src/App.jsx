@@ -68,6 +68,7 @@ import ViewSessionByRecordClassMaterialPage from "./pages/dashboard/lecturer/mat
 import ViewSessionByFileClassMaterialPage from "./pages/dashboard/lecturer/material/select-session-file-page";
 import ViewClassRecordMaterialPage from "./pages/dashboard/lecturer/material/select-class-record-page";
 import ViewClassFileMaterialPage from "./pages/dashboard/lecturer/material/select-class-material-page";
+import ViewClassMaterialPage from "./pages/materials/view-material-page";
 
 function App() {
   return (
@@ -94,6 +95,8 @@ function App() {
                 {/* Auth route */}
                 <Route element={<PrivateRoute />}>
                   <Route element={<MainScreen />}>
+                    {/* Material */}
+                    <Route path="/material/:classId" element={<ViewClassMaterialPage />} />
                     {/* Record */}
                     <Route path="/record/:sessionId" element={<RecordVideoPage />} />
                     {/* Profile */}
@@ -118,12 +121,12 @@ function App() {
                     {/* Student Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
                       <Route path="/Student">
-                        <Route path="dashboard" element={<DashboardPage />} />
+                        <Route path="" element={<NotificationPage />} />
                         <Route path="my-schedule" element={<StudentSchedulePage />} />
                         <Route path="my-class" element={<StudentClassPage />} />
 
                         <Route path="attendance" element={<ViewAttendanceStudentPage />} />
-                        <Route path="attendance/class/:id" element={<ViewAttendanceClassStudentPage />} />
+                        <Route path="attendance/class/:classId" element={<ViewAttendanceClassStudentPage />} />
                         <Route path="attendance/complain" element={<AttendanceComplain />} />
                       </Route>
                     </Route>

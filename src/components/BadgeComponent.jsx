@@ -144,3 +144,28 @@ export function CourseBadge({ status }) {
       return <Badge variant="outline">Unknown</Badge>;
   }
 }
+
+export function AttendanceBadge({ status }) {
+  switch (status) {
+    case 0: // Absent
+      return (
+        <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+          <X className="w-3 h-3 mr-1" /> Absent
+        </Badge>
+      );
+    case 1: // Attended
+      return (
+        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+          <Check className="w-3 h-3 mr-1" /> Attended
+        </Badge>
+      );
+    case 2: // Upcoming
+      return (
+        <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">
+          <Clock className="w-3 h-3 mr-1" /> Upcoming
+        </Badge>
+      );
+    default:
+      return <Badge variant="outline">Unknown</Badge>;
+  }
+}
