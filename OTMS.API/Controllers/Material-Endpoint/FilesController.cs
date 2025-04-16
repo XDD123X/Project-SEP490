@@ -169,6 +169,33 @@ namespace OTMS.API.Controllers.Material_Endpoint
             return PhysicalFile(filePath, mimeType, fileName);
         }
 
+        [HttpGet("download/{fileId}")]
+        public async Task<IActionResult> DownloadFile(Guid fileId)
+        {
+            var file = await _fileRepository.GetByIdAsync(fileId);
+            if (file == null)
+                return NotFound("File không tồn tại.");
+
+            // Đường dẫn vật lý trên server (file.FileUrl là dạng: /files/classCode/files/sessionNumber/filename.ext)
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), file.FileUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("File không tồn tại trên hệ thống.");
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                await stream.CopyToAsync(memory);
+            }
+
+            memory.Position = 0;
+            var contentType = GetContentType(filePath);
+            var fileName = Path.GetFileName(filePath);
+
+            return File(memory, contentType, fileName);
+        }
+
+
         [HttpDelete("{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {
@@ -193,6 +220,29 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 _ => "application/octet-stream"
             };
+        }
+
+        private string GetContentType(string path)
+        {
+            var types = new Dictionary<string, string>
+            {
+                { ".txt", "text/plain" },
+                { ".pdf", "application/pdf" },
+                { ".doc", "application/vnd.ms-word" },
+                { ".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+                { ".xls", "application/vnd.ms-excel" },
+                { ".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+                { ".png", "image/png" },
+                { ".jpg", "image/jpeg" },
+                { ".jpeg", "image/jpeg" },
+                { ".gif", "image/gif" },
+                { ".csv", "text/csv" },
+                { ".mp4", "video/mp4" },
+                // Thêm nếu cần
+            };
+
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return types.ContainsKey(ext) ? types[ext] : "application/octet-stream";
         }
 
     }

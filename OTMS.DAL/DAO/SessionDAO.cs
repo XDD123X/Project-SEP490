@@ -97,6 +97,7 @@ namespace OTMS.DAL.DAO
                 .Where(s => s.ClassId == classId)
                 .Include(s => s.Records)
                 .Include(s => s.Files)
+                .Include(s => s.Reports)
                 .Include(s => s.Attendances)
                 .OrderBy(s => s.SessionDate)
                 .ToListAsync();

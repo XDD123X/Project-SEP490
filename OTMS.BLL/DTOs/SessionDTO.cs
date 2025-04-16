@@ -41,6 +41,7 @@ namespace OTMS.BLL.DTOs
         public virtual ICollection<AttendanceDTO> Attendances { get; set; } = new List<AttendanceDTO>();
         public virtual ICollection<Record> Records { get; set; } = new List<Record>();
         public virtual ICollection<File> Files { get; set; } = new List<File>();
+        public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
 
     }
 

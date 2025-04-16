@@ -25,20 +25,21 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     {
         private readonly IReportRepository _reportRepository;
         private readonly IRecordRepository _recordRepository;
+        private readonly ISessionRepository _sessionRepository;
         private readonly IMapper _mapper;
 
         private readonly HttpClient client = null;
         private string Apianalyze = "http://127.0.0.1:4000/upload_video";
         private readonly string GeminiApiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
 
-        public ReportController(IMapper mapper, IReportRepository reportRepository, IRecordRepository recordRepository)
+        public ReportController(IMapper mapper, IReportRepository reportRepository, IRecordRepository recordRepository, ISessionRepository sessionRepository)
         {
             _reportRepository = reportRepository;
             _recordRepository = recordRepository;
             client = new HttpClient();
             var contentType = new MediaTypeWithQualityHeaderValue("application/json");
             client.DefaultRequestHeaders.Accept.Add(contentType);
-
+            _sessionRepository = sessionRepository;
         }
 
 
@@ -51,16 +52,19 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
 
-
-
-
-
         [HttpPost("Analyze")]
-        public async Task<IActionResult> Analyze(string sessionId, string generateBy)
+        public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
         {
+
+            //valid sessionId
+            var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
+            if (session == null) return NotFound();
+
+            var classData = session.Class;
+
             client.Timeout = TimeSpan.FromMinutes(20);
 
-            var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record");
+            var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", classData.ClassCode.Replace("/", "_"), "record", session.SessionNumber.ToString());
             if (!Directory.Exists(recordDir))
             {
                 return NotFound("Record directory not found.");
@@ -103,20 +107,20 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (response.IsSuccessStatusCode)
             {
                 // Lấy record theo sessionId
-                Record record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(sessionId));
+                Record record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(request.SessionId));
 
                 // Đọc kết quả trả về từ API
                 var result = await response.Content.ReadAsStringAsync();
 
                 // Kiểm tra nếu report đã tồn tại theo sessionId
-                Report existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(sessionId));
+                Report existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(request.SessionId));
 
                 if (existingReport != null)
                 {
                     // Nếu đã tồn tại, cập nhật thông tin
                     existingReport.AnalysisData = result;
                     existingReport.GeneratedAt = DateTime.UtcNow;
-                    existingReport.GeneratedBy = Guid.Parse(generateBy);
+                    existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
                     existingReport.Status = 1;
 
                     await _reportRepository.UpdateAsync(existingReport);
@@ -131,8 +135,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                         RecordId = record.RecordId,
                         AnalysisData = result,
                         GeneratedAt = DateTime.UtcNow,
-                        GeneratedBy = Guid.Parse(generateBy),
-                        SessionId = Guid.Parse(sessionId),
+                        GeneratedBy = Guid.Parse(request.GenerateBy),
+                        SessionId = Guid.Parse(request.SessionId),
                         Status = 1
                     };
 

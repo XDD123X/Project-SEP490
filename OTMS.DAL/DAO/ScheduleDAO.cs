@@ -25,6 +25,8 @@ namespace OTMS.DAL.DAO
             return await _context.Sessions
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
+                .Include(s => s.Records)
+                .Include(s => s.Files)
                 .OrderBy(s => s.SessionDate)
                 .ThenBy(s => s.Slot)
                 .ToListAsync();
@@ -33,6 +35,8 @@ namespace OTMS.DAL.DAO
         {
             return await _context.Sessions
                 .Where(s => s.LecturerId == id)
+                .Include(s => s.Records)
+                .Include(s => s.Files)
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
                 .OrderBy(s => s.SessionDate)
@@ -62,6 +66,8 @@ namespace OTMS.DAL.DAO
 
             var sessions = await _context.Sessions
                 .Where(s => classList.Contains(s.ClassId) && s.Class.Status != 0)
+                .Include(s => s.Records)
+                .Include(s => s.Files)
                 .Include(s => s.Class)
                 .Include(s => s.Lecturer)
                 .Include(s => s.Attendances)
