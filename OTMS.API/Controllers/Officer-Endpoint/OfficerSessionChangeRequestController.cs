@@ -63,7 +63,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             {
                 return BadRequest(ModelState);
             }
-
+            
+            if (!IsValidRequest(model, out string errorMessage))
+            {
+                return BadRequest(new { success = false, message = errorMessage });
+            }
+            
             model.RequestChangeId = id;
 
             var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(id);
@@ -195,6 +200,31 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return NotFound(new { success = false, message = "Không tìm thấy yêu cầu thay đổi lịch học." });
             }
             return Ok(new { success = true, data = request });
+        }
+
+        private bool IsValidRequest(UpdateSessionChangeRequestDTO model, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            
+            if (model == null)
+            {
+                errorMessage = "Dữ liệu cập nhật không được để trống.";
+                return false;
+            }
+            
+            if (string.IsNullOrWhiteSpace(model.Description) && model.Status == 2)
+            {
+                errorMessage = "Vui lòng cung cấp lý do từ chối yêu cầu.";
+                return false;
+            }
+            
+            if (model.Status < 0 || model.Status > 2)
+            {
+                errorMessage = "Trạng thái cập nhật không hợp lệ. Chỉ chấp nhận các giá trị: 0 (Đang xử lý), 1 (Đã duyệt), 2 (Đã từ chối).";
+                return false;
+            }
+            
+            return true;
         }
     }
 }
