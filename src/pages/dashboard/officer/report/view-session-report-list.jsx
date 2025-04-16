@@ -34,7 +34,6 @@ export default function ViewSessionByClassReportPage() {
           const filteredReports = sessionData.filter((session) => session.reports && session.reports.length > 0).flatMap((session) => session.reports);
 
           setReports(filteredReports);
-          console.log("Filtered reports:", filteredReports);
         }
       } catch (error) {
         toast.error("Lỗi khi tải dữ liệu lớp học.");

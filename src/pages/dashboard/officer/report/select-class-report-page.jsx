@@ -15,7 +15,6 @@ export default function SelectClassReportPage() {
     const fetchData = async () => {
       try {
         const response = await GetClassList();
-        console.log(response.data);
         setClasses(response.data);
       } catch (error) {
         toast.error(error);
@@ -26,8 +25,8 @@ export default function SelectClassReportPage() {
 
   return (
     <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">Class Reports</h1>
-      <p className="text-muted-foreground mb-8">Select a class to view and manage session reports</p>
+      <h1 className="text-3xl font-bold mb-6">Analyze Class Record</h1>
+      <p className="text-muted-foreground mb-8">Select a class to analyze record</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {classes &&

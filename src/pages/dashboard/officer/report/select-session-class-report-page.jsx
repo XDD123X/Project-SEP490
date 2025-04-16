@@ -27,7 +27,6 @@ export default function SelectSessionByClassReportPage() {
         setClassData(responseClass.data);
         if (responseClass.status === 200) {
           const responseSession = await getSessionsByClassId(classId);
-          console.log(responseSession.data[0]);
           setSessions(responseSession.data);
         }
       } catch (error) {
@@ -38,9 +37,6 @@ export default function SelectSessionByClassReportPage() {
   }, [classId]);
 
   const handleAnalyze = async (sessionId) => {
-    console.log("analyze sessionId: ", sessionId);
-    console.log("uid:", user.uid);
-
     try {
       await analyzeSession(sessionId, user.uid);
       toast.success(`Report has been analyzing.`);
