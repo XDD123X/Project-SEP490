@@ -12,5 +12,9 @@ namespace OTMS.DAL.Interface
     {
         public Task<List<Report>> GetAllReports();
         public Task AddReport(Report report);
+        public Report GetReportsWithSessionClassAndGeneratedByReportId(Guid reportId);
+        public Report GetReportsWithSessionClassAndGeneratedBySessionId(Guid sessionId);
+        Task<Report> GetReportBySessionIdAsync(Guid sessionId);
+
     }
 }
