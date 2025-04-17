@@ -150,3 +150,23 @@ export const addRequestChangeSession = async (requestChange) => {
     };
   }
 };
+
+export const deleteSession = async (sessionId) => {
+  try {
+    const response = await axiosClient.delete(`/Session/delete`, {
+      params: { sessionId }, // Truyền qua query string
+    });
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Request failed!",
+    };
+  }
+};

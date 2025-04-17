@@ -9,7 +9,7 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getAllSession } from "@/services/sessionService";
+import { deleteSession, getAllSession } from "@/services/sessionService";
 import { GetClassList } from "@/services/classService";
 import { Badge } from "@/components/ui/badge";
 import { getLecturerList } from "@/services/accountService";
@@ -38,7 +38,9 @@ export default function SessionViewPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
-
+  const [openDelete, setOpenDelete] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteId, setDeleteId] = useState();
   //errors
   const [errors, setErrors] = useState({
     classId: false,
@@ -51,6 +53,11 @@ export default function SessionViewPage() {
   // Add state for pagination in the SessionsPage component
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const handleDeleteSessionDialog = (sessionId) => {
+    setOpenDelete(true)
+    setDeleteId(sessionId)
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -233,10 +240,18 @@ export default function SessionViewPage() {
   };
 
   // Handle deleting a session
-  const handleDeleteSession = (id) => {
-    if (confirm("Are you sure you want to delete this session?")) {
-      const updatedSessions = sessions.filter((session) => session.id !== id);
-      setSessions(updatedSessions);
+  const handleDeleteSession = async () => {
+    try {
+      setIsDeleting(true)
+      await deleteSession(deleteId)
+      toast.success('The session has been successfully deleted.')
+      setOpenDelete(false)
+      fetchData()
+    } catch (error) {
+      console.error("Failed to delete session:", error)
+      toast.error('Failed to delete the session. Please try again.')
+    } finally {
+      setIsDeleting(false)
     }
   };
 
@@ -421,11 +436,11 @@ export default function SessionViewPage() {
               <TableHead className="cursor-pointer" onClick={() => requestSort("lecturerName")}>
                 <div className="flex items-center">Lecturer {getSortDirectionIcon("lecturerName")}</div>
               </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => requestSort("date")}>
-                <div className="flex items-center">Date {getSortDirectionIcon("date")}</div>
-              </TableHead>
               <TableHead className="cursor-pointer" onClick={() => requestSort("slot")}>
                 <div className="flex items-center">Slot {getSortDirectionIcon("slot")}</div>
+              </TableHead>
+              <TableHead className="cursor-pointer" onClick={() => requestSort("date")}>
+                <div className="flex items-center">Date {getSortDirectionIcon("date")}</div>
               </TableHead>
               <TableHead className="cursor-pointer" onClick={() => requestSort("recordDate")}>
                 <div className="flex items-center">Record {getSortDirectionIcon("recordDate")}</div>
@@ -446,8 +461,8 @@ export default function SessionViewPage() {
                   <TableCell>
                     {session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}
                   </TableCell>
+                  <TableCell>Slot {session.slot}</TableCell>
                   <TableCell>{format(new Date(session.sessionDate), "EEEE, dd/MM/yyyy")}</TableCell>
-                  <TableCell>{session.slot}</TableCell>
                   <TableCell>{session.sessionRecord ? <Video className="h-4 w-4 text-green-500" /> : <VideoOff className="h-4 w-4 text-red-500" />}</TableCell>
                   <TableCell>
                     <SessionBadge status={session.status} />
@@ -474,7 +489,7 @@ export default function SessionViewPage() {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="destructive" size="icon" onClick={() => handleDeleteSession(session.sessionId)}>
+                      <Button variant="destructive" size="icon" onClick={() => handleDeleteSessionDialog(session.sessionId)} disabled={session.status === 2}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -776,6 +791,26 @@ export default function SessionViewPage() {
           <DialogFooter>
             <Button className="w-full" onClick={() => setIsViewDialogOpen(false)}>
               Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* delete diaglog */}
+      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Session</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this session? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteSession} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
