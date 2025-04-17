@@ -209,5 +209,24 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
             return Ok(new { message = "Session updated successfully", session });
         }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteSession([FromBody] Guid sessionId)
+        {
+            if (sessionId == Guid.Empty)
+            {
+                return BadRequest("Invalid session ID.");
+            }
+
+            var session = await _sessionRepository.GetByIdAsync(sessionId);
+            if (session == null)
+            {
+                return NotFound("Session not found.");
+            }
+
+            await _sessionRepository.DeleteAsync(sessionId);
+
+            return Ok(new { message = "Session deleted successfully", sessionId });
+        }
     }
 }
