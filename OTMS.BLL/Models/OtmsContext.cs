@@ -610,6 +610,8 @@ public partial class OtmsContext : DbContext
             entity.Property(e => e.GeneratedBy).HasColumnName("generated_by");
             entity.Property(e => e.RecordId).HasColumnName("record_id");
             entity.Property(e => e.SessionId).HasColumnName("session_id");
+           
+            entity.Property(e=>e.GeminiResponse).HasColumnName("gemini_response");
             entity.Property(e => e.Status)
                 .HasDefaultValue(1)
                 .HasColumnName("status");
