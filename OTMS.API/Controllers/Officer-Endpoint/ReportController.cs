@@ -52,105 +52,105 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
 
-        [HttpPost("Analyze")]
-        public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
-        {
+        //[HttpPost("Analyze")]
+        //public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
+        //{
 
-            //valid sessionId
-            var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
-            if (session == null) return NotFound();
+        //    //valid sessionId
+        //    var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
+        //    if (session == null) return NotFound();
 
-            var classData = session.Class;
+        //    var classData = session.Class;
 
-            client.Timeout = TimeSpan.FromMinutes(20);
+        //    client.Timeout = TimeSpan.FromMinutes(20);
 
-            var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", classData.ClassCode.Replace("/", "_"), "record", session.SessionNumber.ToString());
-            if (!Directory.Exists(recordDir))
-            {
-                return NotFound("Record directory not found.");
-            }
+        //    var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", classData.ClassCode.Replace("/", "_"), "record", session.SessionNumber.ToString());
+        //    if (!Directory.Exists(recordDir))
+        //    {
+        //        return NotFound("Record directory not found.");
+        //    }
 
-            // Tìm file video bất kỳ trong thư mục "record"
-            var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
-            var videoFile = Directory.GetFiles(recordDir)
-                                     .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
+        //    // Tìm file video bất kỳ trong thư mục "record"
+        //    var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
+        //    var videoFile = Directory.GetFiles(recordDir)
+        //                             .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
 
-            if (videoFile == null)
-            {
-                return NotFound("Video file not found.");
-            }
+        //    if (videoFile == null)
+        //    {
+        //        return NotFound("Video file not found.");
+        //    }
 
-            Console.WriteLine("Using video file: " + videoFile);
+        //    Console.WriteLine("Using video file: " + videoFile);
 
-            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+        //    MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
 
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
-            var byteArrayContent = new ByteArrayContent(fileBytes);
+        //    var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
+        //    var byteArrayContent = new ByteArrayContent(fileBytes);
 
-            // Thiết lập content-type theo phần mở rộng
-            string extension = Path.GetExtension(videoFile).ToLower();
-            string mimeType = extension switch
-            {
-                ".mp4" => "video/mp4",
-                ".webm" => "video/webm",
-                ".mov" => "video/quicktime",
-                ".avi" => "video/x-msvideo",
-                ".mkv" => "video/x-matroska",
-                _ => "application/octet-stream"
-            };
+        //    // Thiết lập content-type theo phần mở rộng
+        //    string extension = Path.GetExtension(videoFile).ToLower();
+        //    string mimeType = extension switch
+        //    {
+        //        ".mp4" => "video/mp4",
+        //        ".webm" => "video/webm",
+        //        ".mov" => "video/quicktime",
+        //        ".avi" => "video/x-msvideo",
+        //        ".mkv" => "video/x-matroska",
+        //        _ => "application/octet-stream"
+        //    };
 
-            byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
-            multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
+        //    byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+        //    multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
 
-            var response = await client.PostAsync(Apianalyze, multipartFormDataContent);
+        //    var response = await client.PostAsync(Apianalyze, multipartFormDataContent);
 
-            if (response.IsSuccessStatusCode)
-            {
-                // Lấy record theo sessionId
-                Record record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(request.SessionId));
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        // Lấy record theo sessionId
+        //        Record record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(request.SessionId));
 
-                // Đọc kết quả trả về từ API
-                var result = await response.Content.ReadAsStringAsync();
+        //        // Đọc kết quả trả về từ API
+        //        var result = await response.Content.ReadAsStringAsync();
 
-                // Kiểm tra nếu report đã tồn tại theo sessionId
-                Report existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(request.SessionId));
+        //        // Kiểm tra nếu report đã tồn tại theo sessionId
+        //        Report existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(request.SessionId));
 
-                if (existingReport != null)
-                {
-                    // Nếu đã tồn tại, cập nhật thông tin
-                    existingReport.AnalysisData = result;
-                    existingReport.GeneratedAt = DateTime.UtcNow;
-                    existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
-                    existingReport.Status = 1;
+        //        if (existingReport != null)
+        //        {
+        //            // Nếu đã tồn tại, cập nhật thông tin
+        //            existingReport.AnalysisData = result;
+        //            existingReport.GeneratedAt = DateTime.UtcNow;
+        //            existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
+        //            existingReport.Status = 1;
 
-                    await _reportRepository.UpdateAsync(existingReport);
+        //            await _reportRepository.UpdateAsync(existingReport);
 
-                    return Ok("Cập nhật dữ liệu thành công, dữ liệu phân tích là: " + result);
-                }
-                else
-                {
-                    // Nếu chưa có, tạo mới report
-                    Report newReport = new Report()
-                    {
-                        RecordId = record.RecordId,
-                        AnalysisData = result,
-                        GeneratedAt = DateTime.UtcNow,
-                        GeneratedBy = Guid.Parse(request.GenerateBy),
-                        SessionId = Guid.Parse(request.SessionId),
-                        Status = 1
-                    };
+        //            return Ok("Cập nhật dữ liệu thành công, dữ liệu phân tích là: " + result);
+        //        }
+        //        else
+        //        {
+        //            // Nếu chưa có, tạo mới report
+        //            Report newReport = new Report()
+        //            {
+        //                RecordId = record.RecordId,
+        //                AnalysisData = result,
+        //                GeneratedAt = DateTime.UtcNow,
+        //                GeneratedBy = Guid.Parse(request.GenerateBy),
+        //                SessionId = Guid.Parse(request.SessionId),
+        //                Status = 1
+        //            };
 
-                    await _reportRepository.AddReport(newReport);
+        //            await _reportRepository.AddReport(newReport);
 
-                    return Ok("Thêm dữ liệu thành công, dữ liệu phân tích là: " + result);
-                }
-            }
+        //            return Ok("Thêm dữ liệu thành công, dữ liệu phân tích là: " + result);
+        //        }
+        //    }
 
-            else
-            {
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
-            }
-        }
+        //    else
+        //    {
+        //        return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+        //    }
+        //}
 
 
         [HttpPost("GetReportBySessionIdUsingGeminiAi")]
@@ -436,6 +436,130 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             }
         }
         //Cách 2: Gọi hàm này để phân tích video và sinh báo cáo cùng 1 lúc.nhược điểm là mỗi lần muốn lấy report thì lại phải đợi phân tích lại từ đầu,Tiến không khuyến khích dùng cách này
+
+
+        /**
+         * Viết lại theo yêu cầu của anh Chính
+         * Với API Analyze dưới đây
+         * Khi gọi  reocord chuyển status của record sang 2 
+         * Analyze xong nhớ chuyển status của record sang 3
+         * gửi video lên API, nếu gửi thành công thì trả về 200 ngay, còn việc phân tích, lưu report, v.v., thì để xử lý nền (background) sau.
+         */
+
+        [HttpPost("Analyze")]
+        public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
+        {
+            var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
+            if (session == null) return NotFound();
+
+            var classData = session.Class;
+
+            var record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(request.SessionId));
+            if (record == null) return NotFound("Record not found.");
+
+            // Step 1: Chuyển trạng thái sang 2 (đang xử lý)
+            record.Status = 2;
+            await _recordRepository.UpdateAsync(record);
+
+            // Step 2: Tìm file video
+            var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", classData.ClassCode.Replace("/", "_"), "record", session.SessionNumber.ToString());
+            if (!Directory.Exists(recordDir)) return NotFound("Record directory not found.");
+
+            var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
+            var videoFile = Directory.GetFiles(recordDir)
+                                     .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
+            if (videoFile == null) return NotFound("Video file not found.");
+
+            Console.WriteLine("Using video file: " + videoFile);
+
+            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
+            var byteArrayContent = new ByteArrayContent(fileBytes);
+
+            string extension = Path.GetExtension(videoFile).ToLower();
+            string mimeType = extension switch
+            {
+                ".mp4" => "video/mp4",
+                ".webm" => "video/webm",
+                ".mov" => "video/quicktime",
+                ".avi" => "video/x-msvideo",
+                ".mkv" => "video/x-matroska",
+                _ => "application/octet-stream"
+            };
+
+            byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+            multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
+
+            // Step 3: Gửi video lên API
+            var response = await client.PostAsync(Apianalyze, multipartFormDataContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Step 4: Xử lý nền
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+
+                        // Gọi Google Gemini để phân tích kết quả
+                        var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+                        var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
+                            "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
+                            "Trạng thái cảm xúc chiếm ưu thế." +
+                            "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
+                            "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn. Đây là kết quả nhận diện: " + result;
+
+                        var googleAI = new GoogleAI(apiKey: apiKey);
+                        var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
+                        var GeminiResponse = await model.GenerateContent(prompt);
+                        var geminiText = GeminiResponse.Text.Trim();
+
+                        var existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(request.SessionId));
+
+                        if (existingReport != null)
+                        {
+                            existingReport.AnalysisData = result;
+                            existingReport.GeneratedAt = DateTime.UtcNow;
+                            existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
+                            existingReport.Status = 1;
+                            existingReport.GeminiResponse = geminiText;
+
+                            await _reportRepository.UpdateAsync(existingReport);
+                        }
+                        else
+                        {
+                            Report newReport = new Report()
+                            {
+                                RecordId = record.RecordId,
+                                AnalysisData = result,
+                                GeneratedAt = DateTime.UtcNow,
+                                GeneratedBy = Guid.Parse(request.GenerateBy),
+                                SessionId = Guid.Parse(request.SessionId),
+                                Status = 1,
+                                GeminiResponse = geminiText
+                            };
+
+                            await _reportRepository.AddReport(newReport);
+                        }
+
+                        // Step 5: Chuyển trạng thái record sang 3 (xong)
+                        record.Status = 3;
+                        await _recordRepository.UpdateAsync(record);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Background processing error: " + ex.Message);
+                    }
+                });
+
+                // Trả về ngay lập tức sau khi gửi video thành công
+                return Ok("Video gửi thành công, quá trình phân tích đang được xử lý nền.");
+            }
+
+            return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+        }
+
 
 
     }
