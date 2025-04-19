@@ -228,5 +228,51 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
             return Ok(new { message = "Session deleted successfully", sessionId });
         }
+
+        /// <summary>
+        /// Kiểm tra xem thời gian tạo buổi học mới có bị trùng lịch không
+        /// </summary>
+        [HttpGet("check-conflict")]
+        public async Task<IActionResult> CheckScheduleConflict(
+            [FromQuery] Guid classId, 
+            [FromQuery] Guid lecturerId, 
+            [FromQuery] DateTime sessionDate, 
+            [FromQuery] int slot)
+        {
+            if (classId == Guid.Empty || lecturerId == Guid.Empty)
+            {
+                return BadRequest(new { success = false, message = "ClassId và LecturerId không được để trống." });
+            }
+
+            var (isConflict, message) = await _sessionRepository.CheckScheduleConflictForSingleSessionAsync(
+                classId, lecturerId, sessionDate, slot);
+
+            return Ok(new { 
+                success = true, 
+                hasConflict = isConflict, 
+                message = isConflict ? message : "Không có lịch trùng."
+            });
+        }
+
+        /// <summary>
+        /// Tạo một buổi học đơn lẻ mới
+        /// </summary>
+        [HttpPost("add-single-session")]
+        public async Task<IActionResult> AddSingleSession([FromBody] SessionSingleDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, message = "Các thông tin không hợp lệ!", errors = ModelState });
+            }
+
+            var (isSuccess, message) = await _sessionRepository.AddSingleSessionAsync(model);
+
+            if (!isSuccess)
+            {
+                return BadRequest(new { success = false, message });
+            }
+
+            return Ok(new { success = true, message });
+        }
     }
 }

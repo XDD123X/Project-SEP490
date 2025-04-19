@@ -84,5 +84,15 @@ namespace OTMS.DAL.Repository
         public Task<List<Session>> GetSessionsByClassId(Guid classId) => _sessionDAO.GetSessionsByClassId(classId);
 
         public Task<Session?> GetSessionsBySessionId(Guid sessionId) => _sessionDAO.GetSessionsBySessionId(sessionId);
+
+        public async Task<(bool isConflict, string message)> CheckScheduleConflictForSingleSessionAsync(Guid classId, Guid lecturerId, DateTime sessionDate, int slot)
+        {
+            return await _sessionDAO.CheckScheduleConflictForSingleSessionAsync(classId, lecturerId, sessionDate, slot);
+        }
+
+        public async Task<(bool isSuccess, string message)> AddSingleSessionAsync(SessionSingleDTO sessionDTO)
+        {
+            return await _sessionDAO.AddSingleSessionAsync(sessionDTO);
+        }
     }
 }

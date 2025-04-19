@@ -19,5 +19,7 @@ namespace OTMS.DAL.Interface
         Task<List<Session>> GetSessionsByClassId(Guid classId);
         Task<Session?> GetSessionsBySessionId(Guid sessionId);
 
+        Task<(bool isConflict, string message)> CheckScheduleConflictForSingleSessionAsync(Guid classId, Guid lecturerId, DateTime sessionDate, int slot);
+        Task<(bool isSuccess, string message)> AddSingleSessionAsync(SessionSingleDTO sessionDTO);
     }
 }

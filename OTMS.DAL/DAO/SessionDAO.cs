@@ -120,5 +120,123 @@ namespace OTMS.DAL.DAO
             return session;
         }
 
+        public async Task<(bool isConflict, string message)> CheckScheduleConflictForSingleSessionAsync(
+            Guid classId, Guid lecturerId, DateTime sessionDate, int slot)
+        {
+            // Kiểm tra trùng lịch với các buổi học khác của giảng viên
+            var hasLecturerConflict = await _context.Sessions
+                .AnyAsync(s =>
+                    s.LecturerId == lecturerId &&
+                    s.SessionDate.Date == sessionDate.Date &&
+                    s.Slot == slot);
+
+            if (hasLecturerConflict)
+            {
+                return (true, "Giảng viên đã có lịch dạy vào thời gian này.");
+            }
+
+            // Kiểm tra xem có session nào của lớp này vào cùng thời điểm không
+            var hasClassConflict = await _context.Sessions
+                .AnyAsync(s =>
+                    s.ClassId == classId &&
+                    s.SessionDate.Date == sessionDate.Date &&
+                    s.Slot == slot);
+
+            if (hasClassConflict)
+            {
+                return (true, "Lớp học đã có lịch vào thời gian này.");
+            }
+
+            // Lấy danh sách sinh viên trong lớp
+            var studentsInClass = await _context.ClassStudents
+                .Where(cs => cs.ClassId == classId)
+                .Select(cs => cs.StudentId)
+                .ToListAsync();
+
+            if (studentsInClass.Any())
+            {
+                // Lấy danh sách các lớp học khác mà những sinh viên này tham gia
+                var otherClassIds = await _context.ClassStudents
+                    .Where(cs => studentsInClass.Contains(cs.StudentId))
+                    .Select(cs => cs.ClassId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Kiểm tra xem có session nào của các lớp này vào cùng thời điểm
+                var hasStudentConflict = await _context.Sessions
+                    .AnyAsync(s =>
+                        otherClassIds.Contains(s.ClassId) &&
+                        s.SessionDate.Date == sessionDate.Date &&
+                        s.Slot == slot);
+
+                if (hasStudentConflict)
+                {
+                    return (true, "Sinh viên trong lớp đã có lịch học vào thời gian này.");
+                }
+            }
+
+            return (false, "Không có lịch trùng.");
+        }
+
+        public async Task<(bool isSuccess, string message)> AddSingleSessionAsync(SessionSingleDTO sessionDTO)
+        {
+            try
+            {
+                // Kiểm tra thông tin lớp học
+                var classInfo = await _context.Classes.FindAsync(sessionDTO.ClassId);
+                if (classInfo == null)
+                {
+                    return (false, "Không tìm thấy thông tin lớp học.");
+                }
+
+                // Kiểm tra thông tin giảng viên
+                var lecturer = await _context.Accounts.FindAsync(sessionDTO.LecturerId);
+                if (lecturer == null)
+                {
+                    return (false, "Không tìm thấy thông tin giảng viên.");
+                }
+
+                // Kiểm tra xung đột lịch
+                var (isConflict, conflictMessage) = await CheckScheduleConflictForSingleSessionAsync(
+                    sessionDTO.ClassId, sessionDTO.LecturerId, sessionDTO.SessionDate, sessionDTO.Slot);
+
+                if (isConflict)
+                {
+                    return (false, conflictMessage);
+                }
+
+                // Tạo session mới
+                var newSession = new Session
+                {
+                    SessionId = Guid.NewGuid(),
+                    SessionNumber = sessionDTO.SessionNumber,
+                    ClassId = sessionDTO.ClassId,
+                    LecturerId = sessionDTO.LecturerId,
+                    SessionDate = sessionDTO.SessionDate,
+                    Slot = sessionDTO.Slot,
+                    Status = 1, // Active
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                // Thêm session vào DB
+                await _context.Sessions.AddAsync(newSession);
+                await _context.SaveChangesAsync();
+
+                // Cập nhật tổng số buổi học của lớp nếu cần
+                if (classInfo.TotalSession < sessionDTO.SessionNumber)
+                {
+                    classInfo.TotalSession = sessionDTO.SessionNumber;
+                    _context.Classes.Update(classInfo);
+                    await _context.SaveChangesAsync();
+                }
+
+                return (true, "Tạo buổi học thành công.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Lỗi khi tạo buổi học: {ex.Message}");
+            }
+        }
     }
 }
