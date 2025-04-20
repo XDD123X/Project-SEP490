@@ -2,7 +2,8 @@ import { ClassBadge } from "@/components/BadgeComponent";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { GetClassList } from "@/services/classService";
+import { GetClassList, GetLecturerClassList } from "@/services/classService";
+import { useStore } from "@/services/StoreContext";
 import { format } from "date-fns";
 import { Users } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -11,12 +12,14 @@ import { toast } from "sonner";
 
 export default function ViewReportByClassPage() {
   const [classes, setClasses] = useState([]);
+  const { state } = useStore();
+  const { user } = state;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await GetClassList();
+        const response = await GetLecturerClassList(user.uid);
         setClasses(response.data);
       } catch (error) {
         toast.error(error);
@@ -26,7 +29,7 @@ export default function ViewReportByClassPage() {
   }, []);
 
   const handleSelect = (id) => {
-    navigate(`/officer/report/${id}`);
+    navigate(`/lecturer/report/${id}`);
   };
 
   if (!classes) {

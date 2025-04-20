@@ -21,7 +21,7 @@ const roleBasedData = {
     // ],
     navSecondary: [
       { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Feedback", url: "/feedback", icon: FileText },
+      { title: "Contact", url: "contact", icon: Users },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
@@ -37,18 +37,8 @@ const roleBasedData = {
         url: "account",
         icon: User,
         items: [
-          { title: "View Accounts", url: "view" },
-          { title: "Add New", url: "add" },
-          { title: "Other", url: "other" },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "settings",
-        icon: Settings2,
-        items: [
-          { title: "Website Settings", url: "website" },
-          { title: "Class Settings", url: "class" },
+          { title: "View Account List", url: "/administrator/accounts" },
+          { title: "Add New", url: "/administrator/account/add" },
         ],
       },
       {
@@ -56,27 +46,20 @@ const roleBasedData = {
         url: "notifications",
         icon: Bell,
         items: [
-          { title: "View Notifications", url: "view" },
-          { title: "Add New", url: "add" },
-        ],
-      },
-      {
-        title: "Report",
-        url: "reports",
-        icon: FileText,
-        items: [
-          { title: "View Reports", url: "view" },
-          { title: "Add New", url: "add" },
+          { title: "View Notifications", url: "/administrator/view" },
+          { title: "Add New", url: "/administrator/add" },
         ],
       },
     ],
     navSecondary: [
-      { title: "Documentation", url: "docs", icon: BookOpen },
-      { title: "System Health", url: "health", icon: LifeBuoy },
+      { title: "Support", url: "/support", icon: LifeBuoy },
+      { title: "Contact", url: "contact", icon: Users },
     ],
     general: [
-      { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
+      { title: "Dashboard", url: "/administrator/dashboard", icon: LayoutDashboard },
       { title: "Notification", url: "notification", icon: Bell },
+      { title: "Settings", url: "class-setting", icon: Settings2 },
+      { title: "Reports", url: "reports", icon: FileText },
     ],
   },
   lecturer: {
@@ -125,8 +108,8 @@ const roleBasedData = {
     //   },
     // ],
     navSecondary: [
-      { title: "Academic Support", url: "/support", icon: LifeBuoy },
-      { title: "Collaboration", url: "collab", icon: Users },
+      { title: "Support", url: "/support", icon: LifeBuoy },
+      { title: "Contact", url: "contact", icon: Users },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
@@ -134,9 +117,9 @@ const roleBasedData = {
       { title: "Class", url: "lecturer/my-class", icon: School },
       { title: "Attendace", url: "lecturer/attendance", icon: ClipboardList },
       { title: "Request", url: "lecturer/request", icon: Mail },
-      { title: "Record", url: "lecturer/record", icon:  Video},
+      { title: "Record", url: "lecturer/record", icon: Video },
       { title: "Material", url: "lecturer/material", icon: FileStack },
-      { title: "Report", url: "lecturer/report", icon: FileText },
+      { title: "Report", url: "/lecturer/report", icon: FileText },
     ],
   },
   officer: {
@@ -204,18 +187,15 @@ const roleBasedData = {
         icon: FileText,
         items: [
           { title: "Analyze", url: "/officer/report/analyze" },
-          { title: "View Reports", url: "/officer/report" }
+          { title: "View Reports", url: "/officer/report" },
         ],
       },
     ],
     navSecondary: [
-      // { title: "Support", url: "/support", icon: LifeBuoy },
-      // { title: "Contact", url: "contact", icon: Users }
+      { title: "Support", url: "/support", icon: LifeBuoy },
+      { title: "Contact", url: "contact", icon: Users },
     ],
-    general: [
-      // { title: "Dashboard", url: "dashboard", icon: LayoutDashboard },
-      { title: "Notification", url: "notification", icon: Bell },
-    ],
+    general: [{ title: "Notification", url: "notification", icon: Bell }],
   },
 };
 

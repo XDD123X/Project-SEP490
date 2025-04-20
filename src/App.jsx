@@ -12,7 +12,7 @@ import LogoutPage from "./pages/LogoutPage";
 import PrivateRoute from "./pages/private/PrivateRoute";
 import { Toaster } from "./components/ui/sonner";
 import MainScreen from "./pages/dashboard/MainScreen";
-import DashboardPage from "./pages/dashboard/admin/Dashboard";
+import DashboardPage from "./pages/dashboard/admin/AdminDashboard";
 import ProfilePage from "./pages/profile/profilePage";
 import ProfileAccount from "./pages/profile/profile-account";
 import ProfileSchedule from "./pages/profile/profile-schedule";
@@ -71,6 +71,8 @@ import SelectClassReportPage from "./pages/dashboard/officer/report/select-class
 import SelectSessionByClassReportPage from "./pages/dashboard/officer/report/select-session-class-report-page";
 import ViewReportByClassPage from "./pages/dashboard/officer/report/view-class-report-page";
 import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-report-list";
+import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
+import AdminClassSettingsPage from "./pages/dashboard/admin/AdminSettingPage";
 
 function App() {
   return (
@@ -135,7 +137,10 @@ function App() {
                     {/* Admin Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["administrator"]} />}>
                       <Route path="/Administrator">
-                        <Route path="dashboard" element={<DashboardPage />} />
+                        <Route path="dashboard" element={<AdminDashboard />} />
+
+                        <Route path='settings' element={<DashboardPage />} />
+                        <Route path='settings/:settingId' element={<AdminClassSettingsPage />} />
                       </Route>
                     </Route>
                     {/* Lecturer Routes */}
@@ -157,6 +162,12 @@ function App() {
                         <Route path="record" element={<ViewClassRecordMaterialPage />} />
                         <Route path="record/:classId" element={<ViewSessionByRecordClassMaterialPage />} />
                         <Route path="record/:classId/:sessionId" element={<UploadMaterialBySessionPage />} />
+
+                        <Route path="report" element={<ViewReportByClassPage />} />
+                        <Route path="report/:classId" element={<ViewSessionByClassReportPage />} />
+
+                        <Route path="report/analyze" element={<SelectClassReportPage />} />
+                        <Route path="report/analyze/:classId" element={<SelectSessionByClassReportPage />} />
 
                         <Route path="material" element={<ViewClassFileMaterialPage />} />
                         <Route path="material/:classId" element={<ViewSessionByFileClassMaterialPage />} />
@@ -188,12 +199,6 @@ function App() {
 
                         <Route path="request/student" element={<StudentRequestManagement />} />
                         <Route path="request/lecturer" element={<ViewLecturerRequest />} />
-
-                        <Route path="report" element={<ViewReportByClassPage />} />
-                        <Route path="report/:classId" element={<ViewSessionByClassReportPage />} />
-                        
-                        <Route path="report/analyze" element={<SelectClassReportPage />} />
-                        <Route path="report/analyze/:classId" element={<SelectSessionByClassReportPage />} />
 
                         <Route path="dashboard" element={<DashboardPage />} />
                       </Route>
