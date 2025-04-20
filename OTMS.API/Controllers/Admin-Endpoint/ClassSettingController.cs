@@ -35,6 +35,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             {
                 c.SessionPerWeek = classSetting.SessionPerWeek;
                 c.SessionTotal = classSetting.SessionTotal;
+                c.SlotNumber = classSetting.SlotNumber;
                 c.UpdatedAt = DateTime.Now;
                 await _classSettingRepository.UpdateAsync(c);
                 return Ok("Update success");
@@ -61,7 +62,7 @@ namespace OTMS.API.Controllers.Admin_Endpoint
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while edit class " + id + ": " + ex.Message);
             }
         }
-        [HttpGet("get-all")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllClassSetting()
         {
             var c = await _classSettingRepository.GetAllAsync();

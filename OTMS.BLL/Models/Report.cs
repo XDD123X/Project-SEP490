@@ -13,11 +13,11 @@ public partial class Report
 
     public string AnalysisData { get; set; } = null!;
 
-    public string? GeminiResponse { get; set; }
-
     public DateTime? GeneratedAt { get; set; }
 
     public Guid? GeneratedBy { get; set; }
+
+    public string? GeminiResponse { get; set; }
 
     public int? Status { get; set; }
 

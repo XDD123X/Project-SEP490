@@ -218,6 +218,7 @@ GO
 -- 13. Tạo bảng ClassSetting
 CREATE TABLE ClassSetting (
     setting_id INT PRIMARY KEY IDENTITY(1,1),
+    title NVARCHAR(100) DEFAULT N'Setting #',
 	slot_number INT DEFAULT 4, -- số slot có trong một ngày
     session_per_week INT DEFAULT 2,  -- Số buổi học tối đa mỗi tuần
     session_total INT NOT NULL DEFAULT 32, -- Tổng số buổi học mặc định
@@ -226,8 +227,14 @@ CREATE TABLE ClassSetting (
 );
 GO
 
-INSERT INTO ClassSetting (session_per_week, session_total, slot_number)  
-VALUES (2, 32, 4);
+INSERT INTO ClassSetting (title, session_per_week, session_total, slot_number)  
+VALUES 
+('Default', 1, 24, 4),       -- 1 buổi/tuần, 24 buổi (36 giờ)  
+('Basic', 2, 48, 4),          -- 2 buổi/tuần, 48 buổi (72 giờ)  
+('Intermediate', 3, 72, 4),   -- 3 buổi/tuần, 72 buổi (108 giờ)  
+('Advanced', 4, 96, 4);       -- 4 buổi/tuần, 96 buổi (144 giờ)
+GO
+
 
 -- 14. Tạo bảng SessionChangeRequest
 CREATE TABLE SessionChangeRequest (
