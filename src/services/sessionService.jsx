@@ -174,7 +174,10 @@ export const addRequestChangeSession = async (requestChange) => {
 export const deleteSession = async (sessionId) => {
   try {
     const response = await axiosClient.delete(`/Session/delete`, {
-      params: { sessionId }, // Truyền qua query string
+      data: JSON.stringify(sessionId), // 👈 Chuyển GUID thành JSON string
+      headers: {
+        "Content-Type": "application/json", // 👈 Bắt buộc có header này
+      },
     });
 
     return {

@@ -139,17 +139,22 @@ export function AttendanceSessionList({ classId, onTakeAttendance }) {
                   <TableCell>{getSessionTime(session.slot)}</TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
+                      {/* Buổi học đã qua và không phải hôm nay */}
                       {isPast(parseISO(session.sessionDate)) && !isTodaySession && (
                         <Badge variant="destructive" className="w-fit">
                           Closed
                         </Badge>
                       )}
-                      {isFuture(parseISO(session.sessionDate)) && (
+
+                      {/* Buổi học sắp tới và không phải hôm nay */}
+                      {isFuture(parseISO(session.sessionDate)) && !isTodaySession && (
                         <Badge variant="secondary" className="w-fit">
                           Upcoming
                         </Badge>
                       )}
-                      {isPast(parseISO(session.sessionDate)) && isTodaySession && <Badge className="w-fit">{session.status === 2 && isTodaySession ? "Open" : session.status === 1 ? "Open" : "Closed"}</Badge>}
+
+                      {/* Buổi học là hôm nay */}
+                      {isTodaySession && <Badge className="w-fit">{session.status === 2 || session.status === 1 ? "Open" : "Closed"}</Badge>}
                     </div>
                   </TableCell>
                   <TableCell>

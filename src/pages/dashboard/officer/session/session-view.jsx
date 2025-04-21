@@ -16,15 +16,10 @@ import { getLecturerList } from "@/services/accountService";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { SessionBadge } from "@/components/BadgeComponent";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 // Slot options
 const slotOptions = [1, 2, 3, 4];
-const statusOptions = [
-  { id: 1, name: "Not yet" },
-  { id: 2, name: "Finished" },
-  { id: 3, name: "Cancelled" },
-];
 
 export default function SessionViewPage() {
   const [sessions, setSessions] = useState([]);
@@ -32,24 +27,15 @@ export default function SessionViewPage() {
   const [classList, setClassList] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [filteredSessions, setFilteredSessions] = useState(sessions);
-  const [selectedClass, setSelectedClass] = useState("All");
+  const [selectedClass, setSelectedClass] = useState();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
   const [openDelete, setOpenDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteId, setDeleteId] = useState();
-  //errors
-  const [errors, setErrors] = useState({
-    classId: false,
-    lecturerId: false,
-    date: false,
-    slot: false,
-    status: false,
-  });
 
   // Add state for pagination in the SessionsPage component
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,45 +45,36 @@ export default function SessionViewPage() {
     setOpenDelete(true);
     setDeleteId(sessionId);
   };
+  //fetch data
+  const fetchData = async () => {
+    try {
+      const sessionList = await getAllSession();
+      const classList = await GetClassList();
+      const lecturerList = await getLecturerList();
 
+      // Kiểm tra nếu API trả về null hoặc undefined
+      const sessions = sessionList?.data || [];
+      const classes = classList?.data || [];
+      const lecturers = lecturerList?.data || [];
+
+      // Sắp xếp sessions nếu có dữ liệu
+      const sortedSessions = sessions.length > 0 ? [...sessions].sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate)) : [];
+
+      setSessions(sortedSessions);
+
+      // Tạo danh sách classCodes (bao gồm "All" nếu có dữ liệu)
+      const classCodes = classes.length > 0 ? [...classes.map((cls) => cls.classCode)] : ["N/A"];
+
+      setClassList(classes);
+      setClasses(classCodes);
+      setLecturers(lecturers);
+    } catch (error) {
+      toast.error(`Failed to load data: ${error.message}`);
+      console.error("Failed to load data", error);
+    }
+  };
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
-      try {
-        const sessionList = await getAllSession();
-        const classList = await GetClassList();
-        const lecturerList = await getLecturerList();
-
-        if (isMounted) {
-          // Kiểm tra nếu API trả về null hoặc undefined
-          const sessions = sessionList?.data || [];
-          const classes = classList?.data || [];
-          const lecturers = lecturerList?.data || [];
-
-          // Sắp xếp sessions nếu có dữ liệu
-          const sortedSessions = sessions.length > 0 ? [...sessions].sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate)) : [];
-
-          setSessions(sortedSessions);
-
-          // Tạo danh sách classCodes (bao gồm "All" nếu có dữ liệu)
-          const classCodes = classes.length > 0 ? ["All", ...classes.map((cls) => cls.classCode)] : ["All"];
-
-          setClassList(classes);
-          setClasses(classCodes);
-          setLecturers(lecturers);
-        }
-      } catch (error) {
-        toast.error(`Failed to load data: ${error.message}`);
-        console.error("Failed to load data", error);
-      }
-    };
-
     fetchData();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -107,26 +84,15 @@ export default function SessionViewPage() {
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredSessions.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = selectedClass ? filteredSessions.slice(indexOfFirstItem, indexOfLastItem) : [];
   const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
-
-  // New session form state
-  const [newSession, setNewSession] = useState({
-    classId: "",
-    lecturerId: "",
-    sessionDate: "",
-    slot: 1,
-    description: "",
-    sessionRecord: null,
-    status: 1,
-  });
 
   // Filter sessions based on selected class and search term
   useEffect(() => {
     let result = sessions;
 
     // Filter by class if not "All"
-    if (selectedClass !== "All") {
+    if (selectedClass) {
       result = result.filter((session) => session.class.classCode === selectedClass);
     }
 
@@ -211,27 +177,6 @@ export default function SessionViewPage() {
     return sortConfig.direction === "ascending" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
   };
 
-  // Handle adding a new session
-  const handleAddSession = () => {
-    if (!newSession.classId || !newSession.lecturerId || !newSession.sessionDate || !newSession.slot || !newSession.status) {
-      toast.error("Please fill out all required fields.");
-      return;
-    }
-    console.log(newSession);
-    setIsAddDialogOpen(false);
-
-    // Reset form
-    // setNewSession({
-    //   classId: "",
-    //   lecturerId: "",
-    //   sessionDate: new Date(),
-    //   slot: 0,
-    //   description: "",
-    //   sessionRecord: new Date(),
-    //   status: 0,
-    // });
-  };
-
   // Handle editing a session
   const handleEditSession = () => {
     const updatedSessions = sessions.map((session) => (session.sessionId === currentSession.sessionId ? currentSession : session));
@@ -244,24 +189,18 @@ export default function SessionViewPage() {
   const handleDeleteSession = async () => {
     try {
       setIsDeleting(true);
-      await deleteSession(deleteId);
-      toast.success("The session has been successfully deleted.");
-      setOpenDelete(false);
-      fetchData();
+      const response = await deleteSession(deleteId);
+      if (response.status === 200) {
+        toast.success("The session has been successfully deleted.");
+        setOpenDelete(false);
+        fetchData();
+      }
     } catch (error) {
       console.error("Failed to delete session:", error);
       toast.error("Failed to delete the session. Please try again.");
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  // Handle form input changes for new session
-  const handleNewSessionChange = (field, value) => {
-    setNewSession({
-      ...newSession,
-      [field]: value,
-    });
   };
 
   // Handle form input changes for editing session
@@ -387,7 +326,7 @@ export default function SessionViewPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={9} className="text-center py-6">
-                  No sessions found
+                  {!selectedClass ? "Please Select Class First" : "No sessions found"}
                 </TableCell>
               </TableRow>
             )}
@@ -608,18 +547,6 @@ export default function SessionViewPage() {
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Slot</Label>
                 <Input value={currentSession.slot.toString()} className="col-span-3" readOnly />
-                {/* <Select value={currentSession.slot.toString()} onValueChange={(value) => handleEditSessionChange("slot", Number(value))}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Slot" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {slotOptions.map((slot) => (
-                      <SelectItem key={slot} value={slot.toString()}>
-                        {slot}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select> */}
               </div>
 
               {/* Session Record */}

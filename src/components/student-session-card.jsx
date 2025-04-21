@@ -91,20 +91,12 @@ export default function StudentClassCard({ session }) {
               <Info className="mr-1 h-3 w-3" />
               Detail
             </Button>
-            {/* {session.records.length > 0 && (
-              <Button variant="outline" size="sm" className="w-full h-7 text-xs justify-center">
-                <ExternalLink className="mr-1 h-3 w-3" />
-                Record
-              </Button>
-            )} */}
           </div>
         </CardContent>
       </Card>
 
       {/* Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        {console.log("session:", session)}
-
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{session.class.classCode}</DialogTitle>

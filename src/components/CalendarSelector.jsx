@@ -6,14 +6,17 @@ import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 
-export default function CalendarSelector({ selectedWeek, setSelectedWeek, selectedDate, setSelectedDate, className, disable }) {
+export default function CalendarSelector({ selectedWeek, setSelectedWeek, selectedDate, setSelectedDate, className, disable, startDate, endDate }) {
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState(selectedDate || null);
   const safeSelectedDate = selectedDate ?? new Date();
   const [currentMonth, setCurrentMonth] = useState(safeSelectedDate.getMonth());
   const [currentYear, setCurrentYear] = useState(safeSelectedDate.getFullYear());
+  const [canNext, setNext] = useState(true);
+  const [canPrev, setPrev] = useState(true);
 
-  const years = Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => 1900 + i);
+  const endYear = endDate ? new Date(endDate).getFullYear() : currentYear;
+  const years = Array.from({ length: endYear - 1900 + 1 }, (_, i) => 1900 + i);
 
   // Cập nhật `date` khi `selectedDate` thay đổi
   useEffect(() => {
@@ -52,22 +55,55 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
 
   // Navigate to previous month
   const prevMonth = () => {
+    let newMonth = currentMonth;
+    let newYear = currentYear;
+
     if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
+      newMonth = 11;
+      newYear = currentYear - 1;
     } else {
-      setCurrentMonth(currentMonth - 1);
+      newMonth = currentMonth - 1;
     }
+
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+    updateNavigationAvailability(newMonth, newYear);
   };
 
   // Navigate to next month
   const nextMonth = () => {
+    let newMonth = currentMonth;
+    let newYear = currentYear;
+
     if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
+      newMonth = 0;
+      newYear = currentYear + 1;
     } else {
-      setCurrentMonth(currentMonth + 1);
+      newMonth = currentMonth + 1;
     }
+
+    // Chặn nếu năm mới vượt quá endDate Year
+    const endYear = new Date(endDate).getFullYear();
+    if (newYear > endYear) return;
+
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+    updateNavigationAvailability(newMonth, newYear);
+  };
+
+  //check able to next/prev
+  const updateNavigationAvailability = (month, year) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    // Lấy năm của endDate nếu hợp lệ, nếu không thì dùng currentYear
+    const endYear = endDate ? new Date(endDate).getFullYear() : currentYear;
+
+    // Không cho prev nếu tháng hoặc năm nhỏ hơn 1900, hoặc nếu năm bằng năm hiện tại và tháng là tháng 1
+    setPrev(year > 1900 || (year === 1900 && month > 0));
+
+    // Không cho next nếu tháng là 12 và năm bằng năm của endDate
+    setNext(!(month === 11 && year === endYear));
   };
 
   // Check if a day is today
@@ -90,16 +126,31 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
 
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const isSelected = date && date.getDate() === day && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      const dateObj = new Date(currentYear, currentMonth, day);
 
+      const isSelected = date && date.getDate() === day && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
       const isTodayDate = isToday(day);
+
+      // Chuyển startDate và endDate từ chuỗi ISO thành Date và loại bỏ thời gian
+      const startDateObj = startDate ? new Date(startDate).setHours(0, 0, 0, 0) : null;
+      const endDateObj = endDate ? new Date(endDate).setHours(23, 59, 59, 999) : null;
+
+      // Kiểm tra nếu dateObj trước startDate hoặc sau endDate
+      const isBeforeStart = startDateObj && dateObj < startDateObj;
+      const isAfterEnd = endDateObj && dateObj > endDateObj;
+
+      // Thêm giới hạn 7 ngày
+      const isInNext7Days = endDateObj && dateObj > endDateObj && dateObj <= new Date(endDateObj).setDate(new Date(endDateObj).getDate() + 7);
+
+      const isDisabled = (isBeforeStart || isAfterEnd) && !isInNext7Days;
 
       days.push(
         <Button
           key={day}
-          variant={isTodayDate ? "secondary" : "ghost"} // Nếu là hôm nay, dùng secondary
+          variant={isTodayDate ? "secondary" : isInNext7Days ? "outline" : "ghost"} // Nếu trong 7 ngày từ endDate, dùng "outline"
           className={cn("h-8 w-8 p-0 font-normal", isSelected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground")}
           onClick={() => handleSelectDate(day)}
+          disabled={isDisabled}
         >
           {day}
         </Button>
@@ -108,6 +159,10 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
 
     return days;
   };
+
+  useEffect(() => {
+    updateNavigationAvailability(currentMonth, currentYear);
+  }, []);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -155,10 +210,10 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
             </div>
 
             <div className="flex items-center space-x-1">
-              <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth}>
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth} disabled={!canPrev}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth}>
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth} disabled={!canNext}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

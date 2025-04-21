@@ -19,7 +19,6 @@ export default function ViewSessionByFileClassMaterialPage() {
       try {
         const sessionsData = await getSessionsByClassId(classId);
         setSessions(sessionsData.data);
-        console.log(sessionsData.data);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
