@@ -125,7 +125,7 @@ export default function AdminClassSettingsPage() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Link href="/dashboard">
+              <Link to="/administrator/dashboard">
                 <Button variant="outline">Cancel</Button>
               </Link>
               <Button type="submit" className="gap-2">

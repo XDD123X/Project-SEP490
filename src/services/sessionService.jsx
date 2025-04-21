@@ -133,6 +133,26 @@ export const requestChangeSessionValid = async (lecturerId, newDate, newSlot, se
   }
 };
 
+export const addSessionValid = async (classId, lecturerId, sessionDate, slot) => {
+  try {
+    const response = await axiosClient.get("/session/officer/check-conflict", {
+      params: { classId, lecturerId, sessionDate, slot },
+    });
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Request failed!",
+    };
+  }
+};
+
 export const addRequestChangeSession = async (requestChange) => {
   try {
     const response = await axiosClient.post("/Lecturer/session-change/add", requestChange);
@@ -156,6 +176,24 @@ export const deleteSession = async (sessionId) => {
     const response = await axiosClient.delete(`/Session/delete`, {
       params: { sessionId }, // Truyền qua query string
     });
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Request failed!",
+    };
+  }
+};
+
+export const addSingleSession = async (session) => {
+  try {
+    const response = await axiosClient.post("/session/officer/add-single-session", session);
 
     return {
       status: response.status,

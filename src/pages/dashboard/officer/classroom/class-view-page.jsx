@@ -248,9 +248,6 @@ export default function ClassViewPage() {
               <TableHead className="cursor-pointer" onClick={() => requestSort("endDate")}>
                 <div className="flex items-center">End {getSortDirectionIcon("endDate")}</div>
               </TableHead>
-              <TableHead>
-                <div className="flex items-center">URL</div>
-              </TableHead>
               <TableHead className="cursor-pointer" onClick={() => requestSort("status")}>
                 <div className="flex items-center">Status {getSortDirectionIcon("status")}</div>
               </TableHead>
@@ -271,42 +268,42 @@ export default function ClassViewPage() {
                   <TableCell>{classItem.classCode}</TableCell>
                   <TableCell>{classItem.className}</TableCell>
 
-                  <TableCell> {classItem.lecturer.gender === false ? 'Ms.' : 'Mr.'} {classItem.lecturer?.fullName ?? "-"}</TableCell>
+                  <TableCell>
+                    {" "}
+                    {classItem.lecturer.gender === false ? "Ms." : "Mr."} {classItem.lecturer?.fullName ?? "-"}
+                  </TableCell>
                   <TableCell>{classItem.totalSession}</TableCell>
-                  <TableCell>{classItem.startDate ? format(new Date(classItem.startDate), "d/M/yy") : "-"}</TableCell>
-                  <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "d/M/yy") : "-"}</TableCell>
-                  <TableCell>{classItem.classUrl ? <Link2 className="text-green-500 w-5" /> : <Link2Off className="text-red-500 w-5" />}</TableCell>
+                  <TableCell>{classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "-"}</TableCell>
+                  <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "-"}</TableCell>
                   <TableCell>
-                  <Badge
-                    variant={
-                      classItem.status === 0 ? "destructive"   // Disabled
-                      : classItem.status === 1 ? "secondary"  // Upcoming
-                      : classItem.status === 2 ? "info"    // Studying
-                      : "success" // Finished
-                    }
-                  >
-                    {classItem.status === 0 ? "Cancelled"
-                    : classItem.status === 1 ? "Upcoming"
-                    : classItem.status === 2 ? "Studying"
-                    : "Finished"}
-                  </Badge>
+                    <Badge
+                      variant={
+                        classItem.status === 0
+                          ? "destructive" // Disabled
+                          : classItem.status === 1
+                          ? "secondary" // Upcoming
+                          : classItem.status === 2
+                          ? "info" // Studying
+                          : "success" // Finished
+                      }
+                    >
+                      {classItem.status === 0 ? "Cancelled" : classItem.status === 1 ? "Upcoming" : classItem.status === 2 ? "Studying" : "Finished"}
+                    </Badge>
                   </TableCell>
-                  <TableCell>
-                    {classItem.classStudents.length}
-                  </TableCell>
+                  <TableCell>{classItem.classStudents.length}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                    <Link  to={`/officer/class/add-student/${classItem.classId}`}>
+                      <Link to={`/officer/class/add-student/${classItem.classId}`}>
                         <Button variant="outline" size="icon">
                           <UserPlus className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Link  to={`/officer/class/detail?classId=${classItem.classId}`}>
+                      <Link to={`/officer/class/detail?classId=${classItem.classId}`}>
                         <Button variant="outline" size="icon">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Link  to={`/officer/class/edit?classId=${classItem.classId}`}>
+                      <Link to={`/officer/class/edit?classId=${classItem.classId}`}>
                         <Button variant="outline" size="icon">
                           <Edit className="h-4 w-4" />
                         </Button>

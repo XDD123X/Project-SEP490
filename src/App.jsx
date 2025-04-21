@@ -73,6 +73,7 @@ import ViewReportByClassPage from "./pages/dashboard/officer/report/view-class-r
 import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-report-list";
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import AdminClassSettingsPage from "./pages/dashboard/admin/AdminSettingPage";
+import OfficerAddSessionPage from "./pages/dashboard/officer/session/session-add";
 
 function App() {
   return (
@@ -139,8 +140,8 @@ function App() {
                       <Route path="/Administrator">
                         <Route path="dashboard" element={<AdminDashboard />} />
 
-                        <Route path='settings' element={<DashboardPage />} />
-                        <Route path='settings/:settingId' element={<AdminClassSettingsPage />} />
+                        <Route path="settings" element={<DashboardPage />} />
+                        <Route path="settings/:settingId" element={<AdminClassSettingsPage />} />
                       </Route>
                     </Route>
                     {/* Lecturer Routes */}
@@ -179,6 +180,7 @@ function App() {
                       <Route path="/Officer">
                         <Route path="session" element={<SessionViewPage />} />
                         <Route path="session/generate" element={<SessionGeneratePage />} />
+                        <Route path="session/add" element={<OfficerAddSessionPage />} />
 
                         <Route path="class" element={<ClassViewPage />} />
                         <Route path="class/add-new" element={<ClassAddNewPage />} />

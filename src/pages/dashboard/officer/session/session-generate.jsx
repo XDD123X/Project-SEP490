@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { GetClassList } from "@/services/classService";
 import { getLecturerList } from "@/services/accountService";
-import { getCurrentSetting } from "@/services/classSettingService";
+import { getAllSetting, getCurrentSetting } from "@/services/classSettingService";
 import { generateSession } from "@/services/sessionService";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import CalendarSelector from "@/components/CalendarSelector";
@@ -30,7 +30,10 @@ const days = [
 export default function SessionGeneratePage() {
   const [classList, setClassList] = useState([]);
   const [lecturerList, setLecturerList] = useState([]);
-  const [setting, setSetting] = useState();
+
+  const [settings, setSettings] = useState([]);
+  const [selectedSetting, setSelectedSetting] = useState(null);
+
   const [preferredDays, setPreferredDays] = useState(days.map((day) => day.id));
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedLecturer, setSelectedLecturer] = useState("");
@@ -48,27 +51,36 @@ export default function SessionGeneratePage() {
   const [originalLecturer, setOriginalLecturer] = useState("");
   const [totalSessionError, setTotalSessionError] = useState(false);
 
-  // Update when setting is loaded
-  useEffect(() => {
-    if (setting) {
-      setTempTotalSessions(setting.sessionTotal);
-    }
-  }, [setting]);
-
   // Toggle edit mode for total sessions
   const toggleEditTotalSessions = () => {
-    if (!isEditingTotalSessions) {
-      // Enter edit mode
-      setIsEditingTotalSessions(true);
-      setTempTotalSessions(setting.sessionTotal);
-    } else {
-      // If saving, show confirmation dialog if value changed
-      if (tempTotalSessions !== setting.sessionTotal) {
-        setIsConfirmTotalSessionsOpen(true);
-      } else {
-        // If no change, just exit edit mode
-        setIsEditingTotalSessions(false);
+    if (isEditingTotalSessions) {
+      // Validate and save
+      const numValue = Number(tempTotalSessions);
+      if (isNaN(numValue) || numValue < 0) {
+        setTotalSessionError(true);
+        return;
       }
+
+      setTotalSessionError(false);
+
+      // Update the selected setting
+      setSelectedSetting((prev) => ({
+        ...prev,
+        sessionTotal: numValue,
+      }));
+    }
+
+    setIsEditingTotalSessions(!isEditingTotalSessions);
+  };
+
+  //change setting
+  const handleSettingChange = (settingId) => {
+    const newSetting = settings.find((s) => s.settingId.toString() === settingId);
+    if (newSetting) {
+      setSelectedSetting({ ...newSetting });
+      setTempTotalSessions(newSetting.sessionTotal.toString());
+      setIsEditingTotalSessions(false);
+      setTotalSessionError(false);
     }
   };
 
@@ -79,9 +91,9 @@ export default function SessionGeneratePage() {
 
     // Validate input: not NaN and not empty
     if (!isNaN(newSessionTotal) && tempTotalSessions.trim() !== "") {
-      if (setting) {
-        setSetting({
-          ...setting,
+      if (selectedSetting) {
+        setSelectedSetting({
+          ...selectedSetting,
           sessionTotal: newSessionTotal, // Update sessionTotal with the new value
         });
         toast.success("Total sessions updated successfully");
@@ -99,16 +111,24 @@ export default function SessionGeneratePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setisLoading(true);
         const classes = await GetClassList();
         setClassList(classes.data);
 
         const lecturers = await getLecturerList();
         setLecturerList(lecturers.data);
 
-        const setting = await getCurrentSetting();
-        setSetting(setting.data);
+        const settingResponse = await getAllSetting();
+        const filteredSettings = settingResponse.data.filter((setting) => setting.title.toLowerCase() !== "default");
+        setSettings(filteredSettings);
+        setSelectedSetting(filteredSettings[0]);
+        setTempTotalSessions(filteredSettings[0].sessionTotal.toString());
+
+        setisLoading(false);
       } catch (error) {
         toast.error("Failed to load data");
+        console.log(error);
+        setisLoading(false);
       }
     };
 
@@ -172,9 +192,9 @@ export default function SessionGeneratePage() {
       classId: selectedClass,
       lecturerId: selectedLecturer,
       startDate: new Date(startDate).toISOString(),
-      totalSessions: setting.sessionTotal,
-      slotsPerDay: setting.sessionPerWeek,
-      slotNumber: setting.slotNumber,
+      totalSessions: selectedSetting.sessionTotal,
+      sessionPerWeek: selectedSetting.sessionPerWeek,
+      slotNumber: selectedSetting.slotNumber,
       preferredDays: preferredDays,
     };
     try {
@@ -211,6 +231,7 @@ export default function SessionGeneratePage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-2">
+            {/* hiển thị thông lớp */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Class</label>
               <Select value={selectedClass} onValueChange={setSelectedClass}>
@@ -231,6 +252,7 @@ export default function SessionGeneratePage() {
                 </SelectContent>
               </Select>
             </div>
+            {/* hiển thị thông tin lecturer */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Lecturer</label>
               <div className="flex flex-col-1 justify-center items-center">
@@ -248,24 +270,36 @@ export default function SessionGeneratePage() {
                 </Select>
               </div>
             </div>
+
+            {/* hiển thị thông tin class setting */}
             <div className="flex flex-col gap-4">
+              {/* Setting Selection */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Level</label>
+                <Select value={selectedSetting?.settingId?.toString() ?? ""} onValueChange={handleSettingChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a setting level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {settings.map((setting) => (
+                      <SelectItem key={setting.settingId} value={setting.settingId.toString()}>
+                        {setting.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Total Sessions */}
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium mr-2">Total Sessions</label>
                 <div className="flex items-center space-x-2 w-full">
-                  <Input
-                    value={tempTotalSessions}
-                    disabled={!isEditingTotalSessions}
-                    onChange={(e) => setTempTotalSessions(e.target.value)}
-                    className={`flex-1 h-10 ${totalSessionError ? "border-red-500" : ""}`} // Add red border if error
-                  />
+                  <Input value={tempTotalSessions} disabled={!isEditingTotalSessions} onChange={(e) => setTempTotalSessions(e.target.value)} className={`flex-1 h-10 ${totalSessionError ? "border-red-500" : ""}`} />
                   <Button size="icon" className="h-10" onClick={toggleEditTotalSessions}>
                     {isEditingTotalSessions ? <Save className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
                   </Button>
                 </div>
-                {totalSessionError && (
-                  <p className="text-sm text-red-500 mt-2">Please enter a valid number for total sessions.</p> // Error message
-                )}
+                {totalSessionError && <p className="text-sm text-red-500 mt-2">Please enter a valid number for total sessions.</p>}
               </div>
 
               {/* Slots Per Week and Slot Per Day */}
@@ -273,17 +307,18 @@ export default function SessionGeneratePage() {
                 {/* Slots Per Week */}
                 <div className="flex-1">
                   <label className="text-sm font-medium">Max Sessions/Week</label>
-                  <Input type="number" value={setting ? setting.sessionPerWeek : 0} disabled className="h-10 w-full mt-2" />
+                  <Input type="number" value={selectedSetting?.sessionPerWeek || 0} className="h-10 w-full mt-2" disabled />
                 </div>
 
                 {/* Slot Per Day */}
                 <div className="flex-1">
                   <label className="text-sm font-medium">Slots/Day</label>
-                  <Input type="number" value={setting ? setting.slotNumber : 0} disabled className="h-10 w-full mt-2" />
+                  <Input type="number" value={selectedSetting?.slotNumber || 0} className="h-10 w-full mt-2" disabled />
                 </div>
               </div>
             </div>
 
+            {/* chọn start date */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Start Date</label>
               <CalendarSelector
@@ -321,6 +356,7 @@ export default function SessionGeneratePage() {
             )}
           </div>
 
+          {/* hiển thị danh sách session sau khi tạo */}
           {sessions.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-4">Generated Sessions for {sessions[0].className}</h3>
@@ -393,7 +429,7 @@ export default function SessionGeneratePage() {
           <DialogHeader>
             <DialogTitle>Confirm Total Sessions Change</DialogTitle>
             <p>
-              Do you want to change the total number of sessions from {setting?.sessionTotal} to {tempTotalSessions}?
+              Do you want to change the total number of sessions from {selectedSetting?.sessionTotal} to {tempTotalSessions}?
             </p>
           </DialogHeader>
           <DialogFooter>

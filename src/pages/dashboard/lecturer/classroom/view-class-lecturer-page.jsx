@@ -5,6 +5,7 @@ import { ExternalLink, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { GetLecturerClassList } from "@/services/classService";
+import { format } from "date-fns";
 
 export default function ViewClassLecturerPage() {
   const [classes, setClasses] = useState([]);
@@ -56,11 +57,7 @@ function ClassCard({ classItem }) {
 
     try {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(date);
+      return format(date, "dd/MM/yyyy");
     } catch (error) {
       console.error("Error formatting date:", error);
       return "Invalid Date";

@@ -6,7 +6,7 @@ import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 
-export default function CalendarSelector({ selectedWeek, setSelectedWeek, selectedDate, setSelectedDate, className }) {
+export default function CalendarSelector({ selectedWeek, setSelectedWeek, selectedDate, setSelectedDate, className, disable }) {
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState(selectedDate || null);
   const safeSelectedDate = selectedDate ?? new Date();
@@ -112,7 +112,7 @@ export default function CalendarSelector({ selectedWeek, setSelectedWeek, select
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className={cn("flex items-center justify-between font-normal", className || "w-[200px]")}>
+        <Button variant="outline" className={cn("flex items-center justify-between font-normal", className || "w-[200px]")} disabled={disable}>
           <CalendarIcon className="h-4 w-4 ml-2" />
           <span className="flex-1 text-center">
             {date

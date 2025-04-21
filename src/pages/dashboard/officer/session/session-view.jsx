@@ -16,6 +16,7 @@ import { getLecturerList } from "@/services/accountService";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { SessionBadge } from "@/components/BadgeComponent";
+import { Link } from "react-router-dom";
 
 // Slot options
 const slotOptions = [1, 2, 3, 4];
@@ -38,8 +39,8 @@ export default function SessionViewPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
-  const [openDelete, setOpenDelete] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [openDelete, setOpenDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [deleteId, setDeleteId] = useState();
   //errors
   const [errors, setErrors] = useState({
@@ -55,9 +56,9 @@ export default function SessionViewPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleDeleteSessionDialog = (sessionId) => {
-    setOpenDelete(true)
-    setDeleteId(sessionId)
-  }
+    setOpenDelete(true);
+    setDeleteId(sessionId);
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -242,16 +243,16 @@ export default function SessionViewPage() {
   // Handle deleting a session
   const handleDeleteSession = async () => {
     try {
-      setIsDeleting(true)
-      await deleteSession(deleteId)
-      toast.success('The session has been successfully deleted.')
-      setOpenDelete(false)
-      fetchData()
+      setIsDeleting(true);
+      await deleteSession(deleteId);
+      toast.success("The session has been successfully deleted.");
+      setOpenDelete(false);
+      fetchData();
     } catch (error) {
-      console.error("Failed to delete session:", error)
-      toast.error('Failed to delete the session. Please try again.')
+      console.error("Failed to delete session:", error);
+      toast.error("Failed to delete the session. Please try again.");
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
   };
 
@@ -304,124 +305,11 @@ export default function SessionViewPage() {
         </div>
 
         {/* add new dialog */}
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="whitespace-nowrap">
-              <Plus className="mr-2 h-4 w-4" /> Add New Session
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Session</DialogTitle>
-              <DialogDescription>Create a new session by filling out the form below.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="className" className="text-right">
-                  Class
-                </Label>
-                <Select value={newSession.classId} onValueChange={(value) => handleNewSessionChange("classId", value)} required>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {classList.map((item) => (
-                      <SelectItem key={item.classId} value={item.classId}>
-                        {" "}
-                        {item.classCode}{" "}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="lecturerName" className="text-right">
-                  Lecturer
-                </Label>
-                <Select value={newSession.lecturerId} onValueChange={(value) => handleNewSessionChange("lecturerId", value)} required>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Lecturer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {lecturers.map((lecturer) => (
-                      <SelectItem key={lecturer.accountId} value={lecturer.accountId}>
-                        {lecturer.fullName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">
-                  Date
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={newSession.date}
-                  onChange={(e) => {
-                    // Lấy giá trị từ input, tạo một đối tượng Date và chuyển đổi thành ISO string
-                    const date = new Date(e.target.value);
-                    handleNewSessionChange("sessionDate", date.toISOString()); // Chuyển thành "2025-05-13T00:00:00"
-                  }}
-                  className="col-span-3"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="slot" className="text-right">
-                  Slot
-                </Label>
-                <Select value={newSession.slot !== undefined ? newSession.slot.toString() : ""} onValueChange={(value) => handleNewSessionChange("slot", Number.parseInt(value))} required>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Slot" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {slotOptions.map((slot) => (
-                      <SelectItem key={slot} value={slot.toString()}>
-                        {slot}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="slot" className="text-right">
-                  Status
-                </Label>
-                <Select
-                  value={newSession.status?.toString() || "1"} // Đảm bảo mặc định là "1"
-                  onValueChange={(value) => handleNewSessionChange("status", Number.parseInt(value))}
-                  required
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status.id} value={status.id.toString()}>
-                        {status.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="slot" className="text-right">
-                  Description
-                </Label>
-                <Textarea className="col-span-3" value={newSession.description || ""} onChange={(e) => handleNewSessionChange("description", e.target.value)} />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddSession}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Link to={`/officer/session/add`}>
+          <Button className="whitespace-nowrap">
+            <Plus className="mr-2 h-4 w-4" /> Add New Session
+          </Button>
+        </Link>
       </div>
 
       <div className="border rounded-md">
@@ -801,9 +689,7 @@ export default function SessionViewPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Session</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this session? This action cannot be undone.
-            </DialogDescription>
+            <DialogDescription>Are you sure you want to delete this session? This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpenDelete(false)}>

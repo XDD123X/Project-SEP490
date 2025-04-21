@@ -76,8 +76,6 @@ export default function RequestChangeLecturerPage() {
     }
     const formattedNewDate = parse(format(newDate, "dd/MM/yyyy"), "dd/MM/yyyy", new Date());
     const formattedSessionDate = parse(format(session.sessionDate, "dd/MM/yyyy"), "dd/MM/yyyy", new Date());
-    // newSlot === session.slot &&
-    // isSameDay(formattedNewDate, formattedSessionDate)
     if (newSlot == session.slot && isSameDay(formattedNewDate, formattedSessionDate)) {
       console.log("111");
 
