@@ -35,7 +35,7 @@ namespace OTMS.DAL.DAO
         public async Task<List<Session>> GetByLecturerIdAsync(Guid id)
         {
             return await _context.Sessions
-                .Where(s => s.LecturerId == id)
+                .Where(s => s.LecturerId == id && s.Class.Status != 0)
                 .Include(s => s.Records)
                 .Include(s => s.Files)
                 .Include(s => s.Reports)
@@ -67,7 +67,7 @@ namespace OTMS.DAL.DAO
                                     .ToListAsync();
 
             var sessions = await _context.Sessions
-                .Where(s => classList.Contains(s.ClassId) && s.Class.Status != 0)
+                .Where(s => classList.Contains(s.ClassId) && s.Class.Status == 2)
                 .Include(s => s.Records)
                 .Include(s => s.Files)
                 .Include(s => s.Reports)

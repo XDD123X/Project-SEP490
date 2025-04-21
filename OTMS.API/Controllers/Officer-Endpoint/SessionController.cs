@@ -52,13 +52,6 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 .Select(day => (DayOfWeek)((day == 1 ? 0 : day - 1) % 7))
                 .ToList();
 
-            // Lấy thông tin class setting hiện tại
-            var classSettings = await _classSettingRepository.GetAllAsync();
-            var classSetting = classSettings.LastOrDefault();
-
-            if (classSetting == null)
-                return BadRequest(new { Success = false, Message = "Class settings not found." });
-
             // Lấy thông tin lịch rảnh của giảng viên
             var lecturerSchedule = await _lecturerScheduleRepository.GetByLecturerId(request.LecturerId);
 
@@ -103,10 +96,10 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 StartDate = request.StartDate,
                 EndDate = request.StartDate.AddYears(1), // EndDate là 1 năm sau 
                 TotalSessions = request.TotalSessions > 0 ? request.TotalSessions : classInfo.TotalSession,
-                SlotsPerDay = classSetting.SlotNumber ?? 4,
+                SlotsPerDay = request.SlotNumber ?? 4,
                 ValidDays = validDays,
                 AvailableSlots = slotAvailable,
-                MaxSessionsPerWeek = classSetting.SessionPerWeek ?? 2
+                MaxSessionsPerWeek = request.SessionPerWeek ?? 2
             };
 
             // Thông báo cho user các thông tin đã được điều chỉnh
@@ -129,7 +122,10 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
                 //update class total session
                 classInfo.TotalSession = sessions.Count();
-                classInfo.Status = 2;
+                classInfo.Status = 1;
+                classInfo.StartDate = sessions.FirstOrDefault().SessionDate;
+                classInfo.EndDate = sessions.Last().SessionDate;
+
                 await _classRepository.UpdateAsync(classInfo);
 
                 var lecturer = await _accountRepository.GetByIdAsync(request.LecturerId);
@@ -229,40 +225,38 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return Ok(new { message = "Session deleted successfully", sessionId });
         }
 
-        /// <summary>
-        /// Kiểm tra xem thời gian tạo buổi học mới có bị trùng lịch không
-        /// </summary>
-        [HttpGet("check-conflict")]
+        [HttpGet("officer/check-conflict")]
         public async Task<IActionResult> CheckScheduleConflict(
-            [FromQuery] Guid classId, 
-            [FromQuery] Guid lecturerId, 
-            [FromQuery] DateTime sessionDate, 
+            [FromQuery] Guid classId,
+            [FromQuery] Guid lecturerId,
+            [FromQuery] DateTime sessionDate,
             [FromQuery] int slot)
         {
             if (classId == Guid.Empty || lecturerId == Guid.Empty)
             {
-                return BadRequest(new { success = false, message = "ClassId và LecturerId không được để trống." });
+                return BadRequest(new { success = false, message = "ClassId and LecturerId cant not be empty." });
             }
 
             var (isConflict, message) = await _sessionRepository.CheckScheduleConflictForSingleSessionAsync(
                 classId, lecturerId, sessionDate, slot);
 
-            return Ok(new { 
-                success = true, 
-                hasConflict = isConflict, 
-                message = isConflict ? message : "Không có lịch trùng."
+            return Ok(new
+            {
+                success = true,
+                hasConflict = isConflict,
+                message = isConflict ? message : "No conflicting sessions found."
             });
         }
 
         /// <summary>
         /// Tạo một buổi học đơn lẻ mới
         /// </summary>
-        [HttpPost("add-single-session")]
+        [HttpPost("officer/add-single-session")]
         public async Task<IActionResult> AddSingleSession([FromBody] SessionSingleDTO model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { success = false, message = "Các thông tin không hợp lệ!", errors = ModelState });
+                return BadRequest(new { success = false, message = "Invalid !", errors = ModelState });
             }
 
             var (isSuccess, message) = await _sessionRepository.AddSingleSessionAsync(model);

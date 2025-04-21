@@ -6,9 +6,6 @@ namespace OTMS.BLL.DTOs
     public class SessionSingleDTO
     {
         [Required]
-        public int SessionNumber { get; set; }
-
-        [Required]
         public Guid ClassId { get; set; }
 
         [Required]

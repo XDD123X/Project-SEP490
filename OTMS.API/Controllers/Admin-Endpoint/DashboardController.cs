@@ -93,6 +93,17 @@ namespace OTMS.API.Controllers.Admin_Endpoint
             return Ok(result);
         }
 
+        [HttpGet("reports")]
+        public async Task<IActionResult> GetReportStatistics()
+        {
+            var today = DateTime.Today;
+
+            //get session of today
+            var sessions = await _sessionRepository.GetAllAsync();
+            var todaySessions = sessions.Where(s => s.SessionDate == today).ToList();
+
+            return Ok(todaySessions);
+        }
         private double CalculateChangePercent(int current, int previous)
         {
             if (previous == 0)

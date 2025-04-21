@@ -132,7 +132,7 @@ namespace OTMS.DAL.DAO
 
             if (hasLecturerConflict)
             {
-                return (true, "Giảng viên đã có lịch dạy vào thời gian này.");
+                return (true, "Lecturer is already scheduled at this time.");
             }
 
             // Kiểm tra xem có session nào của lớp này vào cùng thời điểm không
@@ -144,7 +144,7 @@ namespace OTMS.DAL.DAO
 
             if (hasClassConflict)
             {
-                return (true, "Lớp học đã có lịch vào thời gian này.");
+                return (true, "Class is already scheduled at this time.");
             }
 
             // Lấy danh sách sinh viên trong lớp
@@ -171,11 +171,11 @@ namespace OTMS.DAL.DAO
 
                 if (hasStudentConflict)
                 {
-                    return (true, "Sinh viên trong lớp đã có lịch học vào thời gian này.");
+                    return (true, "Students in the class already have a class scheduled at this time.");
                 }
             }
 
-            return (false, "Không có lịch trùng.");
+            return (false, "No conflicting sessions found.");
         }
 
         public async Task<(bool isSuccess, string message)> AddSingleSessionAsync(SessionSingleDTO sessionDTO)
@@ -186,14 +186,14 @@ namespace OTMS.DAL.DAO
                 var classInfo = await _context.Classes.FindAsync(sessionDTO.ClassId);
                 if (classInfo == null)
                 {
-                    return (false, "Không tìm thấy thông tin lớp học.");
+                    return (false, "Class information not found.");
                 }
 
                 // Kiểm tra thông tin giảng viên
                 var lecturer = await _context.Accounts.FindAsync(sessionDTO.LecturerId);
                 if (lecturer == null)
                 {
-                    return (false, "Không tìm thấy thông tin giảng viên.");
+                    return (false, " Lecturer information not found.");
                 }
 
                 // Kiểm tra xung đột lịch
@@ -205,11 +205,15 @@ namespace OTMS.DAL.DAO
                     return (false, conflictMessage);
                 }
 
+                //Get Session Number
+                var lastSession = await _context.Sessions.Where(s => s.ClassId == sessionDTO.ClassId).LastOrDefaultAsync();
+                var newSessionNumber = lastSession.SessionNumber + 1;
+
                 // Tạo session mới
                 var newSession = new Session
                 {
                     SessionId = Guid.NewGuid(),
-                    SessionNumber = sessionDTO.SessionNumber,
+                    SessionNumber = newSessionNumber ?? 0,
                     ClassId = sessionDTO.ClassId,
                     LecturerId = sessionDTO.LecturerId,
                     SessionDate = sessionDTO.SessionDate,
@@ -224,18 +228,18 @@ namespace OTMS.DAL.DAO
                 await _context.SaveChangesAsync();
 
                 // Cập nhật tổng số buổi học của lớp nếu cần
-                if (classInfo.TotalSession < sessionDTO.SessionNumber)
+                if (classInfo.TotalSession < newSessionNumber)
                 {
-                    classInfo.TotalSession = sessionDTO.SessionNumber;
+                    classInfo.TotalSession = newSessionNumber ?? 0;
                     _context.Classes.Update(classInfo);
                     await _context.SaveChangesAsync();
                 }
 
-                return (true, "Tạo buổi học thành công.");
+                return (true, " Session created successfully.");
             }
             catch (Exception ex)
             {
-                return (false, $"Lỗi khi tạo buổi học: {ex.Message}");
+                return (false, $"Error creating session: {ex.Message}");
             }
         }
     }

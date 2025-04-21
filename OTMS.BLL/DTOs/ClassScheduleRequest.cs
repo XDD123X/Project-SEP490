@@ -12,10 +12,12 @@ namespace OTMS.BLL.DTOs
         public Guid ClassId { get; set; }
         public Guid LecturerId { get; set; }
         public DateTime StartDate { get; set; }
-        
-        // Số buổi học cần lập lịch
+
+        // Setting
         public int TotalSessions { get; set; }
-        
+        public int? SessionPerWeek { get; set; }
+        public int? SlotNumber { get; set; }
+
         // Ngày mong muốn học (thứ 2, thứ 3, v.v.)
         public List<int>? PreferredDays { get; set; }
     }
