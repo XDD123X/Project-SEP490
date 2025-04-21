@@ -206,8 +206,11 @@ namespace OTMS.DAL.DAO
                 }
 
                 //Get Session Number
-                var lastSession = await _context.Sessions.Where(s => s.ClassId == sessionDTO.ClassId).LastOrDefaultAsync();
-                var newSessionNumber = lastSession.SessionNumber + 1;
+                var lastSession = await _context.Sessions
+                                    .Where(s => s.ClassId == sessionDTO.ClassId)
+                                    .OrderByDescending(s => s.SessionNumber)
+                                    .FirstOrDefaultAsync();
+                var newSessionNumber = lastSession != null ? lastSession.SessionNumber + 1 : 1;
 
                 // Tạo session mới
                 var newSession = new Session
