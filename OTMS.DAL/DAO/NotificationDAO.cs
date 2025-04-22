@@ -50,6 +50,8 @@ namespace OTMS.DAL.DAO
 
             //all
             var notifications = await _context.Notifications
+                .Include(n => n.NotificationRoles)
+                .Include(n => n.NotificationAccounts)
                 .Include(n => n.CreatedByNavigation)
                 .ThenInclude(a => a.Role)
                 .ToListAsync();
