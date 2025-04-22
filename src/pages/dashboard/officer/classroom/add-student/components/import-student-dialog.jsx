@@ -88,91 +88,87 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
 
   // Process data after mapping
   const handleProcessData = () => {
-    // Validate that email column is mapped
     if (columnMapping.email === -1) {
       alert("Email column must be mapped");
       return;
     }
 
-    // Lấy danh sách email từ studentsData để so sánh
     const studentMap = new Map(studentsData.map((student) => [student.email, student]));
-
-    // Map để kiểm tra trùng email trong students
     const emailSet = new Set();
 
     const students = fileData.map((row, index) => {
-      let email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
-      email = normalizeEmail(email);
+      // Xử lý email
+      let rawEmail = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+      rawEmail = rawEmail?.toString().trim();
+      let email = normalizeEmail(rawEmail);
+
+      // Nếu không hợp lệ, gán email giả
       if (!email) {
-        return null;
+        email = `INVALID: "${rawEmail}"`;
       }
 
-      const fullName = columnMapping.fullName !== -1 ? row[columnMapping.fullName] : "";
+      // Kiểm tra student có tồn tại không
       const existingStudent = studentMap.get(email);
-      console.log(`exists ${email}: `, existingStudent);
+      const isExisted = !!existingStudent;
 
-      // Kiểm tra email có trong danh sách studentsData không
-      if (!existingStudent) {
-        return {
-          accountId: null,
-          email: email,
-          fullName: fullName,
-          roleId: null,
-          fulltime: null,
-          phoneNumber: null,
-          dob: null,
-          gender: null,
-          imgUrl: null,
-          meetUrl: null,
-          status: null,
-          createdAt: null,
-          updatedAt: null,
-          role: null,
-          available: false,
-        };
+      // Kiểm tra trùng email trong file
+      const isDuplicate = emailSet.has(email);
+      emailSet.add(email);
+
+      // Full name
+      let fullNameRaw = columnMapping.fullName !== -1 ? row[columnMapping.fullName] : "";
+      const fullName =
+        fullNameRaw
+          ?.toString()
+          .replace(/[^a-zA-ZÀ-ỹ\s]/g, "")
+          .trim() || null;
+
+      // Phone number
+      let phoneNumber = columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : "";
+      const phoneDigits = (phoneNumber || "").toString().replace(/\D/g, "");
+      phoneNumber = phoneDigits.length === 10 ? phoneDigits : "0000000000";
+
+      // Date of birth
+      let dob = "2000-01-01T00:00:00.000Z";
+      if (columnMapping.dob !== -1 && row[columnMapping.dob]) {
+        const parsed = new Date(row[columnMapping.dob]);
+        if (!isNaN(parsed)) dob = parsed.toISOString();
       }
 
-      // Get gender value
-      let gender = existingStudent.gender; // Lấy giới tính từ studentsData
-      if (columnMapping.gender !== -1) {
-        const genderValue = row[columnMapping.gender].toLowerCase();
-        gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false");
-      }
-
-      // Kiểm tra trùng email trong students
-      if (emailSet.has(email)) {
-        existingStudent.available = false; // Nếu trùng email, set available = false
-      } else {
-        existingStudent.available = true; // Nếu không trùng email, set available = true
-        emailSet.add(email); // Thêm email vào Set để kiểm tra sau
+      // Gender
+      let gender = null;
+      if (columnMapping.gender !== -1 && row[columnMapping.gender]) {
+        const genderVal = row[columnMapping.gender]?.toString().toLowerCase();
+        gender = !["female", "f", "0", "false"].includes(genderVal);
       }
 
       return {
-        accountId: existingStudent.accountId || `import-${index}`,
-        email: existingStudent.email,
-        fullName: existingStudent.fullName || fullName,
-        roleId: existingStudent.roleId || "b5ec52be-e7ea-442c-927e-f023416f2202",
-        fulltime: existingStudent.fulltime ?? true,
-        phoneNumber: existingStudent.phoneNumber || (columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : ""),
-        dob: existingStudent.dob || (columnMapping.dob !== -1 ? row[columnMapping.dob] : "2000-01-01"),
-        gender: gender,
-        imgUrl: existingStudent.imgUrl || "https://ui.shadcn.com/avatars/shadcn.jpg",
-        meetUrl: existingStudent.meetUrl || "https://example.com/meet/euf-nwbu-cet",
-        status: existingStudent.status || 1,
-        createdAt: existingStudent.createdAt || new Date().toISOString(),
-        updatedAt: existingStudent.updatedAt || null,
-        role: existingStudent.role || null,
-        available: existingStudent.available,
+        accountId: isExisted ? existingStudent.accountId : `import-${index}`,
+        email,
+        fullName: isExisted ? existingStudent.fullName || fullName : fullName,
+        roleId: isExisted ? existingStudent.roleId : null,
+        fulltime: isExisted ? existingStudent.fulltime ?? true : null,
+        phoneNumber: isExisted ? existingStudent.phoneNumber || phoneNumber : phoneNumber,
+        dob: isExisted ? existingStudent.dob || dob : dob,
+        gender: isExisted ? existingStudent.gender ?? gender : gender,
+        imgUrl: isExisted ? existingStudent.imgUrl : "https://ui.shadcn.com/avatars/shadcn.jpg",
+        meetUrl: isExisted ? existingStudent.meetUrl : "https://example.com/meet/euf-nwbu-cet",
+        status: isExisted ? existingStudent.status ?? 1 : null,
+        createdAt: isExisted ? existingStudent.createdAt : new Date().toISOString(),
+        updatedAt: isExisted ? existingStudent.updatedAt : null,
+        role: isExisted ? existingStudent.role : null,
+        available: isExisted && !isDuplicate,
       };
     });
 
-    setParsedStudents(students);
+    setParsedStudents(students.sort((a, b) => (b.available ? 1 : 0) - (a.available ? 1 : 0)));
     setStep("preview");
   };
 
   // Handle import
   const handleImport = () => {
-    onImport(parsedStudents, importMode);
+    const data = parsedStudents.filter((s) => s.available === true);
+    onImport(data, importMode);
     resetDialog();
     onClose();
   };
@@ -230,8 +226,8 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
             <p className="text-sm font-medium">File: {fileName}</p>
             <p className="text-sm">Map the columns from your file to the required fields:</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              {/* <div className="space-y-2">
                 <Label htmlFor="fullName-mapping">Full Name</Label>
                 <Select value={columnMapping.fullName.toString()} onValueChange={(value) => handleMappingChange("fullName", value)}>
                   <SelectTrigger id="fullName-mapping">
@@ -246,7 +242,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label htmlFor="email-mapping">Email (Required)</Label>
@@ -265,7 +261,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="phone-mapping">Phone Number</Label>
                 <Select value={columnMapping.phoneNumber.toString()} onValueChange={(value) => handleMappingChange("phoneNumber", value)}>
                   <SelectTrigger id="phone-mapping">
@@ -280,9 +276,9 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="dob-mapping">Date of Birth</Label>
                 <Select value={columnMapping.dob.toString()} onValueChange={(value) => handleMappingChange("dob", value)}>
                   <SelectTrigger id="dob-mapping">
@@ -297,9 +293,9 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="gender-mapping">Gender</Label>
                 <Select value={columnMapping.gender.toString()} onValueChange={(value) => handleMappingChange("gender", value)}>
                   <SelectTrigger id="gender-mapping">
@@ -314,7 +310,7 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
             </div>
 
             <div className="pt-4">
@@ -341,11 +337,11 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
                 </TableHeader>
                 <TableBody>
                   {parsedStudents.map((student, index) => (
-                    <TableRow key={index} className={student.accountId ? "text-green-500" : 'text-red-500'}>
+                    <TableRow key={index} className={student.available ? "text-green-500" : "text-red-500"}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{student.email}</TableCell>
                       <TableCell>{student.fullName || "-"}</TableCell>
-                      <TableCell className={student.accountId ? "text-green-500 font-semibold" : "text-red-500 font-semibold"}>{student.accountId ? "Available" : "Not Available"}</TableCell>
+                      <TableCell className={student.available ? "text-green-500 font-semibold" : "text-red-500 font-semibold"}>{student.available ? "Available" : "Not Available"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -384,9 +380,6 @@ export function ImportStudentsDialog({ isOpen, onClose, onImport, studentsData, 
               <Button variant="outline" onClick={() => setStep("upload")}>
                 Back
               </Button>
-              {/* <Button onClick={handleProcessData} disabled={columnMapping.email === -1}>
-                Process Data
-              </Button> */}
             </>
           )}
 

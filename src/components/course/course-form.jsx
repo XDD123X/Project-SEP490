@@ -76,6 +76,7 @@ export default function AddCourseForm({ course, isEditing = false, onSave, onCan
                 <SelectItem value="0">Cancelled</SelectItem>
                 <SelectItem value="1">Active</SelectItem>
                 <SelectItem value="2">Pending</SelectItem>
+                <SelectItem value="3">Obsolete</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="icon" onClick={() => setIsCheckingStatus(true)}>

@@ -129,11 +129,11 @@ export default function AddAccountOfficerPage() {
           fullTime: "",
         });
       } else {
-        alert(`Error: ${response.message}`);
+        toast.error(`Error: ${response.message}`);
       }
     } catch (error) {
       toast.error("Error creating account:", error);
-      alert("Failed to create account.");
+      toast.error("Failed to create account.");
     }
 
     setIsSubmitting(false);

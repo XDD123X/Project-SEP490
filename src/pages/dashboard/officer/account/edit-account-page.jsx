@@ -456,8 +456,7 @@ export function EditAccountOfficerPage() {
                 <SelectContent>
                   <SelectItem value="0">Suspended</SelectItem>
                   <SelectItem value="1">Active</SelectItem>
-                  <SelectItem value="2">Finished</SelectItem>
-                  <SelectItem value="3">Invited</SelectItem>
+                  <SelectItem value="3" disabled>Invited</SelectItem>
                 </SelectContent>
               </Select>
             </div>

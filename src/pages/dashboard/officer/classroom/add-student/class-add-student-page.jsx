@@ -25,7 +25,7 @@ export default function ClassAddStudentPage() {
         const studentList = await getStudentList();
 
         if (studentList.status === 200 || studentList.data !== null) {
-          setStudents(studentList.data);
+          setStudents(studentList.data.filter((s) => s.status === 1));
         } else {
           toast.error("Failed Fetching Data");
         }
@@ -39,15 +39,6 @@ export default function ClassAddStudentPage() {
   // Function to handle class selection
   const handleClassSelect = (classData) => {
     navigate(`/officer/class/add-student/${classData.classId}`);
-    // setClassId(classData.classId);
-    // setSelectedClass(classData);
-    // //get ids list
-    // const classStudentIds = new Set(classData.classStudents.map((cs) => cs.studentId));
-
-    // //filter
-    // const filteredStudents = students.filter((student) => !classStudentIds.has(student.accountId));
-
-    // setAllStudents(filteredStudents);
   };
 
   //handle classId
@@ -156,10 +147,9 @@ export default function ClassAddStudentPage() {
       if (uniqueStudents.length === 0) {
         toast.error(`All Students Already In The Class`);
       } else {
-        toast.success(`Added ${uniqueStudents.length} To Class Sucessfully`);
+        toast.success(`Added ${uniqueStudents.length} To Class Successfully`);
       }
 
-      // Add new students vào danh sách hiện tại
       updatedClass = {
         ...selectedClass,
         classStudents: [...selectedClass.classStudents, ...newClassStudents],
@@ -170,8 +160,8 @@ export default function ClassAddStudentPage() {
         studentId: student.accountId,
         student: student,
       }));
-      toast.success(`Added ${newClassStudents.length} To Class Sucessfully`);
-      // Replace
+      toast.success(`Added ${newClassStudents.length} To Class Successfully`);
+
       updatedClass = {
         ...selectedClass,
         classStudents: [...newClassStudents],
@@ -179,6 +169,11 @@ export default function ClassAddStudentPage() {
     }
 
     setSelectedClass(updatedClass);
+
+    // Cập nhật lại allStudents để loại bỏ những student có email trùng
+    const importedEmails = new Set(AvailableList.map((s) => s.email));
+    const updatedAllStudents = allStudents.filter((s) => !importedEmails.has(s.email));
+    setAllStudents(updatedAllStudents);
   };
 
   return (

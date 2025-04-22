@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save } from "lucide-react";
+import { Check, CircleAlert, CircleCheck, CircleXIcon, Save } from "lucide-react";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, accountsData, type }) {
   const fileInputRef = useRef(null);
@@ -86,34 +87,95 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
 
   // Process data after mapping
   const handleProcessData = () => {
-    // Kiểm tra cột email có được map không
     if (columnMapping.email === -1) {
       alert("Email column must be mapped");
       return;
     }
 
-    // Tạo Set chứa danh sách email đã tồn tại
     const existingEmails = new Set(accountsData.map((account) => account.email));
 
-    // Lọc danh sách fileData, chỉ giữ lại các email chưa tồn tại
     const newAccounts = fileData.map((row) => {
-      let email = columnMapping.email !== -1 ? row[columnMapping.email] : "";
-      // Valid email
-      email = normalizeEmail(email);
+      let hasInvalidField = false;
+
+      // 1. Email
+      let rawEmail = columnMapping.email !== -1 ? row[columnMapping.email] : "";
+      rawEmail = rawEmail?.toString().trim();
+      let email = normalizeEmail(rawEmail);
       if (!email) {
-        return null;
+        email = rawEmail; // Giữ nguyên email nếu không hợp lệ
+        hasInvalidField = true;
       }
 
-      // Kiểm tra email đã tồn tại hay chưa
-      const existed = existingEmails.has(email);
+      const isEmailExisted = existingEmails.has(email);
 
-      const fullName = columnMapping.fullName !== -1 && row[columnMapping.fullName]?.trim() ? row[columnMapping.fullName].trim() : null;
+      // Nếu email đã tồn tại, không cần kiểm tra các trường còn lại
+      if (isEmailExisted) {
+        hasInvalidField = false;
+      }
 
-      // Xử lý giới tính nếu có
-      let gender = null;
-      if (columnMapping.gender !== -1) {
-        const genderValue = row[columnMapping.gender]?.toLowerCase();
-        gender = !(genderValue === "female" || genderValue === "f" || genderValue === "0" || genderValue === "false");
+      // 2. Full name
+      let fullName = row[columnMapping.fullName];
+      if (columnMapping.fullName !== -1 && row[columnMapping.fullName]) {
+        const name = row[columnMapping.fullName]
+          .toString()
+          .replace(/[^a-zA-ZÀ-ỹ\s]/g, "")
+          .trim();
+        if (name) {
+          fullName = name;
+        } else {
+          fullName = row[columnMapping.fullName]; // Giữ nguyên tên nếu có lỗi
+          hasInvalidField = true;
+        }
+      } else {
+        fullName = "Invalid Name";
+        hasInvalidField = true;
+      }
+
+      // 3. Phone number
+      let phoneNumber = "";
+      if (columnMapping.phoneNumber !== -1) {
+        const digits = (row[columnMapping.phoneNumber] || "").toString().replace(/\D/g, "");
+        if (digits.length === 10) {
+          phoneNumber = digits;
+        } else {
+          phoneNumber = row[columnMapping.phoneNumber] || "Invalid Phone"; // Giữ nguyên số điện thoại nếu có lỗi
+          hasInvalidField = true;
+        }
+      } else {
+        phoneNumber = "Invalid Phone";
+        hasInvalidField = true;
+      }
+
+      // 4. Date of birth
+      let dob = new Date();
+      if (columnMapping.dob !== -1 && row[columnMapping.dob]) {
+        const parsedDate = new Date(row[columnMapping.dob]);
+        if (!isNaN(parsedDate)) {
+          dob = parsedDate.toISOString();
+        } else {
+          dob = "Invalid DOB";
+          hasInvalidField = true;
+        }
+      } else {
+        dob = "Invalid DOB";
+        hasInvalidField = true;
+      }
+
+      // 5. Gender
+      let gender = "";
+      if (columnMapping.gender !== -1 && row[columnMapping.gender]) {
+        const genderValue = row[columnMapping.gender].toString().toLowerCase();
+        if (["female", "f", "0", "false"].includes(genderValue)) {
+          gender = false;
+        } else if (["male", "m", "1", "true"].includes(genderValue)) {
+          gender = true;
+        } else {
+          gender = "Invalid Gender";
+          hasInvalidField = true;
+        }
+      } else {
+        gender = "Invalid Gender";
+        hasInvalidField = true;
       }
 
       return {
@@ -121,8 +183,8 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
         fullName,
         roleId: null,
         fulltime: null,
-        phoneNumber: columnMapping.phoneNumber !== -1 ? row[columnMapping.phoneNumber] : null,
-        dob: columnMapping.dob !== -1 && row[columnMapping.dob] ? new Date(row[columnMapping.dob]).toISOString() : new Date().toISOString(),
+        phoneNumber,
+        dob,
         gender,
         imgUrl: null,
         meetUrl: null,
@@ -131,16 +193,36 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
         updatedAt: null,
         role: null,
         available: true,
-        existed,
+        existed: isEmailExisted,
+        invalid: hasInvalidField,
+        // Additional invalid fields to be explicitly marked
+        invalidFields: {
+          email: isEmailExisted ? false : email === "Invalid Email",
+          fullName: fullName === "Invalid Name",
+          phoneNumber: phoneNumber === "Invalid Phone",
+          dob: dob === "Invalid DOB",
+          gender: gender === "Invalid Gender",
+        },
       };
     });
 
-    setParsedAccounts(newAccounts.sort((a, b) => b.email.localeCompare(a.email)));
+    // Sort accounts: !invalid !existed -> invalid -> existed
+    setParsedAccounts(
+      newAccounts.sort((a, b) => {
+        const getPriority = (acc) => {
+          if (acc.existed) return 2; // Existed accounts have the lowest priority
+          if (acc.invalid) return 1; // Invalid accounts come second
+          return 0; // Valid accounts have the highest priority
+        };
+        return getPriority(a) - getPriority(b);
+      })
+    );
+
     setStep("preview");
   };
 
   const handleImport = () => {
-    const filteredAccounts = parsedAccounts.filter(account => account.existed === false || account.existed === undefined);
+    const filteredAccounts = parsedAccounts.filter((account) => account.existed === false || account.existed === undefined);
     onImport(filteredAccounts); // Chỉ import tài khoản chưa tồn tại
     resetDialog();
     onClose();
@@ -174,9 +256,24 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
     onClose();
   };
 
+  const handleInputChange = (index, field, value) => {
+    const updated = [...parsedAccounts];
+    updated[index][field] = value;
+
+    // Sau khi chỉnh sửa có thể reset invalid của field
+    if (updated[index].invalid?.[field]) {
+      delete updated[index].invalid[field];
+      if (Object.keys(updated[index].invalid).length === 0) {
+        delete updated[index].invalid;
+      }
+    }
+
+    setParsedAccounts(updated);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[800px]">
+      <DialogContent className="sm:max-w-[1000px]">
         <DialogHeader>
           <DialogTitle>Import {type}</DialogTitle>
         </DialogHeader>
@@ -304,14 +401,18 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
               Preview: {parsedAccounts.length} {type} found
             </p>
 
-            <ScrollArea className="h-[300px] rounded-md border">
+            <ScrollArea className="h-[400px] rounded-md border p-2">
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead></TableHead>
                     <TableHead>#</TableHead>
+
                     <TableHead>Email</TableHead>
                     {parsedAccounts.some((account) => account.existed) ? (
-                      <TableHead>Exist</TableHead>
+                      <TableHead colSpan={4} className="text-center">
+                        Available
+                      </TableHead>
                     ) : (
                       <>
                         <TableHead>Name</TableHead>
@@ -322,19 +423,71 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
                     )}
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
                   {parsedAccounts.map((account, index) => (
                     <TableRow key={index}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell className={account.existed ? "text-red-500" : ""}>{account.email}</TableCell>
+                      <TableCell className="">
+                        {!account.invalid && !account.existed ? (
+                          <CircleCheck className="w-4 h-4 text-green-500" />
+                        ) : account.invalid ? (
+                          <CircleAlert className="w-4 h-4 text-yellow-500" /> // Biểu tượng cảnh báo cho invalid
+                        ) : account.existed ? (
+                          <CircleXIcon className="w-4 h-4 text-red-500" /> // Biểu tượng X cho existed
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="">{index + 1}</TableCell>
+
+                      {/* Email */}
+                      <TableCell>
+                        <Input value={account.email} disabled={!account.invalid} className={cn("w-full", account.invalidFields?.email && "border-red-500")} onChange={(e) => handleInputChange(index, "email", e.target.value)} />
+                      </TableCell>
+
                       {account.existed ? (
-                        <TableCell className="text-red-500">Already Added</TableCell>
+                        <TableCell colSpan={4} className="text-red-500 text-center">
+                          Existed
+                        </TableCell>
                       ) : (
                         <>
-                          <TableCell>{account.fullName || "-"}</TableCell>
-                          <TableCell>{account.phoneNumber || "-"}</TableCell>
-                          <TableCell>{format(account.dob, "dd/MM/yyyy") || "-"}</TableCell>
-                          <TableCell>{account.gender ? "Male" : "Female"}</TableCell>
+                          {/* Full Name */}
+                          <TableCell>
+                            <Input value={account.fullName} disabled={!account.invalid} className={cn("w-full", account.invalidFields?.fullName && "border-red-500")} onChange={(e) => handleInputChange(index, "fullName", e.target.value)} />
+                          </TableCell>
+
+                          {/* Phone Number */}
+                          <TableCell>
+                            <Input value={account.phoneNumber} disabled={!account.invalid} className={cn("w-full", account.invalidFields?.phoneNumber && "border-red-500")} onChange={(e) => handleInputChange(index, "phoneNumber", e.target.value)} />
+                          </TableCell>
+
+                          {/* DOB */}
+                          <TableCell>
+                            <Input
+                              type="date"
+                              value={account.dob !== "Invalid DOB" ? format(new Date(account.dob), "yyyy-MM-dd") : ""}
+                              placeholder="Invalid DOB"
+                              disabled={!account.invalid}
+                              className={cn("w-full", account.invalidFields?.dob && "border-red-500")}
+                              onChange={(e) => handleInputChange(index, "dob", e.target.value)}
+                            />
+                          </TableCell>
+
+                          {/* Gender */}
+                          <TableCell>
+                            <Select
+                              disabled={!account.invalid} // Disable khi không hợp lệ
+                              value={account.gender === "Invalid Gender" ? "" : account.gender ? "Male" : "Female"}
+                              onValueChange={(value) => handleInputChange(index, "gender", value === "Male" ? true : value === "Female" ? false : null)} // Cập nhật giá trị khi người dùng chọn
+                              className={cn("w-full px-2 py-1 border rounded", account.invalidFields ? "border-red-500" : "")} // Thêm border đỏ khi invalid
+                            >
+                              <SelectTrigger className={` ${account.invalidFields?.gender && "border border-red-500"} `}>
+                                <SelectValue placeholder="Select Gender" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Male">Male</SelectItem>
+                                <SelectItem value="Female">Female</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
                         </>
                       )}
                     </TableRow>

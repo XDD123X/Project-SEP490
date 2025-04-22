@@ -92,7 +92,7 @@ export default function StudentClassPage() {
                 <Button variant="outline" onClick={() => handleDetailClick(classItem)} className="flex-1">
                   Detail
                 </Button>
-                <Button className="flex-1" onClick={() => window.open(classItem.classUrl, "_blank")}>
+                <Button className="flex-1" onClick={() => window.open(classItem.lecturer.meetUrl, "_blank")}>
                   Online Meeting
                 </Button>
               </CardFooter>
@@ -161,7 +161,7 @@ export default function StudentClassPage() {
             </div>
             <div className="w-full mt-4">
               <Button asChild className="w-full">
-                <Link href={selectedClass.classUrl} target="_blank" className="w-full text-center">
+                <Link onClick={() => window.open(selectedClass.lecturer.meetUrl, "_blank")} target="_blank" className="w-full text-center">
                   Join Online Class
                 </Link>
               </Button>

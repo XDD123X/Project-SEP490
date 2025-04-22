@@ -12,6 +12,10 @@ export function ClassStudentsCard({ classData, onRemoveStudent }) {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  useState(() => {
+    console.log(classData);
+  }, []);
+
   const sortedByEmail = classData.classStudents.sort((a, b) => {
     return a.student.email.localeCompare(b.student.email, undefined, { numeric: true });
   });
@@ -60,7 +64,14 @@ export function ClassStudentsCard({ classData, onRemoveStudent }) {
                       <Button variant="ghost" size="icon" onClick={() => handleViewStudent(cs.student)} title="View student details">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onRemoveStudent(cs.studentId)} title="Remove from class" className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                      <Button
+                        disabled={cs.student.status === 1 && cs.status === 1 && classData.status === 2}
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onRemoveStudent(cs.studentId)}
+                        title="Remove from class"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
                         <UserMinus className="h-4 w-4" />
                       </Button>
                     </TableCell>

@@ -1,6 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
-import { Search, Edit, Trash2, Check, Clock, X, Eye, Link2, Link2Off, ChevronUp, ChevronDown, Minus, ArrowUpDown, Upload, Download, FileDown, Loader2 } from "lucide-react";
+import { Search, Edit, Trash2, Eye, ChevronUp, ChevronDown, Upload, Download, FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -36,7 +35,7 @@ export default function ViewStudentManagementPage() {
       if (studentList.status === 200 && accountList.status === 200) {
         const students = studentList?.data || [];
         setAccounts(accountList.data);
-        const sortedStudents = students.length > 0 ? [...students].sort((a, b) => b.fullName.localeCompare(a.fullName)) : [];
+        const sortedStudents = students.length > 0 ? [...students].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
         setStudents(sortedStudents);
       }
     } catch (error) {
@@ -133,7 +132,7 @@ export default function ViewStudentManagementPage() {
 
   // Handle deleting a student
   const handleDeleteStudent = (studentId) => {
-    if (confirm("Are you sure you want to delete this session?")) {
+    if (confirm("Are you sure you want to delete this student?")) {
       ("");
     }
   };
