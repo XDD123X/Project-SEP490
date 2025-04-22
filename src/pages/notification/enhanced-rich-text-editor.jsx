@@ -1,18 +1,13 @@
-import { useState, KeyboardEvent, ChangeEvent, useRef, FormEvent } from "react";
+import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bold, Italic, Underline, List, ListOrdered, Quote, Code, Heading1, Heading2, Link, Copy, Check } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
 
 export default function NewRichTextEditor({ value, onChange }) {
   const [text, setText] = useState(value || "");
-  const [htmlOutput, setHtmlOutput] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const textareaRef = useRef(null);
 
   const handleKeyDown = (e) => {
@@ -38,8 +33,9 @@ export default function NewRichTextEditor({ value, onChange }) {
   };
 
   const handleChange = (e) => {
-    setText(e.target.value);
-    const html = convertToHtml(text)
+    const newText = e.target.value;
+    setText(newText);
+    const html = convertToHtml(newText);
     onChange(html);
   };
 
@@ -71,14 +67,14 @@ export default function NewRichTextEditor({ value, onChange }) {
 
     let formattedText = inputText
       // Convert markdown-like syntax to HTML
+      .replace(/^## (.*?)$/gm, "<h2>$1</h2>") // H2 phải trước H1
+      .replace(/^# (.*?)$/gm, "<h1>$1</h1>")
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
       .replace(/__(.*?)__/g, "<u>$1</u>")
       .replace(/`(.*?)`/g, "<code>$1</code>")
-      .replace(/^# (.*?)$/gm, "<h1>$1</h1>")
-      .replace(/^## (.*?)$/gm, "<h2>$1</h2>")
       .replace(/^> (.*?)$/gm, "<blockquote>$1</blockquote>")
-      .replace(/\[([^\]]+)\]$$([^)]+)$$/g, '<a href="$2">$1</a>');
+      .replace(/\[([^\]]+)\]\$\$\(([^)]+)\)\$\$/g, '<a href="$2">$1</a>');
 
     // Handle lists
     const lines = formattedText.split("\n");
@@ -126,46 +122,6 @@ export default function NewRichTextEditor({ value, onChange }) {
   const formatTextForPreview = () => {
     if (!text) return <p className="text-muted-foreground italic">Preview will appear here...</p>;
     return <div dangerouslySetInnerHTML={{ __html: convertToHtml(text) }} />;
-  };
-
-  // Get HTML format for display
-  const getHtmlFormat = () => {
-    if (!text) return "<p>Your HTML will appear here...</p>";
-
-    // Escape HTML characters for display purposes only
-    return convertToHtml(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  };
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!text.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter some content before submitting.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Convert markdown to HTML
-    const html = convertToHtml(text);
-    setHtmlOutput(html);
-    setIsDialogOpen(true);
-  };
-
-  // Copy HTML to clipboard
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(htmlOutput);
-    setCopied(true);
-
-    toast({
-      title: "Copied!",
-      description: "HTML has been copied to clipboard",
-    });
-
-    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -233,7 +189,6 @@ export default function NewRichTextEditor({ value, onChange }) {
               <CardTitle className="text-sm">Output</CardTitle>
               <TabsList>
                 <TabsTrigger value="preview">Preview</TabsTrigger>
-                <TabsTrigger value="html">HTML</TabsTrigger>
               </TabsList>
             </div>
           </CardHeader>
@@ -241,41 +196,9 @@ export default function NewRichTextEditor({ value, onChange }) {
             <TabsContent value="preview" className="mt-0">
               <div className="p-4 min-h-[150px] bg-muted/30 rounded-md">{formatTextForPreview()}</div>
             </TabsContent>
-            <TabsContent value="html" className="mt-0">
-              <div className="p-4 min-h-[150px] bg-muted/30 rounded-md overflow-auto">
-                <pre className="text-xs font-mono whitespace-pre-wrap">
-                  <code dangerouslySetInnerHTML={{ __html: getHtmlFormat() }} />
-                </pre>
-              </div>
-            </TabsContent>
           </CardContent>
         </Tabs>
       </Card>
-
-      {/* HTML Output Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>HTML Output</DialogTitle>
-            <DialogDescription>Your content has been converted to HTML format.</DialogDescription>
-          </DialogHeader>
-          <div className="p-4 bg-muted/30 rounded-md max-h-[300px] overflow-auto">
-            <pre className="text-xs font-mono whitespace-pre-wrap">
-              <code
-                dangerouslySetInnerHTML={{
-                  __html: htmlOutput.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                }}
-              />
-            </pre>
-          </div>
-          <DialogFooter className="sm:justify-start">
-            <Button type="button" variant="secondary" onClick={copyToClipboard} className="gap-2">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? "Copied" : "Copy HTML"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

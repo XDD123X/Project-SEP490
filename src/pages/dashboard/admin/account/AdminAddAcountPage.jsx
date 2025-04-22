@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { addAccount } from "@/services/accountService";
 
-export default function AddAccountOfficerPage() {
+export default function AdminAddAcountPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -197,6 +197,7 @@ export default function AddAccountOfficerPage() {
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="officer">Officer</SelectItem>
                   <SelectItem value="student">Student</SelectItem>
                   <SelectItem value="lecturer">Lecturer</SelectItem>
                 </SelectContent>

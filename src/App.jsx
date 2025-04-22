@@ -74,6 +74,8 @@ import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import AdminClassSettingsPage from "./pages/dashboard/admin/AdminSettingPage";
 import OfficerAddSessionPage from "./pages/dashboard/officer/session/session-add";
+import AdminAccountPage from "./pages/dashboard/admin/account/AdminAccountPage";
+import AdminAddAcountPage from "./pages/dashboard/admin/account/AdminAddAcountPage";
 
 function App() {
   return (
@@ -138,7 +140,11 @@ function App() {
                     {/* Admin Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["administrator"]} />}>
                       <Route path="/Administrator">
+                        <Route path="" element={<AdminDashboard />} />
                         <Route path="dashboard" element={<AdminDashboard />} />
+
+                        <Route path="accounts" element={<AdminAccountPage />} />
+                        <Route path="accounts/add" element={<AdminAddAcountPage />} />
 
                         <Route path="settings" element={<DashboardPage />} />
                         <Route path="settings/:settingId" element={<AdminClassSettingsPage />} />

@@ -38,7 +38,7 @@ const roleBasedData = {
         icon: User,
         items: [
           { title: "View Account List", url: "/administrator/accounts" },
-          { title: "Add New", url: "/administrator/account/add" },
+          { title: "Add New", url: "/administrator/accounts/add" },
         ],
       },
       {
@@ -46,8 +46,8 @@ const roleBasedData = {
         url: "notifications",
         icon: Bell,
         items: [
-          { title: "View Notifications", url: "/administrator/view" },
-          { title: "Add New", url: "/administrator/add" },
+          { title: "View Notifications", url: "/notification/list" },
+          { title: "Add New", url: "/notification/add" },
         ],
       },
     ],
@@ -58,8 +58,6 @@ const roleBasedData = {
     general: [
       { title: "Dashboard", url: "/administrator/dashboard", icon: LayoutDashboard },
       { title: "Notification", url: "notification", icon: Bell },
-      { title: "Settings", url: "class-setting", icon: Settings2 },
-      { title: "Reports", url: "reports", icon: FileText },
     ],
   },
   lecturer: {

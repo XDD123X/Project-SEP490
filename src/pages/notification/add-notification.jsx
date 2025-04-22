@@ -49,6 +49,14 @@ export default function AddNotificationPage() {
           let filteredClasses = classRes.data;
 
           //role
+          if (role.toLowerCase() === "administrator") {
+            filteredRoles = roleRes.data.filter((r) => r === "Lecturer" || r === "Student" || r === "Officer");
+          }
+
+          if (role.toLowerCase() === "officer") {
+            filteredRoles = roleRes.data.filter((r) => r === "Lecturer" || r === "Student");
+          }
+
           if (role.toLowerCase() === "officer") {
             filteredRoles = roleRes.data.filter((r) => r === "Lecturer" || r === "Student");
           }
@@ -72,7 +80,7 @@ export default function AddNotificationPage() {
   useEffect(() => {
     let newOptions = [];
 
-    if (role.toLowerCase() === "admin") {
+    if (role.toLowerCase() === "administrator") {
       newOptions.push({ value: "0", label: "All" }, { value: "1", label: "Role" }, { value: "2", label: "Course" }, { value: "3", label: "Class" });
     } else if (role.toLowerCase() === "officer") {
       newOptions.push({ value: "0", label: "All" }, { value: "1", label: "Role" }, { value: "2", label: "Course" }, { value: "3", label: "Class" });
@@ -93,6 +101,10 @@ export default function AddNotificationPage() {
     let newErrors = {};
 
     //valid form
+    if (!notificationType || notificationType.trim() === "") {
+      newErrors.notificationType = "Please select notification type";
+    }
+
     if (notificationType === "1" && (!selectedRole || selectedRole.trim() === "")) {
       newErrors.selectedRole = "Please select a role";
     }
@@ -112,6 +124,7 @@ export default function AddNotificationPage() {
 
     if (Object.keys(newErrors).length !== 0) {
       toast.warning("Please Fill All Required Field");
+      return;
     }
 
     let notificationData = {
@@ -120,6 +133,7 @@ export default function AddNotificationPage() {
       type: Number.parseInt(notificationType),
       emailSend: emailSend,
     };
+    console.log(notificationData);
 
     switch (notificationData.type) {
       case 0:
@@ -150,9 +164,6 @@ export default function AddNotificationPage() {
     } catch (error) {
       toast.error(error);
     }
-
-    // Redirect back to notifications page
-    navigate("/notification/list");
   };
 
   return (
@@ -186,6 +197,7 @@ export default function AddNotificationPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.notificationType && <p className="text-red-500 text-sm">{errors.notificationType}</p>}
             </div>
 
             {/* Role Selection */}

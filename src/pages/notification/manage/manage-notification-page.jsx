@@ -35,6 +35,8 @@ export default function ManageNotificationPage() {
         const response = await GetNotificationManagement(user.uid);
         if (response.status === 200) {
           setNotifications(response.data);
+          console.log(response.data);
+          
         }
       } catch (error) {
         console.error("Failed to fetch notifications:", error);
@@ -48,10 +50,6 @@ export default function ManageNotificationPage() {
 
   const handleView = (id) => {
     navigate(`/notification/detail/${id}`);
-  };
-
-  const handleEdit = (id) => {
-    navigate(`/notification/edit/${id}`);
   };
 
   const handleDelete = async () => {
@@ -123,7 +121,6 @@ export default function ManageNotificationPage() {
                     <TableHead>Type</TableHead>
                     <TableHead>Created By</TableHead>
                     <TableHead>Created At</TableHead>
-                    <TableHead>Updated At</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -132,18 +129,12 @@ export default function ManageNotificationPage() {
                     <TableRow key={notification.notificationId}>
                       <TableCell className="font-medium max-w-[250px] whitespace-nowrap overflow-hidden truncate">{notification.title}</TableCell>
                       <TableCell>{getTypeLabel(notification.type)}</TableCell>
-                      <TableCell>
-                        {notification.createdByNavigation.role.name} {notification.createdByNavigation.fullName}
-                      </TableCell>
-                      <TableCell>{format(notification.createdAt, "H:mma dd/MM/yyyy")}</TableCell>
-                      <TableCell>{notification.updatedAt ? format(notification.updatedAt, "H:mma dd/MM/yyyy") : "-"}</TableCell>
+                      <TableCell>{notification.createdByNavigation.fullName}</TableCell>
+                      <TableCell>{format(notification.createdAt, "H:mm - dd/MM/yyyy")}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex space-x-2 justify-end">
                           <Button variant="outline" size="icon" onClick={() => handleView(notification.notificationId)}>
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleEdit(notification.notificationId)}>
-                            <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="outline" size="icon" onClick={() => confirmDelete(notification.notificationId)}>
                             <Trash2 className="h-4 w-4 text-red-500" />
