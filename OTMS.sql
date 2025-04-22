@@ -50,7 +50,7 @@ CREATE TABLE Course (
     course_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     course_name NVARCHAR(100) NOT NULL UNIQUE,
     description NVARCHAR(255),
-    created_by uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    created_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1
@@ -62,8 +62,8 @@ CREATE TABLE Class (
     class_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
     class_code NVARCHAR(50) NOT NULL UNIQUE,
     class_name NVARCHAR(100) NOT NULL,
-	lecturer_id uniqueidentifier FOREIGN KEY REFERENCES Account(account_id),
-    course_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Course(course_id),
+	lecturer_id uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL,
+    course_id uniqueidentifier NULL FOREIGN KEY REFERENCES Course(course_id) ON DELETE SET NULL,
     total_session INT NOT NULL,
     start_date DATETIME NULL,
     end_date DATETIME NULL,
@@ -79,8 +79,8 @@ GO
 CREATE TABLE Session (
     session_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
 	session_number INT DEFAULT 0,
-    class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id),
-    lecturer_id uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
+    class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id) ON DELETE CASCADE,
+    lecturer_id uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL,
     session_date DATETIME NOT NULL,
     slot INT NOT NULL,
     description NVARCHAR(255),
@@ -95,11 +95,11 @@ GO
 -- 6. Tạo bảng SessionRecord
 CREATE TABLE Record (
     record_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
+    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
     video_url NVARCHAR(500),
     duration NVARCHAR(20),
     description NVARCHAR(255),
-	uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
+	uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1
@@ -109,10 +109,10 @@ GO
 CREATE TABLE Report (
     report_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     record_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Record(record_id),
-    session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id),
+    session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
     analysis_data NVARCHAR(MAX) NOT NULL, -- Lưu dữ liệu phân tích dưới dạng JSON
     generated_at DATETIME DEFAULT GETDATE(),
-    generated_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id), -- Người tạo báo cáo (AI hoặc con người)
+    generated_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL, -- Người tạo báo cáo (AI hoặc con người)
     gemini_response NVARCHAR(MAX) Null,
 	status INT DEFAULT 1 -- 1: Active, 0: Inactive (hoặc có thể mở rộng trạng thái khác)
 );
@@ -121,12 +121,12 @@ GO
 -- 6. Tạo bảng SessionRecord
 CREATE TABLE [File] (
     file_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
+    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
     file_name NVARCHAR(500),
     file_url NVARCHAR(500),
     file_size NVARCHAR(20),
     description NVARCHAR(255),
-	uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id),
+	uploaded_by uniqueidentifier NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1
@@ -137,8 +137,8 @@ GO
 -- 7. Tạo bảng ClassStudent
 CREATE TABLE ClassStudent (
     class_student_id INT PRIMARY KEY IDENTITY(1,1),
-    class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id),
-    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    class_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Class(class_id) ON DELETE CASCADE,
+    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     status INT DEFAULT 1
@@ -148,8 +148,8 @@ GO
 -- 8. Tạo bảng Attendance
 CREATE TABLE Attendance (
     attendance_id INT PRIMARY KEY IDENTITY(1,1),
-    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id),
-    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    session_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
+    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
     status INT NULL DEFAULT 0,
 	note NVARCHAR(255) NULL,
     attendance_time DATETIME DEFAULT GETDATE(),
@@ -161,7 +161,7 @@ GO
 -- 9. Tạo bảng Parent
 CREATE TABLE Parent (
     parent_id uniqueidentifier PRIMARY KEY DEFAULT NEWID(),
-    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    student_id uniqueidentifier NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
     full_name NVARCHAR(100) NOT NULL,
 	gender bit DEFAULT NULL,
     phone_number NVARCHAR(20) NULL,
@@ -176,7 +176,7 @@ CREATE TABLE Notification (
     title NVARCHAR(255) NOT NULL,
     content NVARCHAR(MAX) NOT NULL,
     type INT DEFAULT 0, -- 0: chung, 1: theo role, 2: theo account
-    created_by UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    created_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL
 );
@@ -240,22 +240,21 @@ GO
 CREATE TABLE SessionChangeRequest (
     request_change_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
-    lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
-    approved_by UNIQUEIDENTIFIER NULL,
+    lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
+    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ,
     description NVARCHAR(MAX) NULL,
     note NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
-    status INT DEFAULT 0 CHECK (status IN (0, 1, 2)),
+    status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
     created_at DATETIME DEFAULT GETDATE(),
     
-    new_date DATE NOT NULL,
-    new_slot INT NOT NULL CHECK (new_slot BETWEEN 1 AND 4),
-    old_date DATE NULL,
-    old_slot INT NULL,
-
-    CONSTRAINT FK_SessionChangeRequest_ApprovedBy 
-        FOREIGN KEY (approved_by) REFERENCES Account(account_id) ON DELETE SET NULL
+    -- Thêm thông tin ngày và slot mới
+    new_date DATE NOT NULL,  -- Ngày yêu cầu đổi
+    new_slot INT NOT NULL CHECK (new_slot BETWEEN 1 AND 4), -- Slot mới yêu cầu đổi
+    old_date DATE NULL, -- Ngày cũ của buổi học
+    old_slot INT NULL -- Slot cũ của buổi học
 );
+GO
 
 -- 15. Tạo bảng ProfileChangeRequest
 CREATE TABLE ProfileChangeRequest (
@@ -263,7 +262,7 @@ CREATE TABLE ProfileChangeRequest (
     account_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
     img_url_old NVARCHAR(500) NOT NULL,
     img_url_new NVARCHAR(500) NOT NULL,
-    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
+    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
 	description NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
     status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối

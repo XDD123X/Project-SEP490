@@ -68,11 +68,11 @@ public partial class OtmsContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CDAC25B3AC");
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CD767FFE6D");
 
             entity.ToTable("Account");
 
-            entity.HasIndex(e => e.Email, "UQ__Account__AB6E61640883C3D7").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Account__AB6E616408F3EA68").IsUnique();
 
             entity.Property(e => e.AccountId)
                 .HasDefaultValueSql("(newid())")
@@ -126,7 +126,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Attendance>(entity =>
         {
-            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__20D6A968827DA14C");
+            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__20D6A968D1B1DF89");
 
             entity.ToTable("Attendance");
 
@@ -162,11 +162,11 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Class>(entity =>
         {
-            entity.HasKey(e => e.ClassId).HasName("PK__Class__FDF4798671B37E59");
+            entity.HasKey(e => e.ClassId).HasName("PK__Class__FDF47986C144C587");
 
             entity.ToTable("Class");
 
-            entity.HasIndex(e => e.ClassCode, "UQ__Class__0AF9B2E4466101ED").IsUnique();
+            entity.HasIndex(e => e.ClassCode, "UQ__Class__0AF9B2E4C40C607C").IsUnique();
 
             entity.Property(e => e.ClassId)
                 .HasDefaultValueSql("(newid())")
@@ -216,7 +216,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<ClassSetting>(entity =>
         {
-            entity.HasKey(e => e.SettingId).HasName("PK__ClassSet__256E1E3287291E72");
+            entity.HasKey(e => e.SettingId).HasName("PK__ClassSet__256E1E32709AE575");
 
             entity.ToTable("ClassSetting");
 
@@ -246,7 +246,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<ClassStudent>(entity =>
         {
-            entity.HasKey(e => e.ClassStudentId).HasName("PK__ClassStu__86B74A0BF5066F8C");
+            entity.HasKey(e => e.ClassStudentId).HasName("PK__ClassStu__86B74A0BFC164955");
 
             entity.ToTable("ClassStudent");
 
@@ -275,11 +275,11 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK__Course__8F1EF7AEECD5E30D");
+            entity.HasKey(e => e.CourseId).HasName("PK__Course__8F1EF7AE1C18733D");
 
             entity.ToTable("Course");
 
-            entity.HasIndex(e => e.CourseName, "UQ__Course__B5B2A66AA15AA885").IsUnique();
+            entity.HasIndex(e => e.CourseName, "UQ__Course__B5B2A66AD49F5F55").IsUnique();
 
             entity.Property(e => e.CourseId)
                 .HasDefaultValueSql("(newid())")
@@ -310,7 +310,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<File>(entity =>
         {
-            entity.HasKey(e => e.FileId).HasName("PK__File__07D884C6BDBA94F9");
+            entity.HasKey(e => e.FileId).HasName("PK__File__07D884C6D60CE74E");
 
             entity.ToTable("File");
 
@@ -344,7 +344,6 @@ public partial class OtmsContext : DbContext
 
             entity.HasOne(d => d.Session).WithMany(p => p.Files)
                 .HasForeignKey(d => d.SessionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__File__session_id__72C60C4A");
 
             entity.HasOne(d => d.UploadedByNavigation).WithMany(p => p.Files)
@@ -355,7 +354,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<LecturerSchedule>(entity =>
         {
-            entity.HasKey(e => e.ScheduleId).HasName("PK__Lecturer__C46A8A6F4D144E25");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__Lecturer__C46A8A6FDF368392");
 
             entity.ToTable("LecturerSchedule");
 
@@ -383,7 +382,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842FB9F496BC");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842F48D9AE09");
 
             entity.ToTable("Notification");
 
@@ -414,7 +413,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<NotificationAccount>(entity =>
         {
-            entity.HasKey(e => new { e.NotificationId, e.AccountId }).HasName("PK__Notifica__2433A6039CBACD80");
+            entity.HasKey(e => new { e.NotificationId, e.AccountId }).HasName("PK__Notifica__2433A6037A6B2AEB");
 
             entity.ToTable("NotificationAccount");
 
@@ -435,7 +434,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<NotificationRole>(entity =>
         {
-            entity.HasKey(e => new { e.NotificationId, e.RoleName }).HasName("PK__Notifica__F7DAA164E18E7A21");
+            entity.HasKey(e => new { e.NotificationId, e.RoleName }).HasName("PK__Notifica__F7DAA1643452D48A");
 
             entity.ToTable("NotificationRole");
 
@@ -451,7 +450,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Parent>(entity =>
         {
-            entity.HasKey(e => e.ParentId).HasName("PK__Parent__F2A608195985E72E");
+            entity.HasKey(e => e.ParentId).HasName("PK__Parent__F2A60819FAE19F6A");
 
             entity.ToTable("Parent");
 
@@ -482,7 +481,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<ProfileChangeRequest>(entity =>
         {
-            entity.HasKey(e => e.RequestChangeId).HasName("PK__ProfileC__046EBDB063173423");
+            entity.HasKey(e => e.RequestChangeId).HasName("PK__ProfileC__046EBDB01596102C");
 
             entity.ToTable("ProfileChangeRequest");
 
@@ -520,7 +519,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Record>(entity =>
         {
-            entity.HasKey(e => e.RecordId).HasName("PK__Record__BFCFB4DD3D944DBF");
+            entity.HasKey(e => e.RecordId).HasName("PK__Record__BFCFB4DDB75CFD6F");
 
             entity.ToTable("Record");
 
@@ -551,7 +550,6 @@ public partial class OtmsContext : DbContext
 
             entity.HasOne(d => d.Session).WithMany(p => p.Records)
                 .HasForeignKey(d => d.SessionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Record__session___6477ECF3");
 
             entity.HasOne(d => d.UploadedByNavigation).WithMany(p => p.Records)
@@ -562,11 +560,11 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.TokenId).HasName("PK__RefreshT__CB3C9E172D4BF039");
+            entity.HasKey(e => e.TokenId).HasName("PK__RefreshT__CB3C9E17C0CAC829");
 
             entity.ToTable("RefreshToken");
 
-            entity.HasIndex(e => e.Token, "UQ__RefreshT__CA90DA7AA6FC19ED").IsUnique();
+            entity.HasIndex(e => e.Token, "UQ__RefreshT__CA90DA7A11E85817").IsUnique();
 
             entity.Property(e => e.TokenId)
                 .HasDefaultValueSql("(newid())")
@@ -596,7 +594,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Report>(entity =>
         {
-            entity.HasKey(e => e.ReportId).HasName("PK__Report__779B7C58126EBDA4");
+            entity.HasKey(e => e.ReportId).HasName("PK__Report__779B7C58790CFA22");
 
             entity.ToTable("Report");
 
@@ -628,17 +626,16 @@ public partial class OtmsContext : DbContext
 
             entity.HasOne(d => d.Session).WithMany(p => p.Reports)
                 .HasForeignKey(d => d.SessionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Report__session___6C190EBB");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__760965CC8660B45A");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__760965CC7A391423");
 
             entity.ToTable("Role");
 
-            entity.HasIndex(e => e.Name, "UQ__Role__72E12F1BE1E0856C").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__Role__72E12F1BC7604687").IsUnique();
 
             entity.Property(e => e.RoleId)
                 .HasDefaultValueSql("(newid())")
@@ -664,7 +661,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<Session>(entity =>
         {
-            entity.HasKey(e => e.SessionId).HasName("PK__Session__69B13FDC5ECAF8CC");
+            entity.HasKey(e => e.SessionId).HasName("PK__Session__69B13FDCD76716D6");
 
             entity.ToTable("Session");
 
@@ -712,7 +709,7 @@ public partial class OtmsContext : DbContext
 
         modelBuilder.Entity<SessionChangeRequest>(entity =>
         {
-            entity.HasKey(e => e.RequestChangeId).HasName("PK__SessionC__046EBDB0D59C6F9C");
+            entity.HasKey(e => e.RequestChangeId).HasName("PK__SessionC__046EBDB07C4A8E8E");
 
             entity.ToTable("SessionChangeRequest");
 

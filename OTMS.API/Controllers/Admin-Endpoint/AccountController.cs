@@ -40,33 +40,6 @@ namespace OTMS.API.Controllers
             _configuration = configuration;
         }
 
-        private string GenerateRandomPassword()
-        {
-            return Guid.NewGuid().ToString("N").Substring(0, 8);
-        }
-        [HttpGet("export-template")]
-        public IActionResult ExportUserTemplate()
-        {
-            using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Account");
-
-            worksheet.Cell(1, 1).Value = "Email";
-            worksheet.Cell(1, 2).Value = "FullName";
-            worksheet.Cell(1, 3).Value = "Role";
-            worksheet.Cell(1, 4).Value = "Phone Number";
-            worksheet.Cell(1, 5).Value = "Day of birth";
-            worksheet.Cell(1, 6).Value = "Full Time";
-            worksheet.Cell(1, 7).Value = "Avatar";
-            worksheet.Cell(1, 8).Value = "status";
-
-            worksheet.Columns().AdjustToContents();
-
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-            stream.Position = 0;
-
-            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "UserTemplate.xlsx");
-        }
         [HttpGet("accounts-list")]
         public async Task<IActionResult> GetAccounts()
         {

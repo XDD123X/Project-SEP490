@@ -15,6 +15,7 @@ namespace OTMS.BLL.DTOs
 
         public Guid StudentId { get; set; }
 
+        public int? Status { get; set; }
         public virtual AccountDTO Student { get; set; } = null!;
     }
 }

@@ -245,7 +245,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 Dob = newAccount.Dob,
                 Gender = newAccount.Gender,
                 Status = 3, // Invited First Time
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
             await _accountRepository.AddAsync(account);
