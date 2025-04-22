@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Upload, XCircle, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSessionsByClassId } from "@/services/sessionService";
 import { format } from "date-fns";
@@ -83,17 +83,19 @@ export default function ViewSessionByRecordClassMaterialPage() {
                   <td className="p-3">
                     Slot {session.slot} - {format(session.sessionDate, "EEEE, dd/MM/yyyy")}
                   </td>
-                  <td className="p-3">{session.sessionRecord ? <Badge variant="outline"> {format( session.sessionRecord , 'HH:mm:ss, dd/MM/yyyy')} </Badge> : <span className="text-muted-foreground text-sm">Not Yet</span>}</td>
+                  <td className="p-3">{session.sessionRecord ? <Badge variant="outline"> {format(session.sessionRecord, "HH:mm:ss, dd/MM/yyyy")} </Badge> : <span className="text-muted-foreground text-sm">Not Yet</span>}</td>
                   <td className="p-3">
                     <SessionBadge status={session.status} />
                   </td>
                   <td className="p-3">
-                    {session.records ? (
-                      <Button size="sm" onClick={() => handleSessionSelect(session.sessionId)} disabled={session.status === 0}>
+                    {session.records.length === 0 ? (
+                      <Button size="sm" onClick={() => handleSessionSelect(session.sessionId)} disabled={session.status !== 2}>
+                        <Upload className="w-4 h-4" />
                         Upload
                       </Button>
                     ) : (
                       <Button size="sm" onClick={() => handleSessionSelect(session.sessionId)} disabled={session.status === 0}>
+                        <Pencil className="w-4 h-4" />
                         Edit
                       </Button>
                     )}

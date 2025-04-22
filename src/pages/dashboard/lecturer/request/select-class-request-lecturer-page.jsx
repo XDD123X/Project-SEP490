@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { format, isPast, isSameDay, isToday, parseISO } from "date-fns";
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MailPlus, MailX, MailWarning, MailCheck } from "lucide-react";
+import { format, isPast, isToday } from "date-fns";
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MailPlus, MailX, MailCheck, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { GetClassById } from "@/services/classService";
 import { getSessionsByClassId } from "@/services/sessionService";
 import { toast } from "sonner";
 import { SessionBadge } from "@/components/BadgeComponent";
+import { GetRequestByLecturerId } from "@/services/studentRequestService";
+import { useStore } from "@/services/StoreContext";
 
 export default function ViewRequestBySessionLecturerPage() {
   const navigate = useNavigate();
@@ -19,6 +21,8 @@ export default function ViewRequestBySessionLecturerPage() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" });
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState("5");
+  const { state } = useStore();
+  const { user } = state;
 
   useEffect(() => {
     if (classId === null || classId.trim === "") {
@@ -30,11 +34,39 @@ export default function ViewRequestBySessionLecturerPage() {
 
         if (responseClass.status === 200) {
           setClassData(responseClass.data);
+
           const responseSession = await getSessionsByClassId(responseClass.data.classId);
-          setSessions(responseSession.data);
+          const responseRequest = await GetRequestByLecturerId(user.uid);
+
+          const requests = Array.isArray(responseRequest.data) ? responseRequest.data : [];
+
+          const mergedSessions = responseSession.data.map((session) => {
+            // Lọc ra các request có sessionId trùng với session hiện tại
+            const matchingRequests = requests.filter((r) => r.sessionId === session.sessionId);
+
+            // Nếu có trùng, lấy phần tử có approvedDate lớn nhất (muộn nhất)
+            const latestRequest =
+              matchingRequests.length > 0
+                ? matchingRequests.reduce((latest, current) => {
+                    const latestDate = new Date(latest.approvedDate ?? 0);
+                    const currentDate = new Date(current.approvedDate ?? 0);
+                    return currentDate > latestDate ? current : latest;
+                  })
+                : null;
+
+            // Gộp thông tin request vào session
+            return {
+              ...session,
+              request: latestRequest,
+            };
+          });
+
+          setSessions(mergedSessions);
+          console.log(mergedSessions); // nên log cái vừa set, không phải biến cũ `sessions`
         }
       } catch (error) {
         toast.error("Failed to fetch Session By Class Id");
+        console.log(error);
       }
     };
     fetchData();
@@ -142,7 +174,8 @@ export default function ViewRequestBySessionLecturerPage() {
               Slot {getSortIcon("slot")}
             </TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Request</TableHead>
+            <TableHead>Reason</TableHead>
+            <TableHead>History</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -155,7 +188,27 @@ export default function ViewRequestBySessionLecturerPage() {
               <TableCell>
                 <SessionBadge status={session.status} />
               </TableCell>
-              <TableCell>{session.type === 1 ? (session.description || "-") : "Submitted"}</TableCell>
+              <TableCell>{session.type === 1 ? session.description || "-" : "Submitted"}</TableCell>
+              <TableCell>
+                {session.request?.status === 0 ? (
+                  <div className="flex  items-center gap-1">
+                    <Clock size={16} className="text-yellow-500" />
+                    <span>{format(session.request?.createdAt, "HH:mma, dd/MM/yyyy") || "-"}</span>
+                  </div>
+                ) : session.request?.status === 1 ? (
+                  <div className="flex  items-center gap-1">
+                    <CheckCircle size={16} className="text-green-500" />
+                    <span>{format(session.request?.approvedDate, "HH:mma, dd/MM/yyyy") || "-"}</span>
+                  </div>
+                ) : session.request?.status === 2 ? (
+                  <div className="flex  items-center gap-1">
+                    <XCircle size={16} className="text-red-500" />
+                    <span>{format(session.request?.approvedDate, "HH:mma, dd/MM/yyyy") || "-"}</span>
+                  </div>
+                ) : (
+                  <span>-</span> // Trường hợp không có status hợp lệ
+                )}
+              </TableCell>
               <TableCell className="text-right">
                 {session.type !== 1 ? (
                   <Button variant="ghost" size="icon" disabled>

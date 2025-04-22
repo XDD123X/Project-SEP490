@@ -76,6 +76,7 @@ import AdminClassSettingsPage from "./pages/dashboard/admin/AdminSettingPage";
 import OfficerAddSessionPage from "./pages/dashboard/officer/session/session-add";
 import AdminAccountPage from "./pages/dashboard/admin/account/AdminAccountPage";
 import AdminAddAcountPage from "./pages/dashboard/admin/account/AdminAddAcountPage";
+import { AdminEditAccountPage } from "./pages/dashboard/admin/account/AdminEditAccountPage";
 
 function App() {
   return (
@@ -144,7 +145,8 @@ function App() {
                         <Route path="dashboard" element={<AdminDashboard />} />
 
                         <Route path="accounts" element={<AdminAccountPage />} />
-                        <Route path="accounts/add" element={<AdminAddAcountPage />} />
+                        <Route path="account/add" element={<AdminAddAcountPage />} />
+                        <Route path="account/edit/:id" element={<AdminEditAccountPage />} />
 
                         <Route path="settings" element={<DashboardPage />} />
                         <Route path="settings/:settingId" element={<AdminClassSettingsPage />} />

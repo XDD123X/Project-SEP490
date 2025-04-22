@@ -55,7 +55,8 @@ export default function UploadMaterialBySessionPage() {
   }, [sessionId]);
 
   const handleBack = () => {
-    navigate(`/lecturer/material/${classId}`);
+    const type = uploadType === 'recordings' ? 'record' : 'material'
+    navigate(`/lecturer/${type}/${classId}`);
   };
 
   const handleFileChange = (e) => {

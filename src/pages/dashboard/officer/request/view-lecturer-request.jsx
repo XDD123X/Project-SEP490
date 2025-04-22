@@ -171,7 +171,7 @@ export default function LecturerRequestManagement() {
       const response = await UpdateLecturerRequest(updateModel);
       console.log(response);
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         toast.success(`Request ${actionType}ed successfully.`);
         fetchData();
       } else {

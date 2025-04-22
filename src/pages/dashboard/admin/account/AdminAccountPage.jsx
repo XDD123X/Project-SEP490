@@ -7,12 +7,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getAccounts, getOfficerList, importLecturerList } from "@/services/accountService";
+import { deleteAccount, getAccounts, getOfficerList, importLecturerList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
 import { AccountBadge } from "@/components/BadgeComponent";
 import { ImportAccountsOfficerDialog } from "../../officer/account/components/add-student-import-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function AdminAccountPage() {
   const [officers, setOfficers] = useState([]);
@@ -21,6 +22,9 @@ export default function AdminAccountPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState();
 
   //dialog
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
@@ -133,10 +137,30 @@ export default function AdminAccountPage() {
   };
 
   // Handle deleting a student
-  const handleDeleteLecturer = (officerId) => {
-    if (confirm("Are you sure you want to delete this session?")) {
-      ("");
+  const handleDeleteOfficer = async () => {
+    try {
+      setIsDeleting(true);
+
+      const response = await deleteAccount(deleteId);
+
+      if (response?.status === 200) {
+        setOfficers((prev) => prev.filter((officer) => officer.accountId !== deleteId));
+        toast.success("Delete Officer Successfully");
+        setIsOpenDelete(false);
+      } else {
+        toast.error("Failed to delete officer");
+      }
+    } catch (error) {
+      console.error("Failed to delete officer:", error);
+      toast.error("Failed to delete officer");
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleOpenDeleteDialog = (accountId) => {
+    setDeleteId(accountId);
+    setIsOpenDelete(true);
   };
 
   // Add this function to handle page changes
@@ -328,12 +352,12 @@ export default function AdminAccountPage() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Link to={`/officer/account/edit/${account.accountId}`}>
+                      <Link to={`/administrator/account/edit/${account.accountId}`}>
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button disabled={account.status != 0} variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDeleteLecturer(account)}>
+                      <Button disabled={account.status != 0} variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleOpenDeleteDialog(account.accountId)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -343,7 +367,7 @@ export default function AdminAccountPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={11} className="text-center py-8">
-                  No lecturers found
+                  No officers found
                 </TableCell>
               </TableRow>
             )}
@@ -431,10 +455,28 @@ export default function AdminAccountPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">
           <div className="flex flex-col items-center gap-2">
             <Spinner />
-            <h2 className="text-lg font-medium">Adding Lecturer...</h2>
+            <h2 className="text-lg font-medium">Adding Officer...</h2>
           </div>
         </div>
       )}
+
+      {/* delete dialog */}
+      <Dialog open={isOpenDelete} onOpenChange={setIsOpenDelete}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Officer</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this officer? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row justify-end gap-2 sm:justify-end">
+            <Button type="button" variant="outline" onClick={() => setIsOpenDelete(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" onClick={handleDeleteOfficer} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

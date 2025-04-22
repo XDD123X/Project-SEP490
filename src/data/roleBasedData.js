@@ -38,7 +38,7 @@ const roleBasedData = {
         icon: User,
         items: [
           { title: "View Account List", url: "/administrator/accounts" },
-          { title: "Add New", url: "/administrator/accounts/add" },
+          { title: "Add New", url: "/administrator/account/add" },
         ],
       },
       {

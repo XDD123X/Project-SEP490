@@ -44,6 +44,7 @@ export default function RequestChangeLecturerPage() {
         }
       } catch (error) {
         toast.error("Failed to fetch session data");
+        console.log(error);
       }
     };
     fetchData();
@@ -80,7 +81,7 @@ export default function RequestChangeLecturerPage() {
       console.log("111");
 
       setCheckStatus("error");
-      setCheckMessage("Current Slot - Date!");
+      setCheckMessage("Original Schedule");
       setIsSubmitEnabled(false);
       return;
     }
@@ -112,7 +113,7 @@ export default function RequestChangeLecturerPage() {
     try {
       setIsOpenDialog(true);
     } catch (error) {
-      toast.error("Lỗi khi kiểm tra lịch.");
+      toast.error("Failed When Validating Schedule.");
     }
   };
 
