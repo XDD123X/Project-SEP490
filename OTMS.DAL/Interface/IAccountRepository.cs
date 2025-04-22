@@ -39,7 +39,7 @@ namespace OTMS.DAL.Interface
         Task<List<Guid>> GetAccountsByCourseAsync(string courseName);
         Task<List<Guid>> GetAccountsByClassAsync(string classCode);
         Task<bool> AddAccount(Account account);
-
+        Task<bool> DeleteAccount(Guid accountId);
         Task<bool> updateImageAccount(Guid accountId, string newImgUrl);
 
 

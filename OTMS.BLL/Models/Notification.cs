@@ -13,13 +13,13 @@ public partial class Notification
 
     public int? Type { get; set; }
 
-    public Guid CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual Account CreatedByNavigation { get; set; } = null!;
+    public virtual Account? CreatedByNavigation { get; set; }
 
     public virtual ICollection<NotificationAccount> NotificationAccounts { get; set; } = new List<NotificationAccount>();
 

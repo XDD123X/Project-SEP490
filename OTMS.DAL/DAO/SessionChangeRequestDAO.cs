@@ -172,7 +172,7 @@ namespace OTMS.DAL.DAO
 
             if (request == null)
             {
-                return (false, "Không tìm thấy yêu cầu thay đổi lịch.");
+                return (false, "Session Change Request Not Found.");
             }
 
             var sessionByRequest = await _context.Sessions.Where(s => s.SessionId == request.SessionId).FirstOrDefaultAsync();
@@ -192,8 +192,9 @@ namespace OTMS.DAL.DAO
             request.Status = model.Status;
             request.ApprovedBy = model.ApprovedBy;
             request.ApprovedDate = DateTime.Now;
+            request.Note = model.Description;
             sessionByRequest.Type = 1;
-            sessionByRequest.Description = "Change Date";
+            sessionByRequest.Description = model.Description;
 
             // Nếu yêu cầu được duyệt, cập nhật buổi học
             if (model.Status == 1)
@@ -212,9 +213,9 @@ namespace OTMS.DAL.DAO
 
             string resultMessage = model.Status switch
             {
-                1 => "Yêu cầu đổi lịch đã được duyệt.",
-                2 => "Yêu cầu đổi lịch đã bị từ chối.",
-                _ => "Yêu cầu đổi lịch đã được cập nhật."
+                1 => "The session change request has been approved.",
+                2 => "The session change request has been rejected.",
+                _ => "The session change request has been updated."
             };
 
             return (true, resultMessage);
@@ -222,9 +223,9 @@ namespace OTMS.DAL.DAO
         public async Task<IEnumerable<SessionChangeRequest>> GetRequestsByLecturerIdAsync(Guid lecturerId)
         {
             return await _context.SessionChangeRequests
+                .Where(r => r.LecturerId == lecturerId)
                 .Include(r => r.Session)
                 .Include(r => r.ApprovedByNavigation)
-                .Where(r => r.LecturerId == lecturerId)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }

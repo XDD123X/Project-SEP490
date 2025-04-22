@@ -73,20 +73,20 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return Ok(requestDtos);
         }
 
-        [HttpGet("lecturer/{studentId}")]
-        public async Task<IActionResult> GetRequestByLecturerId(Guid studentId)
+        [HttpGet("lecturer/{lecturerId}")]
+        public async Task<IActionResult> GetRequestByLecturerId(Guid lecturerId)
         {
-            var requests = await _profileChangeRepository.GetRequestByStudentIdAsync(studentId);
+            var requests = await _sessionChangeRepository.GetRequestsByLecturerIdAsync(lecturerId);
 
 
             if (requests == null || !requests.Any())
-                return NotFound($"No requests found for studentId: {studentId}");
+                return NotFound($"No requests found for lecturer: {lecturerId}");
 
             //sort
             var sortedRequests = requests.OrderByDescending(r => r.CreatedAt).ToList();
 
             // Map danh sách kết quả
-            var requestDtos = _mapper.Map<List<ProfileChangeRequestDTO>>(sortedRequests);
+            var requestDtos = _mapper.Map<List<SessionChangeRequestDTO>>(sortedRequests);
             return Ok(requestDtos);
         }
 
@@ -117,7 +117,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             var request = await _sessionChangeRepository.GetRequestByIdAsync(model.RequestChangeId);
             if (request == null)
             {
-                return NotFound(new { success = false, message = "Không tìm thấy yêu cầu thay đổi lịch học." });
+                return NotFound(new { success = false, message = "Session Request Change Not Found." });
             }
 
             var (isSuccess, message) = await _sessionChangeRepository.UpdateRequestAsync(model);

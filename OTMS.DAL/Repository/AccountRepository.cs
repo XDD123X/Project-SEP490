@@ -47,6 +47,7 @@ namespace OTMS.DAL.Repository
         public Task<List<Account>> GetOfficerList() => _accountDAO.GetOfficerList();
         public Task<List<Account>> GetAccountListAsync() => _accountDAO.GetAccountListAsync();
         public Task<bool> AddAccount(Account account) => _accountDAO.AddAccount(account);
+        public async Task<bool> DeleteAccount(Guid accountId) => await _accountDAO.DeleteAccount(accountId);
 
         public Task<bool> updateImageAccount(Guid accountId, string newImgUrl) => _accountDAO.updateImageAccount(accountId, newImgUrl);
 
@@ -54,5 +55,7 @@ namespace OTMS.DAL.Repository
         public async Task<List<Guid>> GetAccountsByCourseAsync(string courseName) => await _accountDAO.GetAccountsByCourseAsync(courseName);
 
         public async Task<List<Guid>> GetAccountsByClassAsync(string classCode) => await _accountDAO.GetAccountsByClassAsync(classCode);
+
+
     }
 }

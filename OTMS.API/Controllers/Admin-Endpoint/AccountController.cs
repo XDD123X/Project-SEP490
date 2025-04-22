@@ -137,7 +137,7 @@ namespace OTMS.API.Controllers
 
             try
             {
-                await _accountRepository.DeleteAsync(id);
+                await _accountRepository.DeleteAccount(id);
                 return Ok("Account deleted successfully");
             }
             catch (Exception ex)

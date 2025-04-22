@@ -52,7 +52,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(id);
             if (request == null)
             {
-                return NotFound(new { success = false, message = "Không tìm thấy yêu cầu thay đổi lịch học." });
+                return NotFound(new { success = false, message = "Schedule change request not found." });
             }
             return Ok(new { success = true, data = request });
         }
@@ -78,7 +78,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             return Ok(new { 
                 success = true, 
                 hasConflict = isConflict, 
-                message = isConflict ? message : "Không có lịch trùng."
+                message = isConflict ? message : "No conflicting sessions found."
             });
         }
 
@@ -91,7 +91,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             var session = await _sessionRepository.GetByIdAsync(sessionId);
             if (session == null)
             {
-                return NotFound(new { success = false, message = "Không tìm thấy buổi học." });
+                return NotFound(new { success = false, message = "Session not found." });
             }
 
             return Ok(new { 

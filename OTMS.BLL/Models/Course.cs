@@ -11,7 +11,7 @@ public partial class Course
 
     public string? Description { get; set; }
 
-    public Guid CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -21,5 +21,5 @@ public partial class Course
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 
-    public virtual Account CreatedByNavigation { get; set; } = null!;
+    public virtual Account? CreatedByNavigation { get; set; }
 }

@@ -227,6 +227,64 @@ namespace OTMS.DAL.DAO
             }
         }
 
+        public async Task<bool> DeleteAccount(Guid accountId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Gán NULL cho các approved_by trong ProfileChangeRequest và SessionChangeRequest
+                var profileChangeRequestsToUpdate = await _context.ProfileChangeRequests
+                    .Where(p => p.ApprovedBy == accountId)
+                    .ToListAsync();
+                foreach (var request in profileChangeRequestsToUpdate)
+                {
+                    request.ApprovedBy = null;
+                }
+
+                var sessionChangeRequestsToUpdate = await _context.SessionChangeRequests
+                    .Where(s => s.ApprovedBy == accountId)
+                    .ToListAsync();
+                foreach (var request in sessionChangeRequestsToUpdate)
+                {
+                    request.ApprovedBy = null;
+                }
+
+                // 2. Xóa các bản ghi mà account là chủ sở hữu (lecturerId, accountId)
+                var profileChangeRequests = await _context.ProfileChangeRequests
+                    .Where(p => p.AccountId == accountId)
+                    .ToListAsync();
+                _context.ProfileChangeRequests.RemoveRange(profileChangeRequests);
+
+                var sessionChangeRequests = await _context.SessionChangeRequests
+                    .Where(s => s.LecturerId == accountId)
+                    .ToListAsync();
+                _context.SessionChangeRequests.RemoveRange(sessionChangeRequests);
+
+                // 3. Xóa account
+                var account = await _context.Accounts.FindAsync(accountId);
+                if (account == null)
+                {
+                    Console.WriteLine($"Account {accountId} not found.");
+                    return false;
+                }
+
+                _context.Accounts.Remove(account);
+
+                // 4. Lưu và commit
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"Error when deleting account: {ex.Message}");
+                return false;
+            }
+        }
+
 
         public async Task<bool> updateImageAccount(Guid accountId, string newImgUrl)
         {

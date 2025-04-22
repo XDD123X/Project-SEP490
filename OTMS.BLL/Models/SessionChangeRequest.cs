@@ -15,6 +15,8 @@ public partial class SessionChangeRequest
 
     public string? Description { get; set; }
 
+    public string? Note { get; set; }
+
     public DateTime? ApprovedDate { get; set; }
 
     public int? Status { get; set; }

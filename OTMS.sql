@@ -240,20 +240,22 @@ GO
 CREATE TABLE SessionChangeRequest (
     request_change_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
-    lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id),
-    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
+    lecturer_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
+    approved_by UNIQUEIDENTIFIER NULL,
     description NVARCHAR(MAX) NULL,
+    note NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
-    status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
+    status INT DEFAULT 0 CHECK (status IN (0, 1, 2)),
     created_at DATETIME DEFAULT GETDATE(),
     
-    -- Thêm thông tin ngày và slot mới
-    new_date DATE NOT NULL,  -- Ngày yêu cầu đổi
-    new_slot INT NOT NULL CHECK (new_slot BETWEEN 1 AND 4), -- Slot mới yêu cầu đổi
-    old_date DATE NULL, -- Ngày cũ của buổi học
-    old_slot INT NULL -- Slot cũ của buổi học
+    new_date DATE NOT NULL,
+    new_slot INT NOT NULL CHECK (new_slot BETWEEN 1 AND 4),
+    old_date DATE NULL,
+    old_slot INT NULL,
+
+    CONSTRAINT FK_SessionChangeRequest_ApprovedBy 
+        FOREIGN KEY (approved_by) REFERENCES Account(account_id) ON DELETE SET NULL
 );
-GO
 
 -- 15. Tạo bảng ProfileChangeRequest
 CREATE TABLE ProfileChangeRequest (
@@ -261,7 +263,7 @@ CREATE TABLE ProfileChangeRequest (
     account_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
     img_url_old NVARCHAR(500) NOT NULL,
     img_url_new NVARCHAR(500) NOT NULL,
-    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id),
+    approved_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE CASCADE,
 	description NVARCHAR(MAX) NULL,
     approved_date DATETIME NULL,
     status INT DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: Chờ duyệt, 1: Đã duyệt, 2: Từ chối
