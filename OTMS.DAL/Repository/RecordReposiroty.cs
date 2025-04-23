@@ -26,6 +26,11 @@ namespace OTMS.DAL.Repository
 
         Task IRecordRepository.updateRecord(Record record) => _recordDAO.UpdateAsync(record);
 
+        public Task<Record> GetReportFromRecordBySessionId(Guid sessionId)
+        {
+            return _recordDAO.GetReportFromRecordBySessionId(sessionId);
+        }
+
 
     }
 }

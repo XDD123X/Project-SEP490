@@ -65,6 +65,41 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return Ok("Yêu cầu phân tích đã được ghi nhận. Vui lòng đợi kết quả.");
         }
 
+        [HttpGet("GetReportBySessionId")]
+        public async Task<IActionResult> GetReportFromRecordBySessionId(Guid sessionId)
+        {
+            Record record = await _recordRepository.GetReportFromRecordBySessionId(sessionId);
+
+            if (record == null)
+            {
+                return NotFound("Không tìm thấy bản ghi.");
+            }
+
+            if (record.Status == 1)
+            {
+                return BadRequest("Video chưa được phân tích.");
+            }
+            else if (record.Status == 2)
+            {
+                return BadRequest("Video đang được phân tích.");
+            }
+            else if (record.Status == 3)
+            {
+                Report report = record.Reports.LastOrDefault();
+                if (report == null)
+                {
+                    return NotFound("Không tìm thấy báo cáo.");
+                }
+
+                return Ok(report.GeminiResponse?.ToString()); 
+            }
+
+            return BadRequest("Trạng thái không hợp lệ.");
+        }
+
+
+
+
         //[HttpGet("GetAll")]
         //public async Task<IActionResult> GetAllReports()
         //{
