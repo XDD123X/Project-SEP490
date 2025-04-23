@@ -87,6 +87,14 @@ builder.Services.AddSingleton<IPasswordService, PasswordService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddHostedService<EmailBackgroundService>();
 
+//Video analyze Service
+builder.Services.AddScoped<IVideoAnalyze, VideoAnalyzeRepository>();
+builder.Services.AddSingleton<VideoAnalysisBackgroundService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<VideoAnalysisBackgroundService>());
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+
 //DI DAO
 builder.Services.AddScoped<AccountDAO>();
 builder.Services.AddScoped<ClassDAO>();
