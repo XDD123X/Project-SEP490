@@ -6,6 +6,7 @@ using OTMS.DAL.Interface;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -34,7 +35,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
         /// <summary>
-        /// Lấy tất cả yêu cầu thay đổi lịch học
+        /// Lấy tất cả session change request
+        /// 
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SessionChangeRequest>>> GetAllRequests()
@@ -44,7 +46,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
         /// <summary>
-        /// Lấy các yêu cầu thay đổi lịch học đang chờ duyệt
+        /// get all pending session change request 
         /// </summary>
         [HttpGet("pending")]
         public async Task<ActionResult<IEnumerable<SessionChangeRequest>>> GetPendingRequests()
@@ -54,7 +56,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
         /// <summary>
-        /// Duyệt hoặc từ chối yêu cầu thay đổi lịch học
+        /// approve or reject change request
         /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRequest(Guid id, [FromBody] UpdateSessionChangeRequestDTO model)
@@ -63,12 +65,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             {
                 return BadRequest(ModelState);
             }
-            
+
             if (!IsValidRequest(model, out string errorMessage))
             {
                 return BadRequest(new { success = false, message = errorMessage });
             }
-            
+
             model.RequestChangeId = id;
 
             var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(id);
@@ -83,7 +85,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return BadRequest(new { success = false, message });
             }
 
-            // Gửi email thông báo cho giảng viên
+            Guid createdById = Guid.Empty;
+
+            // send email thong bao cho lecturer
             if (request.Lecturer?.Email != null)
             {
                 string statusText = model.Status switch
@@ -103,22 +107,44 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 ";
 
                 await _emailService.SendEmailAsync(request.Lecturer.Email, emailSubject, emailBody);
-                
-                // Gửi thông báo cho giảng viên
+
+                // send notification cho lecturer
                 if (request.Lecturer.AccountId != Guid.Empty)
                 {
                     var notificationTitle = $"Thông báo về yêu cầu thay đổi lịch học";
                     var notificationContent = $"Yêu cầu thay đổi lịch học của bạn cho buổi học ngày {request.OldDate} (Slot {request.OldSlot}) sang ngày {request.NewDate} (Slot {request.NewSlot}) {statusText}.";
-                    
+
+                    // Lấy thông tin người duyệt                  
+                    if (User.FindFirst("uid") != null && Guid.TryParse(User.FindFirst("uid").Value, out Guid userId))
+                    {
+                        // Kiểm tra tài khoản tồn tại trong hệ thống
+                        var createdByAccount = await _accountRepository.GetByIdAsync(userId);
+                        if (createdByAccount != null)
+                        {
+                            createdById = createdByAccount.AccountId;
+                        }
+                    }
+
+                    // User not found => lấy từ model
+                    if (createdById == Guid.Empty && model.ApprovedBy.HasValue)
+                    {
+                        var approverAccount = await _accountRepository.GetByIdAsync(model.ApprovedBy.Value);
+                        if (approverAccount != null)
+                        {
+                            createdById = approverAccount.AccountId;
+                        }
+                    }
+
+
                     var lecturerNotification = new Notification
                     {
                         Title = notificationTitle,
                         Content = notificationContent,
-                        CreatedBy = User.FindFirst("uid") != null ? Guid.Parse(User.FindFirst("uid").Value) : Guid.Empty,
+                        CreatedBy = createdById,
                         CreatedAt = DateTime.Now,
-                        Type = 2 // Thông báo cho tài khoản cụ thể
+                        Type = 2
                     };
-                    
+
                     await _notificationRepository.AddAsync(lecturerNotification);
                     await _notificationRepository.AssignToAccountsAsync(lecturerNotification.NotificationId, new List<Guid> { request.Lecturer.AccountId });
                 }
@@ -127,38 +153,38 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             //  gửi email thông báo cho tất cả sinh viên trong lớp
             if (model.Status == 1 && request.Session != null)
             {
-               
+
                 var classId = request.Session.ClassId;
-                
+
                 // Lấy danh sách stdentid
                 var classStudents = await _classStudentRepository.GetByClassIdAsync(classId);
-                
+
                 if (classStudents.Any())
                 {
                     // Lấy danh sách sv trong lớp
                     var studentIds = classStudents.Select(cs => cs.StudentId).ToList();
-                    
+
                     // Tạo thông báo chung cho sv
                     var notificationTitle = $"Thông báo về thay đổi lịch học lớp {request.Session.Class?.ClassName}";
                     var notificationContent = $"Lịch học lớp {request.Session.Class?.ClassName} đã được thay đổi từ ngày {request.OldDate} (Slot {request.OldSlot}) thành ngày {request.NewDate} (Slot {request.NewSlot}). Lý do: {model.Description ?? "Liên hệ giảng viên hoặc trung tâm để biết thêm chi tiết."}";
-                    
+
                     var studentNotification = new Notification
                     {
                         Title = notificationTitle,
                         Content = notificationContent,
-                        CreatedBy = User.FindFirst("uid") != null ? Guid.Parse(User.FindFirst("uid").Value) : Guid.Empty,
+                        CreatedBy = createdById,
                         CreatedAt = DateTime.Now,
-                        Type = 2 // Thông báo cho tài khoản cụ thể
+                        Type = 2
                     };
-                    
+
                     await _notificationRepository.AddAsync(studentNotification);
                     await _notificationRepository.AssignToAccountsAsync(studentNotification.NotificationId, studentIds);
-                    
+
                     foreach (var studentId in studentIds)
                     {
                         // Lấy thông tin svien
                         var student = await _accountRepository.GetByIdAsync(studentId);
-                        
+
                         if (student != null && !string.IsNullOrEmpty(student.Email))
                         {
                             // Tạo email thông báo cho sinh viên
@@ -173,7 +199,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                                 <p>Trân trọng,</p>
                                 <p>Future Me Center</p>
                             ";
-                            
+
                             await _emailService.SendEmailAsync(student.Email, emailSubject, emailBody);
                         }
                     }
@@ -184,7 +210,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
         /// <summary>
-        /// Lấy thông tin yêu cầu thay đổi lịch học theo ID
+        /// get info request theo id
         /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<SessionChangeRequest>> GetRequestById(Guid id)
@@ -193,7 +219,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             {
                 return BadRequest(new { success = false, message = "ID yêu cầu không hợp lệ." });
             }
-            
+
             var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(id);
             if (request == null)
             {
@@ -205,25 +231,25 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private bool IsValidRequest(UpdateSessionChangeRequestDTO model, out string errorMessage)
         {
             errorMessage = string.Empty;
-            
+
             if (model == null)
             {
                 errorMessage = "Dữ liệu cập nhật không được để trống.";
                 return false;
             }
-            
+
             if (string.IsNullOrWhiteSpace(model.Description) && model.Status == 2)
             {
                 errorMessage = "Vui lòng cung cấp lý do từ chối yêu cầu.";
                 return false;
             }
-            
+
             if (model.Status < 0 || model.Status > 2)
             {
                 errorMessage = "Trạng thái cập nhật không hợp lệ. Chỉ chấp nhận các giá trị: 0 (Đang xử lý), 1 (Đã duyệt), 2 (Đã từ chối).";
                 return false;
             }
-            
+
             return true;
         }
     }
