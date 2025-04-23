@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using OTMS.BLL.Services;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -19,19 +20,22 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IClassStudentRepository _classStudentRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly INotificationRepository _notificationRepository;
+        private readonly NewEmailBackgroundService _emailBackgroundService;
 
         public OfficerSessionChangeRequestController(
             ISessionChangeRequestRepository sessionChangeRequestRepository,
             IEmailService emailService,
             IClassStudentRepository classStudentRepository,
             IAccountRepository accountRepository,
-            INotificationRepository notificationRepository)
+            INotificationRepository notificationRepository,
+            NewEmailBackgroundService emailBackgroundService)
         {
             _sessionChangeRequestRepository = sessionChangeRequestRepository;
             _emailService = emailService;
             _classStudentRepository = classStudentRepository;
             _accountRepository = accountRepository;
             _notificationRepository = notificationRepository;
+            _emailBackgroundService = emailBackgroundService;
         }
 
         /// <summary>
@@ -58,8 +62,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         /// <summary>
         /// approve or reject change request
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRequest(Guid id, [FromBody] UpdateSessionChangeRequestDTO model)
+        [HttpPut]
+        public async Task<IActionResult> UpdateRequest([FromBody] UpdateSessionChangeRequestDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -71,9 +75,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 return BadRequest(new { success = false, message = errorMessage });
             }
 
-            model.RequestChangeId = id;
+           
 
-            var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(id);
+            var request = await _sessionChangeRequestRepository.GetRequestByIdAsync(model.RequestChangeId);
             if (request == null)
             {
                 return NotFound(new { success = false, message = "Không tìm thấy yêu cầu thay đổi lịch học." });
@@ -106,7 +110,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                     <p>Future Me Center</p>
                 ";
 
-                await _emailService.SendEmailAsync(request.Lecturer.Email, emailSubject, emailBody);
+                //await _emailService.SendEmailAsync(request.Lecturer.Email, emailSubject, emailBody);
+                await _emailBackgroundService.EnqueueEmailAsync(request.Lecturer.Email, emailSubject, emailBody);
 
                 // send notification cho lecturer
                 if (request.Lecturer.AccountId != Guid.Empty)
@@ -200,7 +205,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                                 <p>Future Me Center</p>
                             ";
 
-                            await _emailService.SendEmailAsync(student.Email, emailSubject, emailBody);
+                            await _emailBackgroundService.EnqueueEmailAsync(student.Email, emailSubject, emailBody);
                         }
                     }
                 }

@@ -111,75 +111,76 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             return NoContent();
         }
 
-        [HttpPut("lecturer/update")]
-        public async Task<IActionResult> UpdateRequest([FromBody] UpdateSessionChangeRequestDTO model)
-        {
-            var request = await _sessionChangeRepository.GetRequestByIdAsync(model.RequestChangeId);
-            if (request == null)
-            {
-                return NotFound(new { success = false, message = "Session Request Change Not Found." });
-            }
+        //Ko xài đến( bản này đã bị lỗi), dùng cái bên officersessionchangerequestcontroller
+        //[HttpPut("lecturer/update")]
+        //public async Task<IActionResult> UpdateRequest([FromBody] UpdateSessionChangeRequestDTO model)
+        //{
+        //    var request = await _sessionChangeRepository.GetRequestByIdAsync(model.RequestChangeId);
+        //    if (request == null)
+        //    {
+        //        return NotFound(new { success = false, message = "Session Request Change Not Found." });
+        //    }
 
-            var (isSuccess, message) = await _sessionChangeRepository.UpdateRequestAsync(model);
-            if (!isSuccess)
-            {
-                return BadRequest(new { success = false, message });
-            }
+        //    var (isSuccess, message) = await _sessionChangeRepository.UpdateRequestAsync(model);
+        //    if (!isSuccess)
+        //    {
+        //        return BadRequest(new { success = false, message });
+        //    }
 
-            // Gửi email thông báo cho giảng viên
-            if (!string.IsNullOrEmpty(request.Lecturer?.Email))
-            {
-                string statusText = model.Status switch
-                {
-                    1 => "đã được duyệt",
-                    2 => "đã bị từ chối",
-                    _ => "đã được cập nhật"
-                };
+        //    // Gửi email thông báo cho giảng viên
+        //    if (!string.IsNullOrEmpty(request.Lecturer?.Email))
+        //    {
+        //        string statusText = model.Status switch
+        //        {
+        //            1 => "đã được duyệt",
+        //            2 => "đã bị từ chối",
+        //            _ => "đã được cập nhật"
+        //        };
 
-                string emailSubject = "Thông báo về yêu cầu thay đổi lịch học";
-                string emailBody = $@"
-            <h3>Kính gửi {request.Lecturer.FullName},</h3>
-            <p>Yêu cầu thay đổi lịch học của bạn cho buổi học ngày {request.OldDate} (Slot {request.OldSlot}) 
-               sang ngày {request.NewDate} (Slot {request.NewSlot}) {statusText}.</p>
-            <p>Lý do: {model.Description ?? "Lý do vui lòng hỏi lại officer"}</p>
-            <p>Trân trọng,</p>
-            <p>Future Me Center</p>";
+        //        string emailSubject = "Thông báo về yêu cầu thay đổi lịch học";
+        //        string emailBody = $@"
+        //    <h3>Kính gửi {request.Lecturer.FullName},</h3>
+        //    <p>Yêu cầu thay đổi lịch học của bạn cho buổi học ngày {request.OldDate} (Slot {request.OldSlot}) 
+        //       sang ngày {request.NewDate} (Slot {request.NewSlot}) {statusText}.</p>
+        //    <p>Lý do: {model.Description ?? "Lý do vui lòng hỏi lại officer"}</p>
+        //    <p>Trân trọng,</p>
+        //    <p>Future Me Center</p>";
 
-                // Gửi email qua background service
-                EmailBackgroundService.EnqueueEmail(request.Lecturer.Email, emailSubject, emailBody);
-            }
+        //        // Gửi email qua background service
+        //        EmailBackgroundService.EnqueueEmail(request.Lecturer.Email, emailSubject, emailBody);
+        //    }
 
-            // Gửi email cho tất cả sinh viên trong lớp nếu yêu cầu được duyệt
-            if (model.Status == 1 && request.Session != null)
-            {
-                var classId = request.Session.ClassId;
-                var classStudents = await _classStudentRepository.GetByClassIdAsync(classId);
+        //    // Gửi email cho tất cả sinh viên trong lớp nếu yêu cầu được duyệt
+        //    if (model.Status == 1 && request.Session != null)
+        //    {
+        //        var classId = request.Session.ClassId;
+        //        var classStudents = await _classStudentRepository.GetByClassIdAsync(classId);
 
-                if (classStudents.Any())
-                {
-                    foreach (var student in classStudents.Select(cs => cs.Student))
-                    {
-                        if (!string.IsNullOrEmpty(student?.Email))
-                        {
-                            string emailSubject = $"Thông báo về thay đổi lịch học lớp {request.Session.Class?.ClassName}";
-                            string emailBody = $@"
-                        <h3>Kính gửi {student.FullName},</h3>
-                        <p>Lịch học lớp <strong>{request.Session.Class?.ClassName}</strong> đã được thay đổi:</p>
-                        <p>- Từ: Ngày {request.OldDate} (Slot {request.OldSlot})</p>
-                        <p>- Thành: Ngày {request.NewDate} (Slot {request.NewSlot})</p>
-                        <p>Lý do: {model.Description ?? "Để biết thêm chi tiết, vui lòng liên hệ giảng viên hoặc trung tâm."}</p>
-                        <p>Xin lưu ý điều chỉnh lịch học của bạn cho phù hợp.</p>
-                        <p>Trân trọng,</p>
-                        <p>Future Me Center</p>";
+        //        if (classStudents.Any())
+        //        {
+        //            foreach (var student in classStudents.Select(cs => cs.Student))
+        //            {
+        //                if (!string.IsNullOrEmpty(student?.Email))
+        //                {
+        //                    string emailSubject = $"Thông báo về thay đổi lịch học lớp {request.Session.Class?.ClassName}";
+        //                    string emailBody = $@"
+        //                <h3>Kính gửi {student.FullName},</h3>
+        //                <p>Lịch học lớp <strong>{request.Session.Class?.ClassName}</strong> đã được thay đổi:</p>
+        //                <p>- Từ: Ngày {request.OldDate} (Slot {request.OldSlot})</p>
+        //                <p>- Thành: Ngày {request.NewDate} (Slot {request.NewSlot})</p>
+        //                <p>Lý do: {model.Description ?? "Để biết thêm chi tiết, vui lòng liên hệ giảng viên hoặc trung tâm."}</p>
+        //                <p>Xin lưu ý điều chỉnh lịch học của bạn cho phù hợp.</p>
+        //                <p>Trân trọng,</p>
+        //                <p>Future Me Center</p>";
 
-                            // Gửi email qua background service
-                            EmailBackgroundService.EnqueueEmail(student.Email, emailSubject, emailBody);
-                        }
-                    }
-                }
-            }
+        //                    // Gửi email qua background service
+        //                    EmailBackgroundService.EnqueueEmail(student.Email, emailSubject, emailBody);
+        //                }
+        //            }
+        //        }
+        //    }
 
-            return Ok(new { success = true, message });
-        }
+        //    return Ok(new { success = true, message });
+        //}
     }
 }

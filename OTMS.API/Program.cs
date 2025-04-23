@@ -87,6 +87,11 @@ builder.Services.AddSingleton<IPasswordService, PasswordService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddHostedService<EmailBackgroundService>();
 
+//New email service
+builder.Services.AddSingleton<NewEmailBackgroundService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<NewEmailBackgroundService>());
+
+
 //Video analyze Service
 builder.Services.AddScoped<IVideoAnalyze, VideoAnalyzeRepository>();
 builder.Services.AddSingleton<VideoAnalysisBackgroundService>();
