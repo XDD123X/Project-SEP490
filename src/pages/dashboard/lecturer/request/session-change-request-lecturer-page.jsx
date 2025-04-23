@@ -218,7 +218,7 @@ export default function RequestChangeLecturerPage() {
                         today.setHours(0, 0, 0, 0);
                         const sessionDate = new Date(session.sessionDate);
                         sessionDate.setHours(0, 0, 0, 0);
-                        return date <= today;
+                        return date < today;
                       }}
                     />
                   </div>

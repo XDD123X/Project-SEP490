@@ -7,11 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { getAccounts, getStudentList, importStudentList } from "@/services/accountService";
+import { deleteAccountById, getAccounts, getStudentList, importStudentList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImportAccountsOfficerDialog } from "./components/add-student-import-dialog";
 import { Link } from "react-router-dom";
 import { AccountBadge } from "@/components/BadgeComponent";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ViewStudentManagementPage() {
   const [accounts, setAccounts] = useState([]);
@@ -20,6 +21,9 @@ export default function ViewStudentManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteAccount, setDeleteAccount] = useState();
 
   //dialog
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
@@ -131,9 +135,18 @@ export default function ViewStudentManagementPage() {
   };
 
   // Handle deleting a student
-  const handleDeleteStudent = (studentId) => {
-    if (confirm("Are you sure you want to delete this student?")) {
-      ("");
+  const handleDeleteStudent = async () => {
+    if (!deleteAccount) toast.warning("Please Selecte Studen For Delete");
+    try {
+      const response = await deleteAccountById(deleteAccount.accountId);
+      if (response.status === 200) {
+        toast.success("Account Delete Successfully");
+        setDeleteOpen(false);
+        setFilteredStudents((prev) => prev.filter((acc) => acc.accountId !== deleteAccount.accountId));
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Delete Account Failed");
     }
   };
 
@@ -337,7 +350,16 @@ export default function ViewStudentManagementPage() {
                           <span className="sr-only">Edit</span>
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDeleteStudent(account)}>
+                      <Button
+                        disabled={account.status === 1}
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => {
+                          setDeleteAccount(account); // lưu account cần xoá
+                          setDeleteOpen(true); // mở hộp thoại xác nhận
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>
                       </Button>
@@ -429,6 +451,31 @@ export default function ViewStudentManagementPage() {
           </Pagination>
         </div>
       </div>
+
+      {/* Custom dialog that appears when button is clicked */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Student</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this student? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteStudent} disabled={isDeleting}>
+              {isDeleting ? (
+                <>
+                  <span className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportStudents} accountsData={accounts} type={"Student"} />
       {/* Loading Screen   */}

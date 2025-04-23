@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Check, X, Eye, ChevronUp, ChevronDown, Search } from "lucide-react";
+import { Check, X, Eye, ChevronUp, ChevronDown, Search, ArrowRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
@@ -388,31 +388,46 @@ export default function LecturerRequestManagement() {
       <Dialog open={isCompareOpen} onOpenChange={setIsCompareOpen}>
         <DialogContent className="sm:max-w-3xl w-full">
           <DialogHeader>
-            <DialogTitle>Avatar Change Request</DialogTitle>
+            <DialogTitle>Session Change Request</DialogTitle>
           </DialogHeader>
 
           {currentRequest && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className=" gap-6">
               {/* Left side: Request Information */}
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold">Student Information</h3>
+                  <h3 className="text-lg font-semibold">Session Information</h3>
                   <div className="space-y-2 mt-2">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Name:</span>
+                      <span className="text-muted-foreground">Date:</span>
+                      <span className="flex items-center font-medium">
+                        <span className="text-red-700">{format(currentRequest.oldDate, "dd/MM/yyyy")}</span>
+                        <ArrowRight className="w-4 h-4 mx-2" />
+                        <span className="text-green-700">{format(currentRequest.newDate, "dd/MM/yyyy")} </span>
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Slot:</span>
+                      <span className="flex items-center font-medium">
+                        <span className="text-red-700">Slot {currentRequest.oldSlot}</span>
+                        <ArrowRight className="w-4 h-4 mx-2" />
+                        <span className="text-green-700">Slot {currentRequest.newSlot} </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <Separator />
+
+                <div>
+                  <h3 className="text-lg font-semibold">Lecturer Request Information</h3>
+                  <div className="space-y-2 mt-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Lecturer:</span>
                       <span className="font-medium">{currentRequest.lecturer.fullName}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Email:</span>
                       <span>{currentRequest.lecturer.email}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Phone:</span>
-                      <span>{currentRequest.lecturer.phoneNumber}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Gender:</span>
-                      <span>{currentRequest.lecturer.gender ? "Male" : "Female"}</span>
                     </div>
                   </div>
                 </div>
@@ -446,49 +461,19 @@ export default function LecturerRequestManagement() {
                     )}
 
                     {currentRequest.description && (
-                      <div className="flex flex-col">
+                      <div className="flex justify-between">
                         <span className="text-muted-foreground">Description/Reason:</span>
-                        <span className="mt-1">{currentRequest.description}</span>
+                        <span className="mt-1"> {currentRequest.description} </span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-
-              {/* Right side: Avatar Carousel */}
-              <div className="flex flex-col items-center px-10">
-                <Carousel className="w-full max-w-xs ">
-                  <CarouselContent>
-                    <CarouselItem>
-                      <div className="p-1 ">
-                        <Card className="">
-                          <CardContent className="flex flex-col aspect-square items-center justify-center p-0">
-                            <img src={currentRequest.imgUrlOld || "/placeholder.svg"} alt={"Current avatar"} className="w-full h-full object-cover rounded-lg " />
-                            {/* <span className="mt-2 text-center text-sm font-medium">Old</span> */}
-                          </CardContent>
-                        </Card>
-                        <p className="w-full text-center mt-4 uppercase font-semibold">Old</p>
-                      </div>
-                    </CarouselItem>
-                    <CarouselItem>
-                      <div className="p-1">
-                        <Card>
-                          <CardContent className="flex flex-col aspect-square items-center justify-center p-0">
-                            <img src={currentRequest.imgUrlNew || "/placeholder.svg"} alt={"New avatar"} className="w-full h-full object-cover rounded-lg" />
-                          </CardContent>
-                        </Card>
-                        <p>New</p>
-                      </div>
-                    </CarouselItem>
-                  </CarouselContent>
-                  <CarouselPrevious /> <CarouselNext />
-                </Carousel>
-              </div>
             </div>
           )}
           <DialogFooter>
             {currentRequest && currentRequest.status === 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+              <div className="flex justify-end w-full">
                 <div className="flex justify-center space-x-2 pt-2 md:col-start-2 md:ml-[25px]">
                   <Button
                     variant="outline"

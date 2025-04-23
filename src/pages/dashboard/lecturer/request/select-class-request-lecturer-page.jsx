@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { format, isPast, isToday } from "date-fns";
+import { format, isBefore, isPast, isToday, startOfDay, startOfToday } from "date-fns";
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MailPlus, MailX, MailCheck, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,6 @@ export default function ViewRequestBySessionLecturerPage() {
           });
 
           setSessions(mergedSessions);
-          console.log(mergedSessions); // nên log cái vừa set, không phải biến cũ `sessions`
         }
       } catch (error) {
         toast.error("Failed to fetch Session By Class Id");
@@ -73,7 +72,11 @@ export default function ViewRequestBySessionLecturerPage() {
   }, [classId, navigate]);
 
   const requestable = (session) => {
-    return session.type === 1 && session.status !== 3 && !isPast(session.sessionDate) && !isToday(session.sessionDate);
+    if (session.type !== 1 || session.status === 2) return false;
+    const sessionDate = new Date(session.sessionDate);
+    const todayStart = startOfToday();
+    const inPast = isBefore(sessionDate, todayStart);
+    return !inPast;
   };
 
   const sortedSessions = [...sessions].sort((a, b) => {
@@ -174,8 +177,8 @@ export default function ViewRequestBySessionLecturerPage() {
               Slot {getSortIcon("slot")}
             </TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Reason</TableHead>
-            <TableHead>History</TableHead>
+            <TableHead>Note</TableHead>
+            <TableHead>Approved</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -188,7 +191,7 @@ export default function ViewRequestBySessionLecturerPage() {
               <TableCell>
                 <SessionBadge status={session.status} />
               </TableCell>
-              <TableCell>{session.type === 1 ? session.description || "-" : "Submitted"}</TableCell>
+              <TableCell>{session.type === 1 && session.request?.note || "-" }</TableCell>
               <TableCell>
                 {session.request?.status === 0 ? (
                   <div className="flex  items-center gap-1">

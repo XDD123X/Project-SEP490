@@ -162,7 +162,7 @@ export const addAccount = async (account) => {
   }
 };
 
-export const deleteAccount = async (accountId) => {
+export const deleteAccountById = async (accountId) => {
   try {
     const response = await axiosClient.delete(`/admin/account/delete/${accountId}`);
 

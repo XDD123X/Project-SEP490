@@ -89,9 +89,9 @@ export default function ViewRequestByClassLecturerPage() {
               <TableCell>{cls.classStudents.length}</TableCell>
 
               <TableCell className="text-right space-x-2">
-                <Button variant="outline" size="icon" onClick={() => navigate(`/lecturer/class/detail/${cls.classId}`)}>
+                {/* <Button variant="outline" size="icon" onClick={() => navigate(`/lecturer/class/detail/${cls.classId}`)}>
                   <Eye className="w-4 h-4" />
-                </Button>
+                </Button> */}
                 <Button variant="outline" size="icon" onClick={() => navigate(`/lecturer/request/${cls.classId}`)}>
                   <MailPlus className="w-4 h-4 text-green-500" />
                 </Button>

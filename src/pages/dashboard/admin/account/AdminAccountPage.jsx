@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { deleteAccount, getAccounts, getOfficerList, importLecturerList } from "@/services/accountService";
+import { deleteAccountById, getAccounts, getOfficerList, importLecturerList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
@@ -141,7 +141,7 @@ export default function AdminAccountPage() {
     try {
       setIsDeleting(true);
 
-      const response = await deleteAccount(deleteId);
+      const response = await deleteAccountById(deleteId);
 
       if (response?.status === 200) {
         setOfficers((prev) => prev.filter((officer) => officer.accountId !== deleteId));
