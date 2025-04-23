@@ -57,7 +57,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                     Dob = s.Dob,
                     Gender = s.Gender,
                     Status = s.Status,
-                    CreatedAt = s.CreatedAt
+                    CreatedAt = DateTime.Now,
                 };
 
                 bool isAdded = await _accountRepository.AddAccount(student);
@@ -123,7 +123,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                     Dob = l.Dob,
                     Gender = l.Gender,
                     Status = l.Status,
-                    CreatedAt = l.CreatedAt
+                    CreatedAt = DateTime.Now,
                 };
 
                 bool isAdded = await _accountRepository.AddAccount(lecturer);
