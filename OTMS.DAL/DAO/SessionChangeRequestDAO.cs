@@ -194,7 +194,7 @@ namespace OTMS.DAL.DAO
             request.ApprovedDate = DateTime.Now;
             request.Note = model.Description;
             sessionByRequest.Type = 1;
-            sessionByRequest.Description = model.Description;
+            sessionByRequest.Description = "Session Changed By Lecturer Request";
 
             // Nếu yêu cầu được duyệt, cập nhật buổi học
             if (model.Status == 1)
