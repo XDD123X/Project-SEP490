@@ -15,6 +15,7 @@ using Xceed.Words.NET;
 using System.IO;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Bibliography;
+using OTMS.BLL.Services;
 
 namespace OTMS.API.Controllers.Officer_Endpoint
 {
@@ -27,12 +28,12 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly IRecordRepository _recordRepository;
         private readonly ISessionRepository _sessionRepository;
         private readonly IMapper _mapper;
-
         private readonly HttpClient client = null;
-        private string Apianalyze = "http://127.0.0.1:4000/upload_video";
-        private readonly string GeminiApiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        // private string Apianalyze = "http://127.0.0.1:4000/upload_video";
+        //private readonly string GeminiApiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        private readonly VideoAnalysisBackgroundService _videoAnalysisBackgroundService;
 
-        public ReportController(IMapper mapper, IReportRepository reportRepository, IRecordRepository recordRepository, ISessionRepository sessionRepository)
+        public ReportController(IMapper mapper, IReportRepository reportRepository, IRecordRepository recordRepository, ISessionRepository sessionRepository, VideoAnalysisBackgroundService videoAnalysisBackgroundService)
         {
             _reportRepository = reportRepository;
             _recordRepository = recordRepository;
@@ -40,16 +41,36 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             var contentType = new MediaTypeWithQualityHeaderValue("application/json");
             client.DefaultRequestHeaders.Accept.Add(contentType);
             _sessionRepository = sessionRepository;
+            _videoAnalysisBackgroundService = videoAnalysisBackgroundService;
         }
 
 
+        /**
+       * Viết lại theo yêu cầu của anh Chính
+       * Với API Analyze dưới đây
+       * Khi gọi  reocord chuyển status của record sang 2 
+       * Analyze xong nhớ chuyển status của record sang 3
+       * gửi video lên API, nếu gửi thành công thì trả về 200 ngay, còn việc phân tích, lưu report, v.v., thì để xử lý nền (background) sau.
+       */
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAllReports()
+        [HttpPost("Analyze")]
+        public IActionResult Analyze([FromBody] AnalyzeRequest request)
         {
-            var reports = await _reportRepository.GetAllReports();
-            return Ok(reports);
+            if (!Guid.TryParse(request.SessionId, out var sessionId) || !Guid.TryParse(request.GenerateBy, out var generateBy))
+                return BadRequest("Invalid sessionId or generateBy");
+
+            var backgroundService = HttpContext.RequestServices.GetRequiredService<VideoAnalysisBackgroundService>();
+            backgroundService.QueueAnalysis(request.SessionId, request.GenerateBy);
+
+            return Ok("Yêu cầu phân tích đã được ghi nhận. Vui lòng đợi kết quả.");
         }
+
+        //[HttpGet("GetAll")]
+        //public async Task<IActionResult> GetAllReports()
+        //{
+        //    var reports = await _reportRepository.GetAllReports();
+        //    return Ok(reports);
+        //}
 
 
         //[HttpPost("Analyze")]
@@ -153,413 +174,406 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //}
 
 
-        [HttpPost("GetReportBySessionIdUsingGeminiAi")]
-        public async Task<ActionResult> GenerateReportBySessionId(string sessionId)
-        {
-            Report report = _reportRepository.GetReportsWithSessionClassAndGeneratedBySessionId(Guid.Parse(sessionId));
+        //[HttpPost("GetReportBySessionIdUsingGeminiAi")]
+        //public async Task<ActionResult> GenerateReportBySessionId(string sessionId)
+        //{
+        //    Report report = _reportRepository.GetReportsWithSessionClassAndGeneratedBySessionId(Guid.Parse(sessionId));
 
-            if (report == null)
-            {
-                return NotFound("Chua phan tich du lieu.");
-            }
-            try
-            {
-                var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
-                    "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
-                    "Trạng thái cảm xúc chiếm ưu thế." +
-                    "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
-                    "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + report.AnalysisData;
+        //    if (report == null)
+        //    {
+        //        return NotFound("Chua phan tich du lieu.");
+        //    }
+        //    try
+        //    {
+        //        var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        //        var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
+        //            "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
+        //            "Trạng thái cảm xúc chiếm ưu thế." +
+        //            "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
+        //            "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + report.AnalysisData;
 
-                var googleAI = new GoogleAI(apiKey: apiKey);
-                var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
-                var response = await model.GenerateContent(prompt);
+        //        var googleAI = new GoogleAI(apiKey: apiKey);
+        //        var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
+        //        var response = await model.GenerateContent(prompt);
 
-                var today = DateTime.Now;
-                string formattedDate = $"Hà Nội, ngày {today.Day} tháng {today.Month} năm {today.Year}";
+        //        var today = DateTime.Now;
+        //        string formattedDate = $"Hà Nội, ngày {today.Day} tháng {today.Month} năm {today.Year}";
 
-                string basePath = AppContext.BaseDirectory;
-                string templatePath = Path.Combine(basePath, "Meeting_Document_Report_template.docx");
+        //        string basePath = AppContext.BaseDirectory;
+        //        string templatePath = Path.Combine(basePath, "Meeting_Document_Report_template.docx");
 
-                string tempDirectory = Path.GetTempPath();
-                string newFilePath = Path.Combine(tempDirectory, $"Report_{DateTime.Now:yyyyMMddHHmmss}.docx");
-                //Console.WriteLine("FilePathTemp"+newFilePath);
-
-
-                System.IO.File.Copy(templatePath, newFilePath, true);
-
-                using (var doc = DocX.Load(newFilePath))
-                {
-
-                    doc.ReplaceText("{date}", formattedDate);
-                    doc.ReplaceText("{class_name}", report.Session.Class.ClassName);
-                    doc.ReplaceText("{session_date}", report.Session.SessionDate.ToString("dd/MM/yyyy"));
-                    doc.ReplaceText("{slot}", report.Session.Slot.ToString());
-                    doc.ReplaceText("{analysis_result}", response.Text.Trim());
-                    doc.ReplaceText("{analyzer_name}", report.GeneratedByNavigation.FullName);
+        //        string tempDirectory = Path.GetTempPath();
+        //        string newFilePath = Path.Combine(tempDirectory, $"Report_{DateTime.Now:yyyyMMddHHmmss}.docx");
+        //        //Console.WriteLine("FilePathTemp"+newFilePath);
 
 
-                    foreach (var paragraph in doc.Paragraphs)
-                    {
-                        paragraph.Font(new Xceed.Document.NET.Font("Times New Roman"));
-                    }
+        //        System.IO.File.Copy(templatePath, newFilePath, true);
 
-                    doc.Save();
-                }
+        //        using (var doc = DocX.Load(newFilePath))
+        //        {
 
-                var fileBytes = System.IO.File.ReadAllBytes(newFilePath);
-                var fileName = Path.GetFileName(newFilePath);
-
-                System.IO.File.Delete(newFilePath);
-
-
-                return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        //            doc.ReplaceText("{date}", formattedDate);
+        //            doc.ReplaceText("{class_name}", report.Session.Class.ClassName);
+        //            doc.ReplaceText("{session_date}", report.Session.SessionDate.ToString("dd/MM/yyyy"));
+        //            doc.ReplaceText("{slot}", report.Session.Slot.ToString());
+        //            doc.ReplaceText("{analysis_result}", response.Text.Trim());
+        //            doc.ReplaceText("{analyzer_name}", report.GeneratedByNavigation.FullName);
 
 
-        [HttpPost("GetReportByReportIdUsingGeminiAi")]
-        public async Task<ActionResult> GenerateReportByReportId(string reportId)
-        {
-            Report report = _reportRepository.GetReportsWithSessionClassAndGeneratedByReportId(Guid.Parse(reportId));
+        //            foreach (var paragraph in doc.Paragraphs)
+        //            {
+        //                paragraph.Font(new Xceed.Document.NET.Font("Times New Roman"));
+        //            }
 
-            if (report == null)
-            {
-                return NotFound("Chua phan tich du lieu.");
-            }
-            try
-            {
-                var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
-                    "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
-                    "Trạng thái cảm xúc chiếm ưu thế." +
-                    "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
-                    "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + report.AnalysisData;
+        //            doc.Save();
+        //        }
 
-                var googleAI = new GoogleAI(apiKey: apiKey);
-                var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
-                var response = await model.GenerateContent(prompt);
+        //        var fileBytes = System.IO.File.ReadAllBytes(newFilePath);
+        //        var fileName = Path.GetFileName(newFilePath);
 
-                var today = DateTime.Now;
-                string formattedDate = $"Hà Nội, ngày {today.Day} tháng {today.Month} năm {today.Year}";
-
-                string basePath = AppContext.BaseDirectory;
-                string templatePath = Path.Combine(basePath, "Meeting_Document_Report_template.docx");
-
-                string tempDirectory = Path.GetTempPath();
-                string newFilePath = Path.Combine(tempDirectory, $"Report_{DateTime.Now:yyyyMMddHHmmss}.docx");
-                //Console.WriteLine("FilePathTemp"+newFilePath);
+        //        System.IO.File.Delete(newFilePath);
 
 
-                System.IO.File.Copy(templatePath, newFilePath, true);
-
-                using (var doc = DocX.Load(newFilePath))
-                {
-
-                    doc.ReplaceText("{date}", formattedDate);
-                    doc.ReplaceText("{class_name}", report.Session.Class.ClassName);
-                    doc.ReplaceText("{session_date}", report.Session.SessionDate.ToString("dd/MM/yyyy"));
-                    doc.ReplaceText("{slot}", report.Session.Slot.ToString());
-                    doc.ReplaceText("{analysis_result}", response.Text.Trim());
-                    doc.ReplaceText("{analyzer_name}", report.GeneratedByNavigation.FullName);
+        //        return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
 
 
-                    foreach (var paragraph in doc.Paragraphs)
-                    {
-                        paragraph.Font(new Xceed.Document.NET.Font("Times New Roman"));
-                    }
+        //[HttpPost("GetReportByReportIdUsingGeminiAi")]
+        //public async Task<ActionResult> GenerateReportByReportId(string reportId)
+        //{
+        //    Report report = _reportRepository.GetReportsWithSessionClassAndGeneratedByReportId(Guid.Parse(reportId));
 
-                    doc.Save();
-                }
+        //    if (report == null)
+        //    {
+        //        return NotFound("Chua phan tich du lieu.");
+        //    }
+        //    try
+        //    {
+        //        var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        //        var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
+        //            "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
+        //            "Trạng thái cảm xúc chiếm ưu thế." +
+        //            "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
+        //            "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + report.AnalysisData;
 
-                var fileBytes = System.IO.File.ReadAllBytes(newFilePath);
-                var fileName = Path.GetFileName(newFilePath);
+        //        var googleAI = new GoogleAI(apiKey: apiKey);
+        //        var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
+        //        var response = await model.GenerateContent(prompt);
 
-                System.IO.File.Delete(newFilePath);
+        //        var today = DateTime.Now;
+        //        string formattedDate = $"Hà Nội, ngày {today.Day} tháng {today.Month} năm {today.Year}";
 
+        //        string basePath = AppContext.BaseDirectory;
+        //        string templatePath = Path.Combine(basePath, "Meeting_Document_Report_template.docx");
 
-                return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        //Cách 1:Đầu tiên là gọi hàm Analyze trên để phân tích video
-        //Sau khi gọi hàm Analyze thành công thì sẽ có report được tạo ra trong DB
-        // sau đó gọi 1 trong 2 hàm ( GenerateReportBySessionId hoặc GenerateReportByReportId) này để sinh báo cáo từ form có sẵn
-        //chọn hàm nào tùy vào cách thiết kế FE của anh Chính
+        //        string tempDirectory = Path.GetTempPath();
+        //        string newFilePath = Path.Combine(tempDirectory, $"Report_{DateTime.Now:yyyyMMddHHmmss}.docx");
+        //        //Console.WriteLine("FilePathTemp"+newFilePath);
 
 
+        //        System.IO.File.Copy(templatePath, newFilePath, true);
+
+        //        using (var doc = DocX.Load(newFilePath))
+        //        {
+
+        //            doc.ReplaceText("{date}", formattedDate);
+        //            doc.ReplaceText("{class_name}", report.Session.Class.ClassName);
+        //            doc.ReplaceText("{session_date}", report.Session.SessionDate.ToString("dd/MM/yyyy"));
+        //            doc.ReplaceText("{slot}", report.Session.Slot.ToString());
+        //            doc.ReplaceText("{analysis_result}", response.Text.Trim());
+        //            doc.ReplaceText("{analyzer_name}", report.GeneratedByNavigation.FullName);
 
 
-        [HttpPost("AnalyzeAndGenerateReport")]
-        public async Task<IActionResult> AnalyzeAndGenerateReport(string sessionId, string generateBy)
-        {
-            client.Timeout = TimeSpan.FromMinutes(20);
+        //            foreach (var paragraph in doc.Paragraphs)
+        //            {
+        //                paragraph.Font(new Xceed.Document.NET.Font("Times New Roman"));
+        //            }
 
-            var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record");
-            if (!Directory.Exists(recordDir))
-            {
-                return NotFound("Record directory not found.");
-            }
+        //            doc.Save();
+        //        }
 
-            // Tìm file video
-            var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
-            var videoFile = Directory.GetFiles(recordDir)
-                                     .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
-            if (videoFile == null)
-            {
-                return NotFound("Video file not found.");
-            }
+        //        var fileBytes = System.IO.File.ReadAllBytes(newFilePath);
+        //        var fileName = Path.GetFileName(newFilePath);
 
-            Console.WriteLine("Using video file: " + videoFile);
+        //        System.IO.File.Delete(newFilePath);
 
-            // Chuẩn bị dữ liệu gửi đi
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
-            var byteArrayContent = new ByteArrayContent(fileBytes);
-            string extension = Path.GetExtension(videoFile).ToLower();
-            string mimeType = extension switch
-            {
-                ".mp4" => "video/mp4",
-                ".webm" => "video/webm",
-                ".mov" => "video/quicktime",
-                ".avi" => "video/x-msvideo",
-                ".mkv" => "video/x-matroska",
-                _ => "application/octet-stream"
-            };
-            byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
 
-            var multipartFormDataContent = new MultipartFormDataContent();
-            multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
+        //        return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fileName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
 
-            // Gửi tới API phân tích
-            var apiResponse = await client.PostAsync(Apianalyze, multipartFormDataContent);
+        ////Cách 1:Đầu tiên là gọi hàm Analyze trên để phân tích video
+        ////Sau khi gọi hàm Analyze thành công thì sẽ có report được tạo ra trong DB
+        //// sau đó gọi 1 trong 2 hàm ( GenerateReportBySessionId hoặc GenerateReportByReportId) này để sinh báo cáo từ form có sẵn
+        ////chọn hàm nào tùy vào cách thiết kế FE của anh Chính
 
-            if (!apiResponse.IsSuccessStatusCode)
-            {
-                return StatusCode((int)apiResponse.StatusCode, await apiResponse.Content.ReadAsStringAsync());
-            }
 
-            // Xử lý kết quả
-            var result = await apiResponse.Content.ReadAsStringAsync();
-            var record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(sessionId));
 
-            // Kiểm tra và thêm/cập nhật Report
-            var report = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(sessionId));
-            if (report != null)
-            {
-                report.AnalysisData = result;
-                report.GeneratedAt = DateTime.UtcNow;
-                report.GeneratedBy = Guid.Parse(generateBy);
-                report.Status = 1;
 
-                await _reportRepository.UpdateAsync(report);
-            }
-            else
-            {
-                report = new Report()
-                {
-                    RecordId = record.RecordId,
-                    AnalysisData = result,
-                    GeneratedAt = DateTime.UtcNow,
-                    GeneratedBy = Guid.Parse(generateBy),
-                    SessionId = Guid.Parse(sessionId),
-                    Status = 1
-                };
+        //[HttpPost("AnalyzeAndGenerateReport")]
+        //public async Task<IActionResult> AnalyzeAndGenerateReport(string sessionId, string generateBy)
+        //{
+        //    client.Timeout = TimeSpan.FromMinutes(20);
 
-                await _reportRepository.AddReport(report);
-            }
+        //    var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", sessionId, "record");
+        //    if (!Directory.Exists(recordDir))
+        //    {
+        //        return NotFound("Record directory not found.");
+        //    }
 
-            // Lấy lại report có navigation đầy đủ để dùng cho sinh báo cáo
-            var fullReport = _reportRepository.GetReportsWithSessionClassAndGeneratedBySessionId(report.SessionId);
-            if (fullReport == null)
-            {
-                return NotFound("Chưa phân tích dữ liệu.");
-            }
+        //    // Tìm file video
+        //    var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
+        //    var videoFile = Directory.GetFiles(recordDir)
+        //                             .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
+        //    if (videoFile == null)
+        //    {
+        //        return NotFound("Video file not found.");
+        //    }
 
-            try
-            {
-                var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
-                             "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
-                             "Trạng thái cảm xúc chiếm ưu thế." +
-                             "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
-                             "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + fullReport.AnalysisData;
+        //    Console.WriteLine("Using video file: " + videoFile);
 
-                var googleAI = new GoogleAI(apiKey: apiKey);
-                var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
-                var analysisResponse = await model.GenerateContent(prompt);
+        //    // Chuẩn bị dữ liệu gửi đi
+        //    var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
+        //    var byteArrayContent = new ByteArrayContent(fileBytes);
+        //    string extension = Path.GetExtension(videoFile).ToLower();
+        //    string mimeType = extension switch
+        //    {
+        //        ".mp4" => "video/mp4",
+        //        ".webm" => "video/webm",
+        //        ".mov" => "video/quicktime",
+        //        ".avi" => "video/x-msvideo",
+        //        ".mkv" => "video/x-matroska",
+        //        _ => "application/octet-stream"
+        //    };
+        //    byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
 
-                var today = DateTime.Now;
-                string formattedDate = $"Hà Nội, ngày {today.Day} tháng {today.Month} năm {today.Year}";
+        //    var multipartFormDataContent = new MultipartFormDataContent();
+        //    multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
 
-                string basePath = AppContext.BaseDirectory;
-                string templatePath = Path.Combine(basePath, "Meeting_Document_Report_template.docx");
+        //    // Gửi tới API phân tích
+        //    var apiResponse = await client.PostAsync(Apianalyze, multipartFormDataContent);
 
-                string tempDirectory = Path.GetTempPath();
-                string newFilePath = Path.Combine(tempDirectory, $"Report_{DateTime.Now:yyyyMMddHHmmss}.docx");
+        //    if (!apiResponse.IsSuccessStatusCode)
+        //    {
+        //        return StatusCode((int)apiResponse.StatusCode, await apiResponse.Content.ReadAsStringAsync());
+        //    }
 
-                System.IO.File.Copy(templatePath, newFilePath, true);
+        //    // Xử lý kết quả
+        //    var result = await apiResponse.Content.ReadAsStringAsync();
+        //    var record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(sessionId));
 
-                using (var doc = DocX.Load(newFilePath))
-                {
-                    doc.ReplaceText("{date}", formattedDate);
-                    doc.ReplaceText("{class_name}", fullReport.Session.Class.ClassName);
-                    doc.ReplaceText("{session_date}", fullReport.Session.SessionDate.ToString("dd/MM/yyyy"));
-                    doc.ReplaceText("{slot}", fullReport.Session.Slot.ToString());
-                    doc.ReplaceText("{analysis_result}", analysisResponse.Text.Trim());
-                    doc.ReplaceText("{analyzer_name}", fullReport.GeneratedByNavigation.FullName);
+        //    // Kiểm tra và thêm/cập nhật Report
+        //    var report = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(sessionId));
+        //    if (report != null)
+        //    {
+        //        report.AnalysisData = result;
+        //        report.GeneratedAt = DateTime.UtcNow;
+        //        report.GeneratedBy = Guid.Parse(generateBy);
+        //        report.Status = 1;
 
-                    foreach (var paragraph in doc.Paragraphs)
-                    {
-                        paragraph.Font(new Xceed.Document.NET.Font("Times New Roman"));
-                    }
+        //        await _reportRepository.UpdateAsync(report);
+        //    }
+        //    else
+        //    {
+        //        report = new Report()
+        //        {
+        //            RecordId = record.RecordId,
+        //            AnalysisData = result,
+        //            GeneratedAt = DateTime.UtcNow,
+        //            GeneratedBy = Guid.Parse(generateBy),
+        //            SessionId = Guid.Parse(sessionId),
+        //            Status = 1
+        //        };
 
-                    doc.Save();
-                }
+        //        await _reportRepository.AddReport(report);
+        //    }
 
-                var generatedBytes = System.IO.File.ReadAllBytes(newFilePath);
-                var generatedFileName = Path.GetFileName(newFilePath);
-                System.IO.File.Delete(newFilePath);
+        //    // Lấy lại report có navigation đầy đủ để dùng cho sinh báo cáo
+        //    var fullReport = _reportRepository.GetReportsWithSessionClassAndGeneratedBySessionId(report.SessionId);
+        //    if (fullReport == null)
+        //    {
+        //        return NotFound("Chưa phân tích dữ liệu.");
+        //    }
 
-                return File(generatedBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", generatedFileName);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+        //    try
+        //    {
+        //        var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        //        var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
+        //                     "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
+        //                     "Trạng thái cảm xúc chiếm ưu thế." +
+        //                     "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
+        //                     "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + fullReport.AnalysisData;
+
+        //        var googleAI = new GoogleAI(apiKey: apiKey);
+        //        var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
+        //        var analysisResponse = await model.GenerateContent(prompt);
+
+        //        var today = DateTime.Now;
+        //        string formattedDate = $"Hà Nội, ngày {today.Day} tháng {today.Month} năm {today.Year}";
+
+        //        string basePath = AppContext.BaseDirectory;
+        //        string templatePath = Path.Combine(basePath, "Meeting_Document_Report_template.docx");
+
+        //        string tempDirectory = Path.GetTempPath();
+        //        string newFilePath = Path.Combine(tempDirectory, $"Report_{DateTime.Now:yyyyMMddHHmmss}.docx");
+
+        //        System.IO.File.Copy(templatePath, newFilePath, true);
+
+        //        using (var doc = DocX.Load(newFilePath))
+        //        {
+        //            doc.ReplaceText("{date}", formattedDate);
+        //            doc.ReplaceText("{class_name}", fullReport.Session.Class.ClassName);
+        //            doc.ReplaceText("{session_date}", fullReport.Session.SessionDate.ToString("dd/MM/yyyy"));
+        //            doc.ReplaceText("{slot}", fullReport.Session.Slot.ToString());
+        //            doc.ReplaceText("{analysis_result}", analysisResponse.Text.Trim());
+        //            doc.ReplaceText("{analyzer_name}", fullReport.GeneratedByNavigation.FullName);
+
+        //            foreach (var paragraph in doc.Paragraphs)
+        //            {
+        //                paragraph.Font(new Xceed.Document.NET.Font("Times New Roman"));
+        //            }
+
+        //            doc.Save();
+        //        }
+
+        //        var generatedBytes = System.IO.File.ReadAllBytes(newFilePath);
+        //        var generatedFileName = Path.GetFileName(newFilePath);
+        //        System.IO.File.Delete(newFilePath);
+
+        //        return File(generatedBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", generatedFileName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
         //Cách 2: Gọi hàm này để phân tích video và sinh báo cáo cùng 1 lúc.nhược điểm là mỗi lần muốn lấy report thì lại phải đợi phân tích lại từ đầu,Tiến không khuyến khích dùng cách này
 
 
-        /**
-         * Viết lại theo yêu cầu của anh Chính
-         * Với API Analyze dưới đây
-         * Khi gọi  reocord chuyển status của record sang 2 
-         * Analyze xong nhớ chuyển status của record sang 3
-         * gửi video lên API, nếu gửi thành công thì trả về 200 ngay, còn việc phân tích, lưu report, v.v., thì để xử lý nền (background) sau.
-         */
 
-        [HttpPost("Analyze")]
-        public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
-        {
-            var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
-            if (session == null) return NotFound();
 
-            var classData = session.Class;
+        //[HttpPost("Analyze")]
+        //public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
+        //{
+        //    var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
+        //    if (session == null) return NotFound();
 
-            var record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(request.SessionId));
-            if (record == null) return NotFound("Record not found.");
+        //    var classData = session.Class;
 
-            // Step 1: Chuyển trạng thái sang 2 (đang xử lý)
-            record.Status = 2;
-            await _recordRepository.UpdateAsync(record);
+        //    var record = await _recordRepository.GetRecordBySessionAsync(Guid.Parse(request.SessionId));
+        //    if (record == null) return NotFound("Record not found.");
 
-            // Step 2: Tìm file video
-            var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", classData.ClassCode.Replace("/", "_"), "record", session.SessionNumber.ToString());
-            if (!Directory.Exists(recordDir)) return NotFound("Record directory not found.");
+        //    // Step 1: Chuyển trạng thái sang 2 (đang xử lý)
+        //    record.Status = 2;
+        //    await _recordRepository.UpdateAsync(record);
 
-            var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
-            var videoFile = Directory.GetFiles(recordDir)
-                                     .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
-            if (videoFile == null) return NotFound("Video file not found.");
+        //    // Step 2: Tìm file video
+        //    var recordDir = Path.Combine(Directory.GetCurrentDirectory(), "Files", classData.ClassCode.Replace("/", "_"), "record", session.SessionNumber.ToString());
+        //    if (!Directory.Exists(recordDir)) return NotFound("Record directory not found.");
 
-            Console.WriteLine("Using video file: " + videoFile);
+        //    var supportedExtensions = new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
+        //    var videoFile = Directory.GetFiles(recordDir)
+        //                             .FirstOrDefault(f => supportedExtensions.Contains(Path.GetExtension(f).ToLower()));
+        //    if (videoFile == null) return NotFound("Video file not found.");
 
-            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
-            var byteArrayContent = new ByteArrayContent(fileBytes);
+        //    Console.WriteLine("Using video file: " + videoFile);
 
-            string extension = Path.GetExtension(videoFile).ToLower();
-            string mimeType = extension switch
-            {
-                ".mp4" => "video/mp4",
-                ".webm" => "video/webm",
-                ".mov" => "video/quicktime",
-                ".avi" => "video/x-msvideo",
-                ".mkv" => "video/x-matroska",
-                _ => "application/octet-stream"
-            };
+        //    MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+        //    var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
+        //    var byteArrayContent = new ByteArrayContent(fileBytes);
 
-            byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
-            multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
+        //    string extension = Path.GetExtension(videoFile).ToLower();
+        //    string mimeType = extension switch
+        //    {
+        //        ".mp4" => "video/mp4",
+        //        ".webm" => "video/webm",
+        //        ".mov" => "video/quicktime",
+        //        ".avi" => "video/x-msvideo",
+        //        ".mkv" => "video/x-matroska",
+        //        _ => "application/octet-stream"
+        //    };
 
-            // Step 3: Gửi video lên API
-            var response = await client.PostAsync(Apianalyze, multipartFormDataContent);
+        //    byteArrayContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+        //    multipartFormDataContent.Add(byteArrayContent, "video", Path.GetFileName(videoFile));
 
-            if (response.IsSuccessStatusCode)
-            {
-                // Step 4: Xử lý nền
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        var result = await response.Content.ReadAsStringAsync();
+        //    // Step 3: Gửi video lên API
+        //    var response = await client.PostAsync(Apianalyze, multipartFormDataContent);
 
-                        // Gọi Google Gemini để phân tích kết quả
-                        var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                        var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
-                            "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
-                            "Trạng thái cảm xúc chiếm ưu thế." +
-                            "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
-                            "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn. Đây là kết quả nhận diện: " + result;
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        // Step 4: Xử lý nền
+        //        _ = Task.Run(async () =>
+        //        {
+        //            try
+        //            {
+        //                var result = await response.Content.ReadAsStringAsync();
 
-                        var googleAI = new GoogleAI(apiKey: apiKey);
-                        var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
-                        var GeminiResponse = await model.GenerateContent(prompt);
-                        var geminiText = GeminiResponse.Text.Trim();
+        //                // Gọi Google Gemini để phân tích kết quả
+        //                var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        //                var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
+        //                    "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
+        //                    "Trạng thái cảm xúc chiếm ưu thế." +
+        //                    "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
+        //                    "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn. Đây là kết quả nhận diện: " + result;
 
-                        var existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(request.SessionId));
+        //                var googleAI = new GoogleAI(apiKey: apiKey);
+        //                var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
+        //                var GeminiResponse = await model.GenerateContent(prompt);
+        //                var geminiText = GeminiResponse.Text.Trim();
 
-                        if (existingReport != null)
-                        {
-                            existingReport.AnalysisData = result;
-                            existingReport.GeneratedAt = DateTime.UtcNow;
-                            existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
-                            existingReport.Status = 1;
-                            existingReport.GeminiResponse = geminiText;
+        //                var existingReport = await _reportRepository.GetReportBySessionIdAsync(Guid.Parse(request.SessionId));
 
-                            await _reportRepository.UpdateAsync(existingReport);
-                        }
-                        else
-                        {
-                            Report newReport = new Report()
-                            {
-                                RecordId = record.RecordId,
-                                AnalysisData = result,
-                                GeneratedAt = DateTime.UtcNow,
-                                GeneratedBy = Guid.Parse(request.GenerateBy),
-                                SessionId = Guid.Parse(request.SessionId),
-                                Status = 1,
-                                GeminiResponse = geminiText
-                            };
+        //                if (existingReport != null)
+        //                {
+        //                    existingReport.AnalysisData = result;
+        //                    existingReport.GeneratedAt = DateTime.UtcNow;
+        //                    existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
+        //                    existingReport.Status = 1;
+        //                    existingReport.GeminiResponse = geminiText;
 
-                            await _reportRepository.AddReport(newReport);
-                        }
+        //                    await _reportRepository.UpdateAsync(existingReport);
+        //                }
+        //                else
+        //                {
+        //                    Report newReport = new Report()
+        //                    {
+        //                        RecordId = record.RecordId,
+        //                        AnalysisData = result,
+        //                        GeneratedAt = DateTime.UtcNow,
+        //                        GeneratedBy = Guid.Parse(request.GenerateBy),
+        //                        SessionId = Guid.Parse(request.SessionId),
+        //                        Status = 1,
+        //                        GeminiResponse = geminiText
+        //                    };
 
-                        // Step 5: Chuyển trạng thái record sang 3 (xong)
-                        record.Status = 3;
-                        await _recordRepository.UpdateAsync(record);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Background processing error: " + ex.Message);
-                    }
-                });
+        //                    await _reportRepository.AddReport(newReport);
+        //                }
 
-                // Trả về ngay lập tức sau khi gửi video thành công
-                return Ok("Video gửi thành công, quá trình phân tích đang được xử lý nền.");
-            }
+        //                // Step 5: Chuyển trạng thái record sang 3 (xong)
+        //                record.Status = 3;
+        //                await _recordRepository.UpdateAsync(record);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Console.WriteLine("Background processing error: " + ex.Message);
+        //            }
+        //        });
 
-            return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
-        }
+        //        // Trả về ngay lập tức sau khi gửi video thành công
+        //        return Ok("Video gửi thành công, quá trình phân tích đang được xử lý nền.");
+        //    }
 
+        //    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+        //}
 
 
     }
