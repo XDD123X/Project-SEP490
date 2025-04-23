@@ -268,10 +268,7 @@ export default function ClassViewPage() {
                   <TableCell>{classItem.classCode}</TableCell>
                   <TableCell>{classItem.className}</TableCell>
 
-                  <TableCell>
-                    {" "}
-                    {classItem.lecturer.gender === false ? "Ms." : "Mr."} {classItem.lecturer?.fullName ?? "-"}
-                  </TableCell>
+                  <TableCell>{classItem.lecturer ? `${classItem.lecturer.gender === false ? "Ms." : "Mr."} ${classItem.lecturer.fullName}` : "-"}</TableCell>
                   <TableCell>{classItem.totalSession}</TableCell>
                   <TableCell>{classItem.startDate ? format(new Date(classItem.startDate), "dd/MM/yyyy") : "-"}</TableCell>
                   <TableCell>{classItem.endDate ? format(new Date(classItem.endDate), "dd/MM/yyyy") : "-"}</TableCell>

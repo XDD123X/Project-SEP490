@@ -96,9 +96,7 @@ export default function ClassDetailPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="font-semibold">Lecturer:</div>
-                <div>
-                  {currentClass.lecturer.gender ? "Mr." : "Ms."} {currentClass.lecturer.fullName}
-                </div>
+                <div>{currentClass.lecturer ? `${currentClass.lecturer.gender ? "Mr." : "Ms."} ${currentClass.lecturer.fullName}` : "Not Assigned Yet"}</div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -120,7 +118,7 @@ export default function ClassDetailPage() {
                 <div className="font-semibold">Meet URL:</div>
                 <div>
                   <Link className="underline underline-offset-4 text-blue-500 text-xs" to={currentClass.classUrl} target="_blank">
-                    {currentClass.classUrl}
+                    {currentClass.lecturer.meetUrl}
                   </Link>
                 </div>
               </div>

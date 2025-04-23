@@ -10,6 +10,7 @@ import { Check, CircleAlert, CircleCheck, CircleXIcon, Save, Trash2, X } from "l
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 
 export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, accountsData, type }) {
   const fileInputRef = useRef(null);
@@ -26,6 +27,7 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
   });
   const [parsedAccounts, setParsedAccounts] = useState([]);
   const [step, setStep] = useState("upload");
+  const [isAddable, setIsAddable] = useState(false);
 
   // Handle file selection
   const handleFileChange = (e) => {
@@ -144,9 +146,19 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
       /* 5️⃣  Gender (raw) */
       const rawGender = row[columnMapping.gender] || "";
       const g = rawGender.toString().toLowerCase();
-      const genderValidSet = ["female", "f", "0", "false", "male", "m", "1", "true"];
-      const genderInvalid = !genderValidSet.includes(g);
-      if (genderInvalid) hasInvalidField = true;
+
+      let gender; // sẽ gán vào object kết quả
+      let genderInvalid = false;
+
+      if (["female", "f", "0", "false"].includes(g)) {
+        gender = false; // Female  → false
+      } else if (["male", "m", "1", "true"].includes(g)) {
+        gender = true; // Male    → true
+      } else {
+        gender = ""; // giữ nguyên giá trị gốc để người dùng thấy
+        genderInvalid = true;
+        hasInvalidField = true;
+      }
 
       return {
         id: uuidv4(),
@@ -154,7 +166,7 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
         fullName: fullName,
         phoneNumber: rawPhone,
         dob: dobDate ? dobDate.toISOString() : "Invalid DOB",
-        gender: rawGender,
+        gender,
         roleId: null,
         fulltime: null,
         imgUrl: null,
@@ -243,15 +255,24 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
     }
 
     // Validate gender
-    let gender = account.gender;
-    const genderVal = gender?.toString().toLowerCase();
+    let genderRaw = account.gender; // giá trị gốc
+    const genderVal = genderRaw?.toString().toLowerCase();
+
+    let gender; // giá trị chuẩn hoá đưa vào state
+    let genderInvalid = false;
+
     if (["female", "f", "0", "false"].includes(genderVal)) {
-      gender = false;
+      gender = false; // Female  → false
     } else if (["male", "m", "1", "true"].includes(genderVal)) {
-      gender = true;
+      gender = true; // Male    → true
     } else {
-      hasInvalidField = true; // Chỉ đánh dấu là không hợp lệ mà không thay đổi giá trị gender
+      gender = genderRaw || "Invalid"; // giữ raw để user thấy
+      genderInvalid = true;
+      hasInvalidField = true;
     }
+
+    // Nếu không có trường nào bị lỗi, set invalid = false
+    const invalid = hasInvalidField;
 
     return {
       ...account,
@@ -260,47 +281,46 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
       phoneNumber,
       dob,
       gender,
-      invalid: hasInvalidField, // Đánh dấu toàn bộ account là không hợp lệ nếu có lỗi
+      invalid, // Set invalid là true nếu có lỗi, false nếu không có lỗi
       invalidFields: {
         email: !emailRegex.test(email), // Nếu không hợp lệ, email sẽ bị đánh dấu là invalid
         fullName: isInvalidName,
         phoneNumber: phoneNumber.length !== 10,
         dob: isNaN(parsedDate.getTime()),
-        gender: !["female", "f", "0", "false", "male", "m", "1", "true"].includes(genderVal),
+        gender: genderInvalid,
       },
     };
   };
 
   const handleImport = () => {
-    const availableAccount = parsedAccounts.filter((account) => account.existed === false && account.invalid);
+    /* 1. Lấy các dòng cần re‑validate */
+    const available = parsedAccounts.filter((acc) => !acc.existed && acc.invalid);
 
-    // Revalidate toàn bộ filteredAccounts
-    const revalidatedAccounts = availableAccount.map(revalidateAccount);
+    /* 2. Re‑validate */
+    const revalidated = available.map(revalidateAccount);
 
-    // Cập nhật lại UI sau khi revalidate
+    /* 3. Cập nhật UI */
     setParsedAccounts((prev) => {
-      /* 1️⃣ Tạo Map theo id (tempId) để tra cứu nhanh */
-      const revalidatedMap = new Map(
-        revalidatedAccounts.map((acc) => [acc.id, { ...acc }]) // clone 1 cấp
-      );
+      const map = new Map(revalidated.map((acc) => [acc.id, acc]));
+      const updated = prev.map((acc) => map.get(acc.id) ?? acc);
 
-      /* 2️⃣ Thay thế những account đã revalidate; giữ nguyên các account khác */
-      const updated = prev.map((acc) => (revalidatedMap.has(acc.id) ? revalidatedMap.get(acc.id) : acc));
-
-      /* 3️⃣ Sắp xếp lại để UI hiển thị đúng thứ tự */
       const priority = (x) => (x.existed ? 2 : x.invalid ? 1 : 0);
       return updated.sort((a, b) => priority(a) - priority(b));
     });
 
-    // Nếu muốn chỉ import những cái vẫn còn hợp lệ sau khi revalidate
-    const validAfterRevalidate = parsedAccounts.filter((acc) => !acc.invalid && !acc.existed);
+    /* 4. Đánh giá kết quả ngay bằng revalidated + các account đã OK sẵn */
+    const stillInvalid = revalidated.filter((acc) => acc.invalid);
 
-    console.log(validAfterRevalidate);
-    return;
-
-    onImport(validAfterRevalidate);
-    resetDialog();
-    onClose();
+    if (stillInvalid.length === 0) {
+      toast.success(`${type}s Added Successfully`);
+      // Gọi import cho tất cả account hợp lệ (đã tồn tại + mới hợp lệ)
+      const accountsToImport = parsedAccounts.filter((acc) => !acc.existed && !acc.invalid).concat(revalidated); // revalidated đã hợp lệ
+      onImport(accountsToImport);
+      resetDialog();
+      onClose();
+    } else {
+      toast.error("Please validate all fields");
+    }
   };
 
   // Reset dialog state
@@ -333,25 +353,29 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
 
   const handleInputChange = (id, field, value) => {
     setParsedAccounts((prev) =>
-      prev.map((acc) =>
-        acc.id === id
-          ? {
-              ...acc,
-              [field]: value,
-              // reset invalidFields bất biến
-              ...(acc.invalidFields
-                ? {
-                    invalidFields: (() => {
-                      const nf = { ...acc.invalidFields };
-                      delete nf[field];
-                      return Object.keys(nf).length ? nf : undefined;
-                    })(),
-                    invalid: acc.invalidFields && Object.keys(acc.invalidFields).length > 1,
-                  }
-                : {}),
-            }
-          : acc
-      )
+      prev.map((acc) => {
+        if (acc.id !== id) return acc;
+
+        /* ----- clone và cập nhật field ----- */
+        const updated = { ...acc };
+
+        // Xử lý riêng cho gender: giữ chuỗi trong state
+        if (field === "gender") {
+          updated.gender = value === "Male" ? true : value === "Female" ? false : null;
+        } else {
+          updated[field] = value;
+        }
+
+        /* ----- cập nhật invalidFields ----- */
+        if (updated.invalidFields?.[field]) {
+          const nf = { ...updated.invalidFields };
+          delete nf[field];
+          updated.invalidFields = Object.keys(nf).length ? nf : undefined;
+        }
+
+        updated.invalid = !!updated.invalidFields; // true nếu còn bất kỳ field lỗi
+        return updated;
+      })
     );
   };
 
@@ -578,14 +602,17 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
                           {/* Gender */}
                           <TableCell>
                             <Select
-                              disabled={!account.invalid} // Disable khi không hợp lệ
-                              value={account.gender === "Invalid Gender" ? "" : account.gender ? "Male" : "Female"}
-                              onValueChange={(value) => handleInputChange(account.id, "gender", value === "Male" ? true : value === "Female" ? false : null)} // Cập nhật giá trị khi người dùng chọn
-                              className={cn("w-full px-2 py-1 border rounded", account.invalidFields ? "border-red-500" : "")} // Thêm border đỏ khi invalid
+                              disabled={!account.invalid}
+                              value={account.gender === true ? "Male" : account.gender === false ? "Female" : "" /* invalid → "" để placeholder rỗng */}
+                              onValueChange={
+                                (val) => handleInputChange(account.id, "gender", val) // lưu "Male"/"Female"
+                              }
+                              className={cn("w-full px-2 py-1 border rounded", account.invalidFields?.gender && "border-red-500")}
                             >
-                              <SelectTrigger className={` ${account.invalidFields?.gender && "border border-red-500"} `}>
-                                <SelectValue placeholder="Select Gender" />
+                              <SelectTrigger className={account.invalidFields?.gender ? "border border-red-500" : ""}>
+                                {account.invalidFields?.gender ? <span className="text-red-500">{String(account.gender || "Invalid")}</span> : <SelectValue placeholder="Select Gender" />}
                               </SelectTrigger>
+
                               <SelectContent>
                                 <SelectItem value="Male">Male</SelectItem>
                                 <SelectItem value="Female">Female</SelectItem>

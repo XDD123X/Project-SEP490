@@ -32,9 +32,7 @@ export function ClassInfoCard({ classData, setSelectedClass }) {
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Lecturer</p>
-            <p className="font-medium">
-              {classData.lecturer.gender ? "Mr." : "Ms."} {classData.lecturer.fullName}
-            </p>
+            <p className="font-medium">{classData.lecturer ? `${classData.lecturer.gender ? "Mr." : "Ms."} ${classData.lecturer.fullName}` : "Not Assigned Yet"}</p>
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Start</p>

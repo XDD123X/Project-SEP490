@@ -28,7 +28,7 @@ export const GetLecturerRequests = async () => {
  */
 export const UpdateLecturerRequest = async (updateData) => {
   try {
-    const response = await axiosClient.put(`/Officer/Request/lecturer/update`, updateData);
+    const response = await axiosClient.put(`/Officer/session-change`, updateData);
     return { status: response.status, data: response.data };
   } catch (error) {
     console.error("UpdateRequest failed:", error);

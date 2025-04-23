@@ -41,6 +41,7 @@ export default function NotificationPage() {
             private: response.data.private.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
           };
           setNotifications(sortedData);
+          
 
           // Chọn thông báo theo notificationId trên URL
           const allNotifications = [...sortedData.common, ...sortedData.private];
@@ -215,12 +216,12 @@ export default function NotificationPage() {
             <CardContent className="p-6">
               {selectedNotification ? (
                 <div>
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-1">
                     <h2 className="text-2xl font-bold">{selectedNotification.title}</h2>
                     <Badge variant={isRead(selectedNotification.notificationId) ? "outline" : "default"}>{isRead(selectedNotification.notificationId) ? "Read" : "Unread"}</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground capitalize">{formatNotificationDate(selectedNotification.createdAt)}</p>
-                  <p className="text-sm text-muted-foreground mb-4">Created by: {selectedNotification.createdByNavigation?.fullName || "N/A"}</p>
+                  <p className="text-sm text-muted-foreground capitalize mb-10">{formatNotificationDate(selectedNotification.createdAt)}</p>
+                  {/* <p className="text-sm text-muted-foreground mb-4">Created by: {selectedNotification.createdByNavigation?.fullName || "N/A"}</p> */}
                   <div className="prose max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: selectedNotification.content }} />
                   {!isRead(selectedNotification.notificationId) && (
                     <div className="mt-6 flex justify-end">

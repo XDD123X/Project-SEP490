@@ -143,7 +143,7 @@ export function ClassSelectionCard({ onClassSelect }) {
                     </TableCell>
                     <TableCell>{classItem.classCode}</TableCell>
                     <TableCell>{classItem.className}</TableCell>
-                    <TableCell>{classItem.lecturer.fullName}</TableCell>
+                    <TableCell>{classItem.lecturer?.fullName || '-'}</TableCell>
                     <TableCell>{classItem.startDate ? format(classItem.startDate, "dd/MM/yyyy") : "N/A"}</TableCell>
                     <TableCell>{classItem.endDate ? format(classItem.endDate, "dd/MM/yyyy") : "N/A"}</TableCell>
                     <TableCell>{classItem.classStudents.length}</TableCell>

@@ -140,7 +140,7 @@ export default function SessionGeneratePage() {
     if (selectedClass) {
       const foundClass = classList.find((c) => c.classId === selectedClass);
       if (foundClass && foundClass.lecturer) {
-        setSelectedLecturer(foundClass.lecturer.accountId);
+        setSelectedLecturer(foundClass.lecturer);
       } else {
         setSelectedLecturer(null);
       }
@@ -169,8 +169,13 @@ export default function SessionGeneratePage() {
       return;
     }
 
-    if (!selectedClass || !startDate || !selectedLecturer) {
+    if (!selectedClass || !startDate) {
       toast.error("Please select all required fields");
+      return;
+    }
+
+    if (!selectedLecturer) {
+      toast.error("Your Must Assign Lecturer First");
       return;
     }
 
@@ -190,13 +195,16 @@ export default function SessionGeneratePage() {
 
     const submissionData = {
       classId: selectedClass,
-      lecturerId: selectedLecturer,
+      lecturerId: selectedLecturer.accountId,
       startDate: new Date(startDate).toISOString(),
       totalSessions: selectedSetting.sessionTotal,
       sessionPerWeek: selectedSetting.sessionPerWeek,
       slotNumber: selectedSetting.slotNumber,
       preferredDays: preferredDays,
     };
+
+    console.log(submissionData);
+
     try {
       setisLoading(true);
       const response = await generateSession(submissionData);
@@ -255,8 +263,7 @@ export default function SessionGeneratePage() {
             {/* hiển thị thông tin lecturer */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Lecturer</label>
-              <div className="flex flex-col-1 justify-center items-center">
-                <Select value={selectedLecturer} onValueChange={setSelectedLecturer} disabled={isSelectDisabled}>
+              {/* <Select value={selectedLecturer} onValueChange={setSelectedLecturer} disabled={isSelectDisabled}>
                   <SelectTrigger className="h-10 w-full disabled:opacity-50 disabled:cursor-not-allowed">
                     <SelectValue placeholder="Please Select Class First" />
                   </SelectTrigger>
@@ -267,8 +274,9 @@ export default function SessionGeneratePage() {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
-              </div>
+                </Select> */}
+              {}
+              <Input value={selectedLecturer ? selectedLecturer.fullName : "N/A"} className="h-10 w-full mt-2" disabled />
             </div>
 
             {/* hiển thị thông tin class setting */}
@@ -323,6 +331,7 @@ export default function SessionGeneratePage() {
               <label className="text-sm font-medium">Start Date</label>
               <CalendarSelector
                 className="w-full"
+                startDate={new Date()}
                 selectedDate={startDate}
                 setSelectedDate={(date) => {
                   if (date) {

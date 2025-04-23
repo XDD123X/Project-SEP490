@@ -70,9 +70,7 @@ export default function StudentClassPage() {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-2" />
-                    <span>
-                      Lecturer: {classItem.lecturer.gender === false ? "Ms. " : "Mr. "} {classItem.lecturer?.fullName || "No Lecturer Assigned"}
-                    </span>
+                    <span>{classItem.lecturer ? `Lecturer: ${classItem.lecturer.gender === false ? "Ms. " : "Mr. "} ${classItem.lecturer.fullName}` : "Lecturer: No Lecturer Assigned"}</span>
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-2" />
@@ -99,7 +97,7 @@ export default function StudentClassPage() {
             </Card>
           ))
         ) : (
-          <p className="text-sm text-muted-foreground" >Student has not been registered for any classes yet.</p>
+          <p className="text-sm text-muted-foreground">Student has not been registered for any classes yet.</p>
         )}
       </div>
 

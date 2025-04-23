@@ -296,7 +296,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <h2 className="mb-4 text-xl font-semibold">Reports Per Date</h2>
             <Card>
               <CardHeader>
@@ -372,7 +372,7 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
         </main>
       </div>
     </div>

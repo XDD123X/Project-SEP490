@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {  ChevronLeft, Pencil, Save, Wrench } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Save, Trash2, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ export default function ClassEditPage() {
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedLecturer, setSelectedLecturer] = useState();
-  const [meetUrl ,setMeetUrl] = useState("");
+  const [meetUrl, setMeetUrl] = useState("");
   const [editLecturer, setEditLecturer] = useState(false);
   const classId = searchParams.get("classId") || "";
   const navigate = useNavigate();
@@ -54,8 +54,10 @@ export default function ClassEditPage() {
 
           if (classData.status === 200 && classData.data != null) {
             setClassItem(classData.data);
-            setSelectedLecturer(classData.data.lecturer.accountId);
-            setMeetUrl(classData.data.classUrl)
+            if (classData.data.lecturer) {
+              setSelectedLecturer(classData.data.lecturer.accountId);
+            }
+            setMeetUrl(classData.data.classUrl);
           }
           if (lecturerData.status === 200 && lecturerData.data != null) {
             setLecturers(lecturerData.data);
@@ -65,6 +67,7 @@ export default function ClassEditPage() {
           }
         } catch (error) {
           toast.error("Error fetching class data");
+          console.log(error);
         } finally {
           setIsLoading(false); // Đảm bảo tắt loading khi hoàn thành
         }
@@ -87,14 +90,14 @@ export default function ClassEditPage() {
     }));
 
     if (name === "lecturerId") {
-      const meetUrl = lecturers.filter(l => l.accountId  === value);
-      setMeetUrl(meetUrl[0].meetUrl)
+      const meetUrl = lecturers.filter((l) => l.accountId === value);
+      setMeetUrl(meetUrl[0].meetUrl);
       setSelectedLecturer(value);
     }
   };
 
   const handleCheckTotalSession = () => {
-    setClassItem((prev) => ({ ...prev, totalSession: 5 }));
+    setClassItem((prev) => ({ ...prev, totalSession: 0 }));
     toast("Total sessions updated");
   };
 
@@ -126,7 +129,6 @@ export default function ClassEditPage() {
         scheduled: classItem.scheduled,
         status: classItem.status,
       };
-      
 
       try {
         const response = await UpdateClass(updatedClass);
@@ -157,13 +159,13 @@ export default function ClassEditPage() {
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-6 text-center">Class Infomation Update</h1>
       <div className="w-full max-w-2xl mx-auto space-y-4">
-        <div className="flex justify-start mt-4">
+        <div className="flex justify-between mt-4">
           <Button onClick={() => navigate("/officer/class")}>
             <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
           </Button>
-          {/* <Button variant="outline" >
-            Next <ChevronRight className="ml-2 h-4 w-4" />
-          </Button> */}
+          <Button variant="destructive">
+            <Trash2 className="ml-2 h-4 w-4" /> Delete Class
+          </Button>
         </div>
         <Card className="">
           <CardHeader>
@@ -232,8 +234,8 @@ export default function ClassEditPage() {
                 <Label htmlFor="totalSession">Total Sessions</Label>
                 <div className="flex gap-2">
                   <Input id="totalSession" name="totalSession" type="number" value={classItem.totalSession} disabled />
-                  <Button variant="outline" size="icon" onClick={handleCheckTotalSession} title="Check total sessions">
-                    <Wrench className="h-4 w-4" />
+                  <Button disabled={classItem.status !== 2} variant="outline" size="icon" onClick={handleCheckTotalSession} title="Check total sessions">
+                    <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
                 </div>
               </div>
@@ -246,10 +248,9 @@ export default function ClassEditPage() {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Cancelled</SelectItem>
+                    <SelectItem value="0">Inactive</SelectItem>
                     <SelectItem value="1">Upcoming</SelectItem>
                     <SelectItem value="2">Studying</SelectItem>
-                    <SelectItem value="3">Finished</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -289,7 +290,7 @@ export default function ClassEditPage() {
               {/* Class URL - Disabled */}
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="classUrl">Class URL</Label>
-                <Input id="classUrl" name="classUrl" value={meetUrl || ""} disabled />
+                <Input id="classUrl" name="classUrl" value={classItem.lecturer?.meetUrl || ""} disabled />
               </div>
 
               {/* Scheduled - Disabled with button */}
