@@ -33,5 +33,7 @@ namespace OTMS.DAL.Repository
         public Task UpdateClassStudentsAsync(Guid classId, List<Guid> studentIds) => _classStudentDAO.UpdateClassStudentsAsync(classId, studentIds);
 
         public Task RemoveAllClassStudentsAsync(Guid classId) => _classStudentDAO.RemoveAllStudentsAsync(classId);
+
+        public Task<ClassStudent> GetByClassAndStudentAsync(Guid classId, Guid studentId) => _classStudentDAO.GetByClassAndStudentAsync(classId, studentId);
     }
 }

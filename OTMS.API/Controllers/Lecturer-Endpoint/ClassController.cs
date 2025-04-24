@@ -12,14 +12,17 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
     public class ClassController : ControllerBase
     {
         private readonly IClassRepository _classRepository;
+        private readonly IClassStudentRepository _classStudentRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
 
-        public ClassController(IClassRepository classRepository, IMapper mapper)
+        public ClassController(IClassRepository classRepository, IClassStudentRepository classStudentRepository, IAccountRepository accountRepository, IMapper mapper)
         {
             _classRepository = classRepository;
+            _classStudentRepository = classStudentRepository;
+            _accountRepository = accountRepository;
             _mapper = mapper;
         }
-
 
         [HttpGet("all")]
         [Authorize]
@@ -50,5 +53,21 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             return Ok(response);
         }
 
+        [HttpPost("report/{classId}/{studentId}")]
+        public async Task<IActionResult> ReportStudent(Guid classId, Guid studentId)
+        {
+
+
+            var student = await _accountRepository.GetByIdAsync(studentId);
+            if (student == null) return NotFound();
+
+            var classStudent = await _classStudentRepository.GetByClassAndStudentAsync(classId, studentId);
+            if (classStudent == null) return NotFound();
+
+            classStudent.Status = 1 - classStudent.Status;
+            await _classStudentRepository.UpdateAsync(classStudent);
+            return Ok(studentId + "Change Status In Class To Successfully");
+
+        }
     }
 }
