@@ -88,7 +88,7 @@ export function ClassBadge({ status }) {
     case 0:
       return (
         <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
-          <X className="w-3 h-3 mr-1" /> Cancelled
+          <X className="w-3 h-3 mr-1" /> Inactive
         </Badge>
       );
     case 1:

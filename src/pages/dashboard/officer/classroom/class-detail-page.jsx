@@ -118,7 +118,7 @@ export default function ClassDetailPage() {
                 <div className="font-semibold">Meet URL:</div>
                 <div>
                   <Link className="underline underline-offset-4 text-blue-500 text-xs" to={currentClass.classUrl} target="_blank">
-                    {currentClass.lecturer.meetUrl}
+                    {currentClass.lecturer?.meetUrl || "not yet"}
                   </Link>
                 </div>
               </div>

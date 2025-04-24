@@ -13,6 +13,7 @@ import { GetClassById, UpdateClass } from "@/services/classService";
 import { getLecturerList } from "@/services/accountService";
 import { getAllCourse } from "@/services/courseService";
 import CalendarSelector from "@/components/CalendarSelector";
+import { ClassBadge } from "@/components/BadgeComponent";
 
 export default function ClassEditPage() {
   const [searchParams] = useSearchParams();
@@ -23,6 +24,7 @@ export default function ClassEditPage() {
   const [editLecturer, setEditLecturer] = useState(false);
   const classId = searchParams.get("classId") || "";
   const navigate = useNavigate();
+  const [tempStatus, setTempStatus] = useState("0");
 
   const [classItem, setClassItem] = useState({
     classId: "",
@@ -41,6 +43,8 @@ export default function ClassEditPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showScheduledDialog, setShowScheduledDialog] = useState(false);
   const [showEditLecturerDialog, setShowEditLecturerDialog] = useState(false);
+  const [showDeleteClassDialog, setShowDeleteClassDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch class data
   useEffect(() => {
@@ -56,8 +60,10 @@ export default function ClassEditPage() {
             setClassItem(classData.data);
             if (classData.data.lecturer) {
               setSelectedLecturer(classData.data.lecturer.accountId);
+              setMeetUrl(classData.data.lecturer.meetUrl);
             }
-            setMeetUrl(classData.data.classUrl);
+
+            setTempStatus(classData.data.status);
           }
           if (lecturerData.status === 200 && lecturerData.data != null) {
             setLecturers(lecturerData.data);
@@ -127,7 +133,7 @@ export default function ClassEditPage() {
         endDate: classItem.endDate,
         classUrl: meetUrl,
         scheduled: classItem.scheduled,
-        status: classItem.status,
+        status: tempStatus,
       };
 
       try {
@@ -147,6 +153,18 @@ export default function ClassEditPage() {
     }
   };
 
+  const handleStatusChange = (value) => {
+    setTempStatus(value);
+  };
+
+  const handleDeleteClass = async () => {
+    try {
+      setIsDeleting(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -163,15 +181,19 @@ export default function ClassEditPage() {
           <Button onClick={() => navigate("/officer/class")}>
             <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
           </Button>
-          <Button variant="destructive">
+          <Button variant="destructive" onClick={() => setShowDeleteClassDialog(true)} disabled={classItem.status !== 1}>
             <Trash2 className="ml-2 h-4 w-4" /> Delete Class
           </Button>
         </div>
         <Card className="">
           <CardHeader>
-            <CardTitle className="text-center text-xl">Code: {classItem.classCode}</CardTitle>
+            <div className="flex justify-between mb-5 mt-2">
+              <CardTitle className="text-center text-xl">Code: {classItem.classCode}</CardTitle>
+              <ClassBadge status={classItem.status} />
+            </div>
             <Separator />
           </CardHeader>
+
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Class Code */}
@@ -210,7 +232,7 @@ export default function ClassEditPage() {
                   <Select
                     value={selectedLecturer} // Kiểm tra nếu lecturer tồn tại
                     onValueChange={(value) => handleSelectChange("lecturerId", value)}
-                    disabled={!editLecturer}
+                    disabled={selectedLecturer && !editLecturer}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select lecturer" />
@@ -243,10 +265,11 @@ export default function ClassEditPage() {
               {/* Status - Select */}
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={classItem.status.toString()} onValueChange={(value) => handleSelectChange("status", value)}>
+                <Select value={tempStatus.toString()} onValueChange={handleStatusChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
+
                   <SelectContent>
                     <SelectItem value="0">Inactive</SelectItem>
                     <SelectItem value="1">Upcoming</SelectItem>
@@ -350,6 +373,26 @@ export default function ClassEditPage() {
               Cancel
             </Button>
             <Button onClick={toggleEditLecturer}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* delete class Confirmation Dialog */}
+      <Dialog open={showDeleteClassDialog} onOpenChange={setShowDeleteClassDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Class</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the class <strong>{classItem.classCode}</strong>?
+              <br /> This will permanently remove all related records, files, and reports.
+              <br /> This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteClassDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => handleDeleteClass()}>Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

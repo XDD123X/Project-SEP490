@@ -25,7 +25,7 @@ export default function ClassAddStudentPage() {
         const studentList = await getStudentList();
 
         if (studentList.status === 200 || studentList.data !== null) {
-          setStudents(studentList.data.filter((s) => s.status === 1));
+          setStudents(studentList.data.filter((s) => s.status !== 0));
         } else {
           toast.error("Failed Fetching Data");
         }

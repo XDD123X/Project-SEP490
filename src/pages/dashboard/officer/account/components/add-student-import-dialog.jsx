@@ -226,10 +226,20 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
     let hasInvalidField = false;
 
     // Validate email (định dạng chuẩn)
-    let email = account.email;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      hasInvalidField = true; // Chỉ đánh dấu là không hợp lệ mà không thay đổi giá trị email
+    let email = account.email?.toString().trim();
+    const emailRegex = /^(?!\.)(?!.*\.\.)[A-Za-z0-9.]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    // kiểm tra trùng email (không phân biệt hoa thường)
+    const emailExists = [...accountsData, ...parsedAccounts] // gộp 2 nguồn
+      .some(
+        (acc) => acc.email?.toLowerCase() === email?.toLowerCase() && acc.id !== account.id // bỏ qua chính bản thân
+      );
+
+    if (!emailRegex.test(email) || emailExists) {
+      hasInvalidField = true;
+      if (emailExists) {
+        email = `(Existed)${email}`; // thêm tiền tố cảnh báo
+      }
     }
 
     // Validate full name

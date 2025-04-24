@@ -13,10 +13,12 @@ import { ImportAccountsOfficerDialog } from "./components/add-student-import-dia
 import { Link } from "react-router-dom";
 import { AccountBadge } from "@/components/BadgeComponent";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { GetClassList } from "@/services/classService";
 
 export default function ViewStudentManagementPage() {
   const [accounts, setAccounts] = useState([]);
   const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
@@ -24,6 +26,7 @@ export default function ViewStudentManagementPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteAccount, setDeleteAccount] = useState();
+  const [classFilter, setClassFilter] = useState("");
 
   //dialog
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
@@ -36,11 +39,28 @@ export default function ViewStudentManagementPage() {
     try {
       const studentList = await getStudentList();
       const accountList = await getAccounts();
+      const classList = await GetClassList();
       if (studentList.status === 200 && accountList.status === 200) {
+        setClasses(classList.data);
         const students = studentList?.data || [];
+
+        //student with class
+        const studentsWithClass = students.map((stu) => {
+          // Tìm tất cả classCode mà sinh viên này xuất hiện
+          const codes = classList.data // duyệt qua mỗi lớp
+            .filter((cls) => cls.classStudents.some((cs) => cs.studentId === stu.accountId))
+            .map((cls) => cls.classCode); // lấy classCode
+
+          return {
+            ...stu,
+            classCode: codes.length === 1 ? codes[0] : codes, // một hoặc nhiều lớp
+          };
+        });
+
         setAccounts(accountList.data);
-        const sortedStudents = students.length > 0 ? [...students].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+        const sortedStudents = studentsWithClass.length > 0 ? [...studentsWithClass].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
         setStudents(sortedStudents);
+        console.log(sortedStudents);
       }
     } catch (error) {
       toast.error(`Failed to load data: ${error.message}`);
@@ -76,8 +96,19 @@ export default function ViewStudentManagementPage() {
       });
     }
 
+    //Lọc theo class
+    if (classFilter && classFilter !== "AllClass") {
+      setCurrentPage(1)
+      result = result.filter((student) => {
+        // Ép classCode thành mảng để dễ so sánh
+        const codes = Array.isArray(student.classCode) ? student.classCode : [student.classCode];
+
+        return codes.some((code) => code?.toLowerCase() === classFilter.toLowerCase());
+      });
+    }
+
     setFilteredStudents(result);
-  }, [searchTerm, students]);
+  }, [searchTerm, students, classFilter]);
 
   //sort
   const requestSort = (key) => {
@@ -257,6 +288,29 @@ export default function ViewStudentManagementPage() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search student..." className="pl-8" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
+          <div className="relative w-full sm:w-[300px]">
+            <Select
+              id="class-select"
+              value={classFilter}
+              onValueChange={(value) => {
+                setClassFilter(value);
+                console.log(value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Class" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="AllClass">All</SelectItem>
+                {classes &&
+                  classes.map((classItem) => (
+                    <SelectItem key={classItem.classId} value={classItem.classCode.toString()}>
+                      {classItem.classCode}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -351,10 +405,10 @@ export default function ViewStudentManagementPage() {
                         </Button>
                       </Link>
                       <Button
-                        disabled={account.status === 1}
-                        variant="ghost"
+                        disabled={account.status !== 0}
+                        variant={`${account.status !== 0 ? "ghost" : "destructive"}`}
                         size="icon"
-                        className="text-red-500 hover:text-red-600"
+                        className={`${account.status !== 0 && "text-red-500"}`}
                         onClick={() => {
                           setDeleteAccount(account); // lưu account cần xoá
                           setDeleteOpen(true); // mở hộp thoại xác nhận
@@ -457,7 +511,7 @@ export default function ViewStudentManagementPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Student</DialogTitle>
-            <DialogDescription>Are you sure you want to delete this student? This action cannot be undone.</DialogDescription>
+            <DialogDescription>Are you sure you want to delete student {deleteAccount?.fullName || "N/A"}? This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>
