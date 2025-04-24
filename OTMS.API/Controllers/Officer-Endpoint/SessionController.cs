@@ -172,7 +172,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         }
 
         [HttpPut("Update")]
-        public async Task<IActionResult> UpdateSession(SessionUpdateModel update)
+        public async Task<IActionResult> UpdateSession([FromBody]SessionUpdateModel update)
         {
             if (update == null || update.SessionId == Guid.Empty)
             {
