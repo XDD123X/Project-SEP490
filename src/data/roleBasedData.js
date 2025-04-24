@@ -183,10 +183,7 @@ const roleBasedData = {
         title: "Report",
         url: "reports",
         icon: FileText,
-        items: [
-          { title: "Analyze", url: "/officer/report/analyze" },
-          { title: "View Reports", url: "/officer/report" },
-        ],
+        items: [{ title: "View Reports", url: "/officer/report" }],
       },
     ],
     navSecondary: [

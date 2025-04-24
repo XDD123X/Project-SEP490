@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Info } from "lucide-react";
+import { ExternalLink, Info, Settings, Settings2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { GetLecturerClassList } from "@/services/classService";
@@ -94,7 +94,7 @@ function ClassCard({ classItem }) {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col items-center w-full gap-2">
-        <Link to={classItem.classUrl} className="w-full" target="_blank" rel="noopener noreferrer">
+        <Link to={classItem.lecturer?.meetUrl || "#"} className="w-full" target="_blank" rel="noopener noreferrer">
           <Button className="flex-1 w-full">
             <ExternalLink className="mr-2 h-4 w-4" />
             Join Online Class
@@ -102,8 +102,8 @@ function ClassCard({ classItem }) {
         </Link>
         <Link to={`/lecturer/class/detail/${classItem.classId}`} className="w-full">
           <Button variant="outline" className="flex-1 w-full">
-            <Info className="mr-2 h-4 w-4" />
-            Details
+            <Settings className="mr-2 h-4 w-4" />
+            Manager Student
           </Button>
         </Link>
       </CardFooter>

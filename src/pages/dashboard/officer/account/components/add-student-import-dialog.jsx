@@ -322,8 +322,15 @@ export function ImportAccountsOfficerDialog({ isOpen, onClose, onImport, account
     const stillInvalid = revalidated.filter((acc) => acc.invalid);
 
     if (stillInvalid.length === 0) {
-      toast.success(`${type}s Added Successfully`);
       // Gọi import cho tất cả account hợp lệ (đã tồn tại + mới hợp lệ)
+
+      if (parsedAccounts.length === 0) {
+        toast.error(`No ${type}s Added`);
+        resetDialog();
+        onClose();
+        return;
+      }
+
       const accountsToImport = parsedAccounts.filter((acc) => !acc.existed && !acc.invalid).concat(revalidated); // revalidated đã hợp lệ
       onImport(accountsToImport);
       resetDialog();

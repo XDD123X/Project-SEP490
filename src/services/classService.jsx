@@ -163,3 +163,16 @@ export const UpdateStudentsInClass = async (jsonData) => {
     throw error;
   }
 };
+
+export const TogglClassStudentStatus = async (classId, studentId) => {
+  try {
+    const response = await axiosClient.post(`lecturer/Class/report/${classId}/${studentId}`);
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};

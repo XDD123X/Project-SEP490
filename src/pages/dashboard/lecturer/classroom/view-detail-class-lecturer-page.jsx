@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, Flag, FlagOff } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { GetLecturerClassById } from "@/services/classService";
+import { GetLecturerClassById, TogglClassStudentStatus } from "@/services/classService";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ClassBadge } from "@/components/BadgeComponent";
+import { toast } from "sonner";
 
 export default function ViewClassDetailLecturerPage() {
   const { id } = useParams();
@@ -22,27 +23,39 @@ export default function ViewClassDetailLecturerPage() {
     }
   }, [id, navigate]);
 
-  // Simulate API fetch
-  useEffect(() => {
-    const fetchClassDetail = async () => {
-      try {
-        const response = await GetLecturerClassById(id);
+  //fetch function
+  const fetchClassDetail = async () => {
+    try {
+      const response = await GetLecturerClassById(id);
+      console.log(response.data);
 
-        console.log("data", response);
-        console.log("id", id);
-
-        if (response.status === 200 && response.data != null) {
-          setClassData(response.data);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching class details:", error);
+      if (response.status === 200 && response.data != null) {
+        setClassData(response.data);
         setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching class details:", error);
+      setLoading(false);
+    }
+  };
 
+  // Simulate API fetch
+  useEffect(() => {
     fetchClassDetail();
   }, [id]);
+
+  const handleChangeClassStudentStatus = async (classId, studentId) => {
+    try {
+      const response = await TogglClassStudentStatus(classId, studentId);
+      if (response.status === 200) {
+        fetchClassDetail();
+        toast.success("Student In Class Status Changed Successfully");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Student Status Change Failed");
+    }
+  };
 
   if (loading) {
     return (
@@ -135,11 +148,11 @@ export default function ViewClassDetailLecturerPage() {
                   <div className="truncate max-w-[200px]">
                     <Link
                       className="underline underline-offset-4 text-blue-500 block truncate"
-                      to={classData.classUrl || "#"}
-                      {...(classData.classUrl ? { target: "_blank" } : {})}
-                      title={classData.classUrl || "N/A"} // Hiển thị full URL khi hover
+                      to={classData.lecturer?.meetUrl || "#"}
+                      {...(classData.lecturer?.meetUrl ? { target: "_blank" } : {})}
+                      title={classData.lecturer?.meetUrl || "N/A"} // Hiển thị full URL khi hover
                     >
-                      {classData.classUrl ? classData.classUrl.split("/").pop() : "N/A"} {/* Nếu null thì hiển thị N/A */}
+                      {classData.lecturer ? classData.lecturer?.meetUrl.split("/").pop() : "N/A"} {/* Nếu null thì hiển thị N/A */}
                     </Link>
                   </div>
                 </div>
@@ -165,7 +178,11 @@ export default function ViewClassDetailLecturerPage() {
                 {classData?.classStudents?.length > 0 ? (
                   <div className="space-y-4">
                     {classData.classStudents.map((student) => (
-                      <div key={student.student.accountId} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div
+                        key={student.student.accountId}
+                        className={`flex items-center justify-between p-3 border rounded-lg
+                        ${student.status === 1 ? "border-green-400" : "border-red-400"}`}
+                      >
                         <div className="flex items-center space-x-4">
                           <Avatar>
                             <AvatarImage src={student.student.imgUrl} alt={student.name} />
@@ -180,11 +197,16 @@ export default function ViewClassDetailLecturerPage() {
                           <div>Phone: {student.student.phoneNumber || "N/A"}</div>
                           <div>DOB: {student.student.dob ? format(new Date(student.student.dob), "dd/MM/yyyy") : "N/A"}</div>
                         </div>
-                        <Link to={`/account/${student.student.accountId}`}>
-                          <Button variant="outline" size="icon">
-                            <Eye className="h-4 w-4" />
+                        <div className="flex gap-2">
+                          <Link to={`/account/${student.student.accountId}`}>
+                            <Button variant="outline" size="icon">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button variant="outline" size="icon" onClick={() => handleChangeClassStudentStatus(student.classId, student.studentId)}>
+                            {student.status !== 1 ? <Flag className="h-4 w-4 text-green-500" /> : <FlagOff className="h-4 w-4 text-red-500" />}
                           </Button>
-                        </Link>
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -207,6 +207,13 @@ export default function ViewLecturerManagementPage() {
     // Tạo Set chứa danh sách email của sinh viên đã tồn tại
     const existingLecturerEmails = new Set(lecturers.map((lecturer) => lecturer.email));
 
+    //kiểm tra importedLecturerList
+    if (importedLecturers.length === 0) {
+      toast.error("No Lecturers Added");
+      setIsLoading(false);
+      return;
+    }
+
     // Lọc ra các sinh viên có email chưa tồn tại
     const uniqueLecturers = importedLecturers.filter((lecturer) => !existingLecturerEmails.has(lecturer.email));
 
