@@ -34,5 +34,14 @@ namespace OTMS.DAL.DAO
 
         }
 
+        public async Task<Record> GetReportFromRecordBySessionId(Guid ssid)
+        {
+            return await _context.Records
+                .Include(x => x.Reports)
+                .FirstOrDefaultAsync(x => x.SessionId == ssid);
+        }
+
+
+
     }
 }
