@@ -32,7 +32,6 @@ export function AttendanceSessionList({ classId, onTakeAttendance }) {
     async function fetchSessions() {
       try {
         const sessionList = await getSessionsByClassId(classId);
-        console.log(sessionList.data[0]);
 
         setSessions(sessionList.data);
         setLoading(false);
@@ -93,7 +92,6 @@ export function AttendanceSessionList({ classId, onTakeAttendance }) {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Sessions</h3>
-        <Button disabled>Create New Session</Button>
       </div>
 
       <div className="border rounded-md">

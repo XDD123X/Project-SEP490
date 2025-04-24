@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Calendar, CalendarOff, CalendarRange } from "lucide-react";
+import { Users, Calendar, CalendarOff, CalendarRange, Hand, ClipboardList } from "lucide-react";
 
-export function AttendanceClassList({ classes, onSelectClass, onCreateSession }) {
+export function AttendanceClassList({ classes, onSelectClass, onSelectReport }) {
   // Function to check if a class has a session today
   const hasTodaySession = (classItem) => {
     if (!classItem.todaySessions) return false;
@@ -50,9 +50,14 @@ export function AttendanceClassList({ classes, onSelectClass, onCreateSession })
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-end">
+          <CardFooter className="flex justify-between">
+            <Button onClick={() => onSelectReport(classItem.classId)}>
+              <ClipboardList className="w-4 h-4 " />
+              Report
+            </Button>
             <Button onClick={() => onSelectClass(classItem.classId)}>
-              Take Attendance
+              <Hand className="w-4 h-4" />
+              Attendance
             </Button>
           </CardFooter>
         </Card>

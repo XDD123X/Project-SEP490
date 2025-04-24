@@ -117,7 +117,7 @@ const roleBasedData = {
       { title: "Request", url: "lecturer/request", icon: Mail },
       { title: "Record", url: "lecturer/record", icon: Video },
       { title: "Material", url: "lecturer/material", icon: FileStack },
-      { title: "Report", url: "/lecturer/report", icon: FileText },
+      { title: "Report", url: "/lecturer/reports", icon: FileText },
     ],
   },
   officer: {
@@ -183,7 +183,7 @@ const roleBasedData = {
         title: "Report",
         url: "reports",
         icon: FileText,
-        items: [{ title: "View Reports", url: "/officer/report" }],
+        items: [{ title: "View Reports", url: "/officer/reports" }],
       },
     ],
     navSecondary: [

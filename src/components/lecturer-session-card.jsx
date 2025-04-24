@@ -117,9 +117,9 @@ export default function LecturerClassCard({ session }) {
           </div>
 
           {session.description && (
-            <div className="flex items-center justify-between border-b px-3 py-2">
+            <div className="border-b px-3 py-2">
               <p className="text-xs text-muted-foreground">Note:</p>
-              <span className="text-xs font-medium text-right text-green-600">{session.description}</span>
+              <p className="text-xs font-medium text-green-500">{session.description}</p>
             </div>
           )}
 

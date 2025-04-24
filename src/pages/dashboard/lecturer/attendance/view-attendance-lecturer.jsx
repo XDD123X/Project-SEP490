@@ -5,21 +5,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Calendar, Users, Clock } from "lucide-react";
 import { useStore } from "@/services/StoreContext";
 import { toast } from "sonner";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { GetLecturerClassList } from "@/services/classService";
 import { AttendanceClassList } from "@/components/attendance/class-list";
 import { AttendanceSessionList } from "@/components/attendance/session-list";
 import { getSessionsByClassId } from "@/services/sessionService";
+import AttendanceReportLecturer from "@/components/attendance/report-list";
 
 export function ViewAttendanceLecturerPage() {
   const { classId } = useParams();
+  const { pathname } = useLocation();
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("classes");
   const [selectedClass, setSelectedClass] = useState(null);
   const [sessions, setSessions] = useState([]);
   const { state } = useStore();
-  const { user, role } = state;
+  const { user } = state;
   const navigate = useNavigate();
 
   const lecturerId = user.uid;
@@ -34,14 +36,14 @@ export function ViewAttendanceLecturerPage() {
         const classesWithTodayInfo = await Promise.all(
           responseClasss.data.map(async (classItem) => {
             const responseSessions = await getSessionsByClassId(classItem.classId);
-        
+
             // Lấy danh sách session hôm nay
             const todaySessions = responseSessions.data.filter((session) => {
               const sessionDate = new Date(session.sessionDate);
               const today = new Date();
               return sessionDate.toDateString() === today.toDateString();
             }).length;
-        
+
             return {
               ...classItem,
               sessions: responseSessions.data,
@@ -49,12 +51,12 @@ export function ViewAttendanceLecturerPage() {
             };
           })
         );
-        
+
         setSessions((prevSessions) => {
           const newSessions = classesWithTodayInfo.flatMap((c) => c.sessions);
           return [...prevSessions, ...newSessions];
         });
-      
+
         setClasses(classesWithTodayInfo);
         setLoading(false);
       } catch (error) {
@@ -70,21 +72,25 @@ export function ViewAttendanceLecturerPage() {
   useEffect(() => {
     if (classId) {
       setSelectedClass(classId);
-      setActiveTab("sessions");
+      if (pathname.startsWith("/attendance/report/")) {
+        setActiveTab("report");
+      } else if (pathname.startsWith("/attendance/")) {
+        setActiveTab("sessions");
+      }
     }
-  }, [classId]);
-  
+  }, [classId, pathname]);
 
   const handleClassSelect = (classId) => {
+    console.log(sessions);
+
     setSelectedClass(classId);
     setActiveTab("sessions");
     navigate(`/lecturer/attendance/${classId}`);
   };
-
-  const handleCreateSession = (classId) => {
-    // In a real app, you would create a session here
-    // For demo purposes, we'll navigate to a mock session
-    navigate(`/lecturer/attendance/${classId}/add`);
+  const handleClassReportSelect = (classId) => {
+    setSelectedClass(classId);
+    setActiveTab("report");
+    navigate(`/lecturer/attendance/report/${classId}`);
   };
 
   const handleTakeAttendance = (classId, sessionId) => {
@@ -103,6 +109,7 @@ export function ViewAttendanceLecturerPage() {
   return (
     <div className="m-5">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
+        {/* total class card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
@@ -112,6 +119,7 @@ export function ViewAttendanceLecturerPage() {
             <div className="text-2xl font-bold">{classes.length}</div>
           </CardContent>
         </Card>
+        {/* active session */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
@@ -121,6 +129,7 @@ export function ViewAttendanceLecturerPage() {
             <div className="text-2xl font-bold">{classes.reduce((total, cls) => total + cls.sessions.length, 0)}</div>
           </CardContent>
         </Card>
+        {/* today session */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
@@ -134,15 +143,21 @@ export function ViewAttendanceLecturerPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
-          <TabsTrigger value="classes" onClick={() => navigate("/lecturer/attendance")}>My Classes</TabsTrigger>
+          <TabsTrigger value="classes" onClick={() => navigate("/lecturer/attendance")}>
+            My Classes
+          </TabsTrigger>
           <TabsTrigger value="sessions" disabled={!classId}>
             Sessions
           </TabsTrigger>
+          <TabsTrigger value="report" disabled={!classId}>
+            Report
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="classes">
-          <AttendanceClassList classes={classes} onSelectClass={handleClassSelect} onCreateSession={handleCreateSession} />
+          <AttendanceClassList classes={classes} onSelectClass={handleClassSelect} onSelectReport={handleClassReportSelect} />
         </TabsContent>
         <TabsContent value="sessions">{selectedClass && <AttendanceSessionList classId={selectedClass} onTakeAttendance={handleTakeAttendance} />}</TabsContent>
+        <TabsContent value="report">{selectedClass && <AttendanceReportLecturer classId={selectedClass} />}</TabsContent>
       </Tabs>
     </div>
   );

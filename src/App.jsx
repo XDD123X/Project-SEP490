@@ -77,6 +77,8 @@ import OfficerAddSessionPage from "./pages/dashboard/officer/session/session-add
 import AdminAccountPage from "./pages/dashboard/admin/account/AdminAccountPage";
 import AdminAddAcountPage from "./pages/dashboard/admin/account/AdminAddAcountPage";
 import { AdminEditAccountPage } from "./pages/dashboard/admin/account/AdminEditAccountPage";
+import ViewLecturerReportPage from "./pages/dashboard/lecturer/report/lecturer-class-report-page";
+import ViewLecturerClassReportPage from "./pages/dashboard/lecturer/report/lecturer-session-report-page";
 
 function App() {
   return (
@@ -162,6 +164,7 @@ function App() {
 
                         <Route path="attendance" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId" element={<ViewAttendanceLecturerPage />} />
+                        <Route path="attendance/report/:classId" element={<ViewAttendanceLecturerPage />} />
                         <Route path="attendance/:classId/:sessionId" element={<ViewAttendanceDetailLecturerPage />} />
 
                         <Route path="request" element={<ViewRequestByClassLecturerPage />} />
@@ -172,11 +175,8 @@ function App() {
                         <Route path="record/:classId" element={<ViewSessionByRecordClassMaterialPage />} />
                         <Route path="record/:classId/:sessionId" element={<UploadMaterialBySessionPage />} />
 
-                        <Route path="report" element={<ViewReportByClassPage />} />
-                        <Route path="report/:classId" element={<ViewSessionByClassReportPage />} />
-
-                        <Route path="report/analyze" element={<SelectClassReportPage />} />
-                        <Route path="report/analyze/:classId" element={<SelectSessionByClassReportPage />} />
+                        <Route path="reports" element={<ViewLecturerReportPage />} />
+                        <Route path="reports/:classId" element={<ViewLecturerClassReportPage />} />
 
                         <Route path="material" element={<ViewClassFileMaterialPage />} />
                         <Route path="material/:classId" element={<ViewSessionByFileClassMaterialPage />} />

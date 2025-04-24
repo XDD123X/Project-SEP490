@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit, Trash2, ChevronDown, ChevronUp, Video, VideoOff, Eye } from "lucide-react";
+import { Search, Plus, Edit, Trash2, ChevronDown, ChevronUp, Video, VideoOff, Eye, Settings, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,25 +9,33 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { deleteSession, getAllSession } from "@/services/sessionService";
+import { deleteSession, getAllSession, requestChangeSessionValid, updateSession } from "@/services/sessionService";
 import { GetClassList } from "@/services/classService";
 import { Badge } from "@/components/ui/badge";
 import { getLecturerList } from "@/services/accountService";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { SessionBadge } from "@/components/BadgeComponent";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Slot options
 const slotOptions = [1, 2, 3, 4];
 
 export default function SessionViewPage() {
+  //get classCode form url
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlClass = searchParams.get("class") ?? "";
+  const [selectedClass, setSelectedClass] = useState(urlClass);
+
+  //other const
   const [sessions, setSessions] = useState([]);
   const [classes, setClasses] = useState([]);
   const [classList, setClassList] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [filteredSessions, setFilteredSessions] = useState(sessions);
-  const [selectedClass, setSelectedClass] = useState();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -36,6 +44,9 @@ export default function SessionViewPage() {
   const [openDelete, setOpenDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteId, setDeleteId] = useState();
+  const [alert, setAlert] = useState();
+  const [disableSave, setDisableSave] = useState(false);
+  const [originSession, setOriginSession] = useState();
 
   // Add state for pagination in the SessionsPage component
   const [currentPage, setCurrentPage] = useState(1);
@@ -177,12 +188,69 @@ export default function SessionViewPage() {
     return sortConfig.direction === "ascending" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
   };
 
-  // Handle editing a session
-  const handleEditSession = () => {
-    const updatedSessions = sessions.map((session) => (session.sessionId === currentSession.sessionId ? currentSession : session));
-    console.log(updatedSessions);
+  //setSelectedByUrl
+  useEffect(() => {
+    if (urlClass && urlClass !== selectedClass) {
+      setSelectedClass(urlClass);
+    }
+  }, [urlClass]);
 
-    // setIsEditDialogOpen(false);
+  const handleSelectedClassChange = (value) => {
+    setSelectedClass(value);
+    // setSearchParams giữ nguyên param khác, chỉ đổi 'class'
+    setSearchParams((prev) => {
+      prev.set("class", value);
+      return prev;
+    });
+  };
+
+  //set origin when current change
+  useEffect(() => {
+    const oldSession = sessions.find((session) => (session.sessionId === currentSession.sessionId ? currentSession : session));
+    setOriginSession(oldSession);
+  }, [currentSession]);
+
+  // Handle editing a session
+  const handleEditSession = async () => {
+    try {
+      console.log(currentSession);
+
+      const response = await updateSession(currentSession);
+      console.log(response);
+
+      if (response.status === 200) {
+        toast.success("Session Updated Successfully.");
+
+        // Dùng currentSession làm session đã sửa
+        setSessions((prev) => prev.map((s) => (s.sessionId === currentSession.sessionId ? currentSession : s)));
+
+        setAlert(null);
+        setDisableSave(false);
+      }
+    } catch (error) {
+      toast.error("Session Edit Failed");
+      console.log(error);
+    }
+
+    setIsEditDialogOpen(false);
+  };
+
+  const handleValidEditSessionDate = async () => {
+    try {
+      if (!currentSession) return;
+      const response = await requestChangeSessionValid(currentSession.lecturerId, currentSession.sessionDate, currentSession.slot, currentSession.sessionId);
+      setAlert(response.data);
+
+      if (response.data.hasConflict) {
+        setDisableSave(true);
+      } else {
+        setDisableSave(false);
+      }
+
+      return response.data.hasConflict;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // Handle deleting a session
@@ -205,9 +273,30 @@ export default function SessionViewPage() {
 
   // Handle form input changes for editing session
   const handleEditSessionChange = (field, value) => {
-    setCurrentSession({
-      ...currentSession,
+    // Cập nhật session hiện tại
+    setCurrentSession((prev) => ({
+      ...prev,
       [field]: value,
+    }));
+
+    // Sau khi cập nhật, kiểm tra lại trạng thái nút Save
+    setDisableSave((prevDisable) => {
+      // Nếu đang chỉnh sessionDate hoặc slot, cần kiểm tra
+      if (field === "sessionDate" || field === "slot") {
+        // Lấy giá trị mới (dùng currentSession + thay đổi vừa rồi)
+        const newSessionDate = field === "sessionDate" ? value : currentSession.sessionDate;
+        const newSlot = field === "slot" ? value : currentSession.slot;
+
+        // So sánh với dữ liệu gốc
+        const unchanged = newSessionDate === originSession.sessionDate && newSlot === originSession.slot;
+
+        //set lai alert
+        setAlert(null);
+
+        return !unchanged; // nếu unchanged => false, ngược lại true
+      }
+      // Với trường khác, giữ nguyên trạng thái disableSave
+      return prevDisable;
     });
   };
 
@@ -224,7 +313,7 @@ export default function SessionViewPage() {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <Select value={selectedClass} onValueChange={setSelectedClass}>
+          <Select value={selectedClass} onValueChange={handleSelectedClassChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Class" />
             </SelectTrigger>
@@ -285,9 +374,7 @@ export default function SessionViewPage() {
                   <TableCell>{index + 1}</TableCell>
 
                   <TableCell>{session.class.classCode}</TableCell>
-                  <TableCell>
-                    {session.lecturer.gender === false ? "Ms." : "Mr."} {session.lecturer.fullName}
-                  </TableCell>
+                  <TableCell>{session.lecturer.fullName}</TableCell>
                   <TableCell>Slot {session.slot}</TableCell>
                   <TableCell>{format(new Date(session.sessionDate), "EEEE, dd/MM/yyyy")}</TableCell>
                   <TableCell>{session.sessionRecord ? <Video className="h-4 w-4 text-green-500" /> : <VideoOff className="h-4 w-4 text-red-500" />}</TableCell>
@@ -440,27 +527,53 @@ export default function SessionViewPage() {
                 </Select>
               </div>
 
-              {/* Date */}
+              {/* Time (Date + Slot) */}
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Date</Label>
-                <Input type="date" value={currentSession.sessionDate ? currentSession.sessionDate.split("T")[0] : ""} onChange={(e) => handleEditSessionChange("sessionDate", e.target.value)} className="col-span-3" />
-              </div>
+                {/* Label */}
+                <Label className="text-right">Time</Label>
 
-              {/* Slot (Dropdown Select) */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Slot</Label>
-                <Select value={currentSession.slot.toString()} onValueChange={(value) => handleEditSessionChange("slot", Number(value))}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select Slot" />
+                {/* Slot */}
+                <Select disabled={currentSession?.status === 2} value={currentSession.slot?.toString() ?? ""} onValueChange={(v) => handleEditSessionChange("slot", Number(v))}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Slot" />
                   </SelectTrigger>
                   <SelectContent>
-                    {slotOptions.map((slot) => (
-                      <SelectItem key={slot} value={slot.toString()}>
-                        {slot}
+                    {slotOptions.map((s) => (
+                      <SelectItem key={s} value={s.toString()}>
+                        Slot&nbsp;{s}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+
+                {/* Date – chiếm 2 cột */}
+                <Input disabled={currentSession?.status === 2} className="col-span-2" type="date" value={currentSession.sessionDate ? currentSession.sessionDate.split("T")[0] : ""} onChange={(e) => handleEditSessionChange("sessionDate", e.target.value)} />
+              </div>
+
+              {disableSave && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  {/* Settings button */}
+                  <Button className="col-start-2 col-span-4" variant="outline" onClick={handleValidEditSessionDate}>
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                {alert && (
+                  <div className="col-start-2 col-span-3">
+                    <Alert variant={alert.hasConflict ? "destructive" : "default"} className="mb-4">
+                      {/* Icon */}
+                      {alert.hasConflict ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+
+                      {/* Tiêu đề */}
+                      <AlertTitle>{alert.hasConflict ? "Error" : "Success"}</AlertTitle>
+
+                      {/* Nội dung */}
+                      <AlertDescription>{alert.message}</AlertDescription>
+                    </Alert>
+                  </div>
+                )}
               </div>
 
               {/* Session Record */}
@@ -511,7 +624,9 @@ export default function SessionViewPage() {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditSession}>Save Changes</Button>
+            <Button onClick={handleEditSession} disabled={alert?.hasConflict || false || disableSave}>
+              Save Changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

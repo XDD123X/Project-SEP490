@@ -169,7 +169,8 @@ export default function OfficerAddSessionPage() {
   };
 
   const handleBack = () => {
-    navigate("/officer/session");
+    // navigate("/officer/session");
+    navigate(-1)
   };
 
   return (

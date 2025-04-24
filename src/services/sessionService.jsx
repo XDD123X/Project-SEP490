@@ -211,3 +211,25 @@ export const addSingleSession = async (session) => {
     };
   }
 };
+
+export const updateSession = async (session) => {
+  try {
+    const response = await axiosClient.put("/Session/Update", session);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    if (error.response?.status === 404) {
+      return null;
+    }
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || error.message || "Request failed!",
+    };
+  }
+};

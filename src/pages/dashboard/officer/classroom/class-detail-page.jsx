@@ -159,7 +159,7 @@ export default function ClassDetailPage() {
                         <div>Phone: {student.student.phoneNumber || "N/A"}</div>
                         <div>DOB: {student.student.dob ? format(new Date(student.student.dob), "dd/MM/yyyy") : "N/A"}</div>
                       </div>
-                      <Link to={`/officer/student/detail?studentId=${student.student.accountId}`}>
+                      <Link to={`/account/${student.student.accountId}`}>
                         <Button variant="outline" size="icon">
                           <Eye className="h-4 w-4" />
                         </Button>
