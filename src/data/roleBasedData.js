@@ -1,4 +1,4 @@
-import { Bell, BookOpen, Calendar, Clipboard, ClipboardList, FileStack, FileText, LayoutDashboard, LifeBuoy, Mail, School, Settings2, User, Users, Video } from "lucide-react";
+import { Bell, BookOpen, Calendar, Clipboard, ClipboardList, FileStack, FileText, LayoutDashboard, LifeBuoy, Mail, School, Settings2, User, UserRound, Users, UsersRound, Video } from "lucide-react";
 
 const roleBasedData = {
   student: {
@@ -151,7 +151,6 @@ const roleBasedData = {
           { title: "Add Account", url: "/officer/account/add" },
         ],
       },
-
       {
         title: "Request",
         url: "requests",
@@ -160,6 +159,12 @@ const roleBasedData = {
           { title: "Student Requests", url: "/officer/request/student" },
           { title: "Lecturer Requests", url: "/officer/request/lecturer" },
         ],
+      },
+      {
+        title: "Attendance",
+        url: "attendanc",
+        icon: UsersRound,
+        items: [{ title: "View Attendance", url: "/officer/attendance" }],
       },
       {
         title: "Course",

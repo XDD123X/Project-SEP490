@@ -67,10 +67,10 @@ import ViewSessionByFileClassMaterialPage from "./pages/dashboard/lecturer/mater
 import ViewClassRecordMaterialPage from "./pages/dashboard/lecturer/material/select-class-record-page";
 import ViewClassFileMaterialPage from "./pages/dashboard/lecturer/material/select-class-material-page";
 import ViewClassMaterialPage from "./pages/materials/view-material-page";
-import SelectClassReportPage from "./pages/dashboard/officer/report/select-class-report-page";
-import SelectSessionByClassReportPage from "./pages/dashboard/officer/report/select-session-class-report-page";
-import ViewReportByClassPage from "./pages/dashboard/officer/report/view-class-report-page";
-import ViewSessionByClassReportPage from "./pages/dashboard/officer/report/view-session-report-list";
+import SelectClassReportPage from "./pages/dashboard/officer/reportOld/select-class-report-page";
+import SelectSessionByClassReportPage from "./pages/dashboard/officer/reportOld/select-session-class-report-page";
+import ViewReportByClassPage from "./pages/dashboard/officer/reportOld/view-class-report-page";
+import ViewSessionByClassReportPage from "./pages/dashboard/officer/reportOld/view-session-report-list";
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import AdminClassSettingsPage from "./pages/dashboard/admin/AdminSettingPage";
 import OfficerAddSessionPage from "./pages/dashboard/officer/session/session-add";
@@ -79,6 +79,9 @@ import AdminAddAcountPage from "./pages/dashboard/admin/account/AdminAddAcountPa
 import { AdminEditAccountPage } from "./pages/dashboard/admin/account/AdminEditAccountPage";
 import ViewLecturerReportPage from "./pages/dashboard/lecturer/report/lecturer-class-report-page";
 import ViewLecturerClassReportPage from "./pages/dashboard/lecturer/report/lecturer-session-report-page";
+import ViewOfficerReportPage from "./pages/dashboard/officer/report/officer-class-report-page";
+import ViewOfficerSessionReportPage from "./pages/dashboard/officer/report/officer-session-report-page";
+import { ViewAttendanceOfficerPage } from "./pages/dashboard/officer/attendance/view-attendance-officer-page";
 
 function App() {
   return (
@@ -206,6 +209,12 @@ function App() {
                         <Route path="course/add" element={<AddCoursePage />} />
                         <Route path="course/detail/:id" element={<CourseDetailPage />} />
                         <Route path="course/edit/:id" element={<CourseEditPage />} />
+
+                        <Route path="reports" element={<ViewOfficerReportPage />} />
+                        <Route path="reports/:classId" element={<ViewOfficerSessionReportPage />} />
+
+                        <Route path="attendance" element={<ViewAttendanceOfficerPage />} />
+                        <Route path="attendance/report/:classId" element={<ViewAttendanceOfficerPage />} />
 
                         <Route path="request/student" element={<StudentRequestManagement />} />
                         <Route path="request/lecturer" element={<ViewLecturerRequest />} />
