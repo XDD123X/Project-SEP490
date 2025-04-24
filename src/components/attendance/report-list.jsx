@@ -223,7 +223,7 @@ export default function AttendanceReportLecturer({ classId }) {
                               ) : status === 2 ? (
                                 <div className="h-3 w-3 bg-red-500 rounded-full mx-auto" title="Absent" />
                               ) : (
-                                <div className="h-3 w-3 bg-gray-200 rounded-full mx-auto" title="Not Yet" />
+                                <div className="h-3 w-3 bg-secondary rounded-full mx-auto" title="Not Yet" />
                               )}
                             </TableCell>
                           );
