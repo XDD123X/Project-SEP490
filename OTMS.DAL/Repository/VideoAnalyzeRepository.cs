@@ -68,8 +68,8 @@ namespace OTMS.DAL.Repository
 
             try
             {
-                record.Status = 2;
-                await recordRepo.UpdateAsync(record);
+                //record.Status = 2;
+                //await recordRepo.UpdateAsync(record);
 
                 var recordDir = Path.Combine(
                     Directory.GetCurrentDirectory(),
@@ -126,14 +126,15 @@ namespace OTMS.DAL.Repository
                     var googleAI = new GoogleAI(apiKey: apiKey);
                     var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
                     var GeminiResponse = await model.GenerateContent(prompt);
-                    record.Status = 3;
-                    await recordRepo.UpdateAsync(record);
+                    //record.Status = 3;
+                    //await recordRepo.UpdateAsync(record);
 
 
                     report = await reportRepo.GetReportBySessionIdAsync(sessionId);
 
                     report.AnalysisData=result;
                     report.GeminiResponse=GeminiResponse.Text.Trim().ToString();
+                    report.Status = 2;
                     await reportRepo.UpdateAsync(report);
 
 
