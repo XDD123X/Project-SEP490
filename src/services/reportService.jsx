@@ -9,13 +9,12 @@ export const getAllReport = async () => {
   }
 };
 
-export const analyzeSession = async (sessionId, generateBy) => {
+export const analyzeSession = async (sessionId) => {
   try {
-    const response = await axiosClient.post("/Officer/Report/Analyze", {
+    const response = await axiosClient.post("/Lecturer/Report/Analyze", {
       sessionId,
-      generateBy,
     });
-    return response.data; // kết quả phân tích
+    return response.data;
   } catch (error) {
     console.log(error);
   }

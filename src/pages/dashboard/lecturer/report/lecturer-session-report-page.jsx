@@ -9,6 +9,7 @@ import { SessionBadge } from "@/components/BadgeComponent";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { getSessionsByClassId } from "@/services/sessionService";
+import { analyzeSession } from "@/services/reportService";
 
 export default function ViewLecturerClassReportPage() {
   const { classId } = useParams();
@@ -21,26 +22,31 @@ export default function ViewLecturerClassReportPage() {
   const [selectedReport, setSelectedReport] = useState(null);
 
   //fetch session by classId
+  const fetchData = async () => {
+    try {
+      const response = await getSessionsByClassId(classId);
+      if (response.status === 200) {
+        setSessions(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("failed while fetching session by classId");
+    }
+  };
   useEffect(() => {
     if (!classId) return;
-    const fetchData = async () => {
-      try {
-        const response = await getSessionsByClassId(classId);
-        if (response.status === 200) {
-          setSessions(response.data);
-          console.log(response.data);
-        }
-      } catch (error) {
-        console.log(error);
-        toast.error("failed while fetching session by classId");
-      }
-    };
     fetchData();
   }, [classId]);
 
   const handleAnalyze = async (sessionId) => {
     try {
       setProcessingSessionId(sessionId);
+      console.log(sessionId);
+      
+      const analyzeResponse = await analyzeSession(sessionId);
+      if (analyzeResponse.status === 200) {
+        fetchData();
+      }
 
       setProcessingSessionId(null);
     } catch (error) {
@@ -149,35 +155,43 @@ export default function ViewLecturerClassReportPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sessions
-              .filter((session) => session.classId === classId)
-              .sort((a, b) => a.sessionNumber - b.sessionNumber)
-              .map((session) => (
-                <TableRow key={session.sessionId}>
-                  <TableCell className="font-medium">{session.sessionNumber}</TableCell>
-                  <TableCell>
-                    <SessionBadge status={session.status} />
-                  </TableCell>
-                  <TableCell>
-                    Slot {session.slot}, {format(session.sessionDate, "dd/MM/yyyy")}
-                  </TableCell>
-                  <TableCell>
-                    {session.sessionRecord ? (
-                      <div className="flex items-center gap-2">
-                        <Video className="w-4 h-4 text-green-500" />
-                        {formatDate(session.sessionRecord)}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <VideoOff className="w-4 h-4 text-red-500" />
-                        Not recorded
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>{getSessionStatusBadge(session)}</TableCell>
-                  <TableCell>{getActionButton(session)}</TableCell>
-                </TableRow>
-              ))}
+            {sessions.length > 0 ? (
+              sessions
+                .filter((session) => session.classId === classId)
+                .sort((a, b) => a.sessionNumber - b.sessionNumber)
+                .map((session) => (
+                  <TableRow key={session.sessionId}>
+                    <TableCell className="font-medium">{session.sessionNumber}</TableCell>
+                    <TableCell>
+                      <SessionBadge status={session.status} />
+                    </TableCell>
+                    <TableCell>
+                      Slot {session.slot}, {format(session.sessionDate, "dd/MM/yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      {session.sessionRecord ? (
+                        <div className="flex items-center gap-2">
+                          <Video className="w-4 h-4 text-green-500" />
+                          {formatDate(session.sessionRecord)}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <VideoOff className="w-4 h-4 text-red-500" />
+                          Not recorded
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>{getSessionStatusBadge(session)}</TableCell>
+                    <TableCell>{getActionButton(session)}</TableCell>
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow className="my-5">
+                <TableCell colSpan={6} className="text-center ">
+                  No Sessions Found
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
