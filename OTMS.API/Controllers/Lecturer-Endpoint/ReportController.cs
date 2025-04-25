@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using OTMS.BLL.DTOs;
@@ -34,20 +35,37 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
 
 
         [HttpPost("Analyze")]
-        public IActionResult Analyze([FromBody] AnalyzeRequest request)
+        public async Task<IActionResult> Analyze([FromBody] AnalyzeRequest request)
         {
-            if (!Guid.TryParse(request.SessionId, out var sessionId) || !Guid.TryParse(request.GenerateBy, out var generateBy))
+            if (!Guid.TryParse(request.SessionId, out var sessionId) && !Guid.TryParse(request.GenerateBy, out var generateBy))
                 return BadRequest("Invalid sessionId or generateBy");
 
-            var backgroundService = HttpContext.RequestServices.GetRequiredService<VideoAnalysisBackgroundService>();
-            backgroundService.QueueAnalysis(request.SessionId, request.GenerateBy);
+            var userIdClaim = User.FindFirst("uid");
+          
+            Record record= await _recordRepository.GetRecordBySessionAsync(sessionId);
+            if( record == null)
+            {
+                return BadRequest("SessionId không hợp lệ.");
+            }
+            else
+            {
+                var backgroundService = HttpContext.RequestServices.GetRequiredService<VideoAnalysisBackgroundService>();
+                backgroundService.QueueAnalysis(request.SessionId, string.IsNullOrEmpty(request.GenerateBy) ? userIdClaim.Value : request.GenerateBy);
+                return Ok("Yêu cầu phân tích đã được ghi nhận. Vui lòng đợi kết quả.");
 
-            return Ok("Yêu cầu phân tích đã được ghi nhận. Vui lòng đợi kết quả.");
+            }
+
+
+              
         }
 
         [HttpGet("GetReportBySessionId")]
         public async Task<IActionResult> GetReportFromRecordBySessionId(Guid sessionId)
         {
+            if (sessionId == Guid.Empty)
+            {
+                return BadRequest("SessionId không hợp lệ.");
+            }
             Report report = await _reportRepository.GetReportBySessionIdAsync(sessionId);
 
             if (report == null)

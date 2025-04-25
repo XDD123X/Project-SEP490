@@ -142,7 +142,7 @@ namespace OTMS.DAL.Repository
                 }
                 else
                 {
-                    _logger.LogError("Gọi API phân tích thất bại: {Status}", response.StatusCode);
+                    Console.WriteLine("Gọi API phân tích thất bại: {Status}", response.StatusCode);
                 }
             }
             catch (Exception ex)

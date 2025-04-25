@@ -66,6 +66,11 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpGet("GetReportBySessionId")]
         public async Task<IActionResult> GetReportFromRecordBySessionId(Guid sessionId)
         {
+            if (sessionId == Guid.Empty)
+            {
+                return BadRequest("SessionId không hợp lệ.");
+            }
+
             Report report = await _reportRepository.GetReportBySessionIdAsync(sessionId);
 
             if (report == null)
