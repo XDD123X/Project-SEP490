@@ -11,7 +11,10 @@ public partial class Report
 
     public Guid SessionId { get; set; }
 
-    public string AnalysisData { get; set; } = null!;
+    //public string AnalysisData { get; set; } = null!;
+
+    public string? AnalysisData { get; set; }  // Cho phép null
+
 
     public DateTime? GeneratedAt { get; set; }
 

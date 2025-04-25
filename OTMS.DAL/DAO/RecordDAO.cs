@@ -15,7 +15,7 @@ namespace OTMS.DAL.DAO
         public async Task<Record> GetRecordBySessionAsync(Guid sessionId)
         {
             return await _context.Records
-                .Where(r => r.SessionId == sessionId && r.Status == 1)
+                .Where(r => r.SessionId == sessionId /*&& r.Status == 1*/)
                 .FirstOrDefaultAsync();
         }
 
