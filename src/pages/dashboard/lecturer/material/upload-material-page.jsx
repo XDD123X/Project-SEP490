@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Upload, File, Video, Loader2, X, Check } from "lucide-react";
+import { ArrowLeft, Upload, File, Video, Loader2, X, Check, Download, Trash2, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getSessionBySessionId } from "@/services/sessionService";
-import { uploadFile } from "@/services/uploadFileService";
+import { deleteFileById, deleteRecordById, uploadFile } from "@/services/uploadFileService";
 import { format } from "date-fns";
 
 const API_URL = import.meta.env.VITE_VIDEO_URL;
@@ -27,6 +28,16 @@ export default function UploadMaterialBySessionPage() {
   const recordingInputRef = useRef(null);
   const navigate = useNavigate();
   const [uploadType, setUploadType] = useState("recordings");
+
+  //delete file confirm
+  const [deleteFile, setDeleteFile] = useState();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  //delete record confirm
+  const [deleteRecord, setDeleteRecord] = useState();
+  const [isDeletingRecord, setIsDeletingRecord] = useState(false);
+  const [isDeleteRecordOpen, setIsDeleteRecordOpen] = useState(false);
 
   //get upload type
   useEffect(() => {
@@ -55,7 +66,7 @@ export default function UploadMaterialBySessionPage() {
   }, [sessionId]);
 
   const handleBack = () => {
-    const type = uploadType === 'recordings' ? 'record' : 'material'
+    const type = uploadType === "recordings" ? "record" : "material";
     navigate(`/lecturer/${type}/${classId}`);
   };
 
@@ -180,6 +191,58 @@ export default function UploadMaterialBySessionPage() {
     window.open(fullUrl, "_blank");
   };
 
+  const handleFileDelete = (fileId) => {
+    setDeleteFile(fileId);
+    setIsDeleteOpen(true);
+  };
+
+  const handleRecordDelete = (recordId) => {
+    setDeleteRecord(recordId);
+    setIsDeleteRecordOpen(true);
+  };
+
+  const confirmDeleteRecord = async () => {
+    if (!deleteRecord) return;
+
+    setIsDeletingRecord(true);
+    const result = await deleteRecordById(deleteRecord);
+
+    if (result.status === 200) {
+      toast.success("Record deleted successfully");
+      setSessionDetails((prev) => ({
+        ...prev,
+        records: prev.records.filter((f) => f.recordId !== deleteRecord),
+      }));
+    } else {
+      toast.error(result.message || "Failed to delete record");
+    }
+
+    setIsDeletingRecord(false);
+    setIsDeleteRecordOpen(false);
+    setDeleteRecord(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteFile) return;
+
+    setIsDeleting(true);
+    const result = await deleteFileById(deleteFile);
+
+    if (result.status === 200) {
+      toast.success("File deleted successfully");
+      setSessionDetails((prev) => ({
+        ...prev,
+        files: prev.files.filter((f) => f.fileId !== deleteFile),
+      }));
+    } else {
+      toast.error(result.message || "Failed to delete file");
+    }
+
+    setIsDeleting(false);
+    setIsDeleteOpen(false);
+    setDeleteFile(null);
+  };
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -208,14 +271,13 @@ export default function UploadMaterialBySessionPage() {
 
       <Tabs defaultValue={uploadType} className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="recordings" disabled>
-            Recordings
-          </TabsTrigger>
+          <TabsTrigger value="recordings">Recordings</TabsTrigger>
           <TabsTrigger value="files" disabled>
             Files
           </TabsTrigger>
         </TabsList>
 
+        {/* recording tabs */}
         <TabsContent value="recordings">
           <div className="grid gap-8 md:grid-cols-2">
             <Card>
@@ -307,11 +369,13 @@ export default function UploadMaterialBySessionPage() {
                           <p className="text-xs text-muted-foreground">Duration: {recording.duration}</p>
                           <p className="text-xs text-muted-foreground">Uploaded: {format(recording.createdAt, "HH:mm, dd/MM/yyyy")}</p>
                         </div>
-                        <div className="space-y-2">
-                          <Button size="sm" className="w-full" onClick={() => navigate(`/record/${sessionDetails.sessionId}`)}>
+                        <div className="space-y-2 grid grid-cols-1">
+                          <Button size="sm" variant="outline" onClick={() => navigate(`/record/${sessionDetails.sessionId}`)}>
+                            <Eye className="w-4 h-4" />
                             Watch
                           </Button>
-                          <Button size="sm" className="w-full">
+                          <Button size="sm" variant="outline" onClick={() => handleRecordDelete(recording.recordId)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
                             Delete
                           </Button>
                         </div>
@@ -328,6 +392,7 @@ export default function UploadMaterialBySessionPage() {
           </div>
         </TabsContent>
 
+        {/* file tab */}
         <TabsContent value="files">
           <div className="grid gap-8 md:grid-cols-2">
             <Card>
@@ -418,9 +483,14 @@ export default function UploadMaterialBySessionPage() {
                           <p className="text-xs text-muted-foreground">Uploaded: {new Date(file.createdAt).toLocaleString()}</p>
                         </div>
 
-                        <div className="mt-2">
+                        <div className="mt-2 grid grid-cols-1 gap-2">
                           <Button variant="outline" size="sm" onClick={() => handleFileClick(file.fileUrl)}>
+                            <Download />
                             Download
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleFileDelete(file.fileId)}>
+                            <Trash2 className="text-red-500" />
+                            Remove
                           </Button>
                         </div>
                       </div>
@@ -436,6 +506,42 @@ export default function UploadMaterialBySessionPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* file remove dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this file? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsDeleteOpen(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* record remove dialog */}
+      <Dialog open={isDeleteRecordOpen} onOpenChange={setIsDeleteRecordOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this record? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsDeleteRecordOpen(false)} disabled={isDeletingRecord}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteRecord} disabled={isDeletingRecord}>
+              {isDeletingRecord ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

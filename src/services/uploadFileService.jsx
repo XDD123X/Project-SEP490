@@ -44,3 +44,39 @@ export const downloadFileService = async (fileId, fileName) => {
     throw error;
   }
 };
+
+export const deleteFileById = async (fileId) => {
+  try {
+    const response = await axiosClient.delete(`/files/file/${fileId}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || error.message || "Request failed!",
+    };
+  }
+};
+
+export const deleteRecordById = async (recordId) => {
+  try {
+    const response = await axiosClient.delete(`/files/record/${recordId}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || error.message || "Request failed!",
+    };
+  }
+};
