@@ -29,8 +29,6 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         private readonly ISessionRepository _sessionRepository;
         private readonly IMapper _mapper;
         private readonly HttpClient client = null;
-        // private string Apianalyze = "http://127.0.0.1:4000/upload_video";
-        //private readonly string GeminiApiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
         private readonly VideoAnalysisBackgroundService _videoAnalysisBackgroundService;
 
         public ReportController(IMapper mapper, IReportRepository reportRepository, IRecordRepository recordRepository, ISessionRepository sessionRepository, VideoAnalysisBackgroundService videoAnalysisBackgroundService)
@@ -53,28 +51,28 @@ namespace OTMS.API.Controllers.Officer_Endpoint
        * gửi video lên API, nếu gửi thành công thì trả về 200 ngay, còn việc phân tích, lưu report, v.v., thì để xử lý nền (background) sau.
        */
 
-        [HttpPost("Analyze")]
-        public IActionResult Analyze([FromBody] AnalyzeRequest request)
-        {
-            if (!Guid.TryParse(request.SessionId, out var sessionId) || !Guid.TryParse(request.GenerateBy, out var generateBy))
-                return BadRequest("Invalid sessionId or generateBy");
+        //[HttpPost("Analyze")]
+        //public IActionResult Analyze([FromBody] AnalyzeRequest request)
+        //{
+        //    if (!Guid.TryParse(request.SessionId, out var sessionId) || !Guid.TryParse(request.GenerateBy, out var generateBy))
+        //        return BadRequest("Invalid sessionId or generateBy");
 
-            var backgroundService = HttpContext.RequestServices.GetRequiredService<VideoAnalysisBackgroundService>();
-            backgroundService.QueueAnalysis(request.SessionId, request.GenerateBy);
+        //    var backgroundService = HttpContext.RequestServices.GetRequiredService<VideoAnalysisBackgroundService>();
+        //    backgroundService.QueueAnalysis(request.SessionId, request.GenerateBy);
 
-            return Ok("Yêu cầu phân tích đã được ghi nhận. Vui lòng đợi kết quả.");
-        }
+        //    return Ok("Yêu cầu phân tích đã được ghi nhận. Vui lòng đợi kết quả.");
+        //}
 
         [HttpGet("GetReportBySessionId")]
         public async Task<IActionResult> GetReportFromRecordBySessionId(Guid sessionId)
         {
-            Report report= await _reportRepository.GetReportBySessionIdAsync(sessionId);
+            Report report = await _reportRepository.GetReportBySessionIdAsync(sessionId);
 
             if (report == null)
             {
                 return BadRequest("video chua duoc phan tich");
             }
-            else if(report!= null && report.Status == 1)
+            else if (report != null && report.Status == 1)
             {
                 return BadRequest("video dang duoc phan tich");
 
