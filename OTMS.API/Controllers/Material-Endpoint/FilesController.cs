@@ -196,18 +196,57 @@ namespace OTMS.API.Controllers.Material_Endpoint
         }
 
 
-        [HttpDelete("{fileName}")]
-        public IActionResult DeleteFile(string fileName)
+        [HttpDelete("record/{recordId}")]
+        public async Task<IActionResult> DeleteRecord(Guid recordId)
         {
+            // Lấy file từ DB theo fileId
+            var recordEntity = await _recordRepository.GetByIdAsync(recordId);
+            if (recordEntity == null)
+                return NotFound("Không tìm thấy record trong cơ sở dữ liệu.");
+
+            // Lấy tên file từ đường dẫn (nếu lưu cả path, ví dụ: /uploads/abc.pdf)
+            var recordName = Path.GetFileName(recordEntity.VideoUrl);
+            var recordPath = Path.Combine(_uploadPath, recordName);
+
+            Console.WriteLine("record name: " + recordName);
+            Console.WriteLine("record path: " + recordPath);
+
+            // Xoá file vật lý nếu tồn tại
+            if (System.IO.File.Exists(recordPath))
+            {
+                System.IO.File.Delete(recordPath);
+            }
+
+            // Xoá bản ghi trong DB
+            await _recordRepository.DeleteAsync(recordId);
+
+            return Ok("Đã xoá record thành công.");
+        }
+
+        [HttpDelete("file/{fileId}")]
+        public async Task<IActionResult> DeleteFile(Guid fileId)
+        {
+            // Lấy file từ DB theo fileId
+            var fileEntity = await _fileRepository.GetByIdAsync(fileId);
+            if (fileEntity == null)
+                return NotFound("Không tìm thấy file trong cơ sở dữ liệu.");
+
+            // Lấy tên file từ đường dẫn (nếu lưu cả path, ví dụ: /uploads/abc.pdf)
+            var fileName = Path.GetFileName(fileEntity.FileUrl);
             var filePath = Path.Combine(_uploadPath, fileName);
 
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
+            // Xoá file vật lý nếu tồn tại
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
 
-            System.IO.File.Delete(filePath);
+            // Xoá bản ghi trong DB
+            await _fileRepository.DeleteAsync(fileId);
 
-            return Ok("Đã xoá file");
+            return Ok("Đã xoá file thành công.");
         }
+
 
         private string GetMimeType(string fileName)
         {
