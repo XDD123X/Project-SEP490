@@ -4,17 +4,14 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { authMe, updateProfile } from "@/services/authService";
 import { useEffect } from "react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useStore } from "@/services/StoreContext";
 import CalendarSelector from "@/components/CalendarSelector";
 
 export default function ProfileForm() {
-  const { state } = useStore();
-  const { role } = state;
+  const { state, dispatch } = useStore();
+  const { user, role } = state;
   const form = useForm({
     mode: "onChange",
     defaultValues: {
@@ -42,37 +39,39 @@ export default function ProfileForm() {
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load profile information.",
-          variant: "destructive",
-        });
+        toast.error("Failed to load profile information.");
       }
     }
 
     fetchProfile();
   }, [form]);
 
-  const { fields, append } = useFieldArray({
-    name: "urls",
-    control: form.control,
-  });
-
   async function onSubmit(data) {
     try {
       const response = await updateProfile(data.fullname, data.phone, data.dob, "", data.meetUrl);
+
       if (response.status === 200) {
         toast.success("Profile updated successfully!");
+
+        // Cập nhật lại state user
+        dispatch({
+          type: "SET_USER",
+          payload: {
+            user: {
+              ...user,
+              fullName: data.fullname,
+              phone: data.phone,
+              meetUrl: data.meetUrl,
+            },
+            role,
+          },
+        });
       } else {
         toast.error("Failed to update profile.");
       }
     } catch (error) {
       console.error("Update Profile Failed:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
-      });
+      toast.error("An unexpected error occurred.");
     }
   }
 
@@ -146,8 +145,7 @@ export default function ProfileForm() {
             <FormItem className="flex flex-col">
               <FormLabel>Date Of Birth</FormLabel>
               <FormControl>
-                <CalendarSelector className="w-full" selectedDate={field.value ? new Date(field.value) : null} 
-                setSelectedDate={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")} />
+                <CalendarSelector className="w-full" selectedDate={field.value ? new Date(field.value) : null} setSelectedDate={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")} />
               </FormControl>
               <FormMessage />
             </FormItem>

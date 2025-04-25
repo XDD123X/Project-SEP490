@@ -123,8 +123,6 @@ export const changePassword = async (oldPassword, newPassword, reNewPassword) =>
       data: response.data,
     };
   } catch (error) {
-    toast.error("Change Password Failed:", error);
-
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message?.message || error.message || "Change Password Failed!",
@@ -145,8 +143,6 @@ export const changePasswordFirstTime = async (oldPassword = "", newPassword, reN
       data: response.data,
     };
   } catch (error) {
-    toast.error("Change Password Failed:", error);
-
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message?.message || error.message || "Change Password Failed!",
@@ -168,8 +164,6 @@ export const updateAvatar = async (fullName, phone, dob, imgUrl) => {
       data: response.data,
     };
   } catch (error) {
-    toast.error("Update Profile Failed:", error);
-
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message?.message || error.message || "Update Profile Failed!",
@@ -186,8 +180,6 @@ export const requestOtp = async (email) => {
       data: response.data,
     };
   } catch (error) {
-    toast.error("Request Failed:", error);
-
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message?.message || error.message || "Request Failed!",
@@ -204,8 +196,6 @@ export const verifyOtp = async (email, otp) => {
       data: response.data,
     };
   } catch (error) {
-    toast.error("Request Failed:", error);
-
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message?.message || error.message || "Request Failed!",
@@ -222,8 +212,6 @@ export const forgotPassword = async (requestModel) => {
       data: response.data,
     };
   } catch (error) {
-    toast.error("Request Failed:", error);
-
     return {
       status: error.response?.status || 500,
       message: error.response?.data?.message || error.message || "Request Failed!",
@@ -244,8 +232,6 @@ export const loginWithGoogleEmail = async (email) => {
       data: response.data,
     };
   } catch (error) {
-    console.error("Login error:", error);
-
     if (error.response) {
       const status = error.response.status;
       const message = error.response.data?.message || "Login failed!";

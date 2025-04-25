@@ -8,12 +8,14 @@ import { useStore } from "@/services/StoreContext";
 import { toast } from "sonner";
 import { AddLecturerSchedule, getLecturerScheduleByLecturerId, UpdateLecturerSchedule } from "@/services/lecturerScheduleService";
 import { authMe } from "@/services/authService";
+import { cn } from "@/lib/utils";
+import { FileText, XCircle } from "lucide-react";
 
 const timeSlots = [
-  { label: "Slot 1", value: 1 },
-  { label: "Slot 2", value: 2 },
-  { label: "Slot 3", value: 3 },
-  { label: "Slot 4", value: 4 },
+  { label: "Slot 1 (9:00 - 10:30)", value: 1 },
+  { label: "Slot 2 (11:00 - 12:30)", value: 2 },
+  { label: "Slot 3 (14:00 - 15:30)", value: 3 },
+  { label: "Slot 4 (16:00 - 17:30)", value: 4 },
 ];
 
 // Define the days of the week with values
@@ -31,6 +33,7 @@ export default function ProfileSchedule() {
   const [exist, setExist] = useState(null);
   const [selectedDays, setSelectedDays] = useState({});
   const [selectedSlots, setSelectedSlots] = useState({});
+  const [errors, setErrors] = useState({});
   const { state, dispatch } = useStore();
   const { user } = state;
 
@@ -98,78 +101,125 @@ export default function ProfileSchedule() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({}); //clear old errors
 
-    if (!exist) {
-      //create
-      const create = {
-        lecturerId: user.uid,
-        weekdayAvailable: Object.keys(selectedDays)
-          .filter((key) => selectedDays[key])
-          .map(Number)
-          .join(","),
-        slotAvailable: Object.keys(selectedSlots)
-          .filter((key) => selectedSlots[key])
-          .map(Number)
-          .join(","),
-      };
+    const selectedWeekdays = Object.keys(selectedDays).filter((key) => selectedDays[key]);
+    const selectedSlotKeys = Object.keys(selectedSlots).filter((key) => selectedSlots[key]);
 
-      try {
-        const response = await AddLecturerSchedule(create);
+    // ✅ Kiểm tra điều kiện
+    const newErrors = {};
 
+    if (selectedWeekdays.length < 4) {
+      newErrors.week = "You must select at least 4 weekdays.";
+    }
+
+    if (selectedSlotKeys.length < 1) {
+      newErrors.slot = "You must select at least 1 time slot.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const payload = {
+      lecturerId: user.uid,
+      weekdayAvailable: selectedWeekdays.map(Number).join(","),
+      slotAvailable: selectedSlotKeys.map(Number).join(","),
+    };
+
+    try {
+      let response;
+      if (!exist) {
+        response = await AddLecturerSchedule(payload);
         if (response.status === 200) {
           toast.success("Schedule created successfully!");
         }
-      } catch (error) {
-        toast.error(error);
-      }
-    } else {
-      //update
-      const update = {
-        scheduleId: exist,
-        lecturerId: user.uid,
-        weekdayAvailable: Object.keys(selectedDays)
-          .filter((key) => selectedDays[key])
-          .map(Number)
-          .join(","),
-        slotAvailable: Object.keys(selectedSlots)
-          .filter((key) => selectedSlots[key])
-          .map(Number)
-          .join(","),
-      };
-      try {
-        const response = await UpdateLecturerSchedule(update);
-
+      } else {
+        response = await UpdateLecturerSchedule({ ...payload, scheduleId: exist });
         if (response.status === 200) {
           toast.success("Schedule updated successfully!");
         }
-      } catch (error) {
-        toast.error(error);
       }
+
+      // ✅ Cập nhật lại thông tin user
+      const userResponse = await authMe();
+      const updatedUser = {
+        uid: userResponse.data.accountId,
+        email: userResponse.data.email,
+        name: userResponse.data.fullname,
+        phone: userResponse.data.phone,
+        dob: userResponse.data.dob,
+        imgUrl: userResponse.data.imgUrl,
+        role: userResponse.data.role,
+        schedule: userResponse.data.schedule,
+      };
+
+      dispatch({ type: "SET_USER", payload: { user: updatedUser, role: userResponse.data.role } });
+    } catch (error) {
+      toast.error("An error occurred while submitting schedule.");
     }
-    const userResponse = await authMe();
-    const updatedUser = {
-      uid: userResponse.data.accountId,
-      email: userResponse.data.email,
-      name: userResponse.data.fullname,
-      phone: userResponse.data.phone,
-      dob: userResponse.data.dob,
-      imgUrl: userResponse.data.imgUrl,
-      role: userResponse.data.role,
-      schedule: userResponse.data.schedule,
+  };
+
+  const handleDisable = async () => {
+    toast.warning("Canceled All Lecturers Teaching Schedules");
+
+    // Xóa toàn bộ selectedDays và selectedSlots
+    const selectedWeekdays = []; // Không chọn ngày nào
+    const selectedSlotKeys = []; // Không chọn slot nào
+
+    const payload = {
+      lecturerId: user.uid,
+      weekdayAvailable: selectedWeekdays.map(Number).join(","), // Mảng rỗng -> Không có ngày nào được chọn
+      slotAvailable: selectedSlotKeys.map(Number).join(","), // Mảng rỗng -> Không có slot nào được chọn
     };
 
-    const updatedRole = userResponse.data.role;
-    dispatch({ type: "SET_USER", payload: { user: updatedUser, role: updatedRole } });
+    try {
+      await UpdateLecturerSchedule({ ...payload, scheduleId: exist });
+
+      // ✅ Cập nhật lại thông tin user
+      const userResponse = await authMe();
+      const updatedUser = {
+        uid: userResponse.data.accountId,
+        email: userResponse.data.email,
+        name: userResponse.data.fullname,
+        phone: userResponse.data.phone,
+        dob: userResponse.data.dob,
+        imgUrl: userResponse.data.imgUrl,
+        role: userResponse.data.role,
+        schedule: userResponse.data.schedule,
+      };
+
+      dispatch({ type: "SET_USER", payload: { user: updatedUser, role: userResponse.data.role } });
+    } catch (error) {
+      toast.error("An error occurred while disable lecturer schedule.");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-4xl ">
+    <form onSubmit={handleSubmit} className=" mt-5space-y-2 w-full max-w-4xl ">
+      <div className="flex justify-between gap-4">
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={() => handleDisable()}
+          disabled={Object.keys(selectedDays).length === 0 || !Object.values(selectedDays).some(Boolean) || Object.keys(selectedSlots).length === 0 || !Object.values(selectedSlots).some(Boolean)}
+        >
+          <XCircle className="w-4 h-4" />
+          Disable Teaching
+        </Button>
+        <Button type="submit">
+          <FileText className="w-4 h-4" />
+          Submit Schedule
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Weekdays */}
-        <Card>
+        <Card className={cn("mt-4", errors.week && "border border-red-500")}>
           <CardHeader>
             <CardTitle>Weekdays</CardTitle>
             <CardDescription>Select the days of the week.</CardDescription>
+            {errors.week && <div className="pb-4 text-sm text-red-500">{errors.week}</div>}
             <div className="flex gap-2 mt-4">
               <Button type="button" variant="outline" onClick={checkAllDays}>
                 Check All
@@ -194,10 +244,11 @@ export default function ProfileSchedule() {
         </Card>
 
         {/* Time Slots */}
-        <Card>
+        <Card className={cn("mt-4", errors.slot && "border border-red-500")}>
           <CardHeader>
             <CardTitle>Time Slots</CardTitle>
             <CardDescription>Select the time slots.</CardDescription>
+            {errors.slot && <div className="pb-4 text-sm text-red-500">{errors.slot}</div>}
             <div className="flex gap-2 mt-4">
               <Button type="button" variant="outline" onClick={checkAllSlots}>
                 Check All
@@ -220,10 +271,6 @@ export default function ProfileSchedule() {
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      <div className="flex justify-center">
-        <Button type="submit">Submit Schedule</Button>
       </div>
     </form>
   );

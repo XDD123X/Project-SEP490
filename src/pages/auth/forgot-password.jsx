@@ -9,6 +9,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "sonner";
 import * as z from "zod";
 import { forgotPassword, requestOtp, verifyOtp } from "@/services/authService";
+import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
+
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 const emailSchema = z.object({ email: z.string().email({ message: "Please enter a valid email address" }) });
 const otpSchema = z.object({
@@ -62,7 +67,7 @@ export default function ForgotPassword() {
       }
     } catch (error) {
       setEmailError("Failed to send OTP");
-      toast.error(error);
+      console.log(error);
     }
     setIsLoading(false);
   };
@@ -79,7 +84,7 @@ export default function ForgotPassword() {
         toast.error(response.data.message || "Invalid OTP");
       }
     } catch (error) {
-      toast.error("An error occurred while verifying OTP");
+      toast.error("Invalid OTP");
     }
     setIsLoading(false);
   };
@@ -110,121 +115,151 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen ">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Reset Password</CardTitle>
-          <CardDescription>
-            {step === 1 && "Enter your email to receive a verification code"}
-            {step === 2 && "Enter the 6-digit code sent to your email"}
-            {step === 3 && "Create a new password for your account"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {step === 1 && (
-            <Form {...emailForm}>
-              <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-                <FormField
-                  control={emailForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={emailError === null ? "" : "text-red-500"}>Email</FormLabel>
-                      <FormControl>
-                        <Input className={emailError === null ? "" : "border-red-500"} placeholder="Enter your email" {...field} onChange={handleEmailInputChange} />
-                      </FormControl>
-                      <FormMessage>{emailError === null ? "" : emailError}</FormMessage>
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="ml-2 h-4 w-4" />}
-                  Continue
-                </Button>
-              </form>
-            </Form>
-          )}
-          {step === 2 && (
-            <Form {...otpForm}>
-              <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-4">
-                <FormField
-                  control={otpForm.control}
-                  name="otp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Verification Code</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter 6-digit code" maxLength={6} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="ml-2 h-4 w-4" />}
-                  Verify Code
-                </Button>
-              </form>
-            </Form>
-          )}
-          {step === 3 && (
-            <Form {...passwordForm}>
-              <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-                <FormField
-                  control={passwordForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={passwordForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Confirm new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      Reset Password
-                      <CheckCircle className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-                <Button variant="link" type="button" className="w-full" onClick={() => setStep(2)} disabled={isLoading}>
-                  Back to verification
-                </Button>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-center border-t pt-4">
-          <div className="text-sm text-muted-foreground">
-            Remember your password?{" "}
-            <a href="/login" className="text-primary hover:underline">
-              Sign in
-            </a>
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+    <>
+      <Helmet>
+        <title>{GLOBAL_NAME} - Forgot Password</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
+
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 max-w-screen-2xl items-center">
+          <Link to="/" className="mr-6 flex items-center">
+            <span className="font-bold text-lg">{GLOBAL_NAME} </span>
+            <span className="ml-0 font-bold text-lg">.</span>
+          </Link>
+        </div>
+      </header>
+
+      <div className="flex justify-center items-center min-h-screen ">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Reset Password</CardTitle>
+            <CardDescription>
+              {step === 1 && "Enter your email to receive a verification code"}
+              {step === 2 && "Enter the 6-digit code sent to your email"}
+              {step === 3 && "Create a new password for your account"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {step === 1 && (
+              <Form {...emailForm}>
+                <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                  <FormField
+                    control={emailForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={emailError === null ? "" : "text-red-500"}>Email</FormLabel>
+                        <FormControl>
+                          <Input className={emailError === null ? "" : "border-red-500"} placeholder="Enter your email" {...field} onChange={handleEmailInputChange} />
+                        </FormControl>
+                        <FormMessage>{emailError === null ? "" : emailError}</FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="ml-2 h-4 w-4" />}
+                    Continue
+                  </Button>
+                </form>
+              </Form>
+            )}
+            {step === 2 && (
+              <Form {...otpForm}>
+                <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-4">
+                  <FormField
+                    control={otpForm.control}
+                    name="otp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          {/* <Input placeholder="Enter 6-digit code" maxLength={6}  /> */}
+                          <div className="flex justify-center items-center my-5">
+                            <InputOTP maxLength={6} {...field}>
+                              <InputOTPGroup>
+                                <InputOTPSlot index={0} />
+                                <InputOTPSlot index={1} />
+                                <InputOTPSlot index={2} />
+                              </InputOTPGroup>
+                              <InputOTPSeparator />
+                              <InputOTPGroup>
+                                <InputOTPSlot index={3} />
+                                <InputOTPSlot index={4} />
+                                <InputOTPSlot index={5} />
+                              </InputOTPGroup>
+                            </InputOTP>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="ml-2 h-4 w-4" />}
+                    Verify Code
+                  </Button>
+                </form>
+              </Form>
+            )}
+            {step === 3 && (
+              <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                  <FormField
+                    control={passwordForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Enter new password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={passwordForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Confirm new password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        Reset Password
+                        <CheckCircle className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="link" type="button" className="w-full" onClick={() => setStep(2)} disabled={isLoading}>
+                    Back to verification
+                  </Button>
+                </form>
+              </Form>
+            )}
+          </CardContent>
+          <CardFooter className="flex justify-center border-t pt-4">
+            <div className="text-sm text-muted-foreground">
+              Remember your password?{" "}
+              <a href="/login" className="text-primary hover:underline">
+                Sign in
+              </a>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </>
   );
 }

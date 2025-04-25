@@ -7,10 +7,16 @@ import { Input } from "@/components/ui/input";
 import { changePassword } from "@/services/authService";
 import { toast } from "sonner";
 
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,30}$/;
+
 const passwordFormSchema = z
   .object({
     oldPassword: z.string().min(6, { message: "Old password must be at least 6 characters." }),
-    newPassword: z.string().min(6, { message: "New password must be at least 6 characters." }),
+
+    newPassword: z.string().min(6, { message: "New password must be at least 6 characters." }).max(30, { message: "New password must be at most 30 characters." }).regex(passwordRegex, {
+      message: "Password must contain at least 1 uppercase letter and 1 number.",
+    }),
+
     confirmPassword: z.string().min(6, { message: "Confirm password must be at least 6 characters." }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -33,12 +39,16 @@ export default function ProfilePassword() {
 
         // Reset form sau khi đổi mật khẩu thành công
         form.reset({
-            oldPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-          });
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
       } else {
-        toast.error(response.message);
+        toast.error("Old password does not match");
+        form.setError("oldPassword", {
+          type: "manual",
+          message: "Old password does not match",
+        });
       }
     } catch (error) {
       console.error("Change Password Failed:", error);

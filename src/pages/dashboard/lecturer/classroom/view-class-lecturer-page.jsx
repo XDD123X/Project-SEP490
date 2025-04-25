@@ -95,7 +95,7 @@ function ClassCard({ classItem }) {
       </CardContent>
       <CardFooter className="flex flex-col items-center w-full gap-2">
         <Link to={classItem.lecturer?.meetUrl || "#"} className="w-full" target="_blank" rel="noopener noreferrer">
-          <Button className="flex-1 w-full">
+          <Button className="flex-1 w-full" disabled={!classItem.lecturer?.meetUrl}>
             <ExternalLink className="mr-2 h-4 w-4" />
             Join Online Class
           </Button>

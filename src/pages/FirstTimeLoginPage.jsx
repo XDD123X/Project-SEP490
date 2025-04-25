@@ -5,11 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "@/services/StoreContext";
 import { authMe, changePasswordFirstTime } from "@/services/authService";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
 
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function FirstTimeLoginPage() {
   const navigate = useNavigate();
@@ -33,9 +35,11 @@ export default function FirstTimeLoginPage() {
     setError("");
     setSuccess("");
 
-    // Basic validation
-    if (password.length < 6 || password.length > 25) {
-      setError("Password must be at least 6-25 characters long");
+    // Regex kiểm tra password
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,30}$/;
+
+    if (!passwordRegex.test(password)) {
+      setError("Password must be 6-30 characters long, contain at least 1 uppercase letter and 1 number.");
       return;
     }
 
@@ -88,50 +92,64 @@ export default function FirstTimeLoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Create New Password</CardTitle>
-          <CardDescription>Welcome! Since this is your first time logging in, please create a new password.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+    <>
+      <Helmet>
+        <title>{GLOBAL_NAME} - Set New Password</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 max-w-screen-2xl items-center">
+          <Link to="/" className="mr-6 flex items-center">
+            <span className="font-bold text-lg">{GLOBAL_NAME} </span>
+            <span className="ml-0 font-bold text-lg">.</span>
+          </Link>
+        </div>
+      </header>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Create New Password</CardTitle>
+            <CardDescription>Welcome! Since this is your first time logging in, please create a new password.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-            {success && (
-              <Alert className="bg-green-50 text-green-800 border-green-200">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
+              {success && (
+                <Alert className="bg-green-50 text-green-800 border-green-200">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user?.email} disabled />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" value={user?.email} disabled />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">New Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your new password" required />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">New Password</Label>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your new password" required />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="repassword">Confirm Password</Label>
-              <Input id="repassword" type="password" value={repassword} onChange={(e) => setRepassword(e.target.value)} placeholder="Confirm your new password" required />
-            </div>
-          </form>
-        </CardContent>
-        <CardFooter>
-          <Button className="w-full" onClick={handleSubmit} disabled={loading}>
-            {loading ? "Updating..." : "Set New Password"}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+              <div className="space-y-2">
+                <Label htmlFor="repassword">Confirm Password</Label>
+                <Input id="repassword" type="password" value={repassword} onChange={(e) => setRepassword(e.target.value)} placeholder="Confirm your new password" required />
+              </div>
+            </form>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" onClick={handleSubmit} disabled={loading}>
+              {loading ? "Updating..." : "Set New Password"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </>
   );
 }

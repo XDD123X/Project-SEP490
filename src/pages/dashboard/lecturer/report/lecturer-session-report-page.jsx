@@ -312,7 +312,7 @@ export default function ViewLecturerClassReportPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center mb-6">
-        <Button variant="outline" onClick={() => navigate("/reports")} className="mr-4">
+        <Button variant="outline" onClick={() => navigate("/lecturer/reports")} className="mr-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Classes
         </Button>
