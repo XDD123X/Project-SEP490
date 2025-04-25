@@ -32,12 +32,41 @@ namespace OTMS.DAL.Repository
             var recordRepo = scope.ServiceProvider.GetRequiredService<IRecordRepository>();
             var reportRepo = scope.ServiceProvider.GetRequiredService<IReportRepository>();
 
+
+         
+
+            //đầu tiên tạo bản ghi report
+            Report report = await reportRepo.GetReportBySessionIdAsync(sessionId);
+            var session = await sessionRepo.GetSessionsBySessionId(sessionId);
+            var record = await recordRepo.GetRecordBySessionAsync(sessionId);
+           
+            if (record == null)
+            {
+                Console.WriteLine("Session {SessionId} không có record để phân tích", sessionId);
+                return;
+            }
+
+            if (report != null)
+            {
+                report.GeneratedAt = DateTime.UtcNow;
+                report.GeneratedBy = generateBy;
+                await reportRepo.UpdateAsync(report);
+            }
+            else
+            {
+                await reportRepo.AddReport(new Report
+                {
+                    RecordId = record.RecordId,
+                    GeneratedAt = DateTime.UtcNow,
+                    GeneratedBy = generateBy,
+                    SessionId = sessionId,
+                    Status = 1,
+                });
+            }
+
+
             try
             {
-                var session = await sessionRepo.GetSessionsBySessionId(sessionId);
-                var record = await recordRepo.GetRecordBySessionAsync(sessionId);
-
-                // 🟡 Cập nhật trạng thái "đang phân tích"
                 record.Status = 2;
                 await recordRepo.UpdateAsync(record);
 
@@ -83,7 +112,6 @@ namespace OTMS.DAL.Repository
 
 
                     var result = await response.Content.ReadAsStringAsync();
-                    Report report = await reportRepo.GetReportBySessionIdAsync(sessionId);
 
 
 
@@ -97,45 +125,15 @@ namespace OTMS.DAL.Repository
                     var googleAI = new GoogleAI(apiKey: apiKey);
                     var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
                     var GeminiResponse = await model.GenerateContent(prompt);
-
-
-
-
-
-                    if (report != null)
-                    {
-
-
-                        report.AnalysisData = result;
-                        report.GeneratedAt = DateTime.UtcNow;
-                        report.GeneratedBy = generateBy;
-                        report.Status = 1;
-                        report.GeminiResponse = GeminiResponse.Text.Trim().ToString();
-
-                        await reportRepo.UpdateAsync(report);
-                    }
-                    else
-                    {
-
-
-                     
-
-                        await reportRepo.AddReport(new Report
-                        {
-                            RecordId = record.RecordId,
-                            AnalysisData = result,
-                            GeneratedAt = DateTime.UtcNow,
-                            GeneratedBy = generateBy,
-                            SessionId = sessionId,
-                            Status = 1,
-                            GeminiResponse = GeminiResponse.Text.Trim().ToString()
-
-                        });
-                    }
-
-                    // ✅ Cập nhật trạng thái "phân tích xong"
                     record.Status = 3;
                     await recordRepo.UpdateAsync(record);
+
+
+
+                    report.AnalysisData = result;
+                    report.GeminiResponse = GeminiResponse.Text.Trim().ToString();
+                    await reportRepo.UpdateAsync(report);
+
                 }
                 else
                 {
