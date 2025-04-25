@@ -68,33 +68,21 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpGet("GetReportBySessionId")]
         public async Task<IActionResult> GetReportFromRecordBySessionId(Guid sessionId)
         {
-            Record record = await _recordRepository.GetReportFromRecordBySessionId(sessionId);
+            Report report= await _reportRepository.GetReportBySessionIdAsync(sessionId);
 
-            if (record == null)
+            if (report == null)
             {
-                return NotFound("Không tìm thấy bản ghi.");
+                return BadRequest("video chua duoc phan tich");
             }
+            else if(report!= null && report.Status == 1)
+            {
+                return BadRequest("video dang duoc phan tich");
 
-            if (record.Status == 1)
-            {
-                return BadRequest("Video chưa được phân tích.");
             }
-            else if (record.Status == 2)
+            else
             {
-                return BadRequest("Video đang được phân tích.");
+                return Ok(report.GeminiResponse.ToString());
             }
-            else if (record.Status == 3)
-            {
-                Report report = record.Reports.LastOrDefault();
-                if (report == null)
-                {
-                    return NotFound("Không tìm thấy báo cáo.");
-                }
-
-                return Ok(report.GeminiResponse?.ToString()); 
-            }
-
-            return BadRequest("Trạng thái không hợp lệ.");
         }
 
 

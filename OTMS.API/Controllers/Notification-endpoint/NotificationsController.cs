@@ -22,8 +22,9 @@ namespace OTMS.API.Controllers.Notification_endpoint
         private readonly IClassRepository _classRepository;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
+        private readonly NewEmailBackgroundService _emailBackgroundService;
 
-        public NotificationsController(INotificationRepository notificationRepository, IRoleRepository roleRepository, IAccountRepository accountRepository, ICourseRepository courseRepository, IClassRepository classRepository, IMapper mapper, IEmailService emailService)
+        public NotificationsController( NewEmailBackgroundService emailBackgroundService,INotificationRepository notificationRepository, IRoleRepository roleRepository, IAccountRepository accountRepository, ICourseRepository courseRepository, IClassRepository classRepository, IMapper mapper, IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
             _roleRepository = roleRepository;
@@ -32,6 +33,7 @@ namespace OTMS.API.Controllers.Notification_endpoint
             _classRepository = classRepository;
             _mapper = mapper;
             _emailService = emailService;
+            _emailBackgroundService = emailBackgroundService;
         }
 
         [HttpGet("me")]
@@ -211,6 +213,7 @@ namespace OTMS.API.Controllers.Notification_endpoint
                     foreach (var email in recipientEmails)
                     {
                         EmailBackgroundService.EnqueueEmail(email, subject, message);
+                       //await _emailBackgroundService.EnqueueEmailAsync(email, subject, message);
                     }
                 }
             }
