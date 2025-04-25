@@ -199,12 +199,12 @@ namespace OTMS.API.Controllers.Material_Endpoint
         [HttpDelete("record/{recordId}")]
         public async Task<IActionResult> DeleteRecord(Guid recordId)
         {
-            // Lấy file từ DB theo fileId
+            // Lấy record từ DB
             var recordEntity = await _recordRepository.GetByIdAsync(recordId);
             if (recordEntity == null)
                 return NotFound("Không tìm thấy record trong cơ sở dữ liệu.");
 
-            // Lấy tên file từ đường dẫn (nếu lưu cả path, ví dụ: /uploads/abc.pdf)
+            // Lấy tên file từ đường dẫn
             var recordName = Path.GetFileName(recordEntity.VideoUrl);
             var recordPath = Path.Combine(_uploadPath, recordName);
 
@@ -217,8 +217,16 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 System.IO.File.Delete(recordPath);
             }
 
-            // Xoá bản ghi trong DB
+            // Xoá record khỏi DB
             await _recordRepository.DeleteAsync(recordId);
+
+            // Lấy session liên quan
+            var session = await _sessionRepository.GetByIdAsync(recordEntity.SessionId);
+            if (session != null)
+            {
+                session.SessionRecord = null;
+                await _sessionRepository.UpdateAsync(session);
+            }
 
             return Ok("Đã xoá record thành công.");
         }
