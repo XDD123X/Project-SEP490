@@ -42,7 +42,7 @@ namespace OTMS.DAL.Repository
            
             if (record == null)
             {
-                Console.WriteLine("Session {SessionId} không có record để phân tích", sessionId);
+                Console.WriteLine("Session  không có record để phân tích");
                 return;
             }
 
@@ -62,6 +62,7 @@ namespace OTMS.DAL.Repository
                     SessionId = sessionId,
                     Status = 1,
                 });
+
             }
 
 
@@ -129,10 +130,13 @@ namespace OTMS.DAL.Repository
                     await recordRepo.UpdateAsync(record);
 
 
+                    report = await reportRepo.GetReportBySessionIdAsync(sessionId);
 
-                    report.AnalysisData = result;
-                    report.GeminiResponse = GeminiResponse.Text.Trim().ToString();
+                    report.AnalysisData=result;
+                    report.GeminiResponse=GeminiResponse.Text.Trim().ToString();
                     await reportRepo.UpdateAsync(report);
+
+
 
                 }
                 else
@@ -142,7 +146,7 @@ namespace OTMS.DAL.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi xử lý phân tích video cho session {SessionId}", sessionId);
+                Console.WriteLine("Lỗi khi phân tích video cho session ");
             }
         }
     }
