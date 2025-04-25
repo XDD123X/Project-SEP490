@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Eye, UserMinus } from "lucide-react";
+import { Search, Eye, UserMinus, Flag, TriangleAlert } from "lucide-react";
 import { StudentDetailsDialog } from "./student-detail-dialog";
 
 export function ClassStudentsCard({ classData, onRemoveStudent }) {
@@ -55,9 +55,14 @@ export function ClassStudentsCard({ classData, onRemoveStudent }) {
               </TableHeader>
               <TableBody>
                 {filteredStudents.map((cs, index) => (
-                  <TableRow key={cs.studentId}>
+                  <TableRow key={cs.studentId} className={cs.student.status === 0 && 'text-yellow-500'}>
                     <TableCell>{index + 1}</TableCell>
-                    <TableCell>{cs.student.fullName}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {cs.student.fullName}
+                        {cs.student.status === 0 && <TriangleAlert className="w-4 h-4 text-yellow-500" />}
+                      </div>
+                    </TableCell>
                     <TableCell>{cs.student.email}</TableCell>
                     <TableCell>{cs.student.phoneNumber}</TableCell>
                     <TableCell className="text-right">

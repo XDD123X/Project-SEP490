@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Edit, Trash2, Eye, Link2, Link2Off, ChevronUp, ChevronDown, Upload, Download, FileDown } from "lucide-react";
+import { Search, Edit, Trash2, Eye, ChevronUp, ChevronDown, Upload, Download, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { deleteAccountById, getAccounts, getOfficerList, importLecturerList } from "@/services/accountService";
+import { deleteAccountById, getAccounts, getOfficerList, importOfficerList } from "@/services/accountService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
@@ -210,24 +210,24 @@ export default function AdminAccountPage() {
   };
 
   // Function to handle imported students
-  const handleImportLecturers = async (importedLecturers) => {
+  const handleImportOfficers = async (importedOfficers) => {
     if (!officers) return;
     setIsLoading(true);
 
     // Tạo Set chứa danh sách email của sinh viên đã tồn tại
-    const existingLecturerEmails = new Set(officers.map((lecturer) => lecturer.email));
+    const existingOfficerEmails = new Set(officers.map((officer) => officer.email));
 
     // Lọc ra các sinh viên có email chưa tồn tại
-    const uniqueLecturers = importedLecturers.filter((lecturer) => !existingLecturerEmails.has(lecturer.email));
+    const uniqueOfficers = importedOfficers.filter((officer) => !existingOfficerEmails.has(officer.email));
 
     // Tạo danh sách sinh viên mới để thêm vào
-    const newLecturers = uniqueLecturers.map((lecturer) => ({
+    const newOfficers = uniqueOfficers.map((officer) => ({
       accountId: crypto.randomUUID(),
-      email: lecturer.email,
-      fullName: lecturer.fullName,
-      phoneNumber: lecturer.phoneNumber,
-      dob: lecturer.dob ? new Date(lecturer.dob).toISOString().split("T")[0] : null,
-      gender: lecturer.gender,
+      email: officer.email,
+      fullName: officer.fullName,
+      phoneNumber: officer.phoneNumber,
+      dob: officer.dob ? new Date(officer.dob).toISOString().split("T")[0] : null,
+      gender: officer.gender,
       status: 3,
       createdAt: new Date().toISOString(),
     }));
@@ -237,22 +237,22 @@ export default function AdminAccountPage() {
 
     try {
       // Gọi API import danh sách sinh viên
-      const response = await importLecturerList(newLecturers);
+      const response = await importOfficerList(newOfficers);
 
       if (response.status === 200) {
-        toast.success(`Added ${uniqueLecturers.length} lecturers successfully`);
+        toast.success(`Added ${uniqueOfficers.length} officers successfully`);
 
         // Cập nhật danh sách students nếu API thành công
         // setStudents((prevStudents) => [...prevStudents, ...newStudents]);
         fetchData();
         setIsLoading(false);
       } else {
-        toast.error(response.message || "Failed to import lecturers");
+        toast.error(response.message || "Failed to import officer");
         setIsLoading(false);
       }
     } catch (error) {
       console.error("Import error:", error);
-      toast.error("An error occurred while importing lecturers");
+      toast.error("An error occurred while importing officers");
       setIsLoading(false);
     }
 
@@ -449,7 +449,7 @@ export default function AdminAccountPage() {
         </div>
       </div>
 
-      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportLecturers} accountsData={accounts} type={"Lecturer"} />
+      <ImportAccountsOfficerDialog isOpen={isImportDialogOpen} onClose={() => setIsImportDialogOpen(false)} onImport={handleImportOfficers} accountsData={accounts} type={"Officer"} />
       {/* Loading Screen   */}
       {isLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-all">

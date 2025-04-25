@@ -126,9 +126,9 @@ export default function AttendanceReportLecturer({ classId }) {
 
   // Helper function to determine progress bar color based on percentage
   const getProgressColor = (percentage) => {
-    if (percentage === 100) return "bg-primary";
-    if (percentage >= 80) return "bg-warning";
-    return "bg-destructive";
+    if (percentage === 100) return "bg-green-500";
+    if (percentage >= 75) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   if (loading) {
@@ -165,7 +165,7 @@ export default function AttendanceReportLecturer({ classId }) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{overallStats && overallStats.overallPercentage.toFixed(1)}%</div>
-                <Progress value={overallStats && overallStats.overallPercentage} className={`h-2 mt-2 ${getProgressColor(overallStats && overallStats.overallPercentage)}`} />
+                <Progress value={overallStats && overallStats.overallPercentage} className={`h-2 mt-2 `} />
               </CardContent>
             </Card>
           </div>
@@ -200,7 +200,7 @@ export default function AttendanceReportLecturer({ classId }) {
                         <TableCell className="sticky left-0 bg-background z-10 p-2">
                           <div className="font-medium">{record.fullName}</div>
                           <div className="flex items-center gap-2 mt-1">
-                            <Progress value={record.percentage} className={`h-2 w-full ${getProgressColor(record.percentage)}`} />
+                            <Progress value={record.percentage} className={`h-2 w-full  `} primaryColor={getProgressColor(record.percentage)} />
                             <span className="text-xs whitespace-nowrap">{record.percentage.toFixed(1)}%</span>
                           </div>
                           <div className="flex justify-between mt-1 text-xs text-muted-foreground">
@@ -210,24 +210,24 @@ export default function AttendanceReportLecturer({ classId }) {
                         </TableCell>
 
                         {sessions
-                        //.filter((s) => Array.isArray(s.attendances) && s.attendances.length > 0)
-                        .map((session) => {
-                          // Find the attendance record for this student in this session
-                          const attendanceRecord = session.attendances.find((a) => a.studentId === studentId);
-                          const status = attendanceRecord?.status;
+                          //.filter((s) => Array.isArray(s.attendances) && s.attendances.length > 0)
+                          .map((session) => {
+                            // Find the attendance record for this student in this session
+                            const attendanceRecord = session.attendances.find((a) => a.studentId === studentId);
+                            const status = attendanceRecord?.status;
 
-                          return (
-                            <TableCell key={session.sessionId} className="text-center p-1">
-                              {status === 1 ? (
-                                <div className="h-3 w-3 bg-green-500 rounded-full mx-auto" title="Present" />
-                              ) : status === 2 ? (
-                                <div className="h-3 w-3 bg-red-500 rounded-full mx-auto" title="Absent" />
-                              ) : (
-                                <div className="h-3 w-3 bg-secondary rounded-full mx-auto" title="Not Yet" />
-                              )}
-                            </TableCell>
-                          );
-                        })}
+                            return (
+                              <TableCell key={session.sessionId} className="text-center p-1">
+                                {status === 1 ? (
+                                  <div className="h-3 w-3 bg-green-500 rounded-full mx-auto" title="Present" />
+                                ) : status === 0 ? (
+                                  <div className="h-3 w-3 bg-red-500 rounded-full mx-auto" title="Absent" />
+                                ) : (
+                                  <div className="h-3 w-3 bg-secondary rounded-full mx-auto" title="Not Yet" />
+                                )}
+                              </TableCell>
+                            );
+                          })}
                       </TableRow>
                     );
                   })}

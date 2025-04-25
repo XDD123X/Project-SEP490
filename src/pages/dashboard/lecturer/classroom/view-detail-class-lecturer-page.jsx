@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Eye, Flag, FlagOff } from "lucide-react";
+import { ArrowLeft, Eye, Flag, FlagOff, TriangleAlert } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { GetLecturerClassById, TogglClassStudentStatus } from "@/services/classService";
 import { format } from "date-fns";
@@ -152,7 +152,7 @@ export default function ViewClassDetailLecturerPage() {
                       {...(classData.lecturer?.meetUrl ? { target: "_blank" } : {})}
                       title={classData.lecturer?.meetUrl || "N/A"} // Hiển thị full URL khi hover
                     >
-                      {classData.lecturer ? classData.lecturer?.meetUrl.split("/").pop() : "N/A"} {/* Nếu null thì hiển thị N/A */}
+                      {classData.lecturer?.meetUrl ? classData.lecturer.meetUrl.split("/").pop() : "N/A"}
                     </Link>
                   </div>
                 </div>
@@ -181,7 +181,7 @@ export default function ViewClassDetailLecturerPage() {
                       <div
                         key={student.student.accountId}
                         className={`flex items-center justify-between p-3 border rounded-lg
-                        ${student.status === 1 ? "border-green-400" : "border-red-400"}`}
+                        ${student.status === 1 ? "" : "border-yellow-500"}`}
                       >
                         <div className="flex items-center space-x-4">
                           <Avatar>
@@ -189,7 +189,7 @@ export default function ViewClassDetailLecturerPage() {
                             <AvatarFallback>{student.student.fullName?.substring(0, 2).toUpperCase()}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{student.student.fullName}</div>
+                            <div className="flex items-center gap-2 font-medium"> {student.student.fullName} {student.status === 0 && (<TriangleAlert className="w-4 h-4 text-yellow-500"/>)} </div>
                             <div className="text-sm text-muted-foreground">{student.student.email}</div>
                           </div>
                         </div>
@@ -204,7 +204,7 @@ export default function ViewClassDetailLecturerPage() {
                             </Button>
                           </Link>
                           <Button variant="outline" size="icon" onClick={() => handleChangeClassStudentStatus(student.classId, student.studentId)}>
-                            {student.status !== 1 ? <Flag className="h-4 w-4 text-green-500" /> : <FlagOff className="h-4 w-4 text-red-500" />}
+                            {student.status !== 1 ? <FlagOff className="h-4 w-4 text-yellow-500" /> : <TriangleAlert className="h-4 w-4 text-red-500" />}
                           </Button>
                         </div>
                       </div>

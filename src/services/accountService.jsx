@@ -108,6 +108,24 @@ export const importLecturerList = async (lecturers) => {
   }
 };
 
+export const importOfficerList = async (officers) => {
+  try {
+    const response = await axiosClient.post("/admin/account/add-list-officer", officers);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Import failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Import Officers failed!",
+    };
+  }
+};
+
 export const getAccountById = async (id) => {
   try {
     const response = await axiosClient.get(`/officer/account/${id}`);
