@@ -48,12 +48,16 @@ export default function ViewLecturerClassReportPage() {
 
       const analyzeResponse = await analyzeSession(sessionId);
       if (analyzeResponse.status === 200) {
-        // Update local sessions state trước khi fetchData() mới
         setSessions((prevSessions) =>
           prevSessions.map((session) => {
             if (session.sessionId === sessionId) {
-              // Đảm bảo session.report[0] tồn tại
-              const updatedReport = session.report?.length > 0 ? [{ ...session.report[0], status: 1 }] : [{ status: 1 }];
+              let updatedReport = [];
+
+              if (Array.isArray(session.reports) && session.reports.length > 0) {
+                updatedReport = [{ ...session.reports[0], status: 1 }];
+              } else {
+                updatedReport = [{ status: 1 }];
+              }
 
               return { ...session, report: updatedReport };
             }
@@ -61,7 +65,7 @@ export default function ViewLecturerClassReportPage() {
           })
         );
 
-        fetchData();
+        //fetchData();
       }
 
       setProcessingSessionId(null);
