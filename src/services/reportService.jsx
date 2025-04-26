@@ -14,9 +14,17 @@ export const analyzeSession = async (sessionId) => {
     const response = await axiosClient.post("/Lecturer/Report/Analyze", {
       sessionId,
     });
-    return response;
+    return {
+      status: response.status,
+      data: response.data,
+    };
   } catch (error) {
-    console.log(error);
+    console.error("Import failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Add Account failed!",
+    };
   }
 };
 
