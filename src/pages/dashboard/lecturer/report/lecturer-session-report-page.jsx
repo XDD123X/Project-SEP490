@@ -48,6 +48,19 @@ export default function ViewLecturerClassReportPage() {
 
       const analyzeResponse = await analyzeSession(sessionId);
       if (analyzeResponse.status === 200) {
+        // Update local sessions state trước khi fetchData() mới
+        setSessions((prevSessions) =>
+          prevSessions.map((session) => {
+            if (session.sessionId === sessionId) {
+              // Đảm bảo session.report[0] tồn tại
+              const updatedReport = session.report?.length > 0 ? [{ ...session.report[0], status: 1 }] : [{ status: 1 }];
+
+              return { ...session, report: updatedReport };
+            }
+            return session;
+          })
+        );
+
         fetchData();
       }
 
@@ -83,13 +96,15 @@ export default function ViewLecturerClassReportPage() {
       setIsLoadingView(true);
 
       const response = await getSessionReporForLectureBySessionId(session.sessionId);
+      console.log(response);
 
       if (response.status === 200) {
         setSelectedReport({
           sessionNumber: session.sessionNumber,
           description: session.description,
-          summary: response.data,
+          summary: response.data.geminiResponse,
           data: session.reports[0].analysisData,
+          status: response.data.status,
         });
       }
 
@@ -101,27 +116,34 @@ export default function ViewLecturerClassReportPage() {
     }
   };
 
-  const handleDownloadReport = () => {
-    // In a real application, this would trigger a download of a detailed report
-    alert("Downloading detailed report...");
-    // You could implement actual download functionality here
+  const formatText = (input) => {
+    if (!input) return "";
+
+    // 1. Đổi \r\n thành <br/>
+    let text = input.replace(/\r\n/g, "<br/>");
+
+    // 2. Đổi **bold** thành <strong>bold</strong>
+    text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    return text;
   };
 
   function getActionButton(session) {
     const canAnalyze = session.status === 2 && session.records && session.records.length > 0;
 
-    if (!session.reports || session.reports.length === 0) {
+    if (!session.reports || session.reports.length === 0 || session.reports[0]?.status === -1) {
+      const isReAnalyze = session.reports?.[0]?.status === -1;
       return (
         <Button onClick={() => handleAnalyze(session.sessionId)} disabled={!canAnalyze || processingSessionId === session.sessionId} size="sm">
           {processingSessionId === session.sessionId ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Analyzing...
+              {isReAnalyze ? "Re-Analyzing..." : "Analyzing..."}
             </>
           ) : (
             <>
               <FileAnalytics className="mr-2 h-4 w-4" />
-              Analyze
+              {isReAnalyze ? "Re-Analyze" : "Analyze"}
             </>
           )}
         </Button>
@@ -141,6 +163,7 @@ export default function ViewLecturerClassReportPage() {
         </Button>
       );
     }
+
     return (
       <Button disabled size="sm">
         Unknown Status
@@ -222,16 +245,16 @@ export default function ViewLecturerClassReportPage() {
             <DialogDescription>Report summary generated from session recording and attendance data.</DialogDescription>
           </DialogHeader>
           <div className="p-4 bg-muted/30 rounded-md max-h-[300px] overflow-y-auto">
-            <p className="text-sm leading-relaxed">{selectedReport?.summary || ""}</p>
+            <p className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(selectedReport?.summary || "") }}></p>
           </div>
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2 gap-4">
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2 gap-4">
             <Button variant="outline" onClick={() => setOpenReportDialog(false)}>
               Close
             </Button>
-            <Button onClick={handleDownloadReport}>
+            {/* <Button onClick={handleDownloadReport}>
               <Download className="mr-2 h-4 w-4" />
               Download Details
-            </Button>
+            </Button> */}
           </DialogFooter>
         </DialogContent>
       </Dialog>

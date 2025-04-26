@@ -34,7 +34,7 @@ export const downloadReportDetail = async (sessionId) => {
 
 export const getSessionReporForLectureBySessionId = async (sessionId) => {
   try {
-    const response = await axiosClient.get(`/lecturer/report/${sessionId}`);
+    const response = await axiosClient.get(`/lecturer/report/GetReportBySessionId?sessionId=${sessionId}`);
     return {
       status: response.status,
       data: response.data,
@@ -51,7 +51,7 @@ export const getSessionReporForLectureBySessionId = async (sessionId) => {
 
 export const getSessionReporForOfficerBySessionId = async (sessionId) => {
   try {
-    const response = await axiosClient.get(`/officer/report/${sessionId}`);
+    const response = await axiosClient.get(`/officer/report/GetReportBySessionId?sessionId=${sessionId}`);
     return {
       status: response.status,
       data: response.data,
