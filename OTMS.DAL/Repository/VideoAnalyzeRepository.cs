@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mscc.GenerativeAI;
@@ -25,52 +26,36 @@ namespace OTMS.DAL.Repository
 
         public async Task AnalyzeVideoAsync(Guid sessionId, Guid generateBy)
         {
-            Console.WriteLine("Bắt đầu phân tích video  ");
+            Console.WriteLine("Bắt đầu phân tích video");
             using var scope = _scopeFactory.CreateScope();
 
             var sessionRepo = scope.ServiceProvider.GetRequiredService<ISessionRepository>();
             var recordRepo = scope.ServiceProvider.GetRequiredService<IRecordRepository>();
             var reportRepo = scope.ServiceProvider.GetRequiredService<IReportRepository>();
 
-
-         
-
-            //đầu tiên tạo bản ghi report
-            Report report = await reportRepo.GetReportBySessionIdAsync(sessionId);
+            var report = await reportRepo.GetReportBySessionIdAsync(sessionId);
             var session = await sessionRepo.GetSessionsBySessionId(sessionId);
             var record = await recordRepo.GetRecordBySessionAsync(sessionId);
-           
+
             if (record == null)
             {
-                Console.WriteLine("Session  không có record để phân tích");
+                Console.WriteLine("Session không có record để phân tích");
                 return;
             }
 
-            if (report != null)
+            if (report == null)
             {
-                report.GeneratedAt = DateTime.UtcNow;
-                report.GeneratedBy = generateBy;
-                await reportRepo.UpdateAsync(report);
-            }
-            else
-            {
-                await reportRepo.AddReport(new Report
-                {
-                    RecordId = record.RecordId,
-                    GeneratedAt = DateTime.UtcNow,
-                    GeneratedBy = generateBy,
-                    SessionId = sessionId,
-                    Status = 1,
-                });
-
+                Console.WriteLine("Không tìm thấy report để cập nhật!");
+                return;
             }
 
+            // Cập nhật lại thông tin người generate (cho chắc)
+            report.GeneratedAt = DateTime.UtcNow;
+            report.GeneratedBy = generateBy;
+            await reportRepo.UpdateAsync(report);
 
             try
             {
-                //record.Status = 2;
-                //await recordRepo.UpdateAsync(record);
-
                 var recordDir = Path.Combine(
                     Directory.GetCurrentDirectory(),
                     "Files",
@@ -78,78 +63,248 @@ namespace OTMS.DAL.Repository
                     "record",
                     session.SessionNumber.ToString());
 
-                var videoFile = Directory.GetFiles(recordDir).FirstOrDefault(f =>
-                    new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" }
-                        .Contains(Path.GetExtension(f).ToLower()));
+                var videoFile = Directory.GetFiles(recordDir)
+                    .FirstOrDefault(f => new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" }
+                    .Contains(Path.GetExtension(f).ToLower()));
 
                 if (videoFile == null)
                 {
-                    Console.WriteLine("Không tìm thấy video để phân tích cho session {SessionId}", sessionId);
+                    Console.WriteLine($"Không tìm thấy video để phân tích cho session {sessionId}");
+                    report.Status = -1;
+                    await reportRepo.UpdateAsync(report);
                     return;
                 }
 
-                var client = new HttpClient { Timeout = TimeSpan.FromMinutes(20) };
-                var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
+                // ===== Upload Video =====
+                string analysisResult = null;
+                try
+                {
+                    var client = new HttpClient { Timeout = TimeSpan.FromMinutes(20) };
+                    var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
 
-                var content = new MultipartFormDataContent
+                    var content = new MultipartFormDataContent
             {
                 {
                     new ByteArrayContent(fileBytes)
                     {
-                        Headers = { ContentType = new MediaTypeHeaderValue("video/mp4") }
+                        Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("video/mp4") }
                     },
                     "video",
                     Path.GetFileName(videoFile)
                 }
             };
-                Console.WriteLine("bắt đầu truyền vào api phân tích video");
 
-                var response = await client.PostAsync("http://127.0.0.1:4000/upload_video", content);
-                Console.WriteLine("đã có response");
+                    Console.WriteLine("Gửi video đến API phân tích...");
+                    var response = await client.PostAsync("http://127.0.0.1:4000/upload_video", content);
 
-                if (response.IsSuccessStatusCode)
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Upload video thất bại với mã {response.StatusCode}");
+                        report.Status = -1;
+                        await reportRepo.UpdateAsync(report);
+                        return;
+                    }
+
+                    analysisResult = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Upload video thành công và nhận kết quả.");
+                }
+                catch (Exception exUpload)
                 {
+                    Console.WriteLine($"Lỗi upload video: {exUpload.Message}");
+                    report.Status = -1;
+                    await reportRepo.UpdateAsync(report);
+                    return;
+                }
 
-
-
-                    var result = await response.Content.ReadAsStringAsync();
-
-
+                // ===== Gọi Gemini AI =====
+                try
+                {
+                    Console.WriteLine("Gọi Google Gemini để phân tích nội dung...");
 
                     var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                    var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
-                        "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
-                        "Trạng thái cảm xúc chiếm ưu thế." +
-                        "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
-                        "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn.Đây là kết quả nhận diện: " + result;
+                    var prompt = $@"Hãy đưa ra thông tin và phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc sau:
+                            {analysisResult}
+                            Bao gồm các yếu tố:
+                            - Có bao nhiêu học sinh đã nhận diện được?
+                            - Mức độ tham gia của học sinh (dựa trên sự hiện diện).
+                            - Trạng thái cảm xúc chiếm ưu thế.
+                            - Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi / Bình thường / Trầm lắng).
+                            - Gợi ý cải thiện bầu không khí nếu có.";
 
                     var googleAI = new GoogleAI(apiKey: apiKey);
                     var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
-                    var GeminiResponse = await model.GenerateContent(prompt);
-                    //record.Status = 3;
-                    //await recordRepo.UpdateAsync(record);
+                    var geminiResponse = await model.GenerateContent(prompt);
 
-
-                    report = await reportRepo.GetReportBySessionIdAsync(sessionId);
-
-                    report.AnalysisData=result;
-                    report.GeminiResponse=GeminiResponse.Text.Trim().ToString();
-                    report.Status = 2;
-                    await reportRepo.UpdateAsync(report);
-
-
-
+                    report.AnalysisData = analysisResult;
+                    report.GeminiResponse = geminiResponse.Text.Trim();
                 }
-                else
+                catch (Exception exGemini)
                 {
-                    Console.WriteLine("Gọi API phân tích thất bại: {Status}", response.StatusCode);
+                    Console.WriteLine($"Lỗi khi gọi Google Gemini: {exGemini.Message}");
+                    report.Status = -1;
+                    await reportRepo.UpdateAsync(report);
+                    return;
                 }
+
+                report.Status = 2; // Phân tích hoàn tất
+                await reportRepo.UpdateAsync(report);
+                Console.WriteLine("Phân tích video hoàn tất.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi khi phân tích video cho session ");
+                Console.WriteLine($"Lỗi tổng quát khi phân tích session {sessionId}: {ex.Message}");
+                report.Status = -1;
+                await reportRepo.UpdateAsync(report);
             }
         }
-    }
 
+
+        //public async Task AnalyzeVideoAsync(Guid sessionId, Guid generateBy)
+        //{
+        //    Console.WriteLine("Bắt đầu phân tích video");
+        //    using var scope = _scopeFactory.CreateScope();
+
+        //    var sessionRepo = scope.ServiceProvider.GetRequiredService<ISessionRepository>();
+        //    var recordRepo = scope.ServiceProvider.GetRequiredService<IRecordRepository>();
+        //    var reportRepo = scope.ServiceProvider.GetRequiredService<IReportRepository>();
+
+        //    var report = await reportRepo.GetReportBySessionIdAsync(sessionId);
+        //    var session = await sessionRepo.GetSessionsBySessionId(sessionId);
+        //    var record = await recordRepo.GetRecordBySessionAsync(sessionId);
+
+        //    if (record == null)
+        //    {
+        //        Console.WriteLine("Session không có record để phân tích");
+        //        return;
+        //    }
+
+        //    if (report != null)
+        //    {
+        //        report.GeneratedAt = DateTime.UtcNow;
+        //        report.GeneratedBy = generateBy;
+        //        await reportRepo.UpdateAsync(report);
+        //    }
+        //    else
+        //    {
+        //        report = new Report
+        //        {
+        //            RecordId = record.RecordId,
+        //            GeneratedAt = DateTime.UtcNow,
+        //            GeneratedBy = generateBy,
+        //            SessionId = sessionId,
+        //            Status = 1,
+        //        };
+        //        await reportRepo.AddReport(report);
+        //    }
+
+        //    try
+        //    {
+        //        var recordDir = Path.Combine(
+        //            Directory.GetCurrentDirectory(),
+        //            "Files",
+        //            session.Class.ClassCode.Replace("/", "_"),
+        //            "record",
+        //            session.SessionNumber.ToString());
+
+        //        var videoFile = Directory.GetFiles(recordDir)
+        //            .FirstOrDefault(f => new[] { ".mp4", ".webm", ".mov", ".avi", ".mkv" }
+        //            .Contains(Path.GetExtension(f).ToLower()));
+
+        //        if (videoFile == null)
+        //        {
+        //            Console.WriteLine($"Không tìm thấy video để phân tích cho session {sessionId}");
+        //            report.Status = -1;
+        //            await reportRepo.UpdateAsync(report);
+        //            return;
+        //        }
+
+        //        // ===== Upload Video =====
+        //        string analysisResult = null;
+        //        try
+        //        {
+        //            var client = new HttpClient { Timeout = TimeSpan.FromMinutes(20) };
+        //            var fileBytes = await System.IO.File.ReadAllBytesAsync(videoFile);
+
+        //            var content = new MultipartFormDataContent
+        //    {
+        //        {
+        //            new ByteArrayContent(fileBytes)
+        //            {
+        //                Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("video/mp4") }
+        //            },
+        //            "video",
+        //            Path.GetFileName(videoFile)
+        //        }
+        //    };
+
+        //            Console.WriteLine("Gửi video đến API phân tích...");
+        //            var response = await client.PostAsync("http://127.0.0.1:4000/upload_video", content);
+
+        //            if (!response.IsSuccessStatusCode)
+        //            {
+        //                Console.WriteLine($"Upload video thất bại với mã {response.StatusCode}");
+        //                report.Status = -1;
+        //                await reportRepo.UpdateAsync(report);
+        //                return;
+        //            }
+
+        //            analysisResult = await response.Content.ReadAsStringAsync();
+        //            Console.WriteLine("Upload video thành công và nhận kết quả.");
+        //        }
+        //        catch (Exception exUpload)
+        //        {
+        //            Console.WriteLine($"Lỗi upload video: {exUpload.Message}");
+        //            report.Status = -1;
+        //            await reportRepo.UpdateAsync(report);
+        //            return;
+        //        }
+
+        //        // ===== Gọi Gemini AI =====
+        //        try
+        //        {
+        //            Console.WriteLine("Gọi Google Gemini để phân tích nội dung...");
+
+        //            var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
+        //            var prompt = $@"Hãy đưa ra thông tin và phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc sau:
+        //                            {analysisResult}
+        //                            Bao gồm các yếu tố:
+        //                            - Có bao nhiêu học sinh đã nhận diện được?
+        //                            - Mức độ tham gia của học sinh (dựa trên sự hiện diện).
+        //                            - Trạng thái cảm xúc chiếm ưu thế.
+        //                            - Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi / Bình thường / Trầm lắng).
+        //                            - Gợi ý cải thiện bầu không khí nếu có.";
+
+        //            var googleAI = new GoogleAI(apiKey: apiKey);
+        //            var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
+        //            var geminiResponse = await model.GenerateContent(prompt);
+
+        //            // Save cả AnalysisData và Gemini Response
+        //            report.AnalysisData = analysisResult;
+        //            report.GeminiResponse = geminiResponse.Text.Trim();
+        //        }
+        //        catch (Exception exGemini)
+        //        {
+        //            Console.WriteLine($"Lỗi khi gọi Google Gemini: {exGemini.Message}");
+        //            report.Status = -1;
+        //            await reportRepo.UpdateAsync(report);
+        //            return;
+        //        }
+
+        //        report.Status = 2;
+        //        await reportRepo.UpdateAsync(report);
+        //        Console.WriteLine("Phân tích video hoàn tất.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Lỗi tổng quát khi phân tích session {sessionId}: {ex.Message}");
+        //        report.Status = -1;
+        //        await reportRepo.UpdateAsync(report);
+        //    }
+        //}
+
+
+
+
+    }
 }
+
