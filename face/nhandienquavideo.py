@@ -108,11 +108,13 @@ def process_video(video_path):
     cap.release()
     cv2.destroyAllWindows()
 
-    total_counts = sum(data["count"] for data in face_data.values())
-    if total_counts > 0:
+    # total_counts = sum(data["count"] for data in face_data.values())
+    # if total_counts > 0:
+    #     for name, data in face_data.items():
+    #         data["presence_ratio"] = (data["count"] / total_counts) * 100
+    if frame_count > 0:
         for name, data in face_data.items():
-            data["presence_ratio"] = (data["count"] / total_counts) * 100
-
+            data["presence_ratio"] = (data["count"] / frame_count) * 100
     result = {
         "detected_faces": face_data,
         "video_duration": video_duration,
