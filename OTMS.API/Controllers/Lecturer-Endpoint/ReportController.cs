@@ -79,7 +79,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             }
             else
             {
-                return Ok(report.GeminiResponse.ToString());
+                return Ok(report);
             }
         }
 
