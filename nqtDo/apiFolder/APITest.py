@@ -1,7 +1,7 @@
 import json
 import requests
 url = 'http://127.0.0.1:4000/upload_video'
-video_path = r"C:\Users\nqt00\OneDrive\Desktop\6396588663822.mp4"
+video_path = r"C:\Users\nqt00\OneDrive\Desktop\6348820465203.mp4"
 with open(video_path, 'rb') as video_file:
     files = {'video': video_file}
     response = requests.post(url, files=files)
