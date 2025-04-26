@@ -77,6 +77,11 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 return BadRequest("video dang duoc phan tich");
 
             }
+            else if (report != null && report.Status == -1)
+            {
+                return BadRequest("Phan tich loi,chua the phan tich duoc video");
+
+            }
             else
             {
                 return Ok(report);

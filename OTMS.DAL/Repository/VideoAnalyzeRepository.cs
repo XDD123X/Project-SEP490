@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mscc.GenerativeAI;
@@ -194,7 +195,6 @@ namespace OTMS.DAL.Repository
 
             try
             {
-                // === Bước 1: Tìm video file ===
                 var recordDir = Path.Combine(
                     Directory.GetCurrentDirectory(),
                     "Files",
@@ -214,7 +214,8 @@ namespace OTMS.DAL.Repository
                     return;
                 }
 
-                // === Bước 2: Upload video ===
+                // ===== Upload Video =====
+                string analysisResult = null;
                 try
                 {
                     var client = new HttpClient { Timeout = TimeSpan.FromMinutes(20) };
@@ -225,7 +226,7 @@ namespace OTMS.DAL.Repository
                 {
                     new ByteArrayContent(fileBytes)
                     {
-                        Headers = { ContentType = new MediaTypeHeaderValue("video/mp4") }
+                        Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("video/mp4") }
                     },
                     "video",
                     Path.GetFileName(videoFile)
@@ -243,7 +244,8 @@ namespace OTMS.DAL.Repository
                         return;
                     }
 
-                    Console.WriteLine("Upload video thành công.");
+                    analysisResult = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Upload video thành công và nhận kết quả.");
                 }
                 catch (Exception exUpload)
                 {
@@ -253,25 +255,26 @@ namespace OTMS.DAL.Repository
                     return;
                 }
 
-                // === Bước 3: Gọi Google Gemini ===
+                // ===== Gọi Gemini AI =====
                 try
                 {
                     Console.WriteLine("Gọi Google Gemini để phân tích nội dung...");
 
-                    var client = new HttpClient();
-                    var analysisResult = await client.GetStringAsync("http://127.0.0.1:4000/get_last_analysis_result");
-
                     var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                    var prompt = "Hãy phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc như sau. Bao gồm các yếu tố:" +
-                                 "Mức độ tham gia của học sinh (dựa trên sự hiện diện)." +
-                                 "Trạng thái cảm xúc chiếm ưu thế." +
-                                 "Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi/bình thường/trầm)." +
-                                 "Gợi ý cải thiện (nếu có) để nâng cao bầu không khí lớp học vui vẻ hơn. Đây là kết quả nhận diện: " + analysisResult;
+                    var prompt = $@"Hãy đưa ra thông tin và phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc sau:
+                                    {analysisResult}
+                                    Bao gồm các yếu tố:
+                                    - Có bao nhiêu học sinh đã nhận diện được?
+                                    - Mức độ tham gia của học sinh (dựa trên sự hiện diện).
+                                    - Trạng thái cảm xúc chiếm ưu thế.
+                                    - Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi / Bình thường / Trầm lắng).
+                                    - Gợi ý cải thiện bầu không khí nếu có.";
 
                     var googleAI = new GoogleAI(apiKey: apiKey);
                     var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
                     var geminiResponse = await model.GenerateContent(prompt);
 
+                    // Save cả AnalysisData và Gemini Response
                     report.AnalysisData = analysisResult;
                     report.GeminiResponse = geminiResponse.Text.Trim();
                 }
@@ -283,7 +286,6 @@ namespace OTMS.DAL.Repository
                     return;
                 }
 
-                // Nếu tới đây thì thành công
                 report.Status = 2;
                 await reportRepo.UpdateAsync(report);
                 Console.WriteLine("Phân tích video hoàn tất.");
@@ -296,6 +298,7 @@ namespace OTMS.DAL.Repository
             }
         }
 
-    }
 
+    }
 }
+
