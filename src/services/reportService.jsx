@@ -14,7 +14,7 @@ export const analyzeSession = async (sessionId) => {
     const response = await axiosClient.post("/Lecturer/Report/Analyze", {
       sessionId,
     });
-    return response.data;
+    return response;
   } catch (error) {
     console.log(error);
   }

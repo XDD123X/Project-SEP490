@@ -47,7 +47,7 @@ export default function ViewLecturerClassReportPage() {
       console.log(sessionId);
 
       const analyzeResponse = await analyzeSession(sessionId);
-      console.log('response:', analyzeResponse.data);
+      console.log('response:', analyzeResponse);
       
       if (analyzeResponse.status === 200) {
         toast.success("Record Analysis Request Sent Successfully");
