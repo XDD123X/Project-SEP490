@@ -16,10 +16,10 @@ export default function ViewOfficerSessionReportPage() {
   const navigate = useNavigate();
 
   const [sessions, setSessions] = useState([]);
-  const [classData, setClassData] = useState();
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [isLoadingView, setIsLoadingView] = useState(false);
 
   //fetch data
   useEffect(() => {
@@ -42,13 +42,29 @@ export default function ViewOfficerSessionReportPage() {
     fetchData();
   }, [classId]);
 
-  const handleViewReport = (session) => {
-    setSelectedReport({
-      sessionNumber: session.sessionNumber,
-      description: session.description,
-      summary: session.reports[0].summary,
-    });
-    setOpenReportDialog(true);
+  const handleViewReport = async (session) => {
+    try {
+      setIsLoadingView(true);
+
+      const response = await getSessionReporForLectureBySessionId(session.sessionId);
+      console.log(response);
+
+      if (response.status === 200) {
+        setSelectedReport({
+          sessionNumber: session.sessionNumber,
+          description: session.description,
+          summary: response.data.geminiResponse,
+          data: session.reports[0].analysisData,
+          status: response.data.status,
+        });
+      }
+
+      setOpenReportDialog(true);
+      setIsLoadingView(false);
+    } catch (error) {
+      setIsLoadingView(false);
+      console.log(error);
+    }
   };
 
   function formatDate(dateString) {
@@ -90,11 +106,11 @@ export default function ViewOfficerSessionReportPage() {
     const firstReport = session.reports[0];
 
     // Officers can only view completed reports
-    if (firstReport.status === 2 && firstReport.summary) {
+    if (session.reports[0]?.status === 2 && session.reports[0]?.geminiResponse) {
       return (
-        <Button variant="outline" size="sm" onClick={() => handleViewReport(session)}>
-          <Eye className="mr-2 h-4 w-4" />
-          View Report
+        <Button variant="outline" size="sm" onClick={() => handleViewReport(session)} disabled={isLoadingView}>
+          {isLoadingView ? <Spinner className="mr-2 h-4 w-4 animate-spin" /> : <Eye className="mr-2 h-4 w-4" />}
+          {isLoadingView ? "Loading..." : "View Report"}
         </Button>
       );
     }
@@ -117,6 +133,18 @@ export default function ViewOfficerSessionReportPage() {
       </Button>
     );
   }
+
+  const formatText = (input) => {
+    if (!input) return "";
+
+    // 1. Đổi \r\n thành <br/>
+    let text = input.replace(/\n/g, "<br/>");
+
+    // 2. Đổi **bold** thành <strong>bold</strong>
+    text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    return text;
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -173,6 +201,7 @@ export default function ViewOfficerSessionReportPage() {
         </Table>
       </div>
 
+      {/* detail report dialog */}
       <Dialog open={openReportDialog} onOpenChange={setOpenReportDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -182,7 +211,7 @@ export default function ViewOfficerSessionReportPage() {
             <DialogDescription>Report summary generated from session recording and attendance data.</DialogDescription>
           </DialogHeader>
           <div className="p-4 bg-muted/30 rounded-md max-h-[300px] overflow-y-auto">
-            <p className="text-sm leading-relaxed">{selectedReport?.summary}</p>
+            <p className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(selectedReport?.summary || "") }}></p>
           </div>
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2">
             <Button variant="outline" onClick={() => setOpenReportDialog(false)}>
