@@ -47,26 +47,13 @@ export default function ViewLecturerClassReportPage() {
       console.log(sessionId);
 
       const analyzeResponse = await analyzeSession(sessionId);
-      console.log('response:', analyzeResponse);
-      
+      console.log("response:", analyzeResponse);
+
       if (analyzeResponse.status === 200) {
         toast.success("Record Analysis Request Sent Successfully");
-        setSessions((prevSessions) =>
-          prevSessions.map((session) => {
-            if (session.sessionId === sessionId) {
-              let updatedReport = [];
-
-              if (Array.isArray(session.reports) && session.reports.length > 0) {
-                updatedReport = [{ ...session.reports[0], status: 1 }];
-              } else {
-                updatedReport = [{ status: 1 }];
-              }
-
-              return { ...session, report: updatedReport };
-            }
-            return session;
-          })
-        );
+        fetchData();
+      } else if (analyzeResponse.status === 500) {
+        toast.error("Can not connect to Server or AI Service. Pleasy try again.");
       }
 
       setProcessingSessionId(null);
