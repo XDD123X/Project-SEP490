@@ -19,11 +19,11 @@ export const analyzeSession = async (sessionId) => {
       data: response.data,
     };
   } catch (error) {
-    console.error("Import failed:", error);
+    console.error("Analyze failed:", error);
 
     return {
       status: error.response?.status || 500,
-      message: error.response?.data?.message || "Add Account failed!",
+      message: error.response?.data?.message || "Analyze failed!",
     };
   }
 };
