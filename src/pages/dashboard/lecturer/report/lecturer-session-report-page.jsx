@@ -47,7 +47,10 @@ export default function ViewLecturerClassReportPage() {
       console.log(sessionId);
 
       const analyzeResponse = await analyzeSession(sessionId);
+      console.log('response:', analyzeResponse.data);
+      
       if (analyzeResponse.status === 200) {
+        toast.success("Record Analysis Request Sent Successfully");
         setSessions((prevSessions) =>
           prevSessions.map((session) => {
             if (session.sessionId === sessionId) {
@@ -64,8 +67,6 @@ export default function ViewLecturerClassReportPage() {
             return session;
           })
         );
-
-        //fetchData();
       }
 
       setProcessingSessionId(null);
@@ -127,7 +128,7 @@ export default function ViewLecturerClassReportPage() {
     if (!input) return "";
 
     // 1. Đổi \r\n thành <br/>
-    let text = input.replace(/\r\n/g, "<br/>");
+    let text = input.replace(/\n/g, "<br/>");
 
     // 2. Đổi **bold** thành <strong>bold</strong>
     text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
