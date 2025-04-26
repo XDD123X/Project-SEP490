@@ -9,7 +9,8 @@ import { SessionBadge } from "@/components/BadgeComponent";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { getSessionsByClassId } from "@/services/sessionService";
-import { analyzeSession } from "@/services/reportService";
+import { analyzeSession, getSessionReporForLectureBySessionId } from "@/services/reportService";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function ViewLecturerClassReportPage() {
   const { classId } = useParams();
@@ -20,6 +21,8 @@ export default function ViewLecturerClassReportPage() {
   const [processingSessionId, setProcessingSessionId] = useState(null);
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+
+  const [isLoadingView, setIsLoadingView] = useState(false);
 
   //fetch session by classId
   const fetchData = async () => {
@@ -42,7 +45,7 @@ export default function ViewLecturerClassReportPage() {
     try {
       setProcessingSessionId(sessionId);
       console.log(sessionId);
-      
+
       const analyzeResponse = await analyzeSession(sessionId);
       if (analyzeResponse.status === 200) {
         fetchData();
@@ -65,7 +68,7 @@ export default function ViewLecturerClassReportPage() {
       return <Badge variant="outline">No Report</Badge>;
     } else if (session.reports[0].status === 1) {
       return <Badge variant="secondary">Processing</Badge>;
-    } else if (session.reports[0].status === 2 && session.reports[0].summary) {
+    } else if (session.reports[0].status === 2 && session.reports[0].geminiResponse) {
       return (
         <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-200">
           Completed
@@ -75,13 +78,27 @@ export default function ViewLecturerClassReportPage() {
     return <Badge variant="outline">Unknown</Badge>;
   }
 
-  const handleViewReport = (session) => {
-    setSelectedReport({
-      sessionNumber: session.sessionNumber,
-      description: session.description,
-      summary: session.reports[0].summary,
-    });
-    setOpenReportDialog(true);
+  const handleViewReport = async (session) => {
+    try {
+      setIsLoadingView(true);
+
+      const response = await getSessionReporForLectureBySessionId(session.sessionId);
+
+      if (response.status === 200) {
+        setSelectedReport({
+          sessionNumber: session.sessionNumber,
+          description: session.description,
+          summary: response.data,
+          data: session.reports[0].analysisData,
+        });
+      }
+
+      setOpenReportDialog(true);
+      setIsLoadingView(false);
+    } catch (error) {
+      setIsLoadingView(false);
+      console.log(error);
+    }
   };
 
   const handleDownloadReport = () => {
@@ -116,11 +133,11 @@ export default function ViewLecturerClassReportPage() {
           Processing
         </Button>
       );
-    } else if (session.reports[0]?.status === 2 && session.reports[0]?.summary) {
+    } else if (session.reports[0]?.status === 2 && session.reports[0]?.geminiResponse) {
       return (
-        <Button variant="outline" size="sm" onClick={() => handleViewReport(session)}>
-          <Eye className="mr-2 h-4 w-4" />
-          View Report
+        <Button variant="outline" size="sm" onClick={() => handleViewReport(session)} disabled={isLoadingView}>
+          {isLoadingView ? <Spinner className="mr-2 h-4 w-4 animate-spin" /> : <Eye className="mr-2 h-4 w-4" />}
+          {isLoadingView ? "Loading..." : "View Report"}
         </Button>
       );
     }
@@ -149,7 +166,6 @@ export default function ViewLecturerClassReportPage() {
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Record</TableHead>
-
               <TableHead>Analyze Status</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
@@ -198,7 +214,7 @@ export default function ViewLecturerClassReportPage() {
 
       {/* detail dialog */}
       <Dialog open={openReportDialog} onOpenChange={setOpenReportDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
               Session {selectedReport?.sessionNumber} Report: {selectedReport?.description}
@@ -206,9 +222,9 @@ export default function ViewLecturerClassReportPage() {
             <DialogDescription>Report summary generated from session recording and attendance data.</DialogDescription>
           </DialogHeader>
           <div className="p-4 bg-muted/30 rounded-md max-h-[300px] overflow-y-auto">
-            <p className="text-sm leading-relaxed">{selectedReport?.summary}</p>
+            <p className="text-sm leading-relaxed">{selectedReport?.summary || ""}</p>
           </div>
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2 gap-4">
             <Button variant="outline" onClick={() => setOpenReportDialog(false)}>
               Close
             </Button>
