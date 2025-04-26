@@ -146,7 +146,7 @@ export default function ViewLecturerClassReportPage() {
     } else if (session.reports[0]?.status === 1) {
       return (
         <Button disabled size="sm">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Spinner className="mr-2 h-4 w-4 animate-spin" />
           Processing
         </Button>
       );

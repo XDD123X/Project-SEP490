@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Eye, Download, FileText, FileX2 } from "lucide-react";
@@ -6,173 +6,41 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import { getSessionReporForLectureBySessionId } from "@/services/reportService";
+import { getSessionsByClassId } from "@/services/sessionService";
 
 export default function ViewOfficerSessionReportPage() {
   const { classId } = useParams();
   const navigate = useNavigate();
 
-  const [sessions, setSessions] = useState([
-    {
-      sessionId: "8294d74e-92ea-4ba9-b9b3-7a1c2348cbcf",
-      sessionNumber: 1,
-      classId: "0824c5a5-bf09-4e45-83da-2a2d8fb37351",
-      lecturerId: "13924b12-c83a-4d46-904b-a5634eea342b",
-      sessionDate: "2025-04-24T00:00:00",
-      slot: 2,
-      description: "Introduction to .NET Core",
-      sessionRecord: null,
-      type: 1,
-      status: 1,
-      createdAt: "2025-04-24T02:29:21.713",
-      updatedAt: "2025-04-24T19:13:48.643",
-      class: {
-        classCode: "PRN231",
-        className: "Building Cross-Platform Back-End Application With .NET",
-      },
-      lecturer: {
-        fullName: "Nguyễn Duy Đức Chính",
-      },
-      attendances: [
-        {
-          studentId: "3d66cb42-5b4d-45c8-9c49-c56168f2ecc8",
-          status: 1,
-          note: "",
-        },
-        {
-          studentId: "374cebf4-8386-497a-8fd7-a50e6fa881fc",
-          status: 1,
-          note: "",
-        },
-      ],
-      records: [],
-      files: [],
-      reports: null,
-    },
-    {
-      sessionId: "9394d74e-92ea-4ba9-b9b3-7a1c2348cbdg",
-      sessionNumber: 2,
-      classId: "0824c5a5-bf09-4e45-83da-2a2d8fb37351",
-      lecturerId: "13924b12-c83a-4d46-904b-a5634eea342b",
-      sessionDate: "2025-04-26T00:00:00",
-      slot: 3,
-      description: "REST API with ASP.NET Core",
-      sessionRecord: "2025-04-26T15:30:00",
-      type: 1,
-      status: 2,
-      createdAt: "2025-04-26T02:29:21.713",
-      updatedAt: "2025-04-26T19:13:48.643",
-      class: {
-        classCode: "PRN231",
-        className: "Building Cross-Platform Back-End Application With .NET",
-      },
-      lecturer: {
-        fullName: "Nguyễn Duy Đức Chính",
-      },
-      attendances: [
-        {
-          studentId: "3d66cb42-5b4d-45c8-9c49-c56168f2ecc8",
-          status: 1,
-          note: "",
-        },
-        {
-          studentId: "374cebf4-8386-497a-8fd7-a50e6fa881fc",
-          status: 1,
-          note: "",
-        },
-      ],
-      records: [{ id: "rec-1", url: "https://example.com/recording1" }],
-      files: [],
-      reports: [
-        {
-          reportId: "1234d74e-92ea-4ba9-b9b3-7a1c2348abcd",
-          status: 1,
-          summary: null,
-        },
-      ],
-    },
-    {
-      sessionId: "7694d74e-92ea-4ba9-b9b3-7a1c2348cbeh",
-      sessionNumber: 3,
-      classId: "0824c5a5-bf09-4e45-83da-2a2d8fb37351",
-      lecturerId: "13924b12-c83a-4d46-904b-a5634eea342b",
-      sessionDate: "2025-04-28T00:00:00",
-      slot: 2,
-      description: "Entity Framework Core",
-      sessionRecord: "2025-04-28T14:00:00",
-      type: 1,
-      status: 2,
-      createdAt: "2025-04-28T02:29:21.713",
-      updatedAt: "2025-04-28T19:13:48.643",
-      class: {
-        classCode: "PRN231",
-        className: "Building Cross-Platform Back-End Application With .NET",
-      },
-      lecturer: {
-        fullName: "Nguyễn Duy Đức Chính",
-      },
-      attendances: [
-        {
-          studentId: "3d66cb42-5b4d-45c8-9c49-c56168f2ecc8",
-          status: 1,
-          note: "",
-        },
-        {
-          studentId: "374cebf4-8386-497a-8fd7-a50e6fa881fc",
-          status: 1,
-          note: "",
-        },
-      ],
-      records: [{ id: "rec-2", url: "https://example.com/recording2" }],
-      files: [],
-      reports: [
-        {
-          reportId: "5678d74e-92ea-4ba9-b9b3-7a1c2348efgh",
-          status: 2,
-          summary:
-            "This session covered Entity Framework Core fundamentals including DbContext, migrations, and CRUD operations. Students demonstrated good understanding of the concepts. The attendance rate was 100% and engagement levels were high throughout the session. Students asked insightful questions about database relationships and performance optimization techniques.",
-        },
-      ],
-    },
-    {
-      sessionId: "5594d74e-92ea-4ba9-b9b3-7a1c2348cbij",
-      sessionNumber: 4,
-      classId: "0824c5a5-bf09-4e45-83da-2a2d8fb37351",
-      lecturerId: "13924b12-c83a-4d46-904b-a5634eea342b",
-      sessionDate: "2025-04-30T00:00:00",
-      slot: 3,
-      description: "Authentication and Authorization",
-      sessionRecord: null,
-      type: 1,
-      status: 2,
-      createdAt: "2025-04-30T02:29:21.713",
-      updatedAt: "2025-04-30T19:13:48.643",
-      class: {
-        classCode: "PRN231",
-        className: "Building Cross-Platform Back-End Application With .NET",
-      },
-      lecturer: {
-        fullName: "Nguyễn Duy Đức Chính",
-      },
-      attendances: [
-        {
-          studentId: "3d66cb42-5b4d-45c8-9c49-c56168f2ecc8",
-          status: 1,
-          note: "",
-        },
-        {
-          studentId: "374cebf4-8386-497a-8fd7-a50e6fa881fc",
-          status: 1,
-          note: "",
-        },
-      ],
-      records: [],
-      files: [],
-      reports: null,
-    },
-  ]);
+  const [sessions, setSessions] = useState([]);
+  const [classData, setClassData] = useState();
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+
+  //fetch data
+  useEffect(() => {
+    if (!classId) {
+      toast.error("Invalid Class ID");
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        const response = await getSessionsByClassId(classId);
+        if (response.status === 200) {
+          setSessions(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Failed to fetch session data");
+      }
+    };
+    fetchData();
+  }, [classId]);
 
   const handleViewReport = (session) => {
     setSelectedReport({
@@ -183,35 +51,46 @@ export default function ViewOfficerSessionReportPage() {
     setOpenReportDialog(true);
   };
 
-  const handleDownloadReport = () => {
-    // In a real application, this would trigger a download of a detailed report
-    alert("Downloading detailed report...");
-    // You could implement actual download functionality here
-  };
-
   function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    if (!dateString) return "TBD";
+    return format(dateString, "HH:mm dd/MM/yyyy");
   }
 
   function getSessionStatusBadge(session) {
-    if (!session.reports) {
+    if (!session.reports || session.reports.length === 0) {
       return <Badge variant="outline">No Report</Badge>;
-    } else if (session.reports[0].status === 1) {
+    }
+
+    const firstReport = session.reports[0];
+
+    if (firstReport.status === 1) {
       return <Badge variant="secondary">Processing</Badge>;
-    } else if (session.reports[0].status === 2 && session.reports[0].summary) {
+    } else if (firstReport.status === 2 && firstReport.summary) {
       return (
         <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-200">
           Completed
         </Badge>
       );
     }
+
     return <Badge variant="outline">Unknown</Badge>;
   }
 
   function getActionButton(session) {
+    // Check if reports is empty or not present
+    if (!session.reports || session.reports.length === 0) {
+      return (
+        <Button disabled size="sm">
+          <FileX2 className="mr-2 h-4 w-4" />
+          No Report
+        </Button>
+      );
+    }
+
+    const firstReport = session.reports[0];
+
     // Officers can only view completed reports
-    if (session.reports && session.reports[0].status === 2 && session.reports[0].summary) {
+    if (firstReport.status === 2 && firstReport.summary) {
       return (
         <Button variant="outline" size="sm" onClick={() => handleViewReport(session)}>
           <Eye className="mr-2 h-4 w-4" />
@@ -220,23 +99,17 @@ export default function ViewOfficerSessionReportPage() {
       );
     }
 
-    // For all other states, show a disabled button with appropriate text
-    if (!session.reports) {
+    // If the report is in progress
+    if (firstReport.status === 1) {
       return (
         <Button disabled size="sm">
-          <FileX2 className="mr-2 h-4 w-4" />
-          No Report
-        </Button>
-      );
-    } else if (session.reports[0].status === 1) {
-      return (
-        <Button disabled size="sm">
-          <Spinner className='text-primary-foreground'/>
+          <Spinner className="text-primary-foreground" />
           In Progress
         </Button>
       );
     }
 
+    // Default for all other states
     return (
       <Button disabled size="sm">
         <FileText className="mr-2 h-4 w-4" />
@@ -286,7 +159,7 @@ export default function ViewOfficerSessionReportPage() {
               .sort((a, b) => a.sessionNumber - b.sessionNumber)
               .map((session) => (
                 <TableRow key={session.sessionId}>
-                  <TableCell className="font-medium">{session.sessionNumber}</TableCell>
+                  <TableCell className="font-medium">Session {session.sessionNumber}</TableCell>
                   <TableCell>{session.description}</TableCell>
                   <TableCell>{formatDate(session.sessionDate)}</TableCell>
                   <TableCell>{session.sessionRecord ? formatDate(session.sessionRecord) : "Not recorded"}</TableCell>
@@ -311,13 +184,9 @@ export default function ViewOfficerSessionReportPage() {
           <div className="p-4 bg-muted/30 rounded-md max-h-[300px] overflow-y-auto">
             <p className="text-sm leading-relaxed">{selectedReport?.summary}</p>
           </div>
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2">
             <Button variant="outline" onClick={() => setOpenReportDialog(false)}>
               Close
-            </Button>
-            <Button onClick={handleDownloadReport}>
-              <Download className="mr-2 h-4 w-4" />
-              Download Details
             </Button>
           </DialogFooter>
         </DialogContent>
