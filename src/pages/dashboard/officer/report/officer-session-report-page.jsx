@@ -154,7 +154,7 @@ export default function ViewOfficerSessionReportPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Classes
           </Button>
-          <h1 className="text-3xl font-bold">Session Reports (Officer View)</h1>
+          <h1 className="text-3xl font-bold">Session Reports</h1>
         </div>
 
         {sessions.length > 0 && sessions[0].class && (
@@ -182,21 +182,29 @@ export default function ViewOfficerSessionReportPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sessions
-              .filter((session) => session.classId === classId)
-              .sort((a, b) => a.sessionNumber - b.sessionNumber)
-              .map((session) => (
-                <TableRow key={session.sessionId}>
-                  <TableCell className="font-medium">Session {session.sessionNumber}</TableCell>
-                  <TableCell>{session.description}</TableCell>
-                  <TableCell>{formatDate(session.sessionDate)}</TableCell>
-                  <TableCell>{session.sessionRecord ? formatDate(session.sessionRecord) : "Not recorded"}</TableCell>
-                  <TableCell>{session.slot}</TableCell>
-                  <TableCell>{session.attendances.length} students</TableCell>
-                  <TableCell>{getSessionStatusBadge(session)}</TableCell>
-                  <TableCell>{getActionButton(session)}</TableCell>
-                </TableRow>
-              ))}
+            {sessions && sessions.length > 0 ? (
+              sessions
+                .filter((session) => session.classId === classId)
+                .sort((a, b) => a.sessionNumber - b.sessionNumber)
+                .map((session) => (
+                  <TableRow key={session.sessionId}>
+                    <TableCell className="font-medium">Session {session.sessionNumber}</TableCell>
+                    <TableCell>{session.description}</TableCell>
+                    <TableCell>{formatDate(session.sessionDate)}</TableCell>
+                    <TableCell>{session.sessionRecord ? formatDate(session.sessionRecord) : "Not recorded"}</TableCell>
+                    <TableCell>{session.slot}</TableCell>
+                    <TableCell>{session.attendances.length} students</TableCell>
+                    <TableCell>{getSessionStatusBadge(session)}</TableCell>
+                    <TableCell>{getActionButton(session)}</TableCell>
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow className="">
+                <TableCell colSpan={8} className="font-medium text-center">
+                  No Sessions Found
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
