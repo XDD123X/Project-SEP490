@@ -91,7 +91,10 @@ export default function ViewLecturerClassReportPage() {
           Completed
         </Badge>
       );
+    } else if (session.reports[0].status === -1) {
+      return <Badge variant="destructive">Error</Badge>;
     }
+
     return <Badge variant="outline">Unknown</Badge>;
   }
 
