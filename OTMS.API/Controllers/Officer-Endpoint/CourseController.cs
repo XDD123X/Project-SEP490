@@ -75,7 +75,8 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             var existingCourse = await _courseRepository.GetByIdAsync(id);
             if (existingCourse == null) return NotFound();
 
-            _mapper.Map(courseDTO, existingCourse);
+            existingCourse.CourseName = courseDTO.CourseName;
+            existingCourse.Description = courseDTO.Description;
             await _courseRepository.UpdateAsync(existingCourse);
 
             return Ok("Updated successfully");
