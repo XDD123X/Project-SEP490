@@ -34,6 +34,12 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 return BadRequest(ModelState);
             }
 
+            //validate ngày đổi lịch ko được vào ngày hiện tại và quá khứ
+            if (model.NewDate < DateTime.Today.AddDays(1))
+            {
+                return BadRequest("Chỉ được đổi lịch sang ngày sau hôm nay!");
+            }
+
             var (isSuccess, message) = await _sessionChangeRequestRepository.AddRequestAsync(model);
             if (!isSuccess)
             {
