@@ -39,7 +39,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         [HttpPost("generate-schedule")]
         public async Task<IActionResult> GenerateSchedule([FromBody] ClassScheduleRequest request)
         {
-            // Validate request
+            // Validate request start end date
             if (request.StartDate.Date < DateTime.Now.Date)
                 return BadRequest(new { Success = false, Message = "StartDate cannot be before the current date." });
 
@@ -47,7 +47,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (request.PreferredDays == null || !request.PreferredDays.Any())
                 return BadRequest(new { Success = false, Message = "Please select at least one preferred day for the class." });
 
-            // Chuyển đổi preferred days sang DayOfWeek (0-6)
+            // Chuyển đổi preferred days sang dayofweek(0-6)
             var preferredDaysOfWeek = request.PreferredDays
                 .Select(day => (DayOfWeek)((day == 1 ? 0 : day - 1) % 7))
                 .ToList();
@@ -60,7 +60,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
             // Lấy danh sách ngày trong tuần mà giảng viên có thể dạy
             var weekdayAvailable = string.IsNullOrWhiteSpace(lecturerSchedule.WeekdayAvailable)
-                    ? new List<DayOfWeek>() // Nếu null hoặc rỗng, trả về danh sách rỗng
+                    ? new List<DayOfWeek>() //null => trả về rỗng
                     : lecturerSchedule.WeekdayAvailable.Split(',')
                         .Select(int.Parse)
                         .Select(day => (DayOfWeek)((day == 8 ? 0 : day - 1) % 7)) // Chuyển đổi 2-8 sang DayOfWeek (0-6)
@@ -83,18 +83,18 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             if (slotAvailable == null || !slotAvailable.Any())
                 return BadRequest(new { Success = false, Message = "The lecturer has no available time slots." });
 
-            // Lấy class info để kiểm tra tổng số buổi
+            // Lấy class info để lấy tổng buổi cho t/hợp 
             var classInfo = await _classRepository.GetByIdAsync(request.ClassId);
             if (classInfo == null)
                 return BadRequest(new { Success = false, Message = "Class information not found." });
 
-            // Thiết lập các tham số cho việc lập lịch
+            // Thiết lập các tham số cho lập lịch
             var scheduleParams = new ScheduleParameters
             {
                 ClassId = request.ClassId,
                 LecturerId = request.LecturerId,
                 StartDate = request.StartDate,
-                EndDate = request.StartDate.AddYears(1), // EndDate là 1 năm sau 
+                EndDate = request.StartDate.AddYears(1), // EndDate hardcode 1 năm sau( để lịch luôn xếp ngon k bị thiếu)
                 TotalSessions = request.TotalSessions > 0 ? request.TotalSessions : classInfo.TotalSession,
                 SlotsPerDay = request.SlotNumber ?? 4,
                 ValidDays = validDays,
@@ -102,19 +102,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
                 MaxSessionsPerWeek = request.SessionPerWeek ?? 2
             };
 
-            // Thông báo cho user các thông tin đã được điều chỉnh
-            var scheduleInfo = new
-            {
-                StartDate = scheduleParams.StartDate,
-                EndDate = scheduleParams.EndDate,
-                TotalSessions = scheduleParams.TotalSessions,
-                SlotsPerDay = scheduleParams.SlotsPerDay,
-                ValidDays = string.Join(", ", scheduleParams.ValidDays.Select(d => d.ToString())),
-                AvailableSlots = string.Join(", ", scheduleParams.AvailableSlots),
-                MaxSessionsPerWeek = scheduleParams.MaxSessionsPerWeek,
-                PreferredDays = string.Join(", ", preferredDaysOfWeek.Select(d => d.ToString())),
-                LecturerAvailableDays = string.Join(", ", weekdayAvailable.Select(d => d.ToString()))
-            };
+            
 
             try
             {
@@ -133,6 +121,21 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
                 var lecturerMap = _mapper.Map<AccountDTO>(lecturer);
                 var classMap = _mapper.Map<ClassDTO>(classInfor);
+
+                
+                //tra ra  api
+                var scheduleInfo = new
+                {
+                    StartDate = scheduleParams.StartDate,
+                    EndDate = sessions.Last().SessionDate, //update enddate schedule info
+                    TotalSessions = scheduleParams.TotalSessions,
+                    SlotsPerDay = scheduleParams.SlotsPerDay,
+                    ValidDays = string.Join(", ", scheduleParams.ValidDays.Select(d => d.ToString())),
+                    AvailableSlots = string.Join(", ", scheduleParams.AvailableSlots),
+                    MaxSessionsPerWeek = scheduleParams.MaxSessionsPerWeek,
+                    PreferredDays = string.Join(", ", preferredDaysOfWeek.Select(d => d.ToString())),
+                    LecturerAvailableDays = string.Join(", ", weekdayAvailable.Select(d => d.ToString()))
+                };
 
                 return Ok(new
                 {
@@ -187,11 +190,9 @@ namespace OTMS.API.Controllers.Officer_Endpoint
 
             var date = update.SessionDate;
             var slot = update.Slot;
-            //Valid Date Lecturer
+ 
 
-            //Valid Date Student
-
-            // Cập nhật dữ liệu
+            // update data
             session.ClassId = update.ClassId;
             session.LecturerId = update.LecturerId;
             session.SessionDate = update.SessionDate;

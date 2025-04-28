@@ -33,8 +33,10 @@ namespace OTMS.BLL.Services
             if (x.Count == 0)
                 throw new Exception("Không có thời gian phù hợp để lập lịch. Vui lòng điều chỉnh các thông số.");
 
+            //constraint tổng session học 
             model.Add(LinearExpr.Sum(x.Values) == parameters.TotalSessions);
 
+            //constraint dailySlot học 1 buổi
             foreach (var date in availableDates)
             {
                 var dailySlots = x.Where(k => k.Key.date == date).Select(k => k.Value).ToList();
@@ -48,9 +50,10 @@ namespace OTMS.BLL.Services
             var datesByWeek = availableDates.GroupBy(d => 
             {
                 var week = calendar.GetWeekOfYear(d, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-                return $"{d.Year}-{week}"; // Format: YYYY-WW
+                return $"{d.Year}-{week}"; // Format năm-số tuần
             });
 
+            //constraint max session per week
             foreach (var weekGroup in datesByWeek)
             {
                 var weekSlots = new List<BoolVar>();
