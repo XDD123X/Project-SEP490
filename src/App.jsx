@@ -67,10 +67,6 @@ import ViewSessionByFileClassMaterialPage from "./pages/dashboard/lecturer/mater
 import ViewClassRecordMaterialPage from "./pages/dashboard/lecturer/material/select-class-record-page";
 import ViewClassFileMaterialPage from "./pages/dashboard/lecturer/material/select-class-material-page";
 import ViewClassMaterialPage from "./pages/materials/view-material-page";
-import SelectClassReportPage from "./pages/dashboard/officer/reportOld/select-class-report-page";
-import SelectSessionByClassReportPage from "./pages/dashboard/officer/reportOld/select-session-class-report-page";
-import ViewReportByClassPage from "./pages/dashboard/officer/reportOld/view-class-report-page";
-import ViewSessionByClassReportPage from "./pages/dashboard/officer/reportOld/view-session-report-list";
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import AdminClassSettingsPage from "./pages/dashboard/admin/AdminSettingPage";
 import OfficerAddSessionPage from "./pages/dashboard/officer/session/session-add";
@@ -82,6 +78,7 @@ import ViewLecturerClassReportPage from "./pages/dashboard/lecturer/report/lectu
 import ViewOfficerReportPage from "./pages/dashboard/officer/report/officer-class-report-page";
 import ViewOfficerSessionReportPage from "./pages/dashboard/officer/report/officer-session-report-page";
 import { ViewAttendanceOfficerPage } from "./pages/dashboard/officer/attendance/view-attendance-officer-page";
+import AdminMonitoring from "./pages/dashboard/admin/monitoring/admin-monitoring-page";
 
 function App() {
   return (
@@ -148,6 +145,7 @@ function App() {
                       <Route path="/Administrator">
                         <Route path="" element={<AdminDashboard />} />
                         <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="monitoring" element={<AdminMonitoring />} />
 
                         <Route path="accounts" element={<AdminAccountPage />} />
                         <Route path="account/add" element={<AdminAddAcountPage />} />
@@ -234,7 +232,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="top-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} closeButton/>
+            <Toaster richColors position="top-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} closeButton />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>

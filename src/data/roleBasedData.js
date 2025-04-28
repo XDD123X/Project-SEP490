@@ -1,4 +1,4 @@
-import { Bell, BookOpen, Calendar, Clipboard, ClipboardList, FileStack, FileText, LayoutDashboard, LifeBuoy, Mail, School, Settings2, User, UserRound, Users, UsersRound, Video } from "lucide-react";
+import { Bell, BookOpen, Calendar, Clipboard, ClipboardList, FileStack, FileText, LayoutDashboard, LifeBuoy, Mail, MonitorCog, School, Settings2, User, UserRound, Users, UsersRound, Video } from "lucide-react";
 
 const roleBasedData = {
   student: {
@@ -57,6 +57,7 @@ const roleBasedData = {
     ],
     general: [
       { title: "Dashboard", url: "/administrator/dashboard", icon: LayoutDashboard },
+      { title: "Monitoring", url: "/administrator/monitoring", icon: MonitorCog },
       { title: "Notification", url: "notification", icon: Bell },
     ],
   },
