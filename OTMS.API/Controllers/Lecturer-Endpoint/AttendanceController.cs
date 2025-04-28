@@ -45,7 +45,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             if (session.LecturerId != lecturerId)
                 return Forbid("You are not authorized to take attendance for this session.");
 
-            if ((DateTime.UtcNow - session.SessionDate).TotalDays > 1)
+            if ((DateTime.Now - session.SessionDate).TotalDays > 1)
                 return BadRequest("Attendance can only be taken within 1 day of the session.");
 
             await _attendanceRepository.AddAttendance(sessionId, students);
@@ -120,7 +120,7 @@ Phong Linh Class Center
             if (session.LecturerId != lecturerId)
                 return Forbid("You are not authorized to edit attendance for this session.");
 
-            if (DateTime.UtcNow > session.SessionDate.AddDays(1))
+            if (DateTime.Now > session.SessionDate.AddDays(1))
                 return BadRequest("Attendance cannot be edited more than 1 day after the session.");
 
             var classStudents = await _accountRepository.GetByStudentByClass(session.ClassId);

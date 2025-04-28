@@ -1,8 +1,5 @@
 ﻿using System.Text;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DotnetGeminiSDK;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -12,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OTMS.API.Middleware;
 using OTMS.API.Profile;
+using OTMS.API.SignalRHub;
 using OTMS.BLL.Models;
 using OTMS.BLL.Services;
 using OTMS.DAL.DAO;
@@ -31,6 +29,9 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 //Memory-Cache
 builder.Services.AddMemoryCache();
+
+// Thêm SignalR service
+builder.Services.AddSignalR();
 
 //CORS
 builder.Services.AddCors(options =>
@@ -53,7 +54,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddGeminiClient(config =>
 {
     config.ApiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-    
+
 });
 
 //DI
@@ -91,7 +92,6 @@ builder.Services.AddHostedService<EmailBackgroundService>();
 builder.Services.AddSingleton<NewEmailBackgroundService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<NewEmailBackgroundService>());
 
-
 //Video analyze Service
 builder.Services.AddScoped<IVideoAnalyze, VideoAnalyzeRepository>();
 builder.Services.AddSingleton<VideoAnalysisBackgroundService>();
@@ -99,6 +99,7 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<VideoAnalysisBackg
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IRecordRepository, RecordReposiroty>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
+
 
 //DI DAO
 builder.Services.AddScoped<AccountDAO>();
@@ -121,6 +122,9 @@ builder.Services.AddScoped<SessionChangeRequestDAO>();
 builder.Services.AddScoped<ReportDAO>();
 builder.Services.AddScoped<FileDAO>();
 
+//SignalR
+builder.Services.AddSingleton<MonitoringHub>();
+
 //Config Upload
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
@@ -130,9 +134,6 @@ builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 4L * 1024 * 1024 * 1024; // 2GB
 });
-
-//SignalR
-//builder.Services.AddSignalR();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -274,6 +275,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/files" // URL prefix để truy cập
 });
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -292,9 +294,13 @@ app.UseAuthentication();
 
 //custom middleware
 app.UseMiddleware<CustomResponseMiddleware>();
+app.UseMiddleware<MonitoringMiddleware>();
 
 //authorization
 app.UseAuthorization();
+
+//hub
+app.MapHub<MonitoringHub>("/monitoringHub");
 
 app.MapControllers();
 

@@ -108,13 +108,13 @@ GO
 
 CREATE TABLE Report (
     report_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    record_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Record(record_id) ON DELETE SET NULL,
-    session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
-    analysis_data NVARCHAR(MAX)  NULL, -- Lưu dữ liệu phân tích dưới dạng JSON
+    record_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Record(record_id),  -- Set NULL khi xóa Record
+    session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,  -- Xóa Report khi xóa Session
+    analysis_data NVARCHAR(MAX) NULL,  -- Lưu dữ liệu phân tích dưới dạng JSON
     generated_at DATETIME DEFAULT GETDATE(),
     generated_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL, -- Người tạo báo cáo (AI hoặc con người)
-    gemini_response NVARCHAR(MAX) Null,
-	status INT DEFAULT 1 -- 1: Active, 0: Inactive (hoặc có thể mở rộng trạng thái khác)
+    gemini_response NVARCHAR(MAX) NULL,
+    status INT DEFAULT 1 -- 1: Active, 0: Inactive (hoặc có thể mở rộng trạng thái khác)
 );
 GO
 

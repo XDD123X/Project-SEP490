@@ -244,7 +244,7 @@ namespace OTMS.API.Controllers.Notification_endpoint
             // Chỉ cập nhật 3 thuộc tính: notificationId, title, content
             notification.Title = notificationDTO.Title;
             notification.Content = notificationDTO.Content;
-            notification.UpdatedAt = DateTime.UtcNow;
+            notification.UpdatedAt = DateTime.Now;
 
             await _notificationRepository.UpdateAsync(notification);
             return Ok("Notification updated successfully");

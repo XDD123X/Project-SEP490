@@ -72,7 +72,7 @@ namespace OTMS.API.Controllers.Auth
                         HttpOnly = true,
                         Secure = true,
                         SameSite = SameSiteMode.Strict,
-                        Expires = DateTime.UtcNow.AddDays(7)
+                        Expires = DateTime.Now.AddDays(7)
                     });
                 }
 
@@ -103,7 +103,7 @@ namespace OTMS.API.Controllers.Auth
             if (!Request.Cookies.TryGetValue("refresh_token", out var refreshToken)) return Unauthorized();
 
             var refreshTokenObj = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
-            if (refreshTokenObj == null || refreshTokenObj.ExpiresAt <= DateTime.UtcNow) return Unauthorized();
+            if (refreshTokenObj == null || refreshTokenObj.ExpiresAt <= DateTime.Now) return Unauthorized();
 
             var account = await _accountRepository.GetByIdAsync(refreshTokenObj.AccountId);
             if (account == null) return Unauthorized();

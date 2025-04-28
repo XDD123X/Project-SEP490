@@ -166,7 +166,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //        {
         //            // Nếu đã tồn tại, cập nhật thông tin
         //            existingReport.AnalysisData = result;
-        //            existingReport.GeneratedAt = DateTime.UtcNow;
+        //            existingReport.GeneratedAt = DateTime.Now;
         //            existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
         //            existingReport.Status = 1;
 
@@ -181,7 +181,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //            {
         //                RecordId = record.RecordId,
         //                AnalysisData = result,
-        //                GeneratedAt = DateTime.UtcNow,
+        //                GeneratedAt = DateTime.Now,
         //                GeneratedBy = Guid.Parse(request.GenerateBy),
         //                SessionId = Guid.Parse(request.SessionId),
         //                Status = 1
@@ -402,7 +402,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //    if (report != null)
         //    {
         //        report.AnalysisData = result;
-        //        report.GeneratedAt = DateTime.UtcNow;
+        //        report.GeneratedAt = DateTime.Now;
         //        report.GeneratedBy = Guid.Parse(generateBy);
         //        report.Status = 1;
 
@@ -414,7 +414,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //        {
         //            RecordId = record.RecordId,
         //            AnalysisData = result,
-        //            GeneratedAt = DateTime.UtcNow,
+        //            GeneratedAt = DateTime.Now,
         //            GeneratedBy = Guid.Parse(generateBy),
         //            SessionId = Guid.Parse(sessionId),
         //            Status = 1
@@ -561,7 +561,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //                if (existingReport != null)
         //                {
         //                    existingReport.AnalysisData = result;
-        //                    existingReport.GeneratedAt = DateTime.UtcNow;
+        //                    existingReport.GeneratedAt = DateTime.Now;
         //                    existingReport.GeneratedBy = Guid.Parse(request.GenerateBy);
         //                    existingReport.Status = 1;
         //                    existingReport.GeminiResponse = geminiText;
@@ -574,7 +574,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
         //                    {
         //                        RecordId = record.RecordId,
         //                        AnalysisData = result,
-        //                        GeneratedAt = DateTime.UtcNow,
+        //                        GeneratedAt = DateTime.Now,
         //                        GeneratedBy = Guid.Parse(request.GenerateBy),
         //                        SessionId = Guid.Parse(request.SessionId),
         //                        Status = 1,

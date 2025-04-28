@@ -130,7 +130,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 var newReport = new Report
                 {
                     RecordId = record.RecordId,
-                    GeneratedAt = DateTime.UtcNow,
+                    GeneratedAt = DateTime.Now,
                     GeneratedBy = generatedByGuid,
                     SessionId = sessionId,
                     Status = 1,
@@ -139,7 +139,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
             }
             else
             {
-                existingReport.GeneratedAt = DateTime.UtcNow;
+                existingReport.GeneratedAt = DateTime.Now;
                 existingReport.GeneratedBy = generatedByGuid;
                 existingReport.Status = 1;
                 await _reportRepository.UpdateAsync(existingReport);

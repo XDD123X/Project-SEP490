@@ -186,7 +186,7 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             account.Gender = update.Gender;
             account.Status = update.Status;
             account.MeetUrl = update.MeetUrl;
-            account.UpdatedAt = DateTime.UtcNow;
+            account.UpdatedAt = DateTime.Now;
 
             await _accountRepository.UpdateAsync(account);
 

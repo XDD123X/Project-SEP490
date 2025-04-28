@@ -69,7 +69,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 LecturerId = model.LecturerId,
                 WeekdayAvailable = model.WeekdayAvailable,
                 SlotAvailable = model.SlotAvailable,
-                UpdatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.Now,
             };
 
             var result = await _lecturerScheduleRepository.Create(add);
@@ -96,7 +96,7 @@ namespace OTMS.API.Controllers.Lecturer_Endpoint
                 LecturerId = update.LecturerId,
                 WeekdayAvailable = update.WeekdayAvailable,
                 SlotAvailable = update.SlotAvailable,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.Now
             };
 
             var result = await _lecturerScheduleRepository.Update(updateSchedule);
