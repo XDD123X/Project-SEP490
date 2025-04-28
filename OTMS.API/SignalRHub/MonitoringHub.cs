@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.SignalR;
 using OTMS.BLL.DTOs;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace OTMS.API.SignalRHub
@@ -8,6 +10,8 @@ namespace OTMS.API.SignalRHub
     {
         private static Timer _broadcastTimer;
         private static readonly DateTime _serverStartTime = DateTime.Now;
+        private static readonly ConcurrentDictionary<string, string> _userGroups = new();
+        private static readonly ConcurrentDictionary<string, UserInfo> _activeConnections = new();
         private static IHubContext<MonitoringHub> _hubContext;
         private static readonly Dictionary<string, MonitoringData> _monitoringData = new();
         private static readonly List<ApiRequestInfo> _apiRequests = new();
@@ -30,10 +34,39 @@ namespace OTMS.API.SignalRHub
             }
         }
 
+        public async Task JoinGroup(string groupName)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            _userGroups[Context.ConnectionId] = groupName;
+
+            // Gửi thông báo có user mới tham gia
+            await Clients.Group(groupName).SendAsync("UserJoined", Context.ConnectionId);
+        }
+        public async Task LeaveGroup(string groupName)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+            _userGroups.TryRemove(Context.ConnectionId, out _);
+
+            // Gửi thông báo có user rời đi
+            await Clients.Group(groupName).SendAsync("UserLeft", Context.ConnectionId);
+        }
+
+        public async Task SendToGroup(string groupName, string methodName, object data)
+        {
+            await _hubContext.Clients.Group(groupName).SendAsync(methodName, data);
+        }
+
+        public async Task SendToMonitoringClients(object data)
+        {
+            await _hubContext.Clients.Group("MonitoringClients").SendAsync("ReceiveMonitoringData", data);
+        }
+
         private void BroadcastData(object? state)
         {
             var monitoringData = CollectMonitoringData();
-            _ = _hubContext.Clients.All.SendAsync("ReceiveMonitoringData", monitoringData);
+
+            // Chỉ gửi đến clients trong nhóm MonitoringClients
+            _ = _hubContext.Clients.Group("MonitoringClients").SendAsync("ReceiveMonitoringData", monitoringData);
         }
 
         // Method để gửi monitoring data tới client
@@ -125,7 +158,11 @@ namespace OTMS.API.SignalRHub
             var uptime = DateTime.Now - _serverStartTime;
 
             var topEndpoints = _apiRequests
-                .Where(x => !x.Endpoint.Contains("monitoringHub"))
+                .Where(x =>
+                    !x.Endpoint.Contains("monitoringHub") &&
+                    !x.Endpoint.Contains("login") &&
+                    !x.Endpoint.Contains("token")
+                )
                 .OrderByDescending(x => x.Count)
                 .Take(5)
                 .Select(x => new ApiEndpointInfo
@@ -206,20 +243,37 @@ namespace OTMS.API.SignalRHub
 
         public override async Task OnConnectedAsync()
         {
-            var connectionId = Context.ConnectionId;
-            _monitoringData[connectionId] = new MonitoringData();
+            // Thêm connection mới vào danh sách
+            var userInfo = new UserInfo
+            {
+                ConnectionId = Context.ConnectionId,
+                ConnectedTime = DateTime.UtcNow,
+                UserName = Context.User?.Identity?.Name ?? "Anonymous"
+            };
 
-            // Gửi data ngay khi client kết nối
-            await SendMonitoringDataToClient(connectionId);
+            _activeConnections.TryAdd(Context.ConnectionId, userInfo);
+
+            // Thông báo có user mới kết nối
+            await Clients.All.SendAsync("UserConnected", userInfo);
 
             await base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var connectionId = Context.ConnectionId;
-            _monitoringData.Remove(connectionId);
-            return base.OnDisconnectedAsync(exception);
+            if (_userGroups.TryGetValue(Context.ConnectionId, out var groupName))
+            {
+                await Clients.Group(groupName).SendAsync("UserLeft", Context.ConnectionId);
+                _userGroups.TryRemove(Context.ConnectionId, out _);
+            }
+
+            if (_activeConnections.TryRemove(Context.ConnectionId, out var userInfo))
+            {
+                // Thông báo user đã ngắt kết nối
+                await Clients.All.SendAsync("UserDisconnected", userInfo);
+            }
+
+            await base.OnDisconnectedAsync(exception);
         }
 
         // Method để client request data
@@ -227,6 +281,11 @@ namespace OTMS.API.SignalRHub
         {
             var monitoringData = CollectMonitoringData();
             await Clients.Caller.SendAsync("ReceiveMonitoringData", monitoringData);
+        }
+
+        public Task<List<UserInfo>> GetAllActiveUsers()
+        {
+            return Task.FromResult(_activeConnections.Values.ToList());
         }
 
     }
@@ -245,6 +304,13 @@ namespace OTMS.API.SignalRHub
         public ServerInfo ServerInfo { get; set; } = new();
     }
 
+    public class UserInfo
+    {
+        public string ConnectionId { get; set; }
+        public string UserName { get; set; }
+        public DateTime ConnectedTime { get; set; }
+        public TimeSpan Uptime => DateTime.UtcNow - ConnectedTime;
+    }
     public class RequestCountInfo
     {
         public int TotalRequestsToday { get; set; }
