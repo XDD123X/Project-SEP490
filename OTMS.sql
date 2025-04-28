@@ -110,7 +110,7 @@ CREATE TABLE Report (
     report_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     record_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Record(record_id),
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,
-    analysis_data NVARCHAR(MAX) NOT NULL, -- Lưu dữ liệu phân tích dưới dạng JSON
+    analysis_data NVARCHAR(MAX)  NULL, -- Lưu dữ liệu phân tích dưới dạng JSON
     generated_at DATETIME DEFAULT GETDATE(),
     generated_by UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Account(account_id) ON DELETE SET NULL, -- Người tạo báo cáo (AI hoặc con người)
     gemini_response NVARCHAR(MAX) Null,
