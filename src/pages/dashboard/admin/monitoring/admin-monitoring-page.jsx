@@ -13,25 +13,64 @@ import { useSignalR } from "@/hooks/signalRProvider";
 import signalRService from "@/hooks/signalRService";
 
 export default function AdminMonitoring() {
-  const { connection } = useSignalR();
+  const { signalRService, isConnected } = useSignalR();
   const [data, setData] = useState(null);
+  const [activeUsers, setActiveUsers] = useState([]);
 
   useEffect(() => {
-    // Khởi tạo kết nối
-    signalRService.startConnection();
-
-    // Đăng ký nhận sự kiện
-    const handleReceiveData = (data) => {
-      setData(data);
+    if (!isConnected) return;
+  
+    const groupName = "MonitoringClients";
+  
+    const joinGroupAndSubscribe = async () => {
+      try {
+        // Tham gia group monitoring
+        await signalRService.joinGroup(groupName);
+  
+        // Đăng ký lắng nghe dữ liệu từ group
+        signalRService.onGroupMessage(
+          groupName, 
+          "ReceiveMonitoringData", 
+          setData
+        );
+  
+        // Lấy danh sách tất cả user đang kết nối (không chỉ trong group)
+        const allUsers = await signalRService.fetchActiveUsers();
+        setActiveUsers(allUsers);
+  
+        // Đăng ký lắng nghe sự kiện user kết nối/ngắt kết nối toàn hệ thống
+        signalRService.on("UserConnected", (userInfo) => {
+          setActiveUsers(prev => [...prev, userInfo]);
+        });
+  
+        signalRService.on("UserDisconnected", (userInfo) => {
+          setActiveUsers(prev => prev.filter(user => user.connectionId !== userInfo.connectionId));
+        });
+  
+      } catch (err) {
+        console.error("Failed to initialize SignalR:", err);
+      }
     };
-
-    signalRService.on("ReceiveMonitoringData", handleReceiveData);
-
+  
+    joinGroupAndSubscribe();
+  
     return () => {
-      // Hủy đăng ký khi component unmount
-      signalRService.off("ReceiveMonitoringData", handleReceiveData);
+      // Cleanup khi component unmount
+      const cleanup = async () => {
+        try {
+          await signalRService.leaveGroup(groupName);
+          
+          signalRService.offGroupMessage(groupName, "ReceiveMonitoringData");
+          signalRService.off("UserConnected");
+          signalRService.off("UserDisconnected");
+        } catch (err) {
+          console.error("Cleanup error:", err);
+        }
+      };
+      
+      cleanup();
     };
-  }, []);
+  }, [isConnected, signalRService]);
 
   if (!data) {
     return <div>Loading monitoring data...</div>;
@@ -77,7 +116,8 @@ export default function AdminMonitoring() {
                   <span className="text-sm  text-green-500">Online Users</span>
                   <span className="flex items-center gap-4 font-medium">
                     <User className="w-4 h-4" />
-                    {data.connectionInfo.onlineConnections}
+                    {/* {data.connectionInfo.onlineConnections} */}
+                    {activeUsers.length}
                   </span>
                 </div>
               </div>

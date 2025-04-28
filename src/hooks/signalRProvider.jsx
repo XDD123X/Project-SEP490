@@ -1,17 +1,17 @@
-// Tạo file SignalRContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
 import signalRService from "./signalRService";
 
 const SignalRContext = createContext();
 
 export const SignalRProvider = ({ children }) => {
-  const [connection, setConnection] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
 
+  // Khởi tạo kết nối khi provider mount
   useEffect(() => {
     const startConnection = async () => {
       try {
-        const conn = await signalRService.startConnection();
-        setConnection(conn);
+        await signalRService.startConnection();
+        setIsConnected(true);
       } catch (err) {
         console.error("Failed to start SignalR connection:", err);
       }
@@ -20,19 +20,21 @@ export const SignalRProvider = ({ children }) => {
     startConnection();
 
     return () => {
+      // Cleanup khi unmount (nếu cần)
       if (signalRService.connection) {
         signalRService.connection.stop();
       }
     };
   }, []);
 
-  return <SignalRContext.Provider value={{ connection }}>{children}</SignalRContext.Provider>;
+  return <SignalRContext.Provider value={{ isConnected }}>{children}</SignalRContext.Provider>;
 };
 
+// Custom hook để sử dụng SignalR
 export const useSignalR = () => {
   const context = useContext(SignalRContext);
   if (!context) {
     throw new Error("useSignalR must be used within a SignalRProvider");
   }
-  return context;
+  return { ...context, signalRService };
 };
