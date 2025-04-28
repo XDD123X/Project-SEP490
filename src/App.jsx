@@ -79,6 +79,7 @@ import ViewOfficerReportPage from "./pages/dashboard/officer/report/officer-clas
 import ViewOfficerSessionReportPage from "./pages/dashboard/officer/report/officer-session-report-page";
 import { ViewAttendanceOfficerPage } from "./pages/dashboard/officer/attendance/view-attendance-officer-page";
 import AdminMonitoring from "./pages/dashboard/admin/monitoring/admin-monitoring-page";
+import Hero from "./components/homepage/Hero";
 
 function App() {
   return (
@@ -131,7 +132,7 @@ function App() {
                     {/* Student Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
                       <Route path="/Student">
-                        <Route path="" element={<NotificationPage />} />
+                        <Route path="" element={<Hero logged={true} />} />
                         <Route path="my-schedule" element={<StudentSchedulePage />} />
                         <Route path="my-class" element={<StudentClassPage />} />
 
@@ -158,6 +159,7 @@ function App() {
                     {/* Lecturer Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["lecturer"]} />}>
                       <Route path="/Lecturer">
+                        <Route path="" element={<Hero logged={true} />} />
                         <Route path="my-schedule" element={<LecturerSchedulePage />} />
 
                         <Route path="my-class" element={<ViewClassLecturerPage />} />
@@ -187,6 +189,8 @@ function App() {
                     {/* Officer Routes */}
                     <Route element={<ProtectedRoute allowedRoles={["officer"]} />}>
                       <Route path="/Officer">
+                        <Route path="" element={<Hero logged={true} />} />
+
                         <Route path="session" element={<SessionViewPage />} />
                         <Route path="session/generate" element={<SessionGeneratePage />} />
                         <Route path="session/add" element={<OfficerAddSessionPage />} />
@@ -232,7 +236,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="top-right" expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} closeButton />
+            <Toaster richColors position="top-right" offset={{ top: "50px", right: "10px" }} expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} closeButton />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>

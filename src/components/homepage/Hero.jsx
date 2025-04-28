@@ -1,29 +1,50 @@
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { FileText, Sparkles } from "lucide-react";
+import { FloatingPaper } from "./floating-paper";
+import { RoboAnimation } from "./robo-animation";
 import { Link } from "react-router-dom";
-import { Spinner } from "../ui/spinner";
 
 const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
-export default function Hero() {
+export default function Hero({ logged = false }) {
   return (
-    <section className="container flex min-h-[calc(100vh-3.5rem)] max-w-screen-2xl flex-col items-center justify-center space-y-8 py-24 text-center md:py-32">
-      <div className="space-y-4">
-        <h1 className="bg-gradient-to-br from-foreground from-30% via-foreground/90 to-foreground/70 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
-          Learn Smarter with
-          <p className="text-primary">{GLOBAL_NAME}</p>
-        </h1>
-        <p className="mx-auto max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-          Empowering students with innovative online learning solutions. From AI-driven insights to seamless virtual classrooms, we're shaping the future of IELTS and SAT preparation.
-        </p>
+    <div className="relative min-h-[calc(100vh-76px)] flex items-center">
+      {/* Floating papers background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <FloatingPaper count={6} />
       </div>
-      <div className="flex gap-4">
-        <Link to="/Login">
-          <Button variant="outline" size="lg">
-            Learn
-          </Button>
-        </Link>
+
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground dark:text-white mb-6">
+              Learn Smarter with
+              <span className="text-primary"> {GLOBAL_NAME}</span>
+            </h1>
+          </motion.div>
+
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-black dark:text-gray-400  text-xl mb-8 max-w-2xl mx-auto">
+            Empowering students with innovative online learning solutions. From AI-driven insights to seamless virtual classrooms, we're shaping the future of IELTS and SAT preparation.
+          </motion.p>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {!logged && (
+              <Link to="/Login">
+                <Button size="lg" variant="outline" className="text-primary border-primary hover:bg-primary/20">
+                  <Sparkles className="mr-2 h-5 w-5 text-primary" />
+                  Learn
+                </Button>
+              </Link>
+            )}
+          </motion.div>
+        </div>
       </div>
-    </section>
+
+      {/* Animated robot */}
+      <div className="absolute bottom-0 right-0 w-96 h-96">
+        <RoboAnimation />
+      </div>
+    </div>
   );
 }
