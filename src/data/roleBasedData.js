@@ -37,7 +37,7 @@ const roleBasedData = {
         url: "account",
         icon: User,
         items: [
-          { title: "View Account List", url: "/administrator/accounts" },
+          { title: "Officer List", url: "/administrator/accounts" },
           { title: "Add New", url: "/administrator/account/add" },
         ],
       },
@@ -114,7 +114,7 @@ const roleBasedData = {
       { title: "Notification", url: "notification", icon: Bell },
       { title: "Schedule", url: "lecturer/my-schedule", icon: Calendar },
       { title: "Class", url: "lecturer/my-class", icon: School },
-      { title: "Attendace", url: "lecturer/attendance", icon: ClipboardList },
+      { title: "Attendance", url: "lecturer/attendance", icon: ClipboardList },
       { title: "Request", url: "lecturer/request", icon: Mail },
       { title: "Record", url: "lecturer/record", icon: Video },
       { title: "Material", url: "lecturer/material", icon: FileStack },

@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { GetClassListByStudentId } from "@/services/classService";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Helmet } from "react-helmet-async";
+
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function StudentClassPage() {
   const [classList, setClassList] = useState([]);
@@ -41,6 +44,10 @@ export default function StudentClassPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
+      <Helmet>
+        <title>{GLOBAL_NAME} - My Class</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
       <h1 className="text-3xl font-bold mb-8">My Classes</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

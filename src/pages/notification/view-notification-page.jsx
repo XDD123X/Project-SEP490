@@ -10,6 +10,9 @@ import { GetMyNotification } from "@/services/notificationService";
 import { format, formatDistanceToNow, isBefore, subWeeks } from "date-fns";
 import { NotificationContext } from "@/services/NotificationContext";
 import { useStore } from "@/services/StoreContext";
+import { Helmet } from "react-helmet-async";
+
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function NotificationPage() {
   const { tab = "common", notificationId } = useParams();
@@ -41,7 +44,6 @@ export default function NotificationPage() {
             private: response.data.private.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
           };
           setNotifications(sortedData);
-          
 
           // Chọn thông báo theo notificationId trên URL
           const allNotifications = [...sortedData.common, ...sortedData.private];
@@ -97,22 +99,24 @@ export default function NotificationPage() {
         )}
       </div>
 
+      <Helmet>
+        <title>{GLOBAL_NAME} - Notification</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Notification List Column */}
         <div className="md:col-span-1">
           <Card>
             <CardContent className="p-4">
               <div className="flex justify-end mb-2 space-x-2">
-                <Button variant="outline" size="sm" onClick={() => markAllAsRead(activeTab,notifications)} disabled={getUnreadCount(activeTab) === 0}>
+                <Button variant="outline" size="sm" onClick={() => markAllAsRead(activeTab, notifications)} disabled={getUnreadCount(activeTab) === 0}>
                   <CheckCheck className="h-4 w-4 mr-1" />
                   Mark all as read
                 </Button>
               </div>
 
-              <Tabs
-                value={activeTab}
-                onValueChange={changeTab}
-              >
+              <Tabs value={activeTab} onValueChange={changeTab}>
                 <TabsList className="grid grid-cols-2 mb-4">
                   <TabsTrigger value="common" className="flex items-center justify-center">
                     Common

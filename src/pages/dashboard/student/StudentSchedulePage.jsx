@@ -15,6 +15,9 @@ import { useStore } from "@/services/StoreContext";
 import CalendarSelector from "@/components/CalendarSelector";
 import StudentClassCard from "@/components/student-session-card";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function StudentSchedulePage() {
   const [selectedWeek, setSelectedWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -80,6 +83,11 @@ export default function StudentSchedulePage() {
 
   return (
     <div className="container mx-auto p-4 pt-0">
+      <Helmet>
+        <title>{GLOBAL_NAME} - My Schedule</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">My Schedule</h1>
       </div>

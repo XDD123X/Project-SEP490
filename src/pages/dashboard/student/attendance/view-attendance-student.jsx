@@ -10,6 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useStore } from "@/services/StoreContext";
 import { GetClassListByStudentId } from "@/services/classService";
 import { getSessionsByClassId } from "@/services/sessionService";
+import { Helmet } from "react-helmet-async";
+
+const GLOBAL_NAME = import.meta.env.VITE_GLOBAL_NAME;
 
 export default function ViewAttendanceStudentPage() {
   const { state } = useStore();
@@ -96,6 +99,10 @@ export default function ViewAttendanceStudentPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Helmet>
+        <title>{GLOBAL_NAME} - My Attendance</title>
+        <meta name="description" content={`${GLOBAL_NAME} - Online Teaching Center.`} />
+      </Helmet>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Attendance Overview</h1>
