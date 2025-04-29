@@ -113,28 +113,43 @@ namespace OTMS.API.Controllers.Material_Endpoint
             }
             else if (request.Type.ToLower() == "file")
             {
-                // Đường dẫn lưu file
+                // Lấy tên file gốc (không có đuôi)
+                var originalFileNameWithoutExtension = Path.GetFileNameWithoutExtension(request.File.FileName);
+                var extension = Path.GetExtension(request.File.FileName); // vẫn cần để lưu đúng đuôi
+
+                // Đường dẫn thư mục lưu file
                 filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", classInfor.ClassCode.Replace("/", "_"), "files", session.SessionNumber.ToString());
 
-                // Tạo đường dẫn và lưu file
+                // Tạo tên file duy nhất nếu trùng
+                newFileName = originalFileNameWithoutExtension + extension;
                 var fullFilePath = Path.Combine(filePath, newFileName);
+                int index = 1;
+
+                while (System.IO.File.Exists(fullFilePath))
+                {
+                    newFileName = $"{originalFileNameWithoutExtension}_{index}{extension}";
+                    fullFilePath = Path.Combine(filePath, newFileName);
+                    index++;
+                }
+
+                // Tạo thư mục nếu chưa có
                 if (!Directory.Exists(filePath))
                     Directory.CreateDirectory(filePath);
 
-                // Tải lên file và theo dõi tiến độ
+                // Lưu file
                 using (var stream = new FileStream(fullFilePath, FileMode.Create))
                 {
                     await request.File.CopyToAsync(stream);
                 }
 
-                // Bổ sung trường vào bảng File
+                // Lưu bản ghi DB
                 var file = new File
                 {
                     FileId = Guid.NewGuid(),
                     SessionId = Guid.Parse(request.SessionId),
-                    FileName = newFileName,
+                    FileName = originalFileNameWithoutExtension, // Không có đuôi
                     FileUrl = $"/files/{classInfor.ClassCode.Replace("/", "_")}/files/{session.SessionNumber}/{newFileName}",
-                    FileSize = request.File.Length.ToString(),  // Giữ lại dung lượng file
+                    FileSize = request.File.Length.ToString(),
                     Description = "Uploaded file for session",
                     UploadedBy = Guid.Parse(User?.Claims?.FirstOrDefault(c => c.Type == "uid")?.Value),
                     CreatedAt = DateTime.Now,
@@ -143,6 +158,7 @@ namespace OTMS.API.Controllers.Material_Endpoint
 
                 await _fileRepository.AddAsync(file);
             }
+
             else
             {
                 return BadRequest("Loại file không hợp lệ");
@@ -255,6 +271,22 @@ namespace OTMS.API.Controllers.Material_Endpoint
             return Ok("Đã xoá file thành công.");
         }
 
+        [HttpPut("file/{fileId}")]
+        public async Task<IActionResult> UpdateFile(Guid fileId, [FromBody] UpdateFileRequest request)
+        {
+            // Kiểm tra tồn tại file
+            var fileEntity = await _fileRepository.GetByIdAsync(fileId);
+            if (fileEntity == null)
+                return NotFound("File Not Found.");
+
+            fileEntity.FileName = request.FileName.Trim();
+            fileEntity.Description = request.Description;
+            fileEntity.UpdatedAt = DateTime.Now;
+
+            await _fileRepository.UpdateAsync(fileEntity);
+
+            return Ok("File Updated Successfully.");
+        }
 
         private string GetMimeType(string fileName)
         {
