@@ -122,14 +122,22 @@ namespace OTMS.DAL.Repository
                     Console.WriteLine("Gọi Google Gemini để phân tích nội dung...");
 
                     var apiKey = "AIzaSyCKcdUoSFX8-9s5wNd4Bin94jQrUkbwrqo";
-                    var prompt = $@"Hãy đưa ra thông tin và phân tích bầu không khí lớp học dựa vào kết quả nhận diện cảm xúc sau:
-                            {analysisResult}
-                            Bao gồm các yếu tố:
-                            - Có bao nhiêu học sinh đã nhận diện được?
-                            - Mức độ tham gia của học sinh (dựa trên sự hiện diện).
-                            - Trạng thái cảm xúc chiếm ưu thế.
-                            - Nhận xét chung về bầu không khí lớp học (Hào hứng sôi nổi / Bình thường / Trầm lắng).
-                            - Gợi ý cải thiện bầu không khí nếu có.";
+                    var prompt = $@"Dựa vào dữ liệu nhận diện cảm xúc sau:
+{analysisResult}
+
+Hãy phân tích và đánh giá bầu không khí trong lớp học theo các tiêu chí sau:
+
+1. Số lượng học sinh đã được nhận diện, kèm theo tên của từng bạn.
+2. Đánh giá mức độ tham gia của từng học sinh dựa trên chỉ số 'presence_ratio':
+   - Nếu 'presence_ratio' >= 0.8: Ghi nhận là học sinh có sự tập trung cao.
+   - Nếu 'presence_ratio' từ 0.4 đến dưới 0.8: Ghi nhận là học sinh tham gia ở mức trung bình.
+   - Nếu 'presence_ratio' < 0.4: Ghi nhận là học sinh đang thiếu tập trung.
+3. Xác định trạng thái cảm xúc chiếm ưu thế nhất trong lớp học (vui vẻ, buồn bã, lo lắng, v.v.).
+4. Đưa ra nhận xét tổng quan về bầu không khí lớp học với các mức: 'Hào hứng sôi nổi', 'Bình thường', hoặc 'Trầm lắng'.
+5. Nếu bầu không khí chưa tích cực, hãy đưa ra gợi ý cụ thể để cải thiện (ví dụ: thêm hoạt động nhóm, nghỉ giải lao, trò chuyện với học sinh, v.v.).
+
+Trình bày phân tích rõ ràng, có cấu trúc, dễ hiểu.";
+
 
                     var googleAI = new GoogleAI(apiKey: apiKey);
                     var model = googleAI.GenerativeModel(model: Model.Gemini15Pro);
