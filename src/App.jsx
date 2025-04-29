@@ -239,7 +239,7 @@ function App() {
                 </Route>
               </Routes>
             </Router>
-            <Toaster richColors position="top-right" offset={{ top: "50px", right: "10px" }} expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} closeButton />
+            <Toaster richColors position="top-right"  expand={true} theme={localStorage.getItem("theme")} visibleToasts={5} duration={6000} closeButton />
           </ThemeProvider>
         </StoreProvider>
       </HelmetProvider>

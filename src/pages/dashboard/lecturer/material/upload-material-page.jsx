@@ -4,14 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Upload, File, Video, Loader2, X, Check, Download, Trash2, Eye } from "lucide-react";
+import { ArrowLeft, Upload, File, Video, Loader2, X, Check, Download, Trash2, Eye, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getSessionBySessionId } from "@/services/sessionService";
-import { deleteFileById, deleteRecordById, uploadFile } from "@/services/uploadFileService";
+import { deleteFileById, deleteRecordById, updateFile, uploadFile } from "@/services/uploadFileService";
 import { format } from "date-fns";
+import { Textarea } from "@/components/ui/textarea";
 
 const API_URL = import.meta.env.VITE_VIDEO_URL;
 
@@ -39,6 +40,11 @@ export default function UploadMaterialBySessionPage() {
   const [isDeletingRecord, setIsDeletingRecord] = useState(false);
   const [isDeleteRecordOpen, setIsDeleteRecordOpen] = useState(false);
 
+  //edit file
+  const [editFile, setEditFile] = useState();
+  const [isFileEditOpen, setIsFileEditOpen] = useState(false)
+  const [isFileEditLoading, setIsFileEditLoading] = useState(false)
+
   //get upload type
   useEffect(() => {
     const typeFromURL = searchParams.get("type");
@@ -49,19 +55,19 @@ export default function UploadMaterialBySessionPage() {
     }
   }, [searchParams, navigate]);
 
-  useEffect(() => {
-    async function fetchSessionDetails() {
-      try {
-        const response = await getSessionBySessionId(sessionId);
-        console.log(response.data);
-        setSessionDetails(response.data);
-      } catch (error) {
-        console.error("Failed to fetch session details:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
 
+  //fetch data
+  const fetchSessionDetails = async () => {
+    try {
+      const response = await getSessionBySessionId(sessionId);
+      setSessionDetails(response.data);
+    } catch (error) {
+      console.error("Failed to fetch session details:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
     fetchSessionDetails();
   }, [sessionId]);
 
@@ -242,6 +248,40 @@ export default function UploadMaterialBySessionPage() {
     setIsDeleteOpen(false);
     setDeleteFile(null);
   };
+
+  const handleFileEdit = async (file) => {
+    setEditFile(file)
+    setIsFileEditOpen(true)
+  }
+
+  const handleFileEditSubmit = async (e) => {
+    e.preventDefault()
+    setIsFileEditLoading(true)
+
+    try {
+      const updatedFile = {
+        fileId: editFile.fileId,
+        description: editFile.description,
+        fileName: editFile.fileName
+      }
+
+      await updateFile(updatedFile)
+      fetchSessionDetails()
+      setIsFileEditOpen(false)
+    } catch (error) {
+      console.error("Error updating file:", error)
+    } finally {
+      setIsFileEditLoading(false)
+    }
+  }
+
+  const handleFileEditChange = (e) => {
+    const { name, value } = e.target
+    setEditFile((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
 
   if (loading) {
     return (
@@ -479,18 +519,20 @@ export default function UploadMaterialBySessionPage() {
                             </span>
                             {/* Truncate tên file */}
                           </div>
+                          <p className="text-xs text-muted-foreground">Description: {file.description || "-"}</p>
                           <p className="text-xs text-muted-foreground">Size: {formatFileSize(file.fileSize)}</p>
                           <p className="text-xs text-muted-foreground">Uploaded: {new Date(file.createdAt).toLocaleString()}</p>
                         </div>
 
-                        <div className="mt-2 grid grid-cols-1 gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleFileClick(file.fileUrl)}>
-                            <Download />
-                            Download
+                        <div className="mt-2 flex items-center justify-center gap-2">
+                          <Button variant="outline" size="icon" onClick={() => handleFileEdit(file)}>
+                            <Pencil />
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleFileDelete(file.fileId)}>
+                          <Button variant="outline" size="icon" onClick={() => handleFileClick(file.fileUrl)}>
+                            <Download />
+                          </Button>
+                          <Button variant="outline" size="icon" onClick={() => handleFileDelete(file.fileId)}>
                             <Trash2 className="text-red-500" />
-                            Remove
                           </Button>
                         </div>
                       </div>
@@ -540,6 +582,48 @@ export default function UploadMaterialBySessionPage() {
               {isDeletingRecord ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* File Edit Dialog */}
+      <Dialog open={isFileEditOpen} onOpenChange={setIsFileEditOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit File Information</DialogTitle>
+            <DialogDescription>Update the file description and name attachment.</DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleFileEditSubmit} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="fileNameAttachment">File Name Attachment</Label>
+              <Input
+                id="fileName"
+                name="fileName"
+                value={editFile?.fileName || ""}
+                onChange={handleFileEditChange}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={editFile?.description || ""}
+                onChange={handleFileEditChange}
+                rows={4}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsFileEditOpen(false)} disabled={isFileEditLoading}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isFileEditLoading}>
+                {isFileEditLoading ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
