@@ -19,10 +19,11 @@ namespace OTMS.API.Controllers
         private readonly IRecordRepository _recordRepository;
         private readonly IReportRepository _reportRepository;
         private readonly IMapper _mapper;
-        public RecordController(IRecordRepository recordRepository, IMapper mapper)
+        public RecordController(IRecordRepository recordRepository, IMapper mapper,IReportRepository reportRepository)
         {
             _mapper = mapper;
             _recordRepository = recordRepository;
+            _reportRepository = reportRepository;
         }
 
         [HttpPost("upload")]
@@ -63,15 +64,20 @@ namespace OTMS.API.Controllers
             try
             {
                 var record = await _recordRepository.GetByIdAsync(recordId);
+                Console.WriteLine(record.SessionId.ToString());
                 if (record == null)
                 {
                     return NotFound(new { message = "Record not found" });
                 }
 
-                var reportByRecordId = await _reportRepository.GetReportBySessionIdAsync(record.SessionId);
 
-                await _recordRepository.DeleteAsync(recordId);
+                Report reportByRecordId = await _reportRepository.GetReportBySessionIdAsync(record.SessionId);
+
+
                 await _reportRepository.DeleteAsync(reportByRecordId.ReportId);
+                await _recordRepository.DeleteAsync(recordId);
+
+
                 return Ok(new { message = "Record deleted successfully" });
             }
             catch (Exception ex)
