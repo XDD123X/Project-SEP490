@@ -108,7 +108,7 @@ GO
 
 CREATE TABLE Report (
     report_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    record_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Record(record_id),  -- Set NULL khi xóa Record
+    record_id UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES Record(record_id) ON DELETE NO ACTION,  -- Set NULL khi xóa Record
     session_id UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Session(session_id) ON DELETE CASCADE,  -- Xóa Report khi xóa Session
     analysis_data NVARCHAR(MAX) NULL,  -- Lưu dữ liệu phân tích dưới dạng JSON
     generated_at DATETIME DEFAULT GETDATE(),

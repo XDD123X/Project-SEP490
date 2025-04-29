@@ -17,6 +17,7 @@ namespace OTMS.API.Controllers
     public class RecordController : ControllerBase
     {
         private readonly IRecordRepository _recordRepository;
+        private readonly IReportRepository _reportRepository;
         private readonly IMapper _mapper;
         public RecordController(IRecordRepository recordRepository, IMapper mapper)
         {
@@ -34,7 +35,7 @@ namespace OTMS.API.Controllers
             try
             {
                 Record r = _mapper.Map<Record>(newRecord);
-                var userIdClaim = User.FindFirst("uid");;
+                var userIdClaim = User.FindFirst("uid"); ;
                 if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid createdBy))
                 {
                     r.UploadedBy = createdBy;
@@ -67,7 +68,10 @@ namespace OTMS.API.Controllers
                     return NotFound(new { message = "Record not found" });
                 }
 
+                var reportByRecordId = await _reportRepository.GetReportBySessionIdAsync(record.SessionId);
+
                 await _recordRepository.DeleteAsync(recordId);
+                await _reportRepository.DeleteAsync(reportByRecordId.ReportId);
                 return Ok(new { message = "Record deleted successfully" });
             }
             catch (Exception ex)
