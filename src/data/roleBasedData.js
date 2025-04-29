@@ -20,8 +20,7 @@ const roleBasedData = {
     //   },
     // ],
     navSecondary: [
-      { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Contact", url: "contact", icon: Users },
+      { title: "Contact", url: "/contact", icon: Users },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
@@ -52,8 +51,7 @@ const roleBasedData = {
       },
     ],
     navSecondary: [
-      { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Contact", url: "contact", icon: Users },
+      { title: "Contact", url: "/contact", icon: Users },
     ],
     general: [
       { title: "Dashboard", url: "/administrator/dashboard", icon: LayoutDashboard },
@@ -107,8 +105,7 @@ const roleBasedData = {
     //   },
     // ],
     navSecondary: [
-      { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Contact", url: "contact", icon: Users },
+      { title: "Contact", url: "/contact", icon: Users },
     ],
     general: [
       { title: "Notification", url: "notification", icon: Bell },
@@ -193,8 +190,7 @@ const roleBasedData = {
       },
     ],
     navSecondary: [
-      { title: "Support", url: "/support", icon: LifeBuoy },
-      { title: "Contact", url: "contact", icon: Users },
+      { title: "Contact", url: "/contact", icon: Users },
     ],
     general: [{ title: "Notification", url: "notification", icon: Bell }],
   },

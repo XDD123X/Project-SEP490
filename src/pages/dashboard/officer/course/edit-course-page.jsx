@@ -68,17 +68,23 @@ export default function CourseEditPage() {
     }
   };
 
-  const handleSaveEdit = (updatedCourse) => {
-    // Update the course
-    const updated = updateCourseOfficer(course.courseId, {
-      ...course,
-      courseName: updatedCourse.courseName,
-      description: updatedCourse.description,
-      status: updatedCourse.status,
-    });
+  const handleSaveEdit = async (updatedCourse) => {
+    try {
+      // Gọi API cập nhật khóa học
+      const updated = await updateCourseOfficer(course.courseId, {
+        ...course,
+        courseName: updatedCourse.courseName,
+        description: updatedCourse.description,
+        status: updatedCourse.status,
+      });
 
-    setCourse(updated);
-    navigate(`/officer/course/detail/${courseId}`);
+      setCourse(updated);
+      toast.success("Course Updated Successfully!");
+      navigate(`/officer/course/detail/${course.courseId}`);
+    } catch (error) {
+      console.error("Update Course Failed:", error);
+      toast.error("Update Course Failed. Please Try Again!");
+    }
   };
 
   const handleDeleteCourse = async () => {

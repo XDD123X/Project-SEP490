@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getSessionBySessionId } from "@/services/sessionService";
 import { Spinner } from "@/components/ui/spinner";
 import { VideoPlayer } from "@/components/ui/video-player";
+import { format } from "date-fns";
 
 const VIDEO_URL = import.meta.env.VITE_VIDEO_URL;
 
@@ -91,13 +92,13 @@ export default function RecordVideoPage() {
                   <Clock className="h-4 w-4" />
                   <span>Duration:</span>
                 </div>
-                <span className="font-medium text-right">{record.duration}</span>
+                <span className="font-medium text-right">{record.duration && record.duration.split('.').at(0)}s</span>
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   <span>Created Date:</span>
                 </div>
-                <span className="font-medium text-right">{record.createdAt}</span>
+                <span className="font-medium text-right">{format(record.createdAt, 'HH:mm:ss, dd/MM/yyyy')}</span>
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <User className="h-4 w-4" />

@@ -11,7 +11,7 @@ import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 import { SessionBadge } from "./BadgeComponent";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { downloadReportDetail } from "@/services/reportService";
 
@@ -214,15 +214,17 @@ export default function LecturerClassCard({ session }) {
                 </div>
                 <div className="bg-muted p-3 rounded-md">
                   {session.sessionRecord ? (
-                    <div className="space-y-2">
+                    <div className="flex justify-between items-center gap-4">
                       <p className="flex items-center gap-2">
                         <Video className="h-5 w-5 text-green-500" />
                         <span>Recording available</span>
                       </p>
-                      <a href={session.sessionRecord} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
-                        <ExternalLink className="h-4 w-4" />
-                        <span>View Recording</span>
-                      </a>
+                      <Link to={`/record/${session.sessionId || ""}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                        <Button>
+                          <ExternalLink className="h-4 w-4" />
+                          View Record
+                        </Button>
+                      </Link>
                     </div>
                   ) : (
                     <p className="flex items-center gap-2 text-muted-foreground">

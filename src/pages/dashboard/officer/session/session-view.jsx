@@ -74,7 +74,7 @@ export default function SessionViewPage() {
       setSessions(sortedSessions);
 
       // Tạo danh sách classCodes (bao gồm "All" nếu có dữ liệu)
-      const classCodes = classes.length > 0 ? [...classes.map((cls) => cls.classCode)] : ["N/A"];
+      const classCodes = classes.length > 0 ? [...classes.map((cls) => cls.classCode)] : ["Empty"];
 
       setClassList(classes);
       setClasses(classCodes);

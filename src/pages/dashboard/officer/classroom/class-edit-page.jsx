@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { GetClassById, UpdateClass } from "@/services/classService";
+import { DeleteClassById, GetClassById, UpdateClass } from "@/services/classService";
 import { getLecturerList } from "@/services/accountService";
 import { getAllCourse } from "@/services/courseService";
 import CalendarSelector from "@/components/CalendarSelector";
@@ -47,40 +47,41 @@ export default function ClassEditPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch class data
-  useEffect(() => {
-    const fetchData = async () => {
-      if (classId) {
-        setIsLoading(true); // Cần reset loading trước khi fetch
-        try {
-          const classData = await GetClassById(classId);
-          const lecturerData = await getLecturerList();
-          const courseData = await getAllCourse();
+  const fetchData = async () => {
+    if (classId) {
+      setIsLoading(true); // Cần reset loading trước khi fetch
+      try {
+        const classData = await GetClassById(classId);
+        const lecturerData = await getLecturerList();
+        const courseData = await getAllCourse();
 
-          if (classData.status === 200 && classData.data != null) {
-            setClassItem(classData.data);
-            if (classData.data.lecturer) {
-              setSelectedLecturer(classData.data.lecturer.accountId);
-              setMeetUrl(classData.data.lecturer.meetUrl);
-            }
+        if (classData.status === 200 && classData.data != null) {
+          setClassItem(classData.data);
+          if (classData.data.lecturer) {
+            setSelectedLecturer(classData.data.lecturer.accountId);
+            setMeetUrl(classData.data.lecturer.meetUrl);
+          }
 
-            setTempStatus(classData.data.status);
-          }
-          if (lecturerData.status === 200 && lecturerData.data != null) {
-            setLecturers(lecturerData.data);
-          }
-          if (courseData.status === 200 && courseData.data != null) {
-            setCourses(courseData.data);
-          }
-        } catch (error) {
-          toast.error("Error fetching class data");
-          console.log(error);
-        } finally {
-          setIsLoading(false); // Đảm bảo tắt loading khi hoàn thành
+          setTempStatus(classData.data.status);
         }
-      } else {
-        navigate("/404");
+        if (lecturerData.status === 200 && lecturerData.data != null) {
+          setLecturers(lecturerData.data);
+        }
+        if (courseData.status === 200 && courseData.data != null) {
+          setCourses(courseData.data);
+        }
+      } catch (error) {
+        toast.error("Error fetching class data");
+        console.log(error);
+      } finally {
+        setIsLoading(false); // Đảm bảo tắt loading khi hoàn thành
       }
-    };
+    } else {
+      navigate("/404");
+    }
+  };
+  useEffect(() => {
+
     fetchData();
   }, [classId, navigate]);
 
@@ -141,6 +142,7 @@ export default function ClassEditPage() {
 
         if (response.status === 200) {
           toast.success("Class information has been saved successfully");
+          fetchData()
         } else {
           toast.error("Update Failed");
         }
@@ -157,11 +159,16 @@ export default function ClassEditPage() {
     setTempStatus(value);
   };
 
-  const handleDeleteClass = async () => {
+  const handleDeleteClass = async (classId) => {
     try {
-      setIsDeleting(true);
+      const response = await DeleteClassById(classId);
+      if (response.status === 200) {
+        toast.success("Class Deleted Successfully!")
+        navigate('/officer/class')
+      }
     } catch (error) {
       console.log(error);
+      toast.error("Class Deleted Failed!", error)
     }
   };
 
@@ -392,7 +399,7 @@ export default function ClassEditPage() {
             <Button variant="outline" onClick={() => setShowDeleteClassDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={() => handleDeleteClass()}>Confirm</Button>
+            <Button onClick={() => handleDeleteClass(classItem.classId)}>Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

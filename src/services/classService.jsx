@@ -176,3 +176,21 @@ export const TogglClassStudentStatus = async (classId, studentId) => {
     throw error;
   }
 };
+
+export const DeleteClassById = async (classId) => {
+  try {
+    const response = await axiosClient.delete(`/officer/Class/${classId}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Request failed!",
+    };
+  }
+};

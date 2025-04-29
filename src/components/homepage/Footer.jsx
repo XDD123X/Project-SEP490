@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import {Facebook } from "lucide-react";
+import { Facebook } from "lucide-react";
 
 const FACEBOOK_URL = import.meta.env.VITE_SUPPORT_FACEBOOK;
 const ZALO_URL = import.meta.env.VITE_SUPPORT_ZALO;
@@ -18,28 +18,13 @@ export default function Footer() {
             <h3 className="text-sm font-medium">Contacts</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/ai-analytics" className="text-muted-foreground transition-colors hover:text-primary">
+                <Link to={FACEBOOK_URL} target="_blank" className="text-muted-foreground transition-colors hover:text-primary">
                   Facebook
                 </Link>
               </li>
               <li>
-                <Link to="/cloud-services" className="text-muted-foreground transition-colors hover:text-primary">
+                <Link to={ZALO_URL} target="_blank" className="text-muted-foreground transition-colors hover:text-primary">
                   Zalo
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Center</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link to="/about" className="text-muted-foreground transition-colors hover:text-primary">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/policies" className="text-muted-foreground transition-colors hover:text-primary">
-                  Policies
                 </Link>
               </li>
             </ul>
@@ -47,15 +32,15 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="text-sm font-medium">Connect</h3>
             <div className="flex space-x-4">
-              <a href={FACEBOOK_URL} className="text-muted-foreground transition-colors hover:text-primary" target="_blank">
+              <Link to={FACEBOOK_URL} target="_blank" className="text-muted-foreground transition-colors hover:text-primary" >
                 <Facebook className="h-5 w-5" />
                 <span className="sr-only">Facebook</span>
-              </a>
-              <a href={ZALO_URL} className="text-muted-foreground transition-colors hover:text-primary" target="_blank">
+              </Link>
+              <Link to={ZALO_URL} target="_blank" className="text-muted-foreground transition-colors hover:text-primary">
                 <img src="/zalo.svg" alt="Zalo" className="h-5 w-5" />
 
                 <span className="sr-only">Zalo</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
