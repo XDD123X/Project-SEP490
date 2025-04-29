@@ -139,5 +139,31 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             });
         }
 
+        [HttpDelete("{classId}")]
+        public async Task<IActionResult> DeleteClassById(string classId)
+        {
+            if (!Guid.TryParse(classId, out var guid))
+            {
+                return BadRequest("Invalid classId format.");
+            }
+
+            var classItem = await _classRepository.GetByIdAsync(guid);
+            if (classItem == null)
+            {
+                return NotFound("Class not found.");
+            }
+
+            try
+            {
+                await _classRepository.DeleteAsync(guid);
+                return Ok(guid);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to delete class. Error: {ex.Message}");
+            }
+        }
+
+
     }
 }
