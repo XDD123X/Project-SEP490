@@ -28,6 +28,8 @@ export function MessageDropdown() {
           };
           setMessages(sortedData.private);
           setNotifications(response.data);
+          console.log(response.data);
+          
         }
       } catch (error) {
         console.log("failed to fetch notification: ", error);
@@ -82,7 +84,7 @@ export function MessageDropdown() {
                     <h5 className="font-medium text-sm truncate">{message.title}</h5>
                   </div>
                   <div className="text-xs mt-1 text-muted-foreground capitalize">{formatNotificationDate(message.createdAt)}</div>
-                  <div className="text-xs mt-1 text-muted-foreground mb-3">From: {message.createdByNavigation?.role.name || "N/A"}</div>
+                  <div className="text-xs mt-1 text-muted-foreground mb-3">From: {message.createdByNavigation?.fullName || "N/A"}</div>
 
                   <div
                     className="text-xs line-clamp-2 mt-1"
@@ -90,7 +92,6 @@ export function MessageDropdown() {
                       __html: message.content.replace(/<\/?[^>]+(>|$)/g, " "),
                     }}
                   />
-                  <div className="text-xs text-muted-foreground mt-3">By: {message.createdByNavigation?.fullName || "N/A"}</div>
                 </Link>
               ))}
             </div>
