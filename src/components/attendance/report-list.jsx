@@ -32,7 +32,6 @@ export default function AttendanceReportLecturer({ classId }) {
         }));
 
         setSessions(mergedSessions);
-        console.log(mergedSessions[0]);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -88,9 +87,10 @@ export default function AttendanceReportLecturer({ classId }) {
     });
 
     // Calculate percentages
+    const totalSessions = sessions.length;
     Object.keys(studentAttendance).forEach((studentId) => {
       const record = studentAttendance[studentId];
-      record.percentage = record.total > 0 ? (record.present / record.total) * 100 : 0;
+      record.percentage = totalSessions > 0 ? 100 - (record.present / totalSessions) * 100 : 0;
     });
 
     return studentAttendance;
@@ -126,8 +126,8 @@ export default function AttendanceReportLecturer({ classId }) {
 
   // Helper function to determine progress bar color based on percentage
   const getProgressColor = (percentage) => {
-    if (percentage === 100) return "bg-green-500";
-    if (percentage >= 75) return "bg-yellow-500";
+    if (percentage > 80) return "bg-green-500";
+    if (percentage === 80) return "bg-yellow-500";
     return "bg-red-500";
   };
 

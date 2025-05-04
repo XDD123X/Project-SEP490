@@ -132,7 +132,7 @@ export default function ViewLecturerClassReportPage() {
         <Button onClick={() => handleAnalyze(session.sessionId)} disabled={!canAnalyze || processingSessionId === session.sessionId} size="sm">
           {processingSessionId === session.sessionId ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner className="mr-2 h-4 w-4" />
               {isReAnalyze ? "Re-Analyzing..." : "Analyzing..."}
             </>
           ) : (
@@ -146,14 +146,14 @@ export default function ViewLecturerClassReportPage() {
     } else if (session.reports[0]?.status === 1) {
       return (
         <Button disabled size="sm">
-          <Spinner className="mr-2 h-4 w-4 animate-spin" />
+          <Spinner className="mr-2 h-4 w-4 text-primary-foreground" />
           Processing
         </Button>
       );
     } else if (session.reports[0]?.status === 2 && session.reports[0]?.geminiResponse) {
       return (
         <Button variant="outline" size="sm" onClick={() => handleViewReport(session)} disabled={isLoadingView}>
-          {isLoadingView ? <Spinner className="mr-2 h-4 w-4 animate-spin" /> : <Eye className="mr-2 h-4 w-4" />}
+          {isLoadingView ? <Spinner className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
           {isLoadingView ? "Loading..." : "View Report"}
         </Button>
       );

@@ -42,8 +42,8 @@ export default function UploadMaterialBySessionPage() {
 
   //edit file
   const [editFile, setEditFile] = useState();
-  const [isFileEditOpen, setIsFileEditOpen] = useState(false)
-  const [isFileEditLoading, setIsFileEditLoading] = useState(false)
+  const [isFileEditOpen, setIsFileEditOpen] = useState(false);
+  const [isFileEditLoading, setIsFileEditLoading] = useState(false);
 
   //get upload type
   useEffect(() => {
@@ -55,7 +55,6 @@ export default function UploadMaterialBySessionPage() {
     }
   }, [searchParams, navigate]);
 
-
   //fetch data
   const fetchSessionDetails = async () => {
     try {
@@ -66,7 +65,7 @@ export default function UploadMaterialBySessionPage() {
     } finally {
       setLoading(false);
     }
-  }
+  };
   useEffect(() => {
     fetchSessionDetails();
   }, [sessionId]);
@@ -250,38 +249,38 @@ export default function UploadMaterialBySessionPage() {
   };
 
   const handleFileEdit = async (file) => {
-    setEditFile(file)
-    setIsFileEditOpen(true)
-  }
+    setEditFile(file);
+    setIsFileEditOpen(true);
+  };
 
   const handleFileEditSubmit = async (e) => {
-    e.preventDefault()
-    setIsFileEditLoading(true)
+    e.preventDefault();
+    setIsFileEditLoading(true);
 
     try {
       const updatedFile = {
         fileId: editFile.fileId,
         description: editFile.description,
-        fileName: editFile.fileName
-      }
+        fileName: editFile.fileName,
+      };
 
-      await updateFile(updatedFile)
-      fetchSessionDetails()
-      setIsFileEditOpen(false)
+      await updateFile(updatedFile);
+      fetchSessionDetails();
+      setIsFileEditOpen(false);
     } catch (error) {
-      console.error("Error updating file:", error)
+      console.error("Error updating file:", error);
     } finally {
-      setIsFileEditLoading(false)
+      setIsFileEditLoading(false);
     }
-  }
+  };
 
   const handleFileEditChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setEditFile((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   if (loading) {
     return (
@@ -596,23 +595,12 @@ export default function UploadMaterialBySessionPage() {
           <form onSubmit={handleFileEditSubmit} className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="fileNameAttachment">File Name Attachment</Label>
-              <Input
-                id="fileName"
-                name="fileName"
-                value={editFile?.fileName || ""}
-                onChange={handleFileEditChange}
-              />
+              <Input id="fileName" name="fileName" value={editFile?.fileName || ""} onChange={handleFileEditChange} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={editFile?.description || ""}
-                onChange={handleFileEditChange}
-                rows={4}
-              />
+              <Textarea id="description" name="description" value={editFile?.description || ""} onChange={handleFileEditChange} rows={4} />
             </div>
 
             <DialogFooter>
