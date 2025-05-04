@@ -219,9 +219,14 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 System.IO.File.Delete(physicalPath);
             }
 
-            // Xoá record khỏi DB
+            // Xoá report liên quan nếu tồn tại
             var reportByRecordId = await _reportRepository.GetReportBySessionIdAsync(recordEntity.SessionId);
-            await _reportRepository.DeleteAsync(reportByRecordId.ReportId);
+            if (reportByRecordId != null)
+            {
+                await _reportRepository.DeleteAsync(reportByRecordId.ReportId);
+            }
+
+            // Xoá record khỏi DB
             await _recordRepository.DeleteAsync(recordId);
 
             // Xoá thời gian record trong session liên quan (nếu có)
