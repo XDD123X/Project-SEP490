@@ -47,7 +47,7 @@ namespace OTMS.DAL.DAO
 
             if (hasLecturerConflict)
             {
-                return (true, "Giảng viên đã có lịch dạy vào thời gian này.");
+                return (true, "The lecturer is scheduled to teach at this time.");
             }
 
             // Kiểm tra xem đã có yêu cầu thay đổi nào cho thời gian này chưa (chưa được duyệt)
@@ -60,7 +60,7 @@ namespace OTMS.DAL.DAO
 
             if (hasPendingRequest)
             {
-                return (true, "Đã có yêu cầu thay đổi sang thời gian này đang chờ duyệt.");
+                return (true, "There is a request to change to this time pending approval.");
             }
 
             // Nếu có SessionId (tức là đang kiểm tra cho một session cụ thể), thì kiểm tra xung đột với lịch học của sinh viên
@@ -97,7 +97,7 @@ namespace OTMS.DAL.DAO
 
                         if (hasStudentConflict)
                         {
-                            return (true, "Sinh viên trong lớp đã có lịch học vào thời gian này.");
+                            return (true, "Students in the class have scheduled classes at this time.");
                         }
                     }
                 }
@@ -113,13 +113,13 @@ namespace OTMS.DAL.DAO
 
             if (session == null)
             {
-                return (false, "Không tìm thấy buổi học.");
+                return (false, "No Sessions found.");
             }
 
             // Kiểm tra xem buổi học có phải của giảng viên này không
             if (session.LecturerId != model.LecturerId)
             {
-                return (false, "Giảng viên không phụ trách buổi học này.");
+                return (false, "The lecturer is not in charge of this class.");
             }
 
             // Kiểm tra xem đã có yêu cầu thay đổi nào cho buổi học này chưa
@@ -128,7 +128,7 @@ namespace OTMS.DAL.DAO
 
             if (hasPendingRequest)
             {
-                return (false, "Đã có yêu cầu thay đổi cho buổi học này đang chờ duyệt.");
+                return (false, "There is a request to change to this time pending approval.");
             }
 
             // check trùng lịch
@@ -162,7 +162,7 @@ namespace OTMS.DAL.DAO
             await _context.SessionChangeRequests.AddAsync(request);
             await _context.SaveChangesAsync();
 
-            return (true, "Yêu cầu đổi lịch đã được gửi.");
+            return (true, "Reschedule request has been sent.");
         }
         public async Task<(bool isSuccess, string message)> UpdateRequestAsync(UpdateSessionChangeRequestDTO model)
         {
@@ -185,7 +185,7 @@ namespace OTMS.DAL.DAO
             // Chỉ cho phép cập nhật những yêu cầu chưa được duyệt
             if (request.Status != 0)
             {
-                return (false, "Yêu cầu này đã được xử lý.");
+                return (false, "This request has been processed.");
             }
 
             // Cập nhật trạng thái yêu cầu
