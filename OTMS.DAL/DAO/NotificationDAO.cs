@@ -25,6 +25,7 @@ namespace OTMS.DAL.DAO
             return await _context.Notifications
                 .Where(n => _context.NotificationAccounts
                     .Any(na => na.NotificationId == n.NotificationId && na.AccountId == accountId))
+                .Include(n => n.CreatedByNavigation)
                 .ToListAsync();
         }
         public async Task<List<Notification>> GetAllRoleNotificationAsync(string roleName)
@@ -32,6 +33,7 @@ namespace OTMS.DAL.DAO
             return await _context.Notifications
                 .Where(n => _context.NotificationRoles
                     .Any(nr => nr.NotificationId == n.NotificationId && nr.RoleName == roleName))
+                .Include(n => n.CreatedByNavigation)
                 .ToListAsync();
         }
         public async Task<List<Notification>> GetNotificationManagementAsync(Guid accountId)

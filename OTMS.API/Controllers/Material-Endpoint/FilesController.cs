@@ -16,18 +16,14 @@ namespace OTMS.API.Controllers.Material_Endpoint
     {
         private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "Files");
         private readonly IRecordRepository _recordRepository;
+        private readonly IReportRepository _reportRepository;
         private readonly ISessionRepository _sessionRepository;
         private readonly IFileRepository _fileRepository;
 
-
-
-        public FilesController(IRecordRepository recordRepositoyry, ISessionRepository sessionRepository, IFileRepository fileRepository)
+        public FilesController(IRecordRepository recordRepository, IReportRepository reportRepository, ISessionRepository sessionRepository, IFileRepository fileRepository)
         {
-            if (!Directory.Exists(_uploadPath))
-            {
-                Directory.CreateDirectory(_uploadPath);
-            }
-            _recordRepository = recordRepositoyry;
+            _recordRepository = recordRepository;
+            _reportRepository = reportRepository;
             _sessionRepository = sessionRepository;
             _fileRepository = fileRepository;
         }
@@ -36,31 +32,24 @@ namespace OTMS.API.Controllers.Material_Endpoint
         public async Task<IActionResult> UploadFile([FromForm] UploadFileRequest request)
         {
             if (string.IsNullOrEmpty(request.SessionId) || string.IsNullOrEmpty(request.Type) || request.File == null || request.File.Length == 0)
-                return BadRequest("Thiếu thông tin hoặc file không hợp lệ");
+                return BadRequest("Missing information or invalid file");
 
             // Lấy uid từ JWT
             var uid = User?.Claims?.FirstOrDefault(c => c.Type == "uid")?.Value;
             if (string.IsNullOrEmpty(uid))
-                return Unauthorized("Không thể xác định người dùng");
+                return Unauthorized("User could not be identified");
 
             // Lấy thông tin session từ sessionRepository
             var session = await _sessionRepository.GetSessionsBySessionId(Guid.Parse(request.SessionId));
-            if (session == null) return NotFound("Không tìm thấy lớp học");
+            if (session == null) return NotFound("Session not found");
 
             //Lấy ra thông tin class theo session
             var classInfor = session.Class;
 
-            // Tạo đường dẫn lưu file
             string filePath = string.Empty;
-            string newFileName = request.File.FileName;
-
-            // Tạo một progress object để theo dõi tiến độ tải lên
-            var progress = new Progress<int>(percent =>
-            {
-                // Gửi tiến độ tải lên về phía client
-                Console.WriteLine($"Tiến độ tải lên: {percent}%");
-            });
-
+            string extension = Path.GetExtension(request.File.FileName);
+            Guid newFileId = Guid.NewGuid(); // Dùng làm tên file
+            string newFileName = newFileId + extension; // Tên file lưu trùng với fileId
 
             if (request.Type.ToLower() == "record")
             {
@@ -77,6 +66,7 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 {
                     await request.File.CopyToAsync(stream);
                 }
+
                 // Tính toán thời gian video với MediaToolkit
                 TimeSpan videoDuration = TimeSpan.Zero;
                 try
@@ -90,7 +80,7 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Không thể đọc thời lượng video: {ex.Message}");
+                    Console.WriteLine($"Could not read video duration: {ex.Message}");
                 }
 
                 // Cập nhật sessionRecord cho session
@@ -99,38 +89,27 @@ namespace OTMS.API.Controllers.Material_Endpoint
 
                 var record = new Record
                 {
-                    RecordId = Guid.NewGuid(),
+                    RecordId = newFileId, // Gán fileId làm RecordId
                     SessionId = Guid.Parse(request.SessionId),
-                    Duration = videoDuration.ToString(),  // Gán thời gian video vào record
+                    Duration = videoDuration.ToString(),
                     VideoUrl = $"/files/{classInfor.ClassCode.Replace("/", "_")}/record/{session.SessionNumber}/{newFileName}",
                     Description = "Recording for session",
-                    UploadedBy = Guid.Parse(User?.Claims?.FirstOrDefault(c => c.Type == "uid")?.Value),
+                    UploadedBy = Guid.Parse(uid),
                     CreatedAt = DateTime.Now,
                     Status = 1
                 };
 
-                await _recordRepository.AddAsync(record); // Đảm bảo bạn đã inject _recordRepository
+                await _recordRepository.AddAsync(record);
             }
             else if (request.Type.ToLower() == "file")
             {
-                // Lấy tên file gốc (không có đuôi)
-                var originalFileNameWithoutExtension = Path.GetFileNameWithoutExtension(request.File.FileName);
-                var extension = Path.GetExtension(request.File.FileName); // vẫn cần để lưu đúng đuôi
+                // Lấy đuôi file
+                extension = Path.GetExtension(request.File.FileName);
 
                 // Đường dẫn thư mục lưu file
                 filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", classInfor.ClassCode.Replace("/", "_"), "files", session.SessionNumber.ToString());
 
-                // Tạo tên file duy nhất nếu trùng
-                newFileName = originalFileNameWithoutExtension + extension;
                 var fullFilePath = Path.Combine(filePath, newFileName);
-                int index = 1;
-
-                while (System.IO.File.Exists(fullFilePath))
-                {
-                    newFileName = $"{originalFileNameWithoutExtension}_{index}{extension}";
-                    fullFilePath = Path.Combine(filePath, newFileName);
-                    index++;
-                }
 
                 // Tạo thư mục nếu chưa có
                 if (!Directory.Exists(filePath))
@@ -145,44 +124,54 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 // Lưu bản ghi DB
                 var file = new File
                 {
-                    FileId = Guid.NewGuid(),
+                    FileId = newFileId, // Gán fileId làm tên file vật lý
                     SessionId = Guid.Parse(request.SessionId),
-                    FileName = originalFileNameWithoutExtension, // Không có đuôi
+                    FileName = Path.GetFileNameWithoutExtension(request.File.FileName),
                     FileUrl = $"/files/{classInfor.ClassCode.Replace("/", "_")}/files/{session.SessionNumber}/{newFileName}",
                     FileSize = request.File.Length.ToString(),
                     Description = "Uploaded file for session",
-                    UploadedBy = Guid.Parse(User?.Claims?.FirstOrDefault(c => c.Type == "uid")?.Value),
+                    UploadedBy = Guid.Parse(uid),
                     CreatedAt = DateTime.Now,
                     Status = 1
                 };
 
                 await _fileRepository.AddAsync(file);
             }
-
             else
             {
-                return BadRequest("Loại file không hợp lệ");
+                return BadRequest("Invalid file type");
             }
 
             return Ok(new
             {
-                fileName = newFileName,
+                fileId = newFileId,
                 sessionId = request.SessionId,
                 type = request.Type,
-                url = $"/files/{classInfor.ClassCode}/{request.Type}/{session.SessionNumber}/{newFileName}"
+                url = $"/files/{classInfor.ClassCode.Replace("/", "_")}/{request.Type}/{session.SessionNumber}/{newFileName}"
             });
         }
 
-        [HttpGet("{fileName}")]
-        public IActionResult GetFile(string fileName)
+
+        [HttpGet("{fileId}")]
+        public async Task<IActionResult> GetFile(Guid fileId)
         {
-            var filePath = Path.Combine(_uploadPath, fileName);
+            // Tìm file trong database theo fileId
+            var file = await _fileRepository.GetByIdAsync(fileId);
+            if (file == null)
+                return NotFound("File not found");
+
+            // Tách tên file vật lý từ đường dẫn URL lưu trong DB
+            var physicalFileName = Path.GetFileName(new Uri(file.FileUrl, UriKind.RelativeOrAbsolute).LocalPath);
+
+            // Xây dựng đường dẫn vật lý đến file
+            var relativePath = file.FileUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), relativePath);
 
             if (!System.IO.File.Exists(filePath))
-                return NotFound();
+                return NotFound("File not found on disk");
 
-            var mimeType = GetMimeType(fileName);
-            return PhysicalFile(filePath, mimeType, fileName);
+            var mimeType = GetMimeType(physicalFileName);
+            return PhysicalFile(filePath, mimeType, physicalFileName);
         }
 
         [HttpGet("download/{fileId}")]
@@ -218,25 +207,24 @@ namespace OTMS.API.Controllers.Material_Endpoint
             // Lấy record từ DB
             var recordEntity = await _recordRepository.GetByIdAsync(recordId);
             if (recordEntity == null)
-                return NotFound("Không tìm thấy record trong cơ sở dữ liệu.");
+                return NotFound("Record not found in database.");
 
-            // Lấy tên file từ đường dẫn
-            var recordName = Path.GetFileName(recordEntity.VideoUrl);
-            var recordPath = Path.Combine(_uploadPath, recordName);
-
-            Console.WriteLine("record name: " + recordName);
-            Console.WriteLine("record path: " + recordPath);
+            // Lấy đường dẫn vật lý từ VideoUrl
+            var relativePath = recordEntity.VideoUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+            var physicalPath = Path.Combine(Directory.GetCurrentDirectory(), relativePath);
 
             // Xoá file vật lý nếu tồn tại
-            if (System.IO.File.Exists(recordPath))
+            if (System.IO.File.Exists(physicalPath))
             {
-                System.IO.File.Delete(recordPath);
+                System.IO.File.Delete(physicalPath);
             }
 
             // Xoá record khỏi DB
+            var reportByRecordId = await _reportRepository.GetReportBySessionIdAsync(recordEntity.SessionId);
+            await _reportRepository.DeleteAsync(reportByRecordId.ReportId);
             await _recordRepository.DeleteAsync(recordId);
 
-            // Lấy session liên quan
+            // Xoá thời gian record trong session liên quan (nếu có)
             var session = await _sessionRepository.GetByIdAsync(recordEntity.SessionId);
             if (session != null)
             {
@@ -244,7 +232,7 @@ namespace OTMS.API.Controllers.Material_Endpoint
                 await _sessionRepository.UpdateAsync(session);
             }
 
-            return Ok("Đã xoá record thành công.");
+            return Ok("Record deleted successfully.");
         }
 
         [HttpDelete("file/{fileId}")]
@@ -253,22 +241,22 @@ namespace OTMS.API.Controllers.Material_Endpoint
             // Lấy file từ DB theo fileId
             var fileEntity = await _fileRepository.GetByIdAsync(fileId);
             if (fileEntity == null)
-                return NotFound("Không tìm thấy file trong cơ sở dữ liệu.");
+                return NotFound("File not found in database.");
 
-            // Lấy tên file từ đường dẫn (nếu lưu cả path, ví dụ: /uploads/abc.pdf)
-            var fileName = Path.GetFileName(fileEntity.FileUrl);
-            var filePath = Path.Combine(_uploadPath, fileName);
+            // Lấy đường dẫn vật lý từ FileUrl
+            var relativePath = fileEntity.FileUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+            var physicalPath = Path.Combine(Directory.GetCurrentDirectory(), relativePath);
 
             // Xoá file vật lý nếu tồn tại
-            if (System.IO.File.Exists(filePath))
+            if (System.IO.File.Exists(physicalPath))
             {
-                System.IO.File.Delete(filePath);
+                System.IO.File.Delete(physicalPath);
             }
 
             // Xoá bản ghi trong DB
             await _fileRepository.DeleteAsync(fileId);
 
-            return Ok("Đã xoá file thành công.");
+            return Ok("File deleted successfully.");
         }
 
         [HttpPut("file/{fileId}")]
