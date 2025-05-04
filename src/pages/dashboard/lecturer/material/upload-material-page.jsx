@@ -350,8 +350,6 @@ export default function UploadMaterialBySessionPage() {
 
                   {uploading && (
                     <div className="space-y-2">
-                      <Progress value={uploadProgress} className="h-2 w-full" />
-                      <p className="text-xs text-muted-foreground text-right">{uploadProgress}%</p>
                       <div className="mt-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-2 h-5 w-5">
@@ -405,7 +403,7 @@ export default function UploadMaterialBySessionPage() {
                             <Video className="mr-2 h-4 w-4" />
                             <span className="font-medium">Record {index + 1}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground">Duration: {recording.duration}</p>
+                          <p className="text-xs text-muted-foreground">Duration: {recording?.duration?.split(".")[0] ?? ""}</p>
                           <p className="text-xs text-muted-foreground">Uploaded: {format(recording.createdAt, "HH:mm, dd/MM/yyyy")}</p>
                         </div>
                         <div className="space-y-2 grid grid-cols-1">
@@ -467,8 +465,6 @@ export default function UploadMaterialBySessionPage() {
 
                   {uploading && (
                     <div className="space-y-2">
-                      <Progress value={uploadProgress} className="h-2 w-full" />
-                      <p className="text-xs text-muted-foreground text-right">{uploadProgress}%</p>
                       <div className="mt-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-2 h-5 w-5">
