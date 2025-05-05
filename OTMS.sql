@@ -343,8 +343,8 @@ GO
 UPDATE Account
 SET img_url = 
     CASE 
-        WHEN gender = 0 THEN 'https://i.imgur.com/0dTvSSQ.png'  -- Ảnh cho nữ
-        WHEN gender = 1 THEN 'https://i.imgur.com/McuGRDf.png'  -- Ảnh cho nam
+        WHEN gender = 0 THEN 'https://res.cloudinary.com/dprozebpx/image/upload/v1746447108/snpdiajryjc7tnyr8z7m.png'  -- Ảnh cho nữ
+        WHEN gender = 1 THEN 'https://res.cloudinary.com/dprozebpx/image/upload/v1746447151/robaimov7k2vw3bziobb.png'  -- Ảnh cho nam
         ELSE img_url  -- Giữ nguyên nếu không có giá trị hợp lệ
     END
 WHERE img_url IS NULL OR img_url = 'https://ui.shadcn.com/avatars/shadcn.jpg';
