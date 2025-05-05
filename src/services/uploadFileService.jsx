@@ -66,7 +66,7 @@ export const deleteFileById = async (fileId) => {
 export const deleteRecordById = async (recordId) => {
   try {
     const response = await axiosClient.delete(`/files/record/${recordId}`);
-
+    //const response = await axiosClient.delete(`/record/delete/${recordId}`);
     return {
       status: response.status,
       data: response.data,

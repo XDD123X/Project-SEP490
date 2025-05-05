@@ -14,26 +14,22 @@ export function ProfileDropdown() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="flex bg-sidebar-accent items-center gap-2 px-2 py-1 h-auto w-auto">
           <Avatar className="h-8 w-8">
             <AvatarImage src={`${user.imgUrl ?? "N/A"}`} alt="Avatar" />
             <AvatarFallback>{user.name ?? "N/A"}</AvatarFallback>
           </Avatar>
+          <div className="flex flex-col items-start">
+            <p className="text-sm font-medium leading-none">{user.name ?? "N/A"}</p>
+            <p className="text-xs leading-none text-muted-foreground">{role ?? "User"}</p>
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name ?? "N/A"}</p>
-            {/* <p className="text-xs text-secondary-foreground">
-              Role: <span className="font-medium">{role ?? "N/A"}</span>
-            </p>
-            <p className="text-xs">
-              Email: <span className="font-medium"> {user.email ?? "N/A"}</span>
-            </p> */}
-            <p className='text-xs leading-none text-muted-foreground'>
-            {user.email ?? "N/A"}
-            </p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email ?? "N/A"}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

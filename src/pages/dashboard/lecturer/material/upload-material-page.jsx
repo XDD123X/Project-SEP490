@@ -42,8 +42,8 @@ export default function UploadMaterialBySessionPage() {
 
   //edit file
   const [editFile, setEditFile] = useState();
-  const [isFileEditOpen, setIsFileEditOpen] = useState(false)
-  const [isFileEditLoading, setIsFileEditLoading] = useState(false)
+  const [isFileEditOpen, setIsFileEditOpen] = useState(false);
+  const [isFileEditLoading, setIsFileEditLoading] = useState(false);
 
   //get upload type
   useEffect(() => {
@@ -55,7 +55,6 @@ export default function UploadMaterialBySessionPage() {
     }
   }, [searchParams, navigate]);
 
-
   //fetch data
   const fetchSessionDetails = async () => {
     try {
@@ -66,7 +65,7 @@ export default function UploadMaterialBySessionPage() {
     } finally {
       setLoading(false);
     }
-  }
+  };
   useEffect(() => {
     fetchSessionDetails();
   }, [sessionId]);
@@ -250,38 +249,38 @@ export default function UploadMaterialBySessionPage() {
   };
 
   const handleFileEdit = async (file) => {
-    setEditFile(file)
-    setIsFileEditOpen(true)
-  }
+    setEditFile(file);
+    setIsFileEditOpen(true);
+  };
 
   const handleFileEditSubmit = async (e) => {
-    e.preventDefault()
-    setIsFileEditLoading(true)
+    e.preventDefault();
+    setIsFileEditLoading(true);
 
     try {
       const updatedFile = {
         fileId: editFile.fileId,
         description: editFile.description,
-        fileName: editFile.fileName
-      }
+        fileName: editFile.fileName,
+      };
 
-      await updateFile(updatedFile)
-      fetchSessionDetails()
-      setIsFileEditOpen(false)
+      await updateFile(updatedFile);
+      fetchSessionDetails();
+      setIsFileEditOpen(false);
     } catch (error) {
-      console.error("Error updating file:", error)
+      console.error("Error updating file:", error);
     } finally {
-      setIsFileEditLoading(false)
+      setIsFileEditLoading(false);
     }
-  }
+  };
 
   const handleFileEditChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setEditFile((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   if (loading) {
     return (
@@ -351,8 +350,6 @@ export default function UploadMaterialBySessionPage() {
 
                   {uploading && (
                     <div className="space-y-2">
-                      <Progress value={uploadProgress} className="h-2 w-full" />
-                      <p className="text-xs text-muted-foreground text-right">{uploadProgress}%</p>
                       <div className="mt-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-2 h-5 w-5">
@@ -406,7 +403,7 @@ export default function UploadMaterialBySessionPage() {
                             <Video className="mr-2 h-4 w-4" />
                             <span className="font-medium">Record {index + 1}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground">Duration: {recording.duration}</p>
+                          <p className="text-xs text-muted-foreground">Duration: {recording?.duration?.split(".")[0] ?? ""}</p>
                           <p className="text-xs text-muted-foreground">Uploaded: {format(recording.createdAt, "HH:mm, dd/MM/yyyy")}</p>
                         </div>
                         <div className="space-y-2 grid grid-cols-1">
@@ -468,8 +465,6 @@ export default function UploadMaterialBySessionPage() {
 
                   {uploading && (
                     <div className="space-y-2">
-                      <Progress value={uploadProgress} className="h-2 w-full" />
-                      <p className="text-xs text-muted-foreground text-right">{uploadProgress}%</p>
                       <div className="mt-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-2 h-5 w-5">
@@ -596,23 +591,12 @@ export default function UploadMaterialBySessionPage() {
           <form onSubmit={handleFileEditSubmit} className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="fileNameAttachment">File Name Attachment</Label>
-              <Input
-                id="fileName"
-                name="fileName"
-                value={editFile?.fileName || ""}
-                onChange={handleFileEditChange}
-              />
+              <Input id="fileName" name="fileName" value={editFile?.fileName || ""} onChange={handleFileEditChange} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={editFile?.description || ""}
-                onChange={handleFileEditChange}
-                rows={4}
-              />
+              <Textarea id="description" name="description" value={editFile?.description || ""} onChange={handleFileEditChange} rows={4} />
             </div>
 
             <DialogFooter>

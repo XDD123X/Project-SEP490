@@ -12,13 +12,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { addRequestChangeSession, getSessionBySessionId, requestChangeSessionValid } from "@/services/sessionService";
 import { toast } from "sonner";
 import { useStore } from "@/services/StoreContext";
-import { number } from "zod";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import CalendarSelector from "@/components/CalendarSelector";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function RequestChangeLecturerPage() {
   const navigate = useNavigate();
@@ -54,9 +49,15 @@ export default function RequestChangeLecturerPage() {
   const handleDateChange = (date) => {
     if (date) {
       const adjustedDate = new Date(date);
-      adjustedDate.setHours(12, 0, 0, 0); // Đặt giữa ngày để tránh lỗi múi giờ
+      adjustedDate.setHours(12, 0, 0, 0);
       setNewDate(adjustedDate);
     }
+    setIsSubmitEnabled(false);
+    setCheckStatus(null);
+  };
+
+  const handleChangeSlot = (slotValue) => {
+    setNewSlot(slotValue);
     setIsSubmitEnabled(false);
     setCheckStatus(null);
   };
@@ -78,8 +79,6 @@ export default function RequestChangeLecturerPage() {
     const formattedNewDate = parse(format(newDate, "dd/MM/yyyy"), "dd/MM/yyyy", new Date());
     const formattedSessionDate = parse(format(session.sessionDate, "dd/MM/yyyy"), "dd/MM/yyyy", new Date());
     if (newSlot == session.slot && isSameDay(formattedNewDate, formattedSessionDate)) {
-      console.log("111");
-
       setCheckStatus("error");
       setCheckMessage("Original Schedule");
       setIsSubmitEnabled(false);
@@ -134,6 +133,8 @@ export default function RequestChangeLecturerPage() {
         toast.success("Request Submitted Successfully.");
         navigate(`/lecturer/request/${classId}`);
         setIsOpenDialog(false);
+      } else {
+        toast.error("Cannot Change Session To Today");
       }
     } catch (error) {
       console.log(error);
@@ -186,7 +187,7 @@ export default function RequestChangeLecturerPage() {
                     <Label htmlFor="new-slot" className="block mb-2">
                       Select New Slot
                     </Label>
-                    <RadioGroup id="new-slot" value={newSlot} onValueChange={setNewSlot} className="flex flex-col space-y-1">
+                    <RadioGroup id="new-slot" value={newSlot} onValueChange={handleChangeSlot} className="flex flex-col space-y-1">
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="1" id="slot-1" />
                         <Label htmlFor="slot-1">Slot 1 (9:00 AM - 10:30 AM)</Label>
@@ -218,7 +219,7 @@ export default function RequestChangeLecturerPage() {
                         today.setHours(0, 0, 0, 0);
                         const sessionDate = new Date(session.sessionDate);
                         sessionDate.setHours(0, 0, 0, 0);
-                        return date < today;
+                        return date <= today;
                       }}
                     />
                   </div>
@@ -295,8 +296,8 @@ export default function RequestChangeLecturerPage() {
               <Button type="button" variant="outline" onClick={() => setIsOpenDialog(false)}>
                 Cancel
               </Button>
-              <Button type="submit" onClick={handleConfirm}>
-                Submit Request
+              <Button type="submit" onClick={handleConfirm} disabled={!description}>
+                Submit
               </Button>
             </DialogFooter>
           </DialogContent>
