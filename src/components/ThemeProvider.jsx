@@ -10,19 +10,23 @@ const initialState = {
 // Tạo context cho ThemeProvider
 const ThemeProviderContext = createContext(initialState);
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "light",
-  storageKey = "theme",
-  ...props
-}) {
-  const [theme, setTheme] = useState(() => {
+export function ThemeProvider({ children, defaultTheme = "light", storageKey = "theme", ...props }) {
+  const getInitialTheme = () => {
     const savedTheme = localStorage.getItem(storageKey);
-    if (savedTheme) return savedTheme;
 
-    // Nếu không có trong localStorage, lấy theme của hệ thống
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+    if (savedTheme) {
+      return savedTheme;
+    }
+
+    // Nếu chưa tồn tại trong localStorage, lấy theo hệ thống và lưu lại
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+    const initial = defaultTheme === "system" ? systemTheme : defaultTheme;
+    localStorage.setItem(storageKey, initial);
+    return initial;
+  };
+
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -31,9 +35,7 @@ export function ThemeProvider({
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       root.classList.add(systemTheme);
       return;
     }
