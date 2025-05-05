@@ -233,3 +233,25 @@ export const updateSession = async (session) => {
     };
   }
 };
+
+export const clearSessionByClassId = async (classId) => {
+  try {
+    const response = await axiosClient.post(`/officer/class/clear-session/${classId}`);
+
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Request failed:", error);
+
+    if (error.response?.status === 404) {
+      return null;
+    }
+
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || error.message || "Request failed!",
+    };
+  }
+};

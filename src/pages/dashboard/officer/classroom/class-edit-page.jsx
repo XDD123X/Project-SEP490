@@ -14,6 +14,7 @@ import { getLecturerList } from "@/services/accountService";
 import { getAllCourse } from "@/services/courseService";
 import CalendarSelector from "@/components/CalendarSelector";
 import { ClassBadge } from "@/components/BadgeComponent";
+import { clearSessionByClassId } from "@/services/sessionService";
 
 export default function ClassEditPage() {
   const [searchParams] = useSearchParams();
@@ -44,6 +45,7 @@ export default function ClassEditPage() {
   const [showScheduledDialog, setShowScheduledDialog] = useState(false);
   const [showEditLecturerDialog, setShowEditLecturerDialog] = useState(false);
   const [showDeleteClassDialog, setShowDeleteClassDialog] = useState(false);
+  const [showClearSessionDialog, setShowClearSessionDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch class data
@@ -103,9 +105,26 @@ export default function ClassEditPage() {
     }
   };
 
-  const handleCheckTotalSession = () => {
-    setClassItem((prev) => ({ ...prev, totalSession: 0 }));
-    toast("Total sessions updated");
+  const handleClearSession = async () => {
+    if (!classItem) return;
+
+    try {
+      const response = await clearSessionByClassId(classItem.classId);
+      console.log(response);
+
+      if (response.status === 200) {
+        toast.success("Session Cleared Successfully");
+        fetchData();
+        setShowClearSessionDialog(false)
+      } else {
+        toast.error('Failed to clear class sessions')
+        setShowClearSessionDialog(false)
+      }
+    } catch (error) {
+      setShowClearSessionDialog(false)
+      log.error(error)
+    }
+
   };
 
   const toggleEditLecturer = () => {
@@ -142,7 +161,8 @@ export default function ClassEditPage() {
 
         if (response.status === 200) {
           toast.success("Class information has been saved successfully");
-          fetchData()
+          // fetchData()
+          navigate('/officer/class')
         } else {
           toast.error("Update Failed");
         }
@@ -188,7 +208,7 @@ export default function ClassEditPage() {
           <Button onClick={() => navigate("/officer/class")}>
             <ChevronLeft className="mr-2 h-4 w-4" /> Back To List
           </Button>
-          <Button variant="destructive" onClick={() => setShowDeleteClassDialog(true)} disabled={classItem.status !== 1}>
+          <Button variant="destructive" onClick={() => setShowDeleteClassDialog(true)} disabled={classItem.status === 2}>
             <Trash2 className="ml-2 h-4 w-4" /> Delete Class
           </Button>
         </div>
@@ -263,7 +283,7 @@ export default function ClassEditPage() {
                 <Label htmlFor="totalSession">Total Sessions</Label>
                 <div className="flex gap-2">
                   <Input id="totalSession" name="totalSession" type="number" value={classItem.totalSession} disabled />
-                  <Button disabled={classItem.status !== 2} variant="outline" size="icon" onClick={handleCheckTotalSession} title="Check total sessions">
+                  <Button disabled={classItem.status === 2 || classItem.totalSession === 0} variant="outline" size="icon" onClick={() => setShowClearSessionDialog(true)} title="clear session">
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </Button>
                 </div>
@@ -403,6 +423,29 @@ export default function ClassEditPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* clear session confirmation dialog */}
+      <Dialog open={showClearSessionDialog} onOpenChange={setShowClearSessionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear Session</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to clear all sessions of the class <strong>{classItem.classCode}</strong>?
+              <br /> Number of sessions to be deleted: <span className="text-red-500 font-bold">{classItem.totalSession}</span>
+              <br /> This will permanently remove all related records, files, and reports.
+              <br /> This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowClearSessionDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => handleClearSession(classItem.classId)}>Clear</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
     </div>
   );
 }
