@@ -63,7 +63,7 @@ export function MessageDropdown() {
   return (
     <HoverCard openDelay={100} closeDelay={200}>
       <HoverCardTrigger asChild>
-        <Button variant="ghost" size="icon" className={cn("relative", pathname === "/messages" && "bg-accent")}>
+        <Button variant="ghost" size="icon" className={cn("relative", pathname === "/messages" && "bg-accent")} >
           <Mail className="h-5 w-5" />
           {getUnreadCount() > 0 && <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-green-500">{getUnreadCount()}</Badge>}
         </Button>
