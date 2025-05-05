@@ -13,15 +13,17 @@ namespace OTMS.API.Controllers.Officer_Endpoint
     {
         private readonly IClassRepository _classRepository;
         private readonly IClassStudentRepository _classStudentRepository;
+        private readonly ISessionRepository _sessionRepository;
         private readonly IMapper _mapper;
         private readonly IAccountRepository _accountRepository;
 
-        public ClassController(IClassRepository classRepository, IClassStudentRepository classStudentRepository, IAccountRepository accountRepository, IMapper mapper)
+        public ClassController(ISessionRepository sessionRepository, IClassRepository classRepository, IClassStudentRepository classStudentRepository, IAccountRepository accountRepository, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
             _classRepository = classRepository;
             _classStudentRepository = classStudentRepository;
+            _sessionRepository = sessionRepository;
         }
 
         [HttpPost("add-student")]
@@ -164,6 +166,31 @@ namespace OTMS.API.Controllers.Officer_Endpoint
             }
         }
 
+        [HttpPost("clear-session/{classId}")]
+        public async Task<IActionResult> ClearClassSession(Guid classId)
+        {
+            if (classId == Guid.Empty)
+                return BadRequest("Invalid classId.");
+
+            var classItem = await _classRepository.GetByIdAsync(classId);
+            if (classItem == null)
+                return NotFound("Class not found.");
+
+            if (classItem.TotalSession == 0)
+                return BadRequest("This class has no sessions to clear.");
+
+            var result = await _sessionRepository.ClearClassSessionByClassId(classId);
+            if (!result)
+                return StatusCode(500, "Failed to clear sessions due to an internal error.");
+
+            // Cập nhật thông tin lớp học
+            classItem.TotalSession = 0;
+            classItem.Scheduled = false;
+
+            await _classRepository.UpdateAsync(classItem);
+
+            return Ok("Sessions cleared and class updated successfully.");
+        }
 
     }
 }

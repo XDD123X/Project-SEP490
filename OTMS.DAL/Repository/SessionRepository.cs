@@ -94,5 +94,7 @@ namespace OTMS.DAL.Repository
         {
             return await _sessionDAO.AddSingleSessionAsync(sessionDTO);
         }
+
+        public Task<bool> ClearClassSessionByClassId(Guid classId) => _sessionDAO.ClearSessionsByClassID(classId);
     }
 }

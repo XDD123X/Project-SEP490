@@ -245,5 +245,20 @@ namespace OTMS.DAL.DAO
                 return (false, $"Error creating session: {ex.Message}");
             }
         }
+
+        public async Task<bool> ClearSessionsByClassID(Guid classId)
+        {
+            var sessionsToRemove = await _context.Sessions
+                .Where(s => s.ClassId == classId)
+                .ToListAsync();
+
+            if (sessionsToRemove.Any())
+            {
+                _context.Sessions.RemoveRange(sessionsToRemove);
+                await _context.SaveChangesAsync();
+            }
+
+            return true;
+        }
     }
 }
