@@ -23,7 +23,10 @@ import { AccountBadge } from "@/components/BadgeComponent";
 
 // Form schema with validation
 const formSchema = z.object({
-  classCode: z.string().min(3, "Class code must be at least 3 characters"),
+  classCode: z
+    .string()
+    .min(3, "Class code must be at least 3 characters")
+    .regex(/^[A-Za-z0-9\-\/]+$/, "Class code can only contain letters, numbers, '-' or '/'"),
   className: z.string().min(3, "Class name must be at least 3 characters"),
   lecturerId: z.string().min(1, "Please select a lecturer"),
   courseId: z.string().min(1, "Please select a course"),
